@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { ArrowLeft, FileText, Plus, Upload, Image, X, Loader, Pencil, Check, CreditCard, ShieldCheck } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { ExpenseStatusBadge } from '../shared/StatusBadge';
+import DocThumbnail from '../shared/DocThumbnail';
 import { supabase } from '../../lib/supabase';
 import type { ExpenseCategory, Expense, StaffDocument } from '../../types';
 
@@ -340,10 +341,9 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                   </div>
                 </div>
                 {exp.imageUrl && (
-                  <a href={exp.imageUrl} target="_blank" rel="noreferrer"
-                    className="mt-2 flex items-center gap-1.5 text-xs text-blue-500 hover:text-blue-700">
-                    <Image size={12} /> Xem ảnh hóa đơn
-                  </a>
+                  <div className="mt-2">
+                    <DocThumbnail url={exp.imageUrl} fileName="Hóa đơn" />
+                  </div>
                 )}
               </div>
             ))}
@@ -391,12 +391,10 @@ function DocCard({
         </label>
       </div>
       {doc ? (
-        <a href={doc.url} target="_blank" rel="noreferrer"
-          className="mt-2 flex items-center gap-2 text-xs text-blue-600 hover:text-blue-800">
-          <FileText size={13} />
-          <span className="truncate">{doc.fileName}</span>
-          <span className="text-gray-400 shrink-0">· {doc.uploadedAt}</span>
-        </a>
+        <div className="mt-2 space-y-1.5">
+          <DocThumbnail url={doc.url} fileName={doc.fileName} />
+          <p className="text-xs text-gray-400">Cập nhật: {doc.uploadedAt}</p>
+        </div>
       ) : (
         <p className="mt-2 text-xs text-gray-400">Chưa có tài liệu</p>
       )}

@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
-import { Plus, ChevronDown, ChevronUp, Image, Upload, X, Loader } from 'lucide-react';
+import { Plus, ChevronDown, ChevronUp, Upload, X, Loader, Image as ImageIcon } from 'lucide-react';
+import DocThumbnail from '../../shared/DocThumbnail';
 import { useApp } from '../../../context/AppContext';
 import { ExpenseStatusBadge } from '../../shared/StatusBadge';
 import { supabase } from '../../../lib/supabase';
@@ -197,7 +198,7 @@ export default function EventExpensesTab({ event }: Props) {
                           <label className="text-xs text-gray-600 font-medium">Ảnh hóa đơn (không bắt buộc, tối đa 5MB)</label>
                           {expenseFile ? (
                             <div className="mt-1 flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-2">
-                              <Image size={14} className="text-blue-500 shrink-0" />
+                              <ImageIcon size={14} className="text-blue-500 shrink-0" />
                               <span className="text-xs text-gray-700 truncate flex-1">{expenseFile.name}</span>
                               <button type="button" onClick={() => { setExpenseFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}>
                                 <X size={13} className="text-gray-400 hover:text-red-500" />
@@ -245,10 +246,9 @@ export default function EventExpensesTab({ event }: Props) {
                             </div>
                           </div>
                           {r.imageUrl && (
-                            <a href={r.imageUrl} target="_blank" rel="noreferrer"
-                              className="mt-1.5 flex items-center gap-1 text-xs text-blue-500 hover:text-blue-700">
-                              <Image size={12} /> Xem hóa đơn
-                            </a>
+                            <div className="mt-2">
+                              <DocThumbnail url={r.imageUrl} fileName="Hóa đơn" />
+                            </div>
                           )}
                           {isAdmin && r.status === 'pending' && (
                             <div className="flex gap-2 mt-2">

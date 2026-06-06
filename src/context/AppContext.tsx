@@ -327,11 +327,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    // Lắng nghe auth state — load data mỗi khi user đăng nhập/đăng xuất
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
+        // Khôi phục profile từ bảng users
+        const { data: profile } = await supabase
+          .from('users').select('id, name, role').eq('id', session.user.id).single();
+        if (profile) {
+          dispatch({ type: 'LOGIN', payload: { id: profile.id, name: profile.name, role: profile.role } });
+        }
         loadData();
       } else {
+        dispatch({ type: 'LOGOUT' });
         dispatch({ type: 'INIT_DATA', payload: { staff: [] } });
       }
     });
