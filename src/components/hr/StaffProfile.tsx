@@ -24,10 +24,12 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
   const canEdit      = isOwnProfile || isAdmin;
 
   // ── Edit thông tin cá nhân ──────────────────────────────────────────────
-  const [editing,   setEditing]   = useState(false);
-  const [editName,  setEditName]  = useState('');
-  const [editDob,   setEditDob]   = useState('');
-  const [editCity,  setEditCity]  = useState('');
+  const [editing,       setEditing]       = useState(false);
+  const [editName,      setEditName]      = useState('');
+  const [editDob,       setEditDob]       = useState('');
+  const [editCity,      setEditCity]      = useState('');
+  const [editStaffType, setEditStaffType] = useState<'permanent' | 'part-time'>('permanent');
+  const [editUsername,  setEditUsername]  = useState('');
 
   // ── Đổi mật khẩu (admin only) ───────────────────────────────────────────
   const [showPwForm,  setShowPwForm]  = useState(false);
@@ -82,11 +84,16 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
     setEditName(member.name);
     setEditDob(member.dob);
     setEditCity(member.city);
+    setEditStaffType(member.staffType ?? 'permanent');
+    setEditUsername('');
     setEditing(true);
   };
 
-  const saveEdit = () => {
-    updateStaff({ ...member, name: editName.trim(), dob: editDob.trim(), city: editCity.trim() });
+  const saveEdit = async () => {
+    updateStaff({ ...member, name: editName.trim(), dob: editDob.trim(), city: editCity.trim(), staffType: editStaffType });
+    if (isAdmin && member.userId && editUsername.trim()) {
+      await supabase.from('users').update({ name: editUsername.trim() }).eq('id', member.userId);
+    }
     setEditing(false);
   };
 
@@ -183,6 +190,14 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
               <input className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
                 value={editName} onChange={e => setEditName(e.target.value)} />
             </div>
+            {isAdmin && member.userId && (
+              <div>
+                <label className="text-xs text-gray-500 font-medium">Tên tài khoản <span className="text-gray-400">(để trống nếu không đổi)</span></label>
+                <input className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
+                  placeholder="username mới"
+                  value={editUsername} onChange={e => setEditUsername(e.target.value)} />
+              </div>
+            )}
             <div>
               <label className="text-xs text-gray-500 font-medium">Ngày sinh (DD-MM-YYYY)</label>
               <input className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
@@ -193,6 +208,29 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
               <input className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
                 placeholder="Paris, Lyon..." value={editCity} onChange={e => setEditCity(e.target.value)} />
             </div>
+            {isAdmin && (
+              <div>
+                <label className="text-xs text-gray-500 font-medium">Loại nhân viên</label>
+                <div className="mt-1 grid grid-cols-2 gap-2">
+                  <button type="button" onClick={() => setEditStaffType('permanent')}
+                    className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
+                      editStaffType === 'permanent'
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300'
+                    }`}>
+                    Nhân viên cứng
+                  </button>
+                  <button type="button" onClick={() => setEditStaffType('part-time')}
+                    className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
+                      editStaffType === 'part-time'
+                        ? 'bg-purple-600 text-white border-purple-600'
+                        : 'bg-white text-gray-600 border-gray-200 hover:border-purple-300'
+                    }`}>
+                    Part-time
+                  </button>
+                </div>
+              </div>
+            )}
             <div className="flex gap-2 pt-1">
               <button onClick={saveEdit}
                 className="flex-1 flex items-center justify-center gap-1 bg-blue-600 text-white text-sm font-medium py-2 rounded-lg">
@@ -210,6 +248,12 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
             <Row label="Ngày sinh" value={member.dob || '—'} />
             <Row label="Nơi ở"    value={member.city || '—'} />
             <Row label="Sự kiện"  value={`${myEvents.length} sự kiện`} />
+            {isAdmin && (
+              <Row
+                label="Loại"
+                value={member.staffType === 'part-time' ? 'Part-time' : 'Nhân viên cứng'}
+              />
+            )}
           </div>
         )}
       </div>
