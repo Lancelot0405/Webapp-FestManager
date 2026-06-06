@@ -1,35 +1,33 @@
 import { useState } from 'react';
-import { Lock, Mail, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Lock, User, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useApp } from '../../context/AppContext';
 
+const DOMAIN = '@festmanager.com';
+
 export default function LoginScreen() {
   const { login } = useApp();
-  const [email, setEmail]       = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [showPw, setShowPw]     = useState(false);
-  const [loading, setLoading]   = useState(false);
-  const [error, setError]       = useState('');
+  const [showPw,   setShowPw]   = useState(false);
+  const [loading,  setLoading]  = useState(false);
+  const [error,    setError]    = useState('');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    const { data, error: authError } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
+    const email = username.trim().toLowerCase() + DOMAIN;
+
+    const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
 
     if (authError || !data.user) {
-      setError(authError?.message === 'Invalid login credentials'
-        ? 'Email hoặc mật khẩu không đúng'
-        : (authError?.message ?? 'Đăng nhập thất bại'));
+      setError('Tên đăng nhập hoặc mật khẩu không đúng');
       setLoading(false);
       return;
     }
 
-    // Lấy thông tin role từ bảng profiles
     const { data: profile } = await supabase
       .from('users')
       .select('id, name, role')
@@ -39,12 +37,7 @@ export default function LoginScreen() {
     if (profile) {
       login({ id: profile.id, name: profile.name, role: profile.role });
     } else {
-      // Fallback: dùng email làm name, role mặc định là staff
-      login({
-        id: data.user.id,
-        name: data.user.email?.split('@')[0] ?? 'User',
-        role: 'staff',
-      });
+      login({ id: data.user.id, name: username.trim(), role: 'staff' });
     }
 
     setLoading(false);
@@ -62,24 +55,24 @@ export default function LoginScreen() {
       <p className="text-gray-400 mb-10 text-sm">Hệ thống quản lý F&amp;B lưu động</p>
 
       <form onSubmit={handleLogin} className="w-full space-y-4">
-        {/* Email */}
+        {/* Tên đăng nhập */}
         <div>
-          <label className="text-xs font-semibold text-gray-600 mb-1 block">Email</label>
+          <label className="text-xs font-semibold text-gray-600 mb-1 block">Tên đăng nhập</label>
           <div className="relative">
-            <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
-              type="email"
+              type="text"
               required
-              autoComplete="email"
-              placeholder="ten@example.com"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
+              autoComplete="username"
+              placeholder="admin"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
               className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
             />
           </div>
         </div>
 
-        {/* Password */}
+        {/* Mật khẩu */}
         <div>
           <label className="text-xs font-semibold text-gray-600 mb-1 block">Mật khẩu</label>
           <div className="relative">
@@ -103,7 +96,6 @@ export default function LoginScreen() {
           </div>
         </div>
 
-        {/* Error */}
         {error && (
           <div className="flex items-center gap-2 text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2.5 text-sm">
             <AlertCircle size={15} className="shrink-0" />
@@ -111,7 +103,6 @@ export default function LoginScreen() {
           </div>
         )}
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={loading}
