@@ -3,10 +3,11 @@
 // =============================================================================
 
 import { useState } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Search } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
 import AddEventForm from './AddEventForm';
+import type { EventStatus } from '../../types';
 
 interface ScheduleProps {
   onSelectEvent: (id: number) => void;
@@ -17,11 +18,23 @@ function parseDate(d: string): number {
   return new Date(`${yyyy}-${mm}-${dd}`).getTime();
 }
 
+type StatusFilter = 'Tất cả' | EventStatus;
+
+const STATUS_FILTERS: StatusFilter[] = [
+  'Tất cả',
+  'Sắp tới',
+  'Đang diễn ra',
+  'Đã hoàn thành',
+  'Lên kế hoạch',
+];
+
 export default function Schedule({ onSelectEvent }: ScheduleProps) {
   const { state, deleteEvent } = useApp();
   const { events, currentUser, staff } = state;
   const isAdmin = currentUser?.role === 'admin';
   const [showAddForm, setShowAddForm] = useState(false);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('Tất cả');
 
   // Staff chỉ thấy events được phân công
   const myStaffMember = !isAdmin && currentUser
@@ -33,7 +46,15 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
     ? events
     : events.filter(e => myStaffMember && e.staff.some(s => s.id === myStaffMember.id));
 
-  const sorted = [...visibleEvents].sort((a, b) => parseDate(a.date) - parseDate(b.date));
+  // Apply search and status filter on top of visibleEvents
+  const q = search.trim().toLowerCase();
+  const filtered = visibleEvents.filter(e => {
+    const matchSearch = !q || e.name.toLowerCase().includes(q) || e.location.toLowerCase().includes(q);
+    const matchStatus = statusFilter === 'Tất cả' || e.status === statusFilter;
+    return matchSearch && matchStatus;
+  });
+
+  const sorted = [...filtered].sort((a, b) => parseDate(a.date) - parseDate(b.date));
 
   return (
     <div className="space-y-4 pb-20">
@@ -48,6 +69,35 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
             Thêm sự kiện
           </button>
         )}
+      </div>
+
+      {/* Search input */}
+      <div className="relative">
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+        <input
+          type="text"
+          placeholder="Tìm theo tên hoặc địa điểm..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400"
+        />
+      </div>
+
+      {/* Status filter pills */}
+      <div className="flex flex-wrap gap-1.5">
+        {STATUS_FILTERS.map(s => (
+          <button
+            key={s}
+            onClick={() => setStatusFilter(s)}
+            className={`px-3 py-1 rounded-full text-xs font-medium transition ${
+              statusFilter === s
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            {s}
+          </button>
+        ))}
       </div>
 
       {showAddForm && isAdmin && (

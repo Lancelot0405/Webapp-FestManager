@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, User, Trash2 } from 'lucide-react';
+import { Plus, User, Trash2, Search } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import AddStaffForm from './AddStaffForm';
 import type { StaffMember } from '../../types';
@@ -8,11 +8,15 @@ interface HRGlobalProps {
   onSelectStaff: (id: string) => void;
 }
 
+type TypeFilter = 'Tất cả' | 'Nhân viên cứng' | 'Part-time';
+
 export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
   const { state, deleteStaff } = useApp();
   const { staff, events, currentUser } = state;
   const isAdmin = currentUser?.role === 'admin';
   const [showForm, setShowForm] = useState(false);
+  const [search, setSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>('Tất cả');
 
   const eventCountMap = new Map<number, number>();
   for (const event of events) {
@@ -28,8 +32,18 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
     }
   };
 
-  const permanent = staff.filter(s => s.staffType !== 'part-time');
-  const partTime  = staff.filter(s => s.staffType === 'part-time');
+  const q = search.trim().toLowerCase();
+  const filtered = staff.filter(s => {
+    const matchSearch = !q || s.name.toLowerCase().includes(q) || s.city.toLowerCase().includes(q);
+    const matchType =
+      typeFilter === 'Tất cả' ||
+      (typeFilter === 'Part-time' && s.staffType === 'part-time') ||
+      (typeFilter === 'Nhân viên cứng' && s.staffType !== 'part-time');
+    return matchSearch && matchType;
+  });
+
+  const permanent = filtered.filter(s => s.staffType !== 'part-time');
+  const partTime  = filtered.filter(s => s.staffType === 'part-time');
 
   const renderList = (list: StaffMember[]) => (
     <div className="space-y-2">
@@ -84,13 +98,43 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
         )}
       </div>
 
+      {/* Search */}
+      <div className="relative">
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+        <input
+          type="text"
+          placeholder="Tìm theo tên hoặc thành phố..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400"
+        />
+      </div>
+
+      {/* Type filter pills */}
+      <div className="flex gap-1.5">
+        {(['Tất cả', 'Nhân viên cứng', 'Part-time'] as TypeFilter[]).map(t => (
+          <button
+            key={t}
+            onClick={() => setTypeFilter(t)}
+            className={`px-3 py-1 rounded-full text-xs font-medium transition ${
+              typeFilter === t
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            {t}
+          </button>
+        ))}
+      </div>
+
       {showForm && isAdmin && (
         <AddStaffForm onClose={() => setShowForm(false)} />
       )}
 
-      {staff.length === 0 ? (
+      {filtered.length === 0 ? (
         <p className="text-sm text-gray-400 text-center py-10">Chưa có nhân viên</p>
-      ) : isAdmin ? (
+      ) : typeFilter === 'Tất cả' && isAdmin ? (
+        // Grouped view
         <>
           {permanent.length > 0 && (
             <div className="space-y-2">
@@ -114,7 +158,8 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
           )}
         </>
       ) : (
-        renderList(staff)
+        // Flat list when filtered or staff view
+        renderList(filtered)
       )}
     </div>
   );

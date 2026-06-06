@@ -2,7 +2,8 @@
 // src/components/finance/Finance.tsx  (admin only)
 // =============================================================================
 
-import { TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, FileSpreadsheet } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { useApp } from '../../context/AppContext';
 import { computeFinancialSummary } from '../../data/mockData';
 import StatusBadge from '../shared/StatusBadge';
@@ -16,9 +17,45 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
   const { events } = state;
   const { totalIncome, totalExpense, netProfit } = computeFinancialSummary(events);
 
+  const handleExport = () => {
+    const rows = events.map(event => {
+      const expTotal = Object.values(event.financials.expenses).reduce<number>(
+        (s, v) => s + (v ?? 0), 0
+      );
+      const profit = event.financials.income - expTotal;
+      const pendingExpenses = event.receipts.filter(r => r.status === 'pending').length;
+
+      return {
+        'Sự kiện': event.name,
+        'Ngày': event.date,
+        'Địa điểm': event.location,
+        'Trạng thái': event.status,
+        'Doanh thu (€)': event.financials.income,
+        'Chi phí (€)': expTotal,
+        'Lợi nhuận (€)': profit,
+        'Số nhân viên': event.staff.length,
+        'Số chi phí chờ duyệt': pendingExpenses,
+      };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Báo cáo tài chính');
+    XLSX.writeFile(wb, 'festmanager-bao-cao-tai-chinh.xlsx');
+  };
+
   return (
     <div className="space-y-6 pb-20">
-      <h1 className="text-xl font-bold text-gray-800">Tài chính</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-bold text-gray-800">Tài chính</h1>
+        <button
+          onClick={handleExport}
+          className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-3 py-2 rounded-lg transition"
+        >
+          <FileSpreadsheet size={15} />
+          Xuất Excel
+        </button>
+      </div>
 
       {/* Summary cards */}
       <div className="grid grid-cols-1 gap-3">
