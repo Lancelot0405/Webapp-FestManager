@@ -319,8 +319,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         fetchInventoryLogs(),
       ]);
 
-      const payload: Partial<AppState> = {};
-      if (staff.length > 0)         payload.staff         = staff;
+      const payload: Partial<AppState> = {
+        // Staff luôn lấy từ Supabase (kể cả rỗng) — để đăng ký mới hiện ngay
+        staff,
+      };
       if (events.length > 0)        payload.events        = events;
       if (inventory.length > 0)     payload.inventory     = inventory;
       if (inventoryLogs.length > 0) payload.inventoryLogs = inventoryLogs;
