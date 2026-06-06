@@ -81,18 +81,16 @@ export default function Inventory() {
     <div className="space-y-4 pb-20">
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold text-gray-800">Kho hàng</h1>
-        {isAdmin && (
-          <button
-            onClick={() => setShowAddForm(true)}
-            className="flex items-center gap-1 bg-blue-600 text-white text-sm font-medium px-3 py-2 rounded-lg"
-          >
-            <Plus size={16} />
-            Thêm mặt hàng
-          </button>
-        )}
+        <button
+          onClick={() => setShowAddForm(true)}
+          className="flex items-center gap-1 bg-blue-600 text-white text-sm font-medium px-3 py-2 rounded-lg"
+        >
+          <Plus size={16} />
+          Thêm mặt hàng
+        </button>
       </div>
 
-      {showAddForm && isAdmin && (
+      {showAddForm && (
         <form
           onSubmit={handleAddItem}
           className="bg-white rounded-xl border border-blue-200 p-4 shadow-sm space-y-3"
