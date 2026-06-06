@@ -31,7 +31,7 @@ interface Expenses {
   ingredients?: number;
   transport?: number;
   staff?: number;
-  [key: string]: number | undefined; // Cho phép key động tránh lỗi index signature
+  [key: string]: number | undefined; 
 }
 
 interface Financials {
@@ -143,7 +143,6 @@ const mockFinances = {
 };
 
 export default function App() {
-  // Fix lỗi gán Type cho useState nhận giá trị null ban đầu
   const [currentUser, setCurrentUser] = useState<User | null>(null); 
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
@@ -176,7 +175,6 @@ export default function App() {
     }
   }, [selectedEvent]);
 
-  // Sửa lỗi Parameter 'id' và 'newUnit' implicitly has an 'any' type
   const handleUnitChange = (id: number, newUnit: string) => {
     setInventoryData(prev => prev.map(item => item.id === id ? { ...item, unit: newUnit } : item));
     setEditingUnitId(null);
@@ -253,7 +251,6 @@ export default function App() {
     setShowAddEventForm(false);
   };
 
-  // Sửa lỗi Parameter 'e' implicitly has an 'any' type
   const handleImageCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -267,7 +264,6 @@ export default function App() {
     }
   };
 
-  // Sửa lỗi Parameter 'event' implicitly has an 'any' type
   const handleUploadReceipt = (event: EventItem) => {
     if (!newReceipt.amount || !currentUser) {
       alert("Vui lòng nhập số tiền!"); 
@@ -529,7 +525,8 @@ export default function App() {
       <div className="space-y-4">
         <h3 className="font-semibold text-gray-800">Hiệu quả các sự kiện</h3>
         {eventsData.map(event => {
-          const totalExpense = event.financials ? Object.values(event.financials.expenses).reduce((a, b) => a + (b || 0), 0) : 0;
+          // FIX lỗi TS18048: Ép kiểu an toàn (b || 0) cho tổng chi phí tránh giá trị undefined
+          const totalExpense = event.financials ? Object.values(event.financials.expenses).reduce((sum: number, b: number | undefined) => sum + (b || 0), 0) : 0;
           const netProfit = (event.financials?.income || 0) - totalExpense;
           const isCompleted = event.status === 'Đã hoàn thành';
 
@@ -574,7 +571,8 @@ export default function App() {
   const renderEventDetail = () => {
     if (!selectedEvent) return null;
     const event = eventsData.find(e => e.id === selectedEvent.id) || selectedEvent;
-    const totalExpense = Object.values(event.financials.expenses).reduce((a, b) => a + (b || 0), 0);
+    // FIX lỗi TS18048: Ép kiểu an toàn (b || 0) tránh giá trị undefined
+    const totalExpense = Object.values(event.financials.expenses).reduce((sum: number, b: number | undefined) => sum + (b || 0), 0);
     const netProfit = event.financials.income - totalExpense;
 
     if (selectedStaff) {
