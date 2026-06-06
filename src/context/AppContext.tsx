@@ -29,6 +29,7 @@ import {
   fetchEvents,
   fetchInventory,
   fetchInventoryLogs,
+  toISODate,
 } from '../lib/db';
 
 // =============================================================================
@@ -377,7 +378,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'ADD_EVENT', payload: event });
     const { data } = await supabase.from('events').insert({
       name: event.name,
-      date: event.date,
+      date: toISODate(event.date),
       location: event.location,
       status: event.status,
       income: event.financials.income,
@@ -396,7 +397,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'UPDATE_EVENT', payload: event });
     supabase.from('events').update({
       name: event.name,
-      date: event.date,
+      date: toISODate(event.date),
       location: event.location,
       status: event.status,
       income: event.financials.income,
@@ -435,7 +436,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         festival_id: expense.festivalId,
         type: expense.type,
         amount: expense.amount,
-        date: expense.date,
+        date: toISODate(expense.date),
         image_url: expense.imageUrl,
         status: expense.status,
       }).select('id').single();
@@ -532,7 +533,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'ADD_CONTRACT', payload: { staffId, contract } });
       supabase.from('contracts').insert({
         staff_id: staffId,
-        date: contract.date,
+        date: toISODate(contract.date),
         url: contract.url,
         file_name: contract.fileName,
         festival_id: contract.festivalId ?? null,

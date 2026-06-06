@@ -40,7 +40,7 @@ export async function fetchStaff(): Promise<StaffMember[]> {
     city: row.city ?? '',
     contracts: (row.contracts ?? []).map((c: any) => ({
       id: c.id,
-      date: c.date ?? '',
+      date: fromISODate(c.date ?? ''),
       url: c.url ?? '',
       fileName: c.file_name ?? undefined,
       festivalId: c.festival_id ?? undefined,
@@ -52,6 +52,25 @@ export async function fetchStaff(): Promise<StaffMember[]> {
       ? { url: row.titre_sejour_url, fileName: row.titre_sejour_name ?? '', uploadedAt: row.titre_sejour_uploaded_at ?? '' }
       : undefined,
   }));
+}
+
+// -----------------------------------------------------------------------------
+// Date helpers — DB stores ISO (YYYY-MM-DD), app displays DD-MM-YYYY
+// -----------------------------------------------------------------------------
+
+export function toISODate(ddmmyyyy: string): string {
+  if (!ddmmyyyy) return '';
+  if (/^\d{4}-\d{2}-\d{2}/.test(ddmmyyyy)) return ddmmyyyy.slice(0, 10); // already ISO
+  const [dd, mm, yyyy] = ddmmyyyy.split('-');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+export function fromISODate(iso: string): string {
+  if (!iso) return '';
+  if (/^\d{2}-\d{2}-\d{4}$/.test(iso)) return iso; // already DD-MM-YYYY
+  const part = iso.slice(0, 10); // strip time if present
+  const [yyyy, mm, dd] = part.split('-');
+  return `${dd}-${mm}-${yyyy}`;
 }
 
 // -----------------------------------------------------------------------------
@@ -90,7 +109,7 @@ export async function fetchEvents(): Promise<FestivalEvent[]> {
       festivalId: r.festival_id ?? row.id,
       type: (r.type ?? 'Khác') as ExpenseCategory,
       amount: r.amount ?? 0,
-      date: r.date ?? '',
+      date: fromISODate(r.date ?? ''),
       imageUrl: r.image_url ?? '',
       status: (r.status ?? 'pending') as ExpenseStatus,
     }));
@@ -98,7 +117,7 @@ export async function fetchEvents(): Promise<FestivalEvent[]> {
     return {
       id: row.id,
       name: row.name ?? '',
-      date: row.date ?? '',
+      date: fromISODate(row.date ?? ''),
       location: row.location ?? '',
       status: (row.status ?? 'Lên kế hoạch') as EventStatus,
       staff,
