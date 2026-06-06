@@ -101,6 +101,7 @@ type Action =
   // --- HR / Staff profiles ---
   | { type: 'ADD_STAFF';            payload: StaffMember }
   | { type: 'UPDATE_STAFF';         payload: StaffMember }
+  | { type: 'DELETE_STAFF';         payload: number }
   | { type: 'ADD_CONTRACT';
       payload: { staffId: number; contract: StaffMember['contracts'][0] } };
 
@@ -280,6 +281,12 @@ function appReducer(state: AppState, action: Action): AppState {
         ),
       };
 
+    case 'DELETE_STAFF':
+      return {
+        ...state,
+        staff: state.staff.filter(s => s.id !== action.payload),
+      };
+
     case 'ADD_CONTRACT':
       return {
         ...state,
@@ -331,6 +338,7 @@ interface AppContextValue {
   // --- HR ---
   addStaff:     (staff: StaffMember)                                     => void;
   updateStaff:  (staff: StaffMember)                                     => void;
+  deleteStaff:  (staffId: number)                                        => void;
   addContract:  (staffId: number, contract: StaffMember['contracts'][0]) => void;
 }
 
@@ -546,6 +554,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }).then();
   }, []);
 
+  const deleteStaff = useCallback((staffId: number) => {
+    dispatch({ type: 'DELETE_STAFF', payload: staffId });
+    supabase.from('staff_members').delete().eq('id', staffId).then();
+  }, []);
+
   const updateStaff = useCallback((staff: StaffMember) => {
     dispatch({ type: 'UPDATE_STAFF', payload: staff });
     supabase.from('staff_members').update({
@@ -582,7 +595,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addStaffToEvent, removeStaffFromEvent,
     addExpense, updateExpenseStatus,
     setInventoryItem, createInventoryItem, deleteInventoryItem, updateInventoryUnit, addInventoryLog,
-    addStaff, updateStaff, addContract,
+    addStaff, updateStaff, deleteStaff, addContract,
   };
 
   return (
