@@ -78,19 +78,32 @@ export function fromISODate(iso: string): string {
 // -----------------------------------------------------------------------------
 
 export async function fetchEvents(): Promise<FestivalEvent[]> {
+  // Fetch events + staff separately to avoid FK dependency on expenses
   const { data, error } = await supabase
     .from('events')
-    .select(`*, event_staff(staff_id, staff_members(id, name, city, users(role))), receipts:expenses(*)`);
+    .select(`*, event_staff(staff_id, staff_members(id, name, city, users(role)))`);
 
-  console.log('[fetchEvents] raw result:', { count: data?.length, error: error?.message, data });
   if (error) {
-    console.error('[db] fetchEvents error:', error.message, error.code, error.details, error.hint);
+    console.error('[db] fetchEvents error:', error.message);
     return [];
   }
   if (!data || data.length === 0) return [];
 
+  // Fetch expenses separately (FK was dropped to allow flexible inserts)
+  const eventIds = data.map((e: any) => e.id);
+  const { data: expensesData } = await supabase
+    .from('expenses')
+    .select('*')
+    .in('festival_id', eventIds);
+
+  const expensesByEvent: Record<number, any[]> = {};
+  for (const r of expensesData ?? []) {
+    if (r.festival_id == null) continue;
+    if (!expensesByEvent[r.festival_id]) expensesByEvent[r.festival_id] = [];
+    expensesByEvent[r.festival_id].push(r);
+  }
+
   return data.map((row: any): FestivalEvent => {
-    // Map staff from event_staff junction
     const staff: StaffRef[] = (row.event_staff ?? []).map((es: any) => {
       const sm = es.staff_members;
       return {
@@ -100,11 +113,10 @@ export async function fetchEvents(): Promise<FestivalEvent[]> {
       };
     });
 
-    // expenses jsonb column = breakdown data
+    // expenses jsonb column = financial breakdown
     const breakdown = row.expenses ?? {};
 
-    // receipts alias = individual expense records
-    const receipts: Expense[] = (row.receipts ?? []).map((r: any): Expense => ({
+    const receipts: Expense[] = (expensesByEvent[row.id] ?? []).map((r: any): Expense => ({
       id: r.id,
       staffId: String(r.staff_id ?? ''),
       staffName: r.staff_name ?? '',
