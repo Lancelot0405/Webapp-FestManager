@@ -3,7 +3,7 @@
 // =============================================================================
 
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
 import AddEventForm from './AddEventForm';
@@ -18,7 +18,7 @@ function parseDate(d: string): number {
 }
 
 export default function Schedule({ onSelectEvent }: ScheduleProps) {
-  const { state } = useApp();
+  const { state, deleteEvent } = useApp();
   const { events, currentUser, staff } = state;
   const isAdmin = currentUser?.role === 'admin';
   const [showAddForm, setShowAddForm] = useState(false);
@@ -59,21 +59,37 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
       ) : (
         <div className="space-y-3">
           {sorted.map(event => (
-            <button
+            <div
               key={event.id}
-              onClick={() => onSelectEvent(event.id)}
-              className="w-full text-left bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:border-blue-200 transition-colors"
+              className="bg-white rounded-xl shadow-sm border border-gray-100 hover:border-blue-200 transition-colors flex items-stretch"
             >
-              <div className="flex justify-between items-start gap-2">
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-gray-800 truncate">{event.name}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{event.date}</p>
-                  <p className="text-xs text-gray-400 truncate mt-0.5">{event.location}</p>
-                  <p className="text-xs text-gray-400 mt-1">{event.staff.length} nhân viên</p>
+              <button
+                onClick={() => onSelectEvent(event.id)}
+                className="flex-1 text-left p-4 min-w-0"
+              >
+                <div className="flex justify-between items-start gap-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-gray-800 truncate">{event.name}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{event.date}</p>
+                    <p className="text-xs text-gray-400 truncate mt-0.5">{event.location}</p>
+                    <p className="text-xs text-gray-400 mt-1">{event.staff.length} nhân viên</p>
+                  </div>
+                  <StatusBadge status={event.status} />
                 </div>
-                <StatusBadge status={event.status} />
-              </div>
-            </button>
+              </button>
+              {isAdmin && (
+                <button
+                  onClick={() => {
+                    if (window.confirm(`Xóa sự kiện "${event.name}"?\nThao tác này không thể hoàn tác.`)) {
+                      deleteEvent(event.id);
+                    }
+                  }}
+                  className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-gray-100 transition-colors rounded-r-xl"
+                >
+                  <Trash2 size={16} />
+                </button>
+              )}
+            </div>
           ))}
         </div>
       )}
