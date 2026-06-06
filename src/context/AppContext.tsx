@@ -551,6 +551,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       name: staff.name,
       dob: staff.dob,
       city: staff.city,
+      staff_type: staff.staffType,
     }).then();
   }, []);
 
@@ -565,6 +566,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       name:                    staff.name,
       dob:                     staff.dob,
       city:                    staff.city,
+      staff_type:              staff.staffType,
       carte_vitale_url:        staff.carteVitale?.url        ?? null,
       carte_vitale_name:       staff.carteVitale?.fileName   ?? null,
       carte_vitale_uploaded_at:staff.carteVitale?.uploadedAt ?? null,

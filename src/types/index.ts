@@ -36,12 +36,15 @@ export interface StaffDocument {
   uploadedAt: string;
 }
 
+export type StaffType = 'permanent' | 'part-time';
+
 export interface StaffMember {
   id: number;
   userId?: string;
   name: string;
   dob: string;
   city: string;
+  staffType: StaffType;
   contracts: Contract[];
   carteVitale?: StaffDocument;
   titreSejour?: StaffDocument;

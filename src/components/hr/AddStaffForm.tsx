@@ -1,11 +1,7 @@
-// =============================================================================
-// src/components/hr/AddStaffForm.tsx
-// =============================================================================
-
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import type { StaffMember } from '../../types';
+import type { StaffMember, StaffType } from '../../types';
 
 interface Props {
   onClose: () => void;
@@ -13,19 +9,23 @@ interface Props {
 
 export default function AddStaffForm({ onClose }: Props) {
   const { addStaff } = useApp();
-  const [name, setName] = useState('');
-  const [dob, setDob] = useState('');
-  const [city, setCity] = useState('');
+  const [name,      setName]      = useState('');
+  const [dob,       setDob]       = useState('');
+  const [city,      setCity]      = useState('');
+  const [staffType, setStaffType] = useState<StaffType>('permanent');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !dob || !city.trim()) return;
-    const [yyyy, mm, dd] = dob.split('-');
+    if (!name.trim() || !city.trim()) return;
+    const dobFormatted = dob
+      ? (() => { const [yyyy, mm, dd] = dob.split('-'); return `${dd}-${mm}-${yyyy}`; })()
+      : '';
     const newStaff: StaffMember = {
       id: Date.now(),
       name: name.trim(),
-      dob: `${dd}-${mm}-${yyyy}`,
+      dob: dobFormatted,
       city: city.trim(),
+      staffType,
       contracts: [],
     };
     addStaff(newStaff);
@@ -54,7 +54,7 @@ export default function AddStaffForm({ onClose }: Props) {
         <div>
           <label className="text-xs font-medium text-gray-600">Ngày sinh</label>
           <input
-            type="date" required
+            type="date"
             className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
             value={dob}
             onChange={e => setDob(e.target.value)}
@@ -69,6 +69,33 @@ export default function AddStaffForm({ onClose }: Props) {
             value={city}
             onChange={e => setCity(e.target.value)}
           />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-gray-600">Loại nhân viên</label>
+          <div className="mt-1 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setStaffType('permanent')}
+              className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
+                staffType === 'permanent'
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300'
+              }`}
+            >
+              Nhân viên cứng
+            </button>
+            <button
+              type="button"
+              onClick={() => setStaffType('part-time')}
+              className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
+                staffType === 'part-time'
+                  ? 'bg-purple-600 text-white border-purple-600'
+                  : 'bg-white text-gray-600 border-gray-200 hover:border-purple-300'
+              }`}
+            >
+              Part-time
+            </button>
+          </div>
         </div>
         <button
           type="submit"

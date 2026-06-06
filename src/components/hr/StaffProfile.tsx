@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { ArrowLeft, FileText, Plus, Upload, Image, X, Loader, Pencil, Check, CreditCard, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, FileText, Plus, Upload, Image, X, Loader, Pencil, Check, CreditCard, ShieldCheck, KeyRound } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { ExpenseStatusBadge } from '../shared/StatusBadge';
 import DocThumbnail from '../shared/DocThumbnail';
@@ -28,6 +28,12 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
   const [editName,  setEditName]  = useState('');
   const [editDob,   setEditDob]   = useState('');
   const [editCity,  setEditCity]  = useState('');
+
+  // ── Đổi mật khẩu (admin only) ───────────────────────────────────────────
+  const [showPwForm,  setShowPwForm]  = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [pwLoading,   setPwLoading]   = useState(false);
+  const [pwMsg,       setPwMsg]       = useState('');
 
   // ── Upload tài liệu ─────────────────────────────────────────────────────
   const [uploadingContract,  setUploadingContract]  = useState(false);
@@ -82,6 +88,26 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
   const saveEdit = () => {
     updateStaff({ ...member, name: editName.trim(), dob: editDob.trim(), city: editCity.trim() });
     setEditing(false);
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!member.userId || !newPassword.trim()) return;
+    setPwLoading(true);
+    setPwMsg('');
+    try {
+      const { error } = await supabase.auth.admin.updateUserById(member.userId, {
+        password: newPassword.trim(),
+      });
+      if (error) throw error;
+      setPwMsg('Đổi mật khẩu thành công!');
+      setNewPassword('');
+      setShowPwForm(false);
+    } catch (err: any) {
+      setPwMsg(`Lỗi: ${err?.message ?? 'Không thể đổi mật khẩu.'}`);
+    } finally {
+      setPwLoading(false);
+    }
   };
 
   const handleContractUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -187,6 +213,48 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
           </div>
         )}
       </div>
+
+      {/* ── ĐỔI MẬT KHẨU (chỉ admin) ──────────────────────────────────── */}
+      {isAdmin && member.userId && (
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <KeyRound size={16} className="text-orange-500" />
+              <p className="text-sm font-semibold text-gray-700">Đổi mật khẩu</p>
+            </div>
+            <button
+              onClick={() => { setShowPwForm(!showPwForm); setPwMsg(''); setNewPassword(''); }}
+              className="text-xs text-orange-600 bg-orange-50 px-2.5 py-1.5 rounded-lg hover:bg-orange-100"
+            >
+              {showPwForm ? 'Huỷ' : 'Đổi mật khẩu'}
+            </button>
+          </div>
+          {pwMsg && (
+            <p className={`mt-2 text-xs ${pwMsg.startsWith('Lỗi') ? 'text-red-500' : 'text-green-600'}`}>{pwMsg}</p>
+          )}
+          {showPwForm && (
+            <form onSubmit={handleChangePassword} className="mt-3 flex gap-2">
+              <input
+                required
+                type="password"
+                minLength={6}
+                placeholder="Mật khẩu mới (tối thiểu 6 ký tự)"
+                className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+              />
+              <button
+                type="submit"
+                disabled={pwLoading}
+                className="flex items-center gap-1 bg-orange-500 text-white text-sm font-medium px-3 py-2 rounded-lg disabled:opacity-60"
+              >
+                {pwLoading ? <Loader size={13} className="animate-spin" /> : <Check size={13} />}
+                Lưu
+              </button>
+            </form>
+          )}
+        </div>
+      )}
 
       {/* ── TÀI LIỆU CÁ NHÂN ───────────────────────────────────────────── */}
       {canEdit && (
