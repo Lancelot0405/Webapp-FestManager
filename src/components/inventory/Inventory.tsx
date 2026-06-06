@@ -16,25 +16,21 @@ function parseUnit(raw: string): InventoryUnit {
 export default function Inventory() {
   const { state, setInventoryItem, createInventoryItem, deleteInventoryItem, updateInventoryUnit, addInventoryLog } = useApp();
   const { inventory, inventoryLogs, currentUser } = state;
-  const isAdmin = currentUser?.role === 'admin';
 
-  const [editingId, setEditingId]       = useState<number | null>(null);
-  const [editQty, setEditQty]           = useState('');
-  const [editUnit, setEditUnit]         = useState<InventoryUnit>('kg');
-  const [unitMenuId, setUnitMenuId]     = useState<number | null>(null);
-  const [showAddForm, setShowAddForm]   = useState(false);
-  const [newName, setNewName]           = useState('');
-  const [newCurrent, setNewCurrent]     = useState('');
+  const [editingId,    setEditingId]    = useState<number | null>(null);
+  const [editQty,      setEditQty]      = useState('');
+  const [editUnit,     setEditUnit]     = useState<InventoryUnit>('kg');
+  const [unitMenuId,   setUnitMenuId]   = useState<number | null>(null);
+  const [showAddForm,  setShowAddForm]  = useState(false);
+  const [newName,      setNewName]      = useState('');
+  const [newCurrent,   setNewCurrent]   = useState('');
   const [newThreshold, setNewThreshold] = useState('');
-  const [newUnit, setNewUnit]           = useState<InventoryUnit>('kg');
-  const [importing, setImporting]       = useState(false);
+  const [newUnit,      setNewUnit]      = useState<InventoryUnit>('kg');
+  const [importing,    setImporting]    = useState(false);
   const importRef = useRef<HTMLInputElement>(null);
 
   const startEdit = (itemId: number, current: number, unit: InventoryUnit) => {
-    setEditingId(itemId);
-    setEditQty(String(current));
-    setEditUnit(unit);
-    setUnitMenuId(null);
+    setEditingId(itemId); setEditQty(String(current)); setEditUnit(unit); setUnitMenuId(null);
   };
 
   const handleSaveEdit = (itemId: number, itemName: string) => {
@@ -87,11 +83,9 @@ export default function Inventory() {
         const wb = XLSX.read(ev.target?.result, { type: 'binary' });
         const ws = wb.Sheets[wb.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json<any[]>(ws, { header: 1 });
-
         let imported = 0;
         rows.forEach((row, i) => {
           const nameRaw = String(row[0] ?? '').trim();
-          // Bỏ qua hàng tiêu đề (nếu cột đầu không phải số và i === 0)
           if (!nameRaw || (i === 0 && isNaN(Number(row[1])))) return;
           const current   = parseFloat(String(row[1] ?? '0')) || 0;
           const threshold = parseFloat(String(row[2] ?? '0')) || 0;
@@ -116,34 +110,29 @@ export default function Inventory() {
       {/* Header */}
       <div className="flex justify-between items-center gap-2">
         <h1 className="text-xl font-bold text-gray-800">Kho hàng</h1>
-        {isAdmin && (
-          <div className="flex gap-2">
-            {/* Import Excel */}
-            <label className={`flex items-center gap-1 bg-green-600 text-white text-sm font-medium px-3 py-2 rounded-lg cursor-pointer ${importing ? 'opacity-60 pointer-events-none' : ''}`}>
-              <FileSpreadsheet size={15} />
-              {importing ? 'Đang import...' : 'Import'}
-              <input ref={importRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleImport} />
-            </label>
-            <button
-              onClick={e => { e.stopPropagation(); setShowAddForm(true); }}
-              className="flex items-center gap-1 bg-blue-600 text-white text-sm font-medium px-3 py-2 rounded-lg"
-            >
-              <Plus size={15} /> Thêm
-            </button>
-          </div>
-        )}
+        <div className="flex gap-2">
+          <label className={`flex items-center gap-1 bg-green-600 text-white text-sm font-medium px-3 py-2 rounded-lg cursor-pointer ${importing ? 'opacity-60 pointer-events-none' : ''}`}>
+            <FileSpreadsheet size={15} />
+            {importing ? 'Đang import...' : 'Import'}
+            <input ref={importRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleImport} />
+          </label>
+          <button
+            onClick={e => { e.stopPropagation(); setShowAddForm(true); }}
+            className="flex items-center gap-1 bg-blue-600 text-white text-sm font-medium px-3 py-2 rounded-lg"
+          >
+            <Plus size={15} /> Thêm
+          </button>
+        </div>
       </div>
 
       {/* Hướng dẫn import */}
-      {isAdmin && (
-        <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2 text-xs text-green-700">
-          <Upload size={11} className="inline mr-1" />
-          File Excel cần có 4 cột: <strong>Tên | Số lượng | Cảnh báo | Đơn vị</strong> (hàng đầu có thể là tiêu đề)
-        </div>
-      )}
+      <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2 text-xs text-green-700">
+        <Upload size={11} className="inline mr-1" />
+        File Excel: 4 cột <strong>Tên | Số lượng | Cảnh báo | Đơn vị</strong>
+      </div>
 
-      {/* Form thêm mặt hàng */}
-      {showAddForm && isAdmin && (
+      {/* Form thêm */}
+      {showAddForm && (
         <form onSubmit={handleAddItem} className="bg-white rounded-xl border border-blue-200 p-4 shadow-sm space-y-3" onClick={e => e.stopPropagation()}>
           <div className="flex justify-between items-center">
             <p className="font-semibold text-gray-800 text-sm">Thêm mặt hàng mới</p>
@@ -179,7 +168,7 @@ export default function Inventory() {
         </form>
       )}
 
-      {/* Danh sách kho */}
+      {/* Danh sách */}
       <div className="space-y-2">
         {inventory.map(item => {
           const isLow  = item.current < item.threshold;
@@ -201,14 +190,10 @@ export default function Inventory() {
                         <input type="number" min="0" step="0.1" autoFocus
                           className="w-16 border border-gray-300 rounded-lg px-2 py-1 text-sm text-right"
                           value={editQty} onChange={e => setEditQty(e.target.value)} />
-                        {isAdmin ? (
-                          <select className="border border-gray-300 rounded-lg px-1 py-1 text-sm bg-white"
-                            value={editUnit} onChange={e => setEditUnit(e.target.value as InventoryUnit)}>
-                            {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
-                          </select>
-                        ) : (
-                          <span className="text-sm text-gray-500 px-1">{editUnit}</span>
-                        )}
+                        <select className="border border-gray-300 rounded-lg px-1 py-1 text-sm bg-white"
+                          value={editUnit} onChange={e => setEditUnit(e.target.value as InventoryUnit)}>
+                          {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                        </select>
                         <button onClick={() => handleSaveEdit(item.id, item.name)} className="p-1 text-green-600 hover:bg-green-50 rounded">
                           <Check size={15} />
                         </button>
@@ -224,39 +209,32 @@ export default function Inventory() {
                         >
                           {item.current}
                         </button>
-
-                        {/* Đổi đơn vị: chỉ admin */}
-                        {isAdmin ? (
-                          <div className="relative">
-                            <button
-                              className="flex items-center gap-0.5 text-sm text-gray-500 hover:text-blue-600 hover:bg-blue-50 px-1 py-0.5 rounded transition"
-                              onClick={e => { e.stopPropagation(); setUnitMenuId(unitMenuId === item.id ? null : item.id); }}
-                            >
-                              {item.unit}<ChevronDown size={11} />
-                            </button>
-                            {unitMenuId === item.id && (
-                              <div className="absolute right-0 top-7 z-20 bg-white border border-gray-200 rounded-xl shadow-lg py-1 min-w-[80px]">
-                                {UNITS.map(u => (
-                                  <button key={u}
-                                    className={`w-full text-left px-3 py-1.5 text-sm hover:bg-blue-50 ${u === item.unit ? 'text-blue-600 font-semibold' : 'text-gray-700'}`}
-                                    onClick={() => { updateInventoryUnit(item.id, u); setUnitMenuId(null); }}>
-                                    {u}
-                                  </button>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-sm text-gray-500 px-1">{item.unit}</span>
-                        )}
+                        <div className="relative">
+                          <button
+                            className="flex items-center gap-0.5 text-sm text-gray-500 hover:text-blue-600 hover:bg-blue-50 px-1 py-0.5 rounded transition"
+                            onClick={e => { e.stopPropagation(); setUnitMenuId(unitMenuId === item.id ? null : item.id); }}
+                          >
+                            {item.unit}<ChevronDown size={11} />
+                          </button>
+                          {unitMenuId === item.id && (
+                            <div className="absolute right-0 top-7 z-20 bg-white border border-gray-200 rounded-xl shadow-lg py-1 min-w-[80px]">
+                              {UNITS.map(u => (
+                                <button key={u}
+                                  className={`w-full text-left px-3 py-1.5 text-sm hover:bg-blue-50 ${u === item.unit ? 'text-blue-600 font-semibold' : 'text-gray-700'}`}
+                                  onClick={() => { updateInventoryUnit(item.id, u); setUnitMenuId(null); }}>
+                                  {u}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </>
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* Xóa — chỉ admin */}
-              {isAdmin && editingId !== item.id && (
+              {editingId !== item.id && (
                 <button
                   onClick={() => handleDelete(item.id, item.name)}
                   className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-gray-100 transition-colors rounded-r-xl"
