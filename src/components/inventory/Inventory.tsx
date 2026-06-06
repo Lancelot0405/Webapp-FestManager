@@ -11,14 +11,15 @@ export default function Inventory() {
   const { state, setInventoryItem, createInventoryItem, deleteInventoryItem, updateInventoryUnit, addInventoryLog } = useApp();
   const { inventory, inventoryLogs, currentUser } = state;
 
-  const [editingId,   setEditingId]   = useState<number | null>(null);
-  const [editQty,     setEditQty]     = useState('');
-  const [editUnit,    setEditUnit]    = useState<InventoryUnit>('kg');
-  const [unitMenuId,  setUnitMenuId]  = useState<number | null>(null);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [newName,     setNewName]     = useState('');
-  const [newCurrent,  setNewCurrent]  = useState('');
-  const [newUnit,     setNewUnit]     = useState<InventoryUnit>('kg');
+  const [editingId,    setEditingId]    = useState<number | null>(null);
+  const [editQty,      setEditQty]      = useState('');
+  const [editUnit,     setEditUnit]     = useState<InventoryUnit>('kg');
+  const [unitMenuId,   setUnitMenuId]   = useState<number | null>(null);
+  const [showAddForm,  setShowAddForm]  = useState(false);
+  const [newName,      setNewName]      = useState('');
+  const [newCurrent,   setNewCurrent]   = useState('');
+  const [newThreshold, setNewThreshold] = useState('');
+  const [newUnit,      setNewUnit]      = useState<InventoryUnit>('kg');
   const [importing,    setImporting]    = useState(false);
   const importRef = useRef<HTMLInputElement>(null);
 
@@ -46,7 +47,7 @@ export default function Inventory() {
   const handleAddItem = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim() || !newCurrent) return;
-    createInventoryItem({ name: newName.trim(), current: parseFloat(newCurrent), threshold: 0, unit: newUnit });
+    createInventoryItem({ name: newName.trim(), current: parseFloat(newCurrent), threshold: parseFloat(newThreshold) || 0, unit: newUnit });
     if (currentUser) {
       addInventoryLog({
         id: Date.now(), itemId: Date.now() + 1, itemName: newName.trim(),
@@ -56,7 +57,7 @@ export default function Inventory() {
         submittedBy: currentUser.name,
       });
     }
-    setNewName(''); setNewCurrent(''); setNewUnit('kg');
+    setNewName(''); setNewCurrent(''); setNewThreshold(''); setNewUnit('kg');
     setShowAddForm(false);
   };
 
@@ -134,12 +135,19 @@ export default function Inventory() {
             <input required className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
               placeholder="VD: Thịt bò" value={newName} onChange={e => setNewName(e.target.value)} />
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             <div>
               <label className="text-xs text-gray-600 font-medium">Số lượng</label>
               <input type="number" min="0" step="0.1" required
                 className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
                 value={newCurrent} onChange={e => setNewCurrent(e.target.value)} />
+            </div>
+            <div>
+              <label className="text-xs text-gray-600 font-medium">Cảnh báo</label>
+              <input type="number" min="0" step="0.1"
+                className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
+                placeholder="0"
+                value={newThreshold} onChange={e => setNewThreshold(e.target.value)} />
             </div>
             <div>
               <label className="text-xs text-gray-600 font-medium">Đơn vị</label>
