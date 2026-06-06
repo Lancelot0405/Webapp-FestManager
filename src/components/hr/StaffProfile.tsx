@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { ArrowLeft, FileText, Plus, Upload, Image, X, Loader, Pencil, Check, CreditCard, ShieldCheck, KeyRound } from 'lucide-react';
+import { ArrowLeft, FileText, Plus, Upload, Image, X, Loader, Pencil, Check, CreditCard, ShieldCheck, KeyRound, Copy, CheckCheck } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { ExpenseStatusBadge } from '../shared/StatusBadge';
 import DocThumbnail from '../shared/DocThumbnail';
@@ -24,12 +24,15 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
   const canEdit      = isOwnProfile || isAdmin;
 
   // ── Edit thông tin cá nhân ──────────────────────────────────────────────
-  const [editing,       setEditing]       = useState(false);
-  const [editName,      setEditName]      = useState('');
-  const [editDob,       setEditDob]       = useState('');
-  const [editCity,      setEditCity]      = useState('');
-  const [editStaffType, setEditStaffType] = useState<'permanent' | 'part-time'>('permanent');
-  const [editUsername,  setEditUsername]  = useState('');
+  const [editing,           setEditing]           = useState(false);
+  const [editName,          setEditName]          = useState('');
+  const [editDob,           setEditDob]           = useState('');
+  const [editCity,          setEditCity]          = useState('');
+  const [editStaffType,     setEditStaffType]     = useState<'permanent' | 'part-time'>('permanent');
+  const [editUsername,      setEditUsername]      = useState('');
+  const [editCarteNum,      setEditCarteNum]      = useState('');
+  const [editTitreNum,      setEditTitreNum]      = useState('');
+  const [copiedField,       setCopiedField]       = useState<string | null>(null);
 
   // ── Đổi mật khẩu (admin only) ───────────────────────────────────────────
   const [showPwForm,  setShowPwForm]  = useState(false);
@@ -80,17 +83,34 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
   const nowStr = () => new Date().toLocaleDateString('fr-FR').replace(/\//g, '-');
 
   // ── Handlers ────────────────────────────────────────────────────────────
+  const copyToClipboard = (text: string, field: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedField(field);
+      setTimeout(() => setCopiedField(null), 2000);
+    });
+  };
+
   const startEdit = () => {
     setEditName(member.name);
     setEditDob(member.dob);
     setEditCity(member.city);
     setEditStaffType(member.staffType ?? 'permanent');
     setEditUsername('');
+    setEditCarteNum(member.carteVitaleNumber ?? '');
+    setEditTitreNum(member.titreSejeurNumber ?? '');
     setEditing(true);
   };
 
   const saveEdit = async () => {
-    updateStaff({ ...member, name: editName.trim(), dob: editDob.trim(), city: editCity.trim(), staffType: editStaffType });
+    updateStaff({
+      ...member,
+      name: editName.trim(),
+      dob: editDob.trim(),
+      city: editCity.trim(),
+      staffType: editStaffType,
+      carteVitaleNumber: editCarteNum.trim() || undefined,
+      titreSejeurNumber: editTitreNum.trim() || undefined,
+    });
     if (isAdmin && member.userId && editUsername.trim()) {
       await supabase.from('users').update({ name: editUsername.trim() }).eq('id', member.userId);
     }
@@ -208,6 +228,18 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
               <input className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
                 placeholder="Paris, Lyon..." value={editCity} onChange={e => setEditCity(e.target.value)} />
             </div>
+            <div>
+              <label className="text-xs text-gray-500 font-medium">Số Carte Vitale</label>
+              <input className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono"
+                placeholder="1 85 01 75 XXX XXX XX"
+                value={editCarteNum} onChange={e => setEditCarteNum(e.target.value)} />
+            </div>
+            <div>
+              <label className="text-xs text-gray-500 font-medium">Số Titre de Séjour</label>
+              <input className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono"
+                placeholder="XXXXXXXXX"
+                value={editTitreNum} onChange={e => setEditTitreNum(e.target.value)} />
+            </div>
             {isAdmin && (
               <div>
                 <label className="text-xs text-gray-500 font-medium">Loại nhân viên</label>
@@ -309,20 +341,28 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
           <DocCard
             icon={<CreditCard size={18} className="text-emerald-500" />}
             label="Carte Vitale"
+            cardNumber={member.carteVitaleNumber}
             doc={member.carteVitale}
             uploading={uploadingCarte}
             fileRef={carteFileRef}
             onUpload={e => handleDocUpload(e, 'carteVitale', setUploadingCarte, carteFileRef)}
+            copiedField={copiedField}
+            onCopy={num => copyToClipboard(num, 'carte')}
+            copyKey="carte"
           />
 
           {/* Titre de Séjour */}
           <DocCard
             icon={<ShieldCheck size={18} className="text-purple-500" />}
             label="Titre de Séjour"
+            cardNumber={member.titreSejeurNumber}
             doc={member.titreSejour}
             uploading={uploadingTitre}
             fileRef={titreFileRef}
             onUpload={e => handleDocUpload(e, 'titreSejour', setUploadingTitre, titreFileRef)}
+            copiedField={copiedField}
+            onCopy={num => copyToClipboard(num, 'titre')}
+            copyKey="titre"
           />
         </div>
       )}
@@ -478,17 +518,22 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 function DocCard({
-  icon, label, doc, uploading, fileRef, onUpload,
+  icon, label, cardNumber, doc, uploading, fileRef, onUpload, copiedField, onCopy, copyKey,
 }: {
   icon: React.ReactNode;
   label: string;
+  cardNumber?: string;
   doc?: { url: string; fileName: string; uploadedAt: string };
   uploading: boolean;
   fileRef: React.RefObject<HTMLInputElement | null>;
   onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  copiedField: string | null;
+  onCopy: (num: string) => void;
+  copyKey: string;
 }) {
+  const copied = copiedField === copyKey;
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-3">
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {icon}
@@ -502,13 +547,31 @@ function DocCard({
             disabled={uploading} onChange={onUpload} />
         </label>
       </div>
+
+      {/* Số thẻ */}
+      {cardNumber ? (
+        <div className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
+          <span className="text-sm font-mono text-gray-800 tracking-wide">{cardNumber}</span>
+          <button
+            onClick={() => onCopy(cardNumber)}
+            className="ml-2 p-1 text-gray-400 hover:text-blue-600 transition-colors shrink-0"
+            title="Sao chép"
+          >
+            {copied ? <CheckCheck size={14} className="text-green-500" /> : <Copy size={14} />}
+          </button>
+        </div>
+      ) : (
+        <p className="text-xs text-gray-400 italic">Chưa có số thẻ — chỉnh sửa thông tin để thêm</p>
+      )}
+
+      {/* File */}
       {doc ? (
-        <div className="mt-2 space-y-1.5">
+        <div className="space-y-1.5">
           <DocThumbnail url={doc.url} fileName={doc.fileName} />
           <p className="text-xs text-gray-400">Cập nhật: {doc.uploadedAt}</p>
         </div>
       ) : (
-        <p className="mt-2 text-xs text-gray-400">Chưa có tài liệu</p>
+        <p className="text-xs text-gray-400">Chưa có tài liệu</p>
       )}
     </div>
   );

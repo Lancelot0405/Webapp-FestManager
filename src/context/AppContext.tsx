@@ -570,9 +570,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       carte_vitale_url:        staff.carteVitale?.url        ?? null,
       carte_vitale_name:       staff.carteVitale?.fileName   ?? null,
       carte_vitale_uploaded_at:staff.carteVitale?.uploadedAt ?? null,
+      carte_vitale_number:     staff.carteVitaleNumber       ?? null,
       titre_sejour_url:        staff.titreSejour?.url        ?? null,
       titre_sejour_name:       staff.titreSejour?.fileName   ?? null,
       titre_sejour_uploaded_at:staff.titreSejour?.uploadedAt ?? null,
+      titre_sejour_number:     staff.titreSejeurNumber       ?? null,
     }).eq('id', staff.id).then();
   }, []);
 

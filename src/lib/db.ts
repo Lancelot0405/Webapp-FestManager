@@ -52,6 +52,8 @@ export async function fetchStaff(): Promise<StaffMember[]> {
     titreSejour: row.titre_sejour_url
       ? { url: row.titre_sejour_url, fileName: row.titre_sejour_name ?? '', uploadedAt: row.titre_sejour_uploaded_at ?? '' }
       : undefined,
+    carteVitaleNumber: row.carte_vitale_number ?? undefined,
+    titreSejeurNumber: row.titre_sejour_number ?? undefined,
   }));
 }
 

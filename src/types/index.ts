@@ -48,6 +48,8 @@ export interface StaffMember {
   contracts: Contract[];
   carteVitale?: StaffDocument;
   titreSejour?: StaffDocument;
+  carteVitaleNumber?: string;
+  titreSejeurNumber?: string;
 }
 
 // Lightweight version embedded inside Event.staff[]
