@@ -85,6 +85,8 @@ type Action =
   // --- Expenses ---
   | { type: 'ADD_EXPENSE';
       payload: { eventId: number; expense: Expense } }
+  | { type: 'UPDATE_EXPENSE_ID';
+      payload: { eventId: number; localId: number; dbId: number } }
   | { type: 'UPDATE_EXPENSE_STATUS';
       payload: { eventId: number; expenseId: number; status: ExpenseStatus } }
 
@@ -175,6 +177,20 @@ function appReducer(state: AppState, action: Action): AppState {
         events: state.events.map(e => {
           if (e.id !== action.payload.eventId) return e;
           return { ...e, receipts: [...e.receipts, action.payload.expense] };
+        }),
+      };
+
+    case 'UPDATE_EXPENSE_ID':
+      return {
+        ...state,
+        events: state.events.map(e => {
+          if (e.id !== action.payload.eventId) return e;
+          return {
+            ...e,
+            receipts: e.receipts.map(r =>
+              r.id === action.payload.localId ? { ...r, id: action.payload.dbId } : r
+            ),
+          };
         }),
       };
 
@@ -406,9 +422,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // --- Expenses ---
   const addExpense = useCallback(
-    (eventId: number, expense: Expense) => {
+    async (eventId: number, expense: Expense) => {
       dispatch({ type: 'ADD_EXPENSE', payload: { eventId, expense } });
-      supabase.from('expenses').insert({
+      const { data } = await supabase.from('expenses').insert({
         staff_id: parseInt(String(expense.staffId), 10) || null,
         staff_name: expense.staffName,
         festival_id: expense.festivalId,
@@ -417,7 +433,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         date: expense.date,
         image_url: expense.imageUrl,
         status: expense.status,
-      }).then();
+      }).select('id').single();
+      if (data?.id && data.id !== expense.id) {
+        dispatch({ type: 'UPDATE_EXPENSE_ID', payload: { eventId, localId: expense.id, dbId: data.id } });
+      }
     },
     []
   );
