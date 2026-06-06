@@ -23,13 +23,6 @@ import type {
   InventoryUnit,
 } from '../types';
 
-import {
-  MOCK_EVENTS,
-  MOCK_INVENTORY,
-  MOCK_INVENTORY_LOGS,
-  MOCK_STAFF,
-} from '../data/mockData';
-
 import { supabase } from '../lib/supabase';
 import {
   fetchStaff,
@@ -53,10 +46,10 @@ interface AppState {
 
 const initialState: AppState = {
   currentUser:   null,
-  events:        MOCK_EVENTS,
-  inventory:     MOCK_INVENTORY,
-  inventoryLogs: MOCK_INVENTORY_LOGS,
-  staff:         MOCK_STAFF,
+  events:        [],
+  inventory:     [],
+  inventoryLogs: [],
+  staff:         [],
   loading:       true,
 };
 
@@ -334,10 +327,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       fetchInventoryLogs(),
     ]);
 
-    const payload: Partial<AppState> = { staff };
-    if (events.length > 0)        payload.events        = events;
-    if (inventory.length > 0)     payload.inventory     = inventory;
-    if (inventoryLogs.length > 0) payload.inventoryLogs = inventoryLogs;
+    const payload: Partial<AppState> = {
+      staff,
+      events,
+      inventory,
+      inventoryLogs,
+    };
 
     dispatch({ type: 'INIT_DATA', payload });
   }
