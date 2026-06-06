@@ -91,7 +91,7 @@ export default function App() {
           {!selectedEventId && !selectedStaffId && (
             <>
               {activeTab === 'dashboard' && (
-                <Dashboard onSelectEvent={setSelectedEventId} />
+                <Dashboard onSelectEvent={setSelectedEventId} onNavigate={setActiveTab} />
               )}
               {activeTab === 'schedule' && (
                 <Schedule onSelectEvent={setSelectedEventId} />

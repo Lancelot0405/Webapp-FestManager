@@ -5,12 +5,14 @@
 import { Calendar, Users, Package, Clock } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
+import type { ActiveTab } from '../../types';
 
 interface DashboardProps {
   onSelectEvent: (id: number) => void;
+  onNavigate: (tab: ActiveTab) => void;
 }
 
-export default function Dashboard({ onSelectEvent }: DashboardProps) {
+export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps) {
   const { state } = useApp();
   const { currentUser, events, inventory, staff } = state;
 
@@ -71,12 +73,14 @@ export default function Dashboard({ onSelectEvent }: DashboardProps) {
             label="Sự kiện sắp tới"
             value={upcomingEvents.length}
             bg="bg-blue-50"
+            onClick={() => onNavigate('schedule')}
           />
           <StatCard
             icon={<Users size={20} className="text-purple-500" />}
             label="Tổng nhân viên"
             value={totalStaff}
             bg="bg-purple-50"
+            onClick={() => onNavigate('hr')}
           />
           <StatCard
             icon={<Package size={20} className="text-red-500" />}
@@ -84,6 +88,7 @@ export default function Dashboard({ onSelectEvent }: DashboardProps) {
             value={lowStockCount}
             bg="bg-red-50"
             alert={lowStockCount > 0}
+            onClick={() => onNavigate('inventory')}
           />
           <StatCard
             icon={<Clock size={20} className="text-yellow-500" />}
@@ -91,6 +96,7 @@ export default function Dashboard({ onSelectEvent }: DashboardProps) {
             value={pendingExpenses.length}
             bg="bg-yellow-50"
             alert={pendingExpenses.length > 0}
+            onClick={() => onNavigate('finance')}
           />
         </div>
       ) : (
@@ -100,6 +106,7 @@ export default function Dashboard({ onSelectEvent }: DashboardProps) {
             label="Sự kiện của tôi"
             value={myEvents.length}
             bg="bg-blue-50"
+            onClick={() => onNavigate('schedule')}
           />
           <StatCard
             icon={<Clock size={20} className="text-yellow-500" />}
@@ -107,6 +114,7 @@ export default function Dashboard({ onSelectEvent }: DashboardProps) {
             value={myPendingExpenses.length}
             bg="bg-yellow-50"
             alert={myPendingExpenses.length > 0}
+            onClick={() => onNavigate('profile')}
           />
         </div>
       )}
@@ -168,16 +176,20 @@ interface StatCardProps {
   value: number;
   bg: string;
   alert?: boolean;
+  onClick?: () => void;
 }
 
-function StatCard({ icon, label, value, bg, alert }: StatCardProps) {
+function StatCard({ icon, label, value, bg, alert, onClick }: StatCardProps) {
   return (
-    <div className={`${bg} rounded-xl p-4 flex items-center gap-3`}>
+    <button
+      onClick={onClick}
+      className={`${bg} rounded-xl p-4 flex items-center gap-3 w-full text-left transition-opacity active:opacity-70 ${onClick ? 'hover:brightness-95 cursor-pointer' : ''}`}
+    >
       <div className="shrink-0">{icon}</div>
       <div>
         <p className={`text-2xl font-bold ${alert ? 'text-red-600' : 'text-gray-800'}`}>{value}</p>
         <p className="text-xs text-gray-500 leading-tight">{label}</p>
       </div>
-    </div>
+    </button>
   );
 }
