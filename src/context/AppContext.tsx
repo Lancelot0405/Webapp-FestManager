@@ -68,6 +68,7 @@ type Action =
   // --- Events ---
   | { type: 'ADD_EVENT';            payload: FestivalEvent }
   | { type: 'UPDATE_EVENT';         payload: FestivalEvent }
+  | { type: 'UPDATE_EVENT_ID';      payload: { localId: number; dbId: number } }
 
   // --- Staff assignment (trong 1 event) ---
   | { type: 'ADD_STAFF_TO_EVENT';
@@ -132,6 +133,14 @@ function appReducer(state: AppState, action: Action): AppState {
         ...state,
         events: state.events.map(e =>
           e.id === action.payload.id ? action.payload : e
+        ),
+      };
+
+    case 'UPDATE_EVENT_ID':
+      return {
+        ...state,
+        events: state.events.map(e =>
+          e.id === action.payload.localId ? { ...e, id: action.payload.dbId } : e
         ),
       };
 
@@ -364,11 +373,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // --- Events ---
-  const addEvent = useCallback((event: FestivalEvent) => {
+  const addEvent = useCallback(async (event: FestivalEvent) => {
     dispatch({ type: 'ADD_EVENT', payload: event });
-    // Fire-and-forget Supabase write
-    supabase.from('events').insert({
-      id: event.id,
+    const { data } = await supabase.from('events').insert({
       name: event.name,
       date: event.date,
       location: event.location,
@@ -379,7 +386,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       booth: event.extra.booth,
       hygiene_permit: event.extra.hygienePermit,
       organizer_contact: event.extra.organizerContact,
-    }).then();
+    }).select('id').single();
+    if (data?.id && data.id !== event.id) {
+      dispatch({ type: 'UPDATE_EVENT_ID', payload: { localId: event.id, dbId: data.id } });
+    }
   }, []);
 
   const updateEvent = useCallback((event: FestivalEvent) => {
