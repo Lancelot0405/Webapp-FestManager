@@ -21,15 +21,18 @@ import {
   Image as ImageIcon,
   Briefcase,
   FileCheck,
-  UserPlus
+  UserPlus,
+  User
 } from 'lucide-react';
 
-// --- MOCK DATA ---
 const mockStaffData = [
-  { id: 1, name: 'Lance', dob: '04-05-1995', city: 'Paris', contractUrl: null },
-  { id: 2, name: 'Linh', dob: '12-10-1998', city: 'Lyon', contractUrl: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80' },
-  { id: 3, name: 'Minh', dob: '22-01-2000', city: 'Marseille', contractUrl: null },
-  { id: 4, name: 'Sophie', dob: '15-08-1999', city: 'Caen', contractUrl: null },
+  { id: 1, name: 'Lance', dob: '04-05-1995', city: 'Paris', contracts: [] },
+  { id: 2, name: 'Linh', dob: '12-10-1998', city: 'Lyon', contracts: [
+    { id: 999, date: '10-06-2026', url: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80' }
+  ] },
+  { id: 3, name: 'Minh', dob: '22-01-2000', city: 'Marseille', contracts: [] },
+  { id: 4, name: 'Sophie', dob: '15-08-1999', city: 'Caen', contracts: [] },
+  { id: 5, name: 'Alex', dob: '01-01-2000', city: 'Lille', contracts: [] }
 ];
 
 const mockEvents = [
@@ -92,7 +95,7 @@ export default function App() {
   // Selection States
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [selectedStaffInEvent, setSelectedStaffInEvent] = useState(null);
-  const [selectedGlobalStaff, setSelectedGlobalStaff] = useState(null); // For HR Tab
+  const [selectedGlobalStaff, setSelectedGlobalStaff] = useState(null); 
 
   // UI Flow States
   const [inventoryInput, setInventoryInput] = useState('');
@@ -100,14 +103,14 @@ export default function App() {
   const [editingUnitId, setEditingUnitId] = useState(null);
   const [showReceiptForm, setShowReceiptForm] = useState(false);
   const [newEventInput, setNewEventInput] = useState('');
-  const [showStaffPicker, setShowStaffPicker] = useState(false); // Add staff to event
-  const [showAddStaffForm, setShowAddStaffForm] = useState(false); // Create new staff
+  const [showStaffPicker, setShowStaffPicker] = useState(false); 
+  const [showAddStaffForm, setShowAddStaffForm] = useState(false); 
 
   const unitOptions = ['kg', 'g', 'lít', 'ml', 'cái', 'lon', 'hộp', 'xiên', 'thùng', 'phần'];
 
   // Form States
   const [newReceipt, setNewReceipt] = useState({ type: 'Vé tàu/xe', amount: '', imagePreview: null });
-  const [newStaff, setNewStaff] = useState({ name: '', dob: '', city: '', contractUrl: null });
+  const [newStaff, setNewStaff] = useState({ name: '', dob: '', city: '' });
   
   const receiptInputRef = useRef(null);
   const contractInputRef = useRef(null);
@@ -120,8 +123,6 @@ export default function App() {
       setNewReceipt({ type: 'Vé tàu/xe', amount: '', imagePreview: null });
     }
   }, [selectedEvent]);
-
-  // --- HANDLERS ---
 
   const handleUnitChange = (id, newUnit) => {
     setInventoryData(prev => prev.map(item => item.id === id ? { ...item, unit: newUnit } : item));
@@ -182,7 +183,25 @@ export default function App() {
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       if (target === 'receipt') setNewReceipt({...newReceipt, imagePreview: imageUrl});
-      if (target === 'contract') setNewStaff({...newStaff, contractUrl: imageUrl});
+    }
+  };
+
+  const handleUploadContract = (e, staffId) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      const newContract = {
+        id: Date.now(),
+        date: new Date().toLocaleDateString('vi-VN').replace(/\//g, '-'),
+        url: imageUrl
+      };
+      
+      setStaffList(prev => prev.map(s => {
+        if (s.id === staffId) {
+          return { ...s, contracts: [...(s.contracts || []), newContract] };
+        }
+        return s;
+      }));
     }
   };
 
@@ -204,15 +223,15 @@ export default function App() {
 
   const handleCreateStaff = () => {
     if (!newStaff.name || !newStaff.dob) { alert("Vui lòng nhập đủ tên và ngày sinh!"); return; }
-    setStaffList([...staffList, { ...newStaff, id: Date.now() }]);
+    // Không cần upload hợp đồng ở đây nữa
+    setStaffList([...staffList, { ...newStaff, id: Date.now(), contracts: [] }]);
     setShowAddStaffForm(false);
-    setNewStaff({ name: '', dob: '', city: '', contractUrl: null });
+    setNewStaff({ name: '', dob: '', city: '' });
   };
 
   const handleAddStaffToEvent = (staffMember, eventId) => {
     setEventsData(eventsData.map(e => {
       if (e.id === eventId) {
-        // Tránh add trùng
         if (e.staff.some(s => s.name === staffMember.name)) return e;
         return { ...e, staff: [...e.staff, { name: staffMember.name, city: staffMember.city }] };
       }
@@ -221,8 +240,6 @@ export default function App() {
     setShowStaffPicker(false);
   };
 
-
-  // --- RENDER FUNCTIONS ---
 
   const renderDashboard = () => {
     const lowStockItems = inventoryData.filter(item => item.current <= item.threshold);
@@ -358,116 +375,105 @@ export default function App() {
     </div>
   );
 
-  const renderFinance = () => (
-    <div className="space-y-6 pb-20 animate-fade-in">
-      <h2 className="text-2xl font-bold text-gray-800">Tài chính</h2>
-      <div className="space-y-4">
-        {eventsData.map(event => {
-          const totalExpense = event.financials ? Object.values(event.financials.expenses).reduce((a, b) => a + b, 0) : 0;
-          const netProfit = (event.financials?.income || 0) - totalExpense;
-          return (
-            <div key={event.id} onClick={() => setSelectedEvent(event)} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:border-blue-300">
-              <div className="flex justify-between items-center mb-3">
-                <div>
-                  <h4 className="font-bold text-gray-800">{event.name}</h4>
-                  <p className="text-xs text-gray-500">{event.date}</p>
-                </div>
-                <span className={`px-2 py-1 rounded-md text-xs font-bold ${event.status !== 'Đã hoàn thành' ? 'bg-gray-100 text-gray-600' : netProfit >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
-                  {event.status !== 'Đã hoàn thành' ? 'Chưa chốt' : netProfit >= 0 ? 'Lãi' : 'Lỗ'}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <div className="text-gray-600">Thu: <span className="text-emerald-600 font-semibold">€{event.financials?.income || 0}</span></div>
-                <div className="text-gray-600">Chi: <span className="text-red-500 font-semibold">€{totalExpense}</span></div>
-                <div className="font-bold text-gray-800">= <span className={netProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}>€{netProfit}</span></div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
+  const renderStaffProfileView = (targetStaff) => {
+    // Thu thập tất cả biên lai của người này từ mọi sự kiện
+    const allStaffReceipts = eventsData.reduce((acc, event) => {
+      const matchingReceipts = (event.receipts || []).filter(r => r.staffName === targetStaff.name);
+      return acc.concat(matchingReceipts.map(r => ({ ...r, eventName: event.name })));
+    }, []);
+    const totalGlobalExpense = allStaffReceipts.reduce((sum, r) => sum + r.amount, 0);
 
-  const renderHRGlobal = () => {
-    if (selectedGlobalStaff) {
-      // Aggregate all receipts for this staff across all events
-      const allStaffReceipts = eventsData.reduce((acc, event) => {
-        const matchingReceipts = (event.receipts || []).filter(r => r.staffName === selectedGlobalStaff.name);
-        return acc.concat(matchingReceipts.map(r => ({ ...r, eventName: event.name })));
-      }, []);
-      const totalGlobalExpense = allStaffReceipts.reduce((sum, r) => sum + r.amount, 0);
-
-      return (
-        <div className="space-y-6 animate-fade-in pb-20">
+    return (
+      <div className="space-y-6 animate-fade-in pb-20">
+        {currentUser.role === 'admin' ? (
           <button onClick={() => setSelectedGlobalStaff(null)} className="flex items-center text-blue-600 font-medium hover:bg-blue-50 px-2 py-1 rounded-lg transition -ml-2">
             <ChevronLeft size={20} /> Danh sách nhân sự
           </button>
-          
-          <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
-            <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100">
-              <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-100 text-indigo-700 rounded-full flex items-center justify-center font-black text-3xl shadow-inner border border-indigo-200/50">
-                {selectedGlobalStaff.name.charAt(0)}
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-800">{selectedGlobalStaff.name}</h2>
-                <p className="text-sm text-gray-500 flex items-center gap-1 mt-1"><Calendar size={14}/> Sinh: {selectedGlobalStaff.dob}</p>
-                <p className="text-sm text-gray-500 flex items-center gap-1 mt-0.5"><MapPin size={14}/> {selectedGlobalStaff.city || 'Chưa cập nhật'}</p>
-              </div>
+        ) : (
+          <h2 className="text-2xl font-bold text-gray-800">Hồ sơ của tôi</h2>
+        )}
+        
+        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+          <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100">
+            <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-100 text-indigo-700 rounded-full flex items-center justify-center font-black text-3xl shadow-inner border border-indigo-200/50">
+              {targetStaff.name.charAt(0)}
             </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800">{targetStaff.name}</h2>
+              <p className="text-sm text-gray-500 flex items-center gap-1 mt-1"><Calendar size={14}/> Sinh: {targetStaff.dob}</p>
+              <p className="text-sm text-gray-500 flex items-center gap-1 mt-0.5"><MapPin size={14}/> {targetStaff.city || 'Chưa cập nhật'}</p>
+            </div>
+          </div>
 
-            {/* Contract Section */}
-            <div className="mb-6">
-              <h3 className="font-bold text-gray-800 text-sm mb-3 flex items-center gap-2"><Briefcase size={16}/> Hợp đồng làm việc</h3>
-              {selectedGlobalStaff.contractUrl ? (
-                <div className="relative w-full h-40 rounded-xl border border-gray-200 overflow-hidden group">
-                  <img src={selectedGlobalStaff.contractUrl} alt="Contract" className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                    <span className="bg-white text-gray-800 px-3 py-1.5 rounded-lg text-xs font-semibold shadow">Xem chi tiết</span>
+          {/* Lịch sử Hợp đồng */}
+          <div className="mb-6">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-bold text-gray-800 text-sm flex items-center gap-2"><Briefcase size={16}/> Lịch sử Hợp đồng</h3>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              {/* Nút Upload hợp đồng luôn nằm đầu tiên */}
+              <div onClick={() => contractInputRef.current.click()} className="h-32 border-2 border-dashed border-indigo-300 bg-indigo-50 rounded-xl flex flex-col items-center justify-center text-indigo-600 cursor-pointer hover:bg-indigo-100 transition">
+                <Upload size={20} className="mb-2" />
+                <span className="text-xs font-semibold text-center px-2">Tải hợp đồng<br/>mới lên</span>
+              </div>
+              <input type="file" ref={contractInputRef} onChange={(e) => handleUploadContract(e, targetStaff.id)} accept="image/*,.pdf" className="hidden" />
+
+              {/* Danh sách hợp đồng đã tải */}
+              {targetStaff.contracts?.slice().reverse().map((contract) => (
+                <div key={contract.id} className="relative h-32 rounded-xl border border-gray-200 overflow-hidden group">
+                  <img src={contract.url} alt="Contract" className="w-full h-full object-cover" />
+                  <div className="absolute bottom-0 w-full bg-black/60 p-1.5 backdrop-blur-sm">
+                    <p className="text-[10px] text-white font-medium text-center">{contract.date}</p>
+                  </div>
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                    <span className="bg-white text-gray-800 px-2 py-1 rounded text-xs font-bold shadow">Xem</span>
                   </div>
                 </div>
-              ) : (
-                <div className="w-full flex flex-col items-center justify-center py-6 border-2 border-dashed border-gray-300 bg-gray-50 rounded-xl text-gray-500">
-                  <FileCheck size={24} className="mb-2 text-gray-400" />
-                  <span className="text-xs font-medium">Chưa tải lên hợp đồng</span>
-                </div>
-              )}
+              ))}
+            </div>
+          </div>
+
+          {/* Tổng chi phí đã báo cáo */}
+          <div>
+            <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-xl mb-4 flex justify-between items-center shadow-sm">
+              <div className="flex items-center gap-2">
+                <div className="bg-indigo-100 p-1.5 rounded-lg text-indigo-600"><Receipt size={18}/></div>
+                <span className="font-semibold text-indigo-800 text-sm">Tổng chi phí đã báo cáo</span>
+              </div>
+              <span className="text-2xl font-black text-indigo-600">€{totalGlobalExpense}</span>
             </div>
 
-            {/* Global Expenses Section */}
-            <div>
-              <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-xl mb-4 flex justify-between items-center shadow-sm">
-                <div className="flex items-center gap-2">
-                  <div className="bg-indigo-100 p-1.5 rounded-lg text-indigo-600"><Receipt size={18}/></div>
-                  <span className="font-semibold text-indigo-800 text-sm">Tổng chi phí đã báo cáo</span>
-                </div>
-                <span className="text-2xl font-black text-indigo-600">€{totalGlobalExpense}</span>
-              </div>
-
-              <h3 className="font-bold text-gray-800 text-sm mb-3">Lịch sử hoá đơn</h3>
-              <div className="space-y-3">
-                {allStaffReceipts.length > 0 ? (
-                  allStaffReceipts.map((receipt) => (
-                    <div key={receipt.id} className="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-gray-200 shadow-sm cursor-pointer">
-                          <img src={receipt.imageUrl} alt="receipt" className="w-full h-full object-cover" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-gray-800 text-sm">{receipt.type}</p>
-                          <p className="text-[10px] text-gray-500">{receipt.eventName} • {receipt.date}</p>
-                        </div>
+            <h3 className="font-bold text-gray-800 text-sm mb-3">Lịch sử hoá đơn</h3>
+            <div className="space-y-3">
+              {allStaffReceipts.length > 0 ? (
+                allStaffReceipts.map((receipt) => (
+                  <div key={receipt.id} className="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-gray-200 shadow-sm cursor-pointer">
+                        <img src={receipt.imageUrl} alt="receipt" className="w-full h-full object-cover" />
                       </div>
-                      <p className="font-bold text-gray-800">€{receipt.amount}</p>
+                      <div>
+                        <p className="font-semibold text-gray-800 text-sm">{receipt.type}</p>
+                        <p className="text-[10px] text-gray-500">{receipt.eventName} • {receipt.date}</p>
+                      </div>
                     </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-gray-500 text-center py-4 border border-dashed border-gray-200 rounded-xl">Chưa có dữ liệu.</p>
-                )}
-              </div>
+                    <p className="font-bold text-gray-800">€{receipt.amount}</p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-gray-500 text-center py-4 border border-dashed border-gray-200 rounded-xl">Chưa có dữ liệu.</p>
+              )}
             </div>
           </div>
         </div>
-      );
+      </div>
+    );
+  };
+
+  const renderHRGlobal = () => {
+    if (selectedGlobalStaff) {
+      return renderStaffProfileView(selectedGlobalStaff);
     }
 
     return (
@@ -496,20 +502,7 @@ export default function App() {
               <label className="text-xs font-semibold text-gray-600 mb-1 block">Thành phố (Nơi ở)</label>
               <input type="text" value={newStaff.city} onChange={e => setNewStaff({...newStaff, city: e.target.value})} className="w-full text-sm border border-gray-300 rounded-lg p-2 outline-none focus:ring-2 focus:ring-indigo-500" placeholder="VD: Paris" />
             </div>
-            <div>
-              <label className="text-xs font-semibold text-gray-600 mb-1 block">File / Ảnh Hợp đồng</label>
-              {newStaff.contractUrl ? (
-                <div className="relative w-full h-24 rounded-lg border border-gray-300 overflow-hidden group">
-                  <img src={newStaff.contractUrl} alt="Preview" className="w-full h-full object-cover" />
-                  <button onClick={() => setNewStaff({...newStaff, contractUrl: null})} className="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100">Xoá</button>
-                </div>
-              ) : (
-                <div onClick={() => contractInputRef.current.click()} className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-indigo-300 bg-indigo-50 text-indigo-600 rounded-lg cursor-pointer">
-                  <Camera size={18} /> <span className="text-xs font-medium">Chụp hoặc Tải lên</span>
-                </div>
-              )}
-              <input type="file" ref={contractInputRef} onChange={(e) => handleImageChange(e, 'contract')} accept="image/*,.pdf" className="hidden" />
-            </div>
+            {/* Đã bỏ phần upload hợp đồng ở đây theo yêu cầu */}
             <button onClick={handleCreateStaff} className="w-full bg-indigo-600 text-white font-medium py-2 rounded-lg text-sm shadow-sm mt-2">Lưu Hồ sơ</button>
           </div>
         )}
@@ -536,7 +529,6 @@ export default function App() {
     if (!selectedEvent) return null;
     const event = eventsData.find(e => e.id === selectedEvent.id) || selectedEvent;
     
-    // View Individual Staff inside an Event (For receipt upload/approval)
     if (selectedStaffInEvent) {
       const staffReceipts = (event.receipts || []).filter(r => r.staffName === selectedStaffInEvent.name);
       const totalStaffExpense = staffReceipts.reduce((sum, r) => sum + r.amount, 0);
@@ -561,15 +553,16 @@ export default function App() {
             <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-xl mb-6 flex justify-between items-center shadow-sm">
               <div className="flex items-center gap-2">
                 <div className="bg-emerald-100 p-1.5 rounded-lg text-emerald-600"><Receipt size={18}/></div>
-                <span className="font-semibold text-emerald-800 text-sm">Tổng chi phí báo cáo</span>
+                <span className="font-semibold text-emerald-800 text-sm">Chi phí kỳ này</span>
               </div>
               <span className="text-2xl font-black text-emerald-600">€{totalStaffExpense}</span>
             </div>
 
             <div className="flex justify-between items-center mb-4">
-              <h3 className="font-bold text-gray-800 text-sm">Danh sách hoá đơn sự kiện</h3>
+              <h3 className="font-bold text-gray-800 text-sm">Hoá đơn đã gửi</h3>
+              {/* Nút báo cáo bill chỉ dành cho Staff hoặc nếu Admin muốn báo cáo hộ */}
               <button onClick={() => setShowReceiptForm(!showReceiptForm)} className={`text-xs px-3 py-1.5 rounded-lg font-medium transition ${showReceiptForm ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'}`}>
-                {showReceiptForm ? 'Hủy' : '+ Báo cáo bill'}
+                {showReceiptForm ? 'Hủy' : '+ Tải Bill lên'}
               </button>
             </div>
 
@@ -578,7 +571,7 @@ export default function App() {
                 <div>
                   <label className="text-xs font-semibold text-gray-600 mb-1 block">Loại chi phí</label>
                   <select value={newReceipt.type} onChange={(e) => setNewReceipt({...newReceipt, type: e.target.value})} className="w-full text-sm border border-gray-300 rounded-lg p-2.5 bg-white outline-none focus:ring-2 focus:ring-blue-500">
-                    <option>Vé tàu/xe</option><option>Uber/Taxi</option><option>Ăn uống</option><option>Nguyên liệu phát sinh</option>
+                    <option>Vé tàu/xe</option><option>Uber/Taxi</option><option>Ăn uống</option><option>Khác</option>
                   </select>
                 </div>
                 <div>
@@ -586,21 +579,21 @@ export default function App() {
                   <input type="number" value={newReceipt.amount} onChange={(e) => setNewReceipt({...newReceipt, amount: e.target.value})} placeholder="VD: 45" className="w-full text-sm border border-gray-300 rounded-lg p-2.5 bg-white outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-gray-600 mb-1 block">Tải ảnh thật / Chụp Camera</label>
+                  <label className="text-xs font-semibold text-gray-600 mb-1 block">Chụp ảnh / Chọn File (Bắt buộc)</label>
                   {newReceipt.imagePreview ? (
                     <div className="relative w-full h-32 rounded-lg border border-gray-300 overflow-hidden group">
                       <img src={newReceipt.imagePreview} alt="Preview" className="w-full h-full object-cover" />
                       <button onClick={() => setNewReceipt({...newReceipt, imagePreview: null})} className="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100">Xoá</button>
                     </div>
                   ) : (
-                    <div onClick={() => receiptInputRef.current.click()} className="w-full flex flex-col items-center justify-center gap-2 py-4 border-2 border-dashed border-blue-300 bg-blue-50 text-blue-600 rounded-lg cursor-pointer">
-                      <Camera size={24} /> <span className="text-xs font-medium">Bấm để chụp hoặc chọn File</span>
+                    <div onClick={() => receiptInputRef.current.click()} className="w-full flex flex-col items-center justify-center gap-2 py-4 border-2 border-dashed border-blue-300 bg-blue-50 text-blue-600 rounded-lg cursor-pointer hover:bg-blue-100 transition">
+                      <Camera size={24} /> <span className="text-xs font-medium">Bấm để chụp hoặc chọn Ảnh</span>
                     </div>
                   )}
-                  {/* The magic trick to trigger phone's native camera or file picker */}
+                  {/* Chức năng mở Camera / Bộ nhớ ảnh thật của điện thoại */}
                   <input type="file" ref={receiptInputRef} onChange={(e) => handleImageChange(e, 'receipt')} accept="image/*" capture="environment" className="hidden" />
                 </div>
-                <button onClick={() => handleUploadReceipt(event)} className="w-full bg-blue-600 text-white font-medium py-2.5 rounded-lg text-sm mt-2">Gửi báo cáo</button>
+                <button onClick={() => handleUploadReceipt(event)} className="w-full bg-blue-600 text-white font-medium py-2.5 rounded-lg text-sm mt-2 shadow-sm">Gửi báo cáo</button>
               </div>
             )}
 
@@ -614,21 +607,19 @@ export default function App() {
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-gray-800">€{receipt.amount}</p>
-                      {currentUser?.role === 'admin' ? <button className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded mt-1 font-semibold border border-emerald-200">Duyệt</button> : <span className="text-[10px] text-orange-500 font-medium bg-orange-50 px-2 py-0.5 rounded">Chờ</span>}
+                      {currentUser?.role === 'admin' ? <button className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded mt-1 font-semibold border border-emerald-200 shadow-sm">Tính lương</button> : <span className="text-[10px] text-orange-500 font-medium bg-orange-50 px-2 py-0.5 rounded">Chờ duyệt</span>}
                     </div>
                   </div>
                 ))
-              ) : <p className="text-sm text-gray-500 text-center py-4 border border-dashed border-gray-200 rounded-xl">Chưa có hoá đơn nào.</p>}
+              ) : <p className="text-sm text-gray-500 text-center py-4 border border-dashed border-gray-200 rounded-xl bg-gray-50">Chưa có hoá đơn nào.</p>}
             </div>
           </div>
         </div>
       );
     }
 
-    // Default Event Detail View
     const totalExpense = Object.values(event.financials.expenses).reduce((a, b) => a + b, 0);
     const netProfit = event.financials.income - totalExpense;
-    // Lọc ra các nhân sự có trong Data gốc nhưng chưa được phân công vào Event này
     const availableStaff = staffList.filter(s => !(event.staff || []).some(es => es.name === s.name));
 
     return (
@@ -637,57 +628,49 @@ export default function App() {
         <div>
           <h2 className="text-2xl font-bold text-gray-800">{event.name}</h2>
           <div className="flex flex-wrap gap-3 mt-2 text-sm text-gray-600"><span className="flex items-center gap-1"><Calendar size={16}/> {event.date}</span><span className="flex items-center gap-1"><MapPin size={16}/> {event.location}</span></div>
-          <div className="mt-3 grid grid-cols-2 gap-2 text-xs"><div className="bg-gray-100 p-2 rounded-lg"><strong>Vị trí:</strong> {event.extra.booth}</div><div className="bg-gray-100 p-2 rounded-lg"><strong>Giấy phép:</strong> {event.extra.hygienePermit}</div></div>
         </div>
 
         {currentUser?.role === 'admin' && (
           <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
             <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><PieChart size={18}/> Báo cáo tài chính</h3>
-            <div className="flex justify-between items-center mb-4 border-b pb-4"><span className="text-gray-600">Tổng thu</span><span className="text-xl font-bold text-emerald-600">€{event.financials.income}</span></div>
-            <div className="space-y-2 mb-4">
-              <p className="text-sm font-semibold text-gray-700">Chi tiết chi phí (Tổng: €{totalExpense})</p>
-              {Object.entries(event.financials.expenses).map(([key, val]) => (
-                <div key={key} className="flex justify-between text-sm text-gray-600"><span className="capitalize">{key === 'rent' ? 'Thuê gian hàng' : key === 'ingredients' ? 'Nguyên liệu' : key === 'transport' ? 'Vận chuyển' : key === 'staff' ? 'Nhân sự' : key}</span><span className="text-red-500">-€{val}</span></div>
-              ))}
-            </div>
             <div className="flex justify-between items-center bg-gray-50 p-3 rounded-xl"><span className="font-bold text-gray-800">LỢI NHUẬN RÒNG</span><span className={`text-xl font-black ${netProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>{netProfit >= 0 ? '+' : ''}€{netProfit}</span></div>
           </div>
         )}
 
         <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
           <div className="flex justify-between items-center mb-1">
-            <h3 className="font-bold text-gray-800 flex items-center gap-2"><Users size={18}/> Nhân sự ({(event.staff || []).length})</h3>
+            <h3 className="font-bold text-gray-800 flex items-center gap-2"><Users size={18}/> Đội ngũ Nhân sự</h3>
             {currentUser?.role === 'admin' && (
-              <button onClick={() => setShowStaffPicker(!showStaffPicker)} className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-md font-medium hover:bg-blue-100">+ Phân công</button>
+              <button onClick={() => setShowStaffPicker(!showStaffPicker)} className="text-xs bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg font-medium hover:bg-blue-100 transition">+ Phân công</button>
             )}
           </div>
           
           {showStaffPicker && (
-            <div className="bg-gray-50 border border-gray-200 p-3 rounded-xl mb-4 animate-fade-in">
-              <p className="text-xs text-gray-500 font-semibold mb-2">Chọn nhân sự từ hệ thống:</p>
+            <div className="bg-gray-50 border border-gray-200 p-3 rounded-xl mb-4 mt-2 animate-fade-in">
+              <p className="text-xs text-gray-500 font-semibold mb-2">Chọn nhân viên từ hệ thống:</p>
               <div className="flex flex-wrap gap-2">
                 {availableStaff.length > 0 ? availableStaff.map(s => (
-                  <span key={s.id} onClick={() => handleAddStaffToEvent(s, event.id)} className="text-xs bg-white border border-gray-300 px-3 py-1.5 rounded-full cursor-pointer hover:border-blue-500 hover:text-blue-600 transition">
+                  <span key={s.id} onClick={() => handleAddStaffToEvent(s, event.id)} className="text-xs bg-white border border-gray-300 px-3 py-1.5 rounded-full cursor-pointer hover:border-blue-500 hover:text-blue-600 transition shadow-sm">
                     + {s.name}
                   </span>
-                )) : <span className="text-xs text-gray-400">Tất cả nhân sự đã được thêm.</span>}
+                )) : <span className="text-xs text-gray-400">Tất cả nhân viên đã tham gia chợ này.</span>}
               </div>
             </div>
           )}
 
-          <p className="text-xs text-gray-500 mb-4 mt-2">Nhấn vào nhân sự để xem & báo cáo chi phí</p>
+          <p className="text-xs text-gray-500 mb-4 mt-2">Bấm vào tên để xem & báo cáo chi phí</p>
           <div className="grid grid-cols-2 gap-3">
             {(event.staff || []).map((p, idx) => {
               const staffTotal = (event.receipts || []).filter(r => r.staffName === p.name).reduce((sum, r) => sum + r.amount, 0);
               return (
-                <div key={idx} onClick={() => setSelectedStaffInEvent(p)} className="cursor-pointer bg-blue-50 border border-blue-100 p-3 rounded-xl hover:bg-blue-100 hover:border-blue-300 transition group">
+                <div key={idx} onClick={() => setSelectedStaffInEvent(p)} className="cursor-pointer bg-blue-50 border border-blue-100 p-3 rounded-xl hover:bg-blue-100 hover:border-blue-300 transition group shadow-sm">
                   <div className="flex justify-between items-start mb-2">
-                    <div className="w-8 h-8 bg-blue-200 text-blue-700 rounded-full flex items-center justify-center font-bold text-xs">{p.name.charAt(0)}</div>
+                    <div className="w-8 h-8 bg-blue-200 text-blue-700 rounded-full flex items-center justify-center font-bold text-xs shadow-inner">{p.name.charAt(0)}</div>
                     <ChevronLeft size={16} className="text-blue-400 rotate-180" />
                   </div>
                   <div>
                     <p className="font-bold text-gray-800 text-sm">{p.name}</p>
-                    <p className="text-[10px] text-gray-500 flex justify-between"><span>{p.city}</span>{staffTotal > 0 && <span className="font-bold text-emerald-600">€{staffTotal}</span>}</p>
+                    <p className="text-[10px] text-gray-500 flex justify-between mt-0.5"><span>{p.city}</span>{staffTotal > 0 && <span className="font-bold text-emerald-600">€{staffTotal}</span>}</p>
                   </div>
                 </div>
               );
@@ -702,13 +685,14 @@ export default function App() {
     <div className="min-h-screen bg-gray-100 flex justify-center font-sans">
       {!currentUser ? (
         <div className="w-full max-w-md bg-white min-h-screen relative shadow-2xl flex flex-col items-center justify-center p-8 animate-fade-in">
-          <div className="w-24 h-24 bg-blue-50 text-blue-600 rounded-[2rem] flex items-center justify-center mb-8"><Lock size={48} strokeWidth={1.5} /></div>
+          <div className="w-24 h-24 bg-blue-50 text-blue-600 rounded-[2rem] flex items-center justify-center mb-8 shadow-inner"><Lock size={48} strokeWidth={1.5} /></div>
           <h1 className="text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">FestManager</h1>
           <p className="text-gray-500 mb-12 text-center text-sm font-medium">Hệ thống quản lý F&B lưu động</p>
           <div className="w-full space-y-4">
-            <button onClick={() => setCurrentUser({ role: 'admin', name: 'Lance' })} className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-4 rounded-2xl shadow-lg hover:scale-95 transition">Vào bằng quyền Quản lý</button>
+            <button onClick={() => setCurrentUser({ role: 'admin', name: 'Lance' })} className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-4 rounded-2xl shadow-lg hover:scale-95 transition">Vào bằng quyền Quản lý (Admin)</button>
             <div className="relative py-4 flex items-center justify-center"><div className="border-b border-gray-200 w-full"></div><span className="absolute bg-white px-3 text-xs text-gray-400">HOẶC</span></div>
-            <button onClick={() => setCurrentUser({ role: 'staff', name: 'Linh' })} className="w-full bg-emerald-50 text-emerald-700 font-bold py-4 rounded-2xl border border-emerald-100 hover:scale-95 transition">Vào bằng quyền Nhân sự</button>
+            {/* Đăng nhập bằng tài khoản Staff "Linh" để xem giao diện Hồ sơ cá nhân */}
+            <button onClick={() => setCurrentUser({ role: 'staff', name: 'Linh' })} className="w-full bg-emerald-50 text-emerald-700 font-bold py-4 rounded-2xl border border-emerald-100 hover:scale-95 transition shadow-sm">Vào bằng Nhân viên "Linh"</button>
           </div>
         </div>
       ) : (
@@ -717,31 +701,69 @@ export default function App() {
             <h1 className="text-xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent cursor-pointer" onClick={() => {setActiveTab('dashboard'); setSelectedEvent(null); setSelectedGlobalStaff(null);}}>FestManager</h1>
             <div className="flex items-center gap-4">
               <div className="flex flex-col text-right"><span className="text-sm font-bold text-gray-800">{currentUser.name}</span><span className={`text-[10px] font-bold uppercase ${currentUser.role === 'admin' ? 'text-blue-600' : 'text-emerald-600'}`}>{currentUser.role === 'admin' ? 'Quản lý' : 'Nhân sự'}</span></div>
-              <button onClick={() => { setCurrentUser(null); setActiveTab('dashboard'); setSelectedEvent(null); setSelectedGlobalStaff(null); }} className="w-10 h-10 bg-gray-100 text-gray-500 rounded-full flex items-center justify-center"><LogOut size={18} /></button>
+              <button onClick={() => { setCurrentUser(null); setActiveTab('dashboard'); setSelectedEvent(null); setSelectedGlobalStaff(null); }} className="w-10 h-10 bg-gray-100 hover:bg-red-50 hover:text-red-600 text-gray-500 rounded-full flex items-center justify-center transition"><LogOut size={18} /></button>
             </div>
           </header>
 
           <main className="flex-1 overflow-y-auto p-6 scroll-smooth">
-            {selectedEvent ? renderEventDetail() : activeTab === 'hr' ? renderHRGlobal() : (
+            {selectedEvent ? renderEventDetail() : (
               <>
                 {activeTab === 'dashboard' && renderDashboard()}
                 {activeTab === 'schedule' && renderSchedule()}
                 {activeTab === 'inventory' && renderInventory()}
-                {activeTab === 'finance' && currentUser.role === 'admin' && renderFinance()}
+                {/* Chỉ admin thấy tài chính */}
+                {activeTab === 'finance' && currentUser.role === 'admin' && (
+                  <div className="space-y-6 pb-20 animate-fade-in">
+                    <h2 className="text-2xl font-bold text-gray-800">Tài chính</h2>
+                    <div className="space-y-4">
+                      {eventsData.map(event => {
+                        const totalExpense = event.financials ? Object.values(event.financials.expenses).reduce((a, b) => a + b, 0) : 0;
+                        const netProfit = (event.financials?.income || 0) - totalExpense;
+                        return (
+                          <div key={event.id} onClick={() => setSelectedEvent(event)} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:border-blue-300">
+                            <div className="flex justify-between items-center mb-3">
+                              <div><h4 className="font-bold text-gray-800">{event.name}</h4><p className="text-xs text-gray-500">{event.date}</p></div>
+                              <span className={`px-2 py-1 rounded-md text-xs font-bold ${event.status !== 'Đã hoàn thành' ? 'bg-gray-100 text-gray-600' : netProfit >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                                {event.status !== 'Đã hoàn thành' ? 'Chưa chốt' : netProfit >= 0 ? 'Lãi' : 'Lỗ'}
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <div className="text-gray-600">Thu: <span className="text-emerald-600 font-semibold">€{event.financials?.income || 0}</span></div>
+                              <div className="text-gray-600">Chi: <span className="text-red-500 font-semibold">€{totalExpense}</span></div>
+                              <div className="font-bold text-gray-800">= <span className={netProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}>€{netProfit}</span></div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+                {/* View HR cho Admin */}
+                {activeTab === 'hr' && currentUser.role === 'admin' && renderHRGlobal()}
+                
+                {/* View Profile của chính Nhân sự */}
+                {activeTab === 'profile' && currentUser.role === 'staff' && renderStaffProfileView(staffList.find(s => s.name === currentUser.name))}
               </>
             )}
           </main>
 
           {!selectedEvent && !selectedGlobalStaff && (
             <nav className="bg-white border-t border-gray-200 absolute bottom-0 w-full px-4 py-3 flex justify-between items-center pb-safe z-20">
-              <button onClick={() => setActiveTab('dashboard')} className={`flex flex-col items-center gap-1 ${activeTab === 'dashboard' ? 'text-blue-600' : 'text-gray-400'}`}><LayoutDashboard size={24} /><span className="text-[10px] font-medium">Tổng quan</span></button>
-              <button onClick={() => setActiveTab('schedule')} className={`flex flex-col items-center gap-1 ${activeTab === 'schedule' ? 'text-blue-600' : 'text-gray-400'}`}><Calendar size={24} /><span className="text-[10px] font-medium">Lịch trình</span></button>
-              <button onClick={() => setActiveTab('inventory')} className={`flex flex-col items-center gap-1 ${activeTab === 'inventory' ? 'text-blue-600' : 'text-gray-400'}`}><Package size={24} /><span className="text-[10px] font-medium">Kho hàng</span></button>
+              <button onClick={() => setActiveTab('dashboard')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'dashboard' ? 'text-blue-600' : 'text-gray-400'}`}><LayoutDashboard size={24} /><span className="text-[10px] font-medium">Tổng quan</span></button>
+              <button onClick={() => setActiveTab('schedule')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'schedule' ? 'text-blue-600' : 'text-gray-400'}`}><Calendar size={24} /><span className="text-[10px] font-medium">Lịch trình</span></button>
+              <button onClick={() => setActiveTab('inventory')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'inventory' ? 'text-blue-600' : 'text-gray-400'}`}><Package size={24} /><span className="text-[10px] font-medium">Kho hàng</span></button>
+              
+              {/* Admin Menu */}
               {currentUser.role === 'admin' && (
                 <>
-                  <button onClick={() => setActiveTab('finance')} className={`flex flex-col items-center gap-1 ${activeTab === 'finance' ? 'text-blue-600' : 'text-gray-400'}`}><DollarSign size={24} /><span className="text-[10px] font-medium">Tài chính</span></button>
-                  <button onClick={() => setActiveTab('hr')} className={`flex flex-col items-center gap-1 ${activeTab === 'hr' ? 'text-blue-600' : 'text-gray-400'}`}><Users size={24} /><span className="text-[10px] font-medium">Nhân sự</span></button>
+                  <button onClick={() => setActiveTab('finance')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'finance' ? 'text-blue-600' : 'text-gray-400'}`}><DollarSign size={24} /><span className="text-[10px] font-medium">Tài chính</span></button>
+                  <button onClick={() => setActiveTab('hr')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'hr' ? 'text-blue-600' : 'text-gray-400'}`}><Users size={24} /><span className="text-[10px] font-medium">Nhân sự</span></button>
                 </>
+              )}
+
+              {/* Staff Menu */}
+              {currentUser.role === 'staff' && (
+                <button onClick={() => setActiveTab('profile')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'profile' ? 'text-blue-600' : 'text-gray-400'}`}><User size={24} /><span className="text-[10px] font-medium">Hồ sơ</span></button>
               )}
             </nav>
           )}
