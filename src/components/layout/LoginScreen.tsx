@@ -74,21 +74,10 @@ export default function LoginScreen() {
 
     if (data.user) {
       const name = displayName.trim() || username.trim();
-
-      // Lưu profile vào bảng users
-      await supabase.from('users').insert({
-        id: data.user.id,
-        name,
-        role: 'staff',
-      });
-
-      // Tạo luôn record nhân viên để hiện ở tab Nhân sự
-      await supabase.from('staff_members').insert({
-        user_id: data.user.id,
-        name,
-        dob:  '',
-        city: '',
-      });
+      // Trigger on_auth_user_created tự tạo users + staff_members với username
+      // Nếu user nhập tên hiển thị riêng thì update lại
+      await supabase.from('users').update({ name }).eq('id', data.user.id);
+      await supabase.from('staff_members').update({ name }).eq('user_id', data.user.id);
     }
 
     setSuccess('Đăng ký thành công! Bạn có thể đăng nhập ngay.');
