@@ -11,15 +11,14 @@ import LoginScreen from './components/layout/LoginScreen';
 import Header      from './components/layout/Header';
 import BottomNav   from './components/layout/BottomNav';
 
-// ── Screens (sẽ tạo ở các bước tiếp theo) ────────────────────────────────────
-// import Dashboard    from './components/dashboard/Dashboard';
-// import Schedule     from './components/schedule/Schedule';
-// import EventDetail  from './components/schedule/EventDetail';
-// import Inventory    from './components/inventory/Inventory';
-// import Finance      from './components/finance/Finance';
-// import HRGlobal     from './components/hr/HRGlobal';
-// import StaffProfile from './components/hr/StaffProfile';
-// ─────────────────────────────────────────────────────────────────────────────
+// Screens
+import Dashboard    from './components/dashboard/Dashboard';
+import Schedule     from './components/schedule/Schedule';
+import EventDetail  from './components/schedule/EventDetail';
+import Inventory    from './components/inventory/Inventory';
+import Finance      from './components/finance/Finance';
+import HRGlobal     from './components/hr/HRGlobal';
+import StaffProfile from './components/hr/StaffProfile';
 
 export default function App() {
   const { state, logout: contextLogout } = useApp();
@@ -65,37 +64,45 @@ export default function App() {
 
         <main className="flex-1 overflow-y-auto p-6 scroll-smooth">
 
-          {/* ── Màn hình chi tiết Event ────────────────────────────────────
-              (Sẽ uncomment khi tạo EventDetail.tsx ở bước tiếp theo)
-
+          {/* ── Màn hình chi tiết Event ──────────────────────────────────── */}
           {selectedEventId && (
             <EventDetail
               eventId={selectedEventId}
               onBack={() => setSelectedEventId(null)}
             />
           )}
-          ──────────────────────────────────────────────────────────────── */}
 
-          {/* ── Các tab chính ─────────────────────────────────────────────
-              Tạm thời dùng placeholder, sẽ thay bằng component thật dần
+          {/* ── Màn hình chi tiết Staff (admin xem profile nhân viên) ─────── */}
+          {!selectedEventId && selectedStaffId && (
+            <StaffProfile
+              staffId={selectedStaffId}
+              onBack={() => setSelectedStaffId(null)}
+            />
+          )}
 
-          {!selectedEventId && (
+          {/* ── Các tab chính ─────────────────────────────────────────────── */}
+          {!selectedEventId && !selectedStaffId && (
             <>
-              {activeTab === 'dashboard' && <Dashboard onSelectEvent={setSelectedEventId} />}
-              {activeTab === 'schedule'  && <Schedule  onSelectEvent={setSelectedEventId} />}
-              {activeTab === 'inventory' && <Inventory />}
-              {activeTab === 'finance'   && currentUser.role === 'admin' && <Finance onSelectEvent={setSelectedEventId} />}
-              {activeTab === 'hr'        && currentUser.role === 'admin' && <HRGlobal onSelectStaff={setSelectedStaffId} />}
-              {activeTab === 'profile'   && currentUser.role === 'staff' && <StaffProfile staffId={currentUser.id} />}
+              {activeTab === 'dashboard' && (
+                <Dashboard onSelectEvent={setSelectedEventId} />
+              )}
+              {activeTab === 'schedule' && (
+                <Schedule onSelectEvent={setSelectedEventId} />
+              )}
+              {activeTab === 'inventory' && (
+                <Inventory />
+              )}
+              {activeTab === 'finance' && currentUser.role === 'admin' && (
+                <Finance onSelectEvent={setSelectedEventId} />
+              )}
+              {activeTab === 'hr' && currentUser.role === 'admin' && (
+                <HRGlobal onSelectStaff={setSelectedStaffId} />
+              )}
+              {activeTab === 'profile' && currentUser.role === 'staff' && (
+                <StaffProfile staffId={currentUser.id} />
+              )}
             </>
           )}
-          ──────────────────────────────────────────────────────────────── */}
-
-          {/* PLACEHOLDER — xóa khi uncomment các screen bên trên */}
-          <div className="flex flex-col items-center justify-center h-64 gap-3 text-gray-400">
-            <p className="text-lg font-bold">Tab: {activeTab}</p>
-            <p className="text-sm">Components đang được tạo...</p>
-          </div>
 
         </main>
 
