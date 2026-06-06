@@ -82,10 +82,12 @@ export async function fetchEvents(): Promise<FestivalEvent[]> {
     .from('events')
     .select(`*, event_staff(staff_id, staff_members(id, name, city, users(role))), receipts:expenses(*)`);
 
-  if (error || !data || data.length === 0) {
-    if (error) console.error('[db] fetchEvents error:', error.message);
+  console.log('[fetchEvents] raw result:', { count: data?.length, error: error?.message, data });
+  if (error) {
+    console.error('[db] fetchEvents error:', error.message, error.code, error.details, error.hint);
     return [];
   }
+  if (!data || data.length === 0) return [];
 
   return data.map((row: any): FestivalEvent => {
     // Map staff from event_staff junction
