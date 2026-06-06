@@ -1,774 +1,113 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Calendar, 
-  Package, 
-  DollarSign, 
-  LayoutDashboard, 
-  AlertTriangle,
-  Plus,
-  ArrowUpRight,
-  ArrowDownRight,
-  FileText,
-  ChevronLeft,
-  Users,
-  MapPin,
-  PieChart,
-  LogOut,
-  Lock,
-  Camera,
-  Receipt,
-  Upload,
-  Image as ImageIcon,
-  Briefcase,
-  FileCheck,
-  UserPlus,
-  User
-} from 'lucide-react';
+// =============================================================================
+// src/App.tsx  —  App shell (điều phối, không chứa business logic)
+// =============================================================================
 
-const mockStaffData = [
-  { id: 1, name: 'Lance', dob: '04-05-1995', city: 'Paris', contracts: [] },
-  { id: 2, name: 'Linh', dob: '12-10-1998', city: 'Lyon', contracts: [
-    { id: 999, date: '10-06-2026', url: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80' }
-  ] },
-  { id: 3, name: 'Minh', dob: '22-01-2000', city: 'Marseille', contracts: [] },
-  { id: 4, name: 'Sophie', dob: '15-08-1999', city: 'Caen', contracts: [] },
-  { id: 5, name: 'Alex', dob: '01-01-2000', city: 'Lille', contracts: [] }
-];
+import { useState } from 'react';
+import { useApp } from './context/AppContext';
+import type { ActiveTab } from './types';
 
-const mockEvents = [
-  { 
-    id: 1, name: 'Paris Food Festival', date: '15-06-2026', location: 'Champ de Mars', status: 'Sắp tới',
-    staff: [{name: 'Lance', city: 'Paris'}, {name: 'Linh', city: 'Lyon'}],
-    financials: { income: 0, expenses: { rent: 400, ingredients: 800, transport: 100 } },
-    inventoryReported: [],
-    receipts: [
-      { id: 101, staffName: 'Linh', type: 'Vé TGV (Lyon-Paris)', amount: 45, date: '14-06-2026', imageUrl: 'https://images.unsplash.com/photo-1620052581237-5d38f29ea15c?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80' }
-    ],
-    extra: { booth: 'A12', hygienePermit: 'Đang xin', organizerContact: '0123 456 789' }
-  },
-  { 
-    id: 2, name: 'Fête de la Musique', date: '21-06-2026', location: 'Montmartre', status: 'Lên kế hoạch',
-    staff: [{name: 'Lance', city: 'Paris'}],
-    financials: { income: 0, expenses: { rent: 200 } },
-    inventoryReported: [],
-    receipts: [],
-    extra: { booth: 'TBD', hygienePermit: 'Chưa có', organizerContact: 'contact@fete.fr' }
-  },
-  { 
-    id: 3, name: 'Lyon Street Food', date: '01-05-2026', location: 'Lyon', status: 'Đã hoàn thành',
-    staff: [{name: 'Lance', city: 'Paris'}, {name: 'Minh', city: 'Marseille'}],
-    financials: { income: 3500, expenses: { rent: 500, ingredients: 1000, transport: 300, staff: 400 } },
-    inventoryReported: [{name: 'Gà vàng', qty: 10, unit: 'kg'}, {name: 'Yakitori', qty: 50, unit: 'xiên'}],
-    receipts: [
-      { id: 102, staffName: 'Minh', type: 'Cước Uber', amount: 15, date: '01-05-2026', imageUrl: 'https://images.unsplash.com/photo-1620052581237-5d38f29ea15c?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80' }
-    ],
-    extra: { booth: 'B4', hygienePermit: 'Đã duyệt', organizerContact: 'lyon@food.fr' }
-  }
-];
+// Layout
+import LoginScreen from './components/layout/LoginScreen';
+import Header      from './components/layout/Header';
+import BottomNav   from './components/layout/BottomNav';
 
-const mockInventory = [
-  { id: 1, name: 'Thịt bò', current: 5, threshold: 10, unit: 'kg' },
-  { id: 2, name: 'Vỏ bánh bao', current: 150, threshold: 50, unit: 'cái' },
-  { id: 3, name: 'Rau xà lách', current: 2, threshold: 5, unit: 'kg' },
-  { id: 4, name: 'Nước ngọt', current: 40, threshold: 24, unit: 'lon' },
-];
-
-const mockFinances = {
-  totalIncome: 4500,
-  totalExpense: 1200,
-  transactions: [
-    { id: 1, type: 'income', amount: 4500, note: 'Doanh thu Paris Food Fest (Ngày 1)', date: '15-06-2026' },
-    { id: 2, type: 'expense', amount: 800, note: 'Nhập nguyên liệu thịt/rau', date: '13-06-2026' },
-    { id: 3, type: 'expense', amount: 400, note: 'Phí thuê gian hàng', date: '10-06-2026' },
-  ]
-};
+// ── Screens (sẽ tạo ở các bước tiếp theo) ────────────────────────────────────
+// import Dashboard    from './components/dashboard/Dashboard';
+// import Schedule     from './components/schedule/Schedule';
+// import EventDetail  from './components/schedule/EventDetail';
+// import Inventory    from './components/inventory/Inventory';
+// import Finance      from './components/finance/Finance';
+// import HRGlobal     from './components/hr/HRGlobal';
+// import StaffProfile from './components/hr/StaffProfile';
+// ─────────────────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [currentUser, setCurrentUser] = useState(null); 
-  const [activeTab, setActiveTab] = useState('dashboard');
-  
-  // Data States
-  const [eventsData, setEventsData] = useState(mockEvents);
-  const [inventoryData, setInventoryData] = useState(mockInventory);
-  const [staffList, setStaffList] = useState(mockStaffData);
-  
-  // Selection States
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [selectedStaffInEvent, setSelectedStaffInEvent] = useState(null);
-  const [selectedGlobalStaff, setSelectedGlobalStaff] = useState(null); 
+  const { state, logout } = useApp();
+  const { currentUser } = state;
 
-  // UI Flow States
-  const [inventoryInput, setInventoryInput] = useState('');
-  const [parsedInventory, setParsedInventory] = useState([]);
-  const [editingUnitId, setEditingUnitId] = useState(null);
-  const [showReceiptForm, setShowReceiptForm] = useState(false);
-  const [newEventInput, setNewEventInput] = useState('');
-  const [showStaffPicker, setShowStaffPicker] = useState(false); 
-  const [showAddStaffForm, setShowAddStaffForm] = useState(false); 
+  // ── UI state (cục bộ trong App — không cần vào Context) ───────────────────
+  const [activeTab,        setActiveTab]        = useState<ActiveTab>('dashboard');
+  const [selectedEventId,  setSelectedEventId]  = useState<number | null>(null);
+  const [selectedStaffId,  setSelectedStaffId]  = useState<number | null>(null);
 
-  const unitOptions = ['kg', 'g', 'lít', 'ml', 'cái', 'lon', 'hộp', 'xiên', 'thùng', 'phần'];
-
-  // Form States
-  const [newReceipt, setNewReceipt] = useState({ type: 'Vé tàu/xe', amount: '', imagePreview: null });
-  const [newStaff, setNewStaff] = useState({ name: '', dob: '', city: '' });
-  
-  const receiptInputRef = useRef(null);
-  const contractInputRef = useRef(null);
-
-  useEffect(() => {
-    if (!selectedEvent) {
-      setSelectedStaffInEvent(null);
-      setShowReceiptForm(false);
-      setShowStaffPicker(false);
-      setNewReceipt({ type: 'Vé tàu/xe', amount: '', imagePreview: null });
-    }
-  }, [selectedEvent]);
-
-  const handleUnitChange = (id, newUnit) => {
-    setInventoryData(prev => prev.map(item => item.id === id ? { ...item, unit: newUnit } : item));
-    setEditingUnitId(null);
+  // Reset về Dashboard + xóa mọi selection đang chọn
+  const handleLogoClick = () => {
+    setActiveTab('dashboard');
+    setSelectedEventId(null);
+    setSelectedStaffId(null);
   };
 
-  const handleParseInventory = () => {
-    if (!inventoryInput.trim()) return;
-    const items = inventoryInput.split(',').map(item => item.trim());
-    let updatedInventory = [...inventoryData]; 
-
-    const parsed = items.map(item => {
-      const match = item.match(/^(.*?)\s+(\d+(?:\.\d+)?)$/);
-      if (match) {
-        const name = match[1].trim();
-        const qty = Number(match[2]);
-        let action = '';
-
-        const existingItemIndex = updatedInventory.findIndex(
-          inv => inv.name.toLowerCase() === name.toLowerCase()
-        );
-
-        if (existingItemIndex >= 0) {
-          updatedInventory[existingItemIndex].current = qty;
-          action = 'updated';
-        } else {
-          updatedInventory.push({ id: Date.now(), name: name, current: qty, threshold: 10, unit: 'cái' });
-          action = 'created';
-        }
-        return { name, qty, status: 'success', action };
-      }
-      return { name: item, qty: 0, status: 'error' };
-    });
-
-    setParsedInventory(parsed);
-    setInventoryData(updatedInventory); 
-    setInventoryInput(''); 
+  // Đăng xuất rồi reset toàn bộ UI state
+  const handleLogout = () => {
+    logout();
+    setActiveTab('dashboard');
+    setSelectedEventId(null);
+    setSelectedStaffId(null);
   };
 
-  const handleSmartAddEvent = () => {
-    if (!newEventInput.trim()) return;
-    const match = newEventInput.match(/^(\d{2}-\d{2}-\d{4})\s+(.+?)\s+([^\s]+)$/);
-    if (match) {
-      const newEvent = {
-        id: Date.now(), name: match[2], date: match[1], location: match[3], status: 'Lên kế hoạch',
-        staff: [], financials: { income: 0, expenses: { rent: 0 } }, inventoryReported: [], receipts: [],
-        extra: { booth: 'Chưa có', hygienePermit: 'Chưa có', organizerContact: 'Chưa cập nhật' }
-      };
-      setEventsData([...eventsData, newEvent]);
-      setNewEventInput('');
-    } else {
-      alert("Sai cú pháp! Vui lòng nhập: 25-06-2026 Otaku Caen");
-    }
-  };
-
-  const handleImageChange = (e, target) => {
-    const file = e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      if (target === 'receipt') setNewReceipt({...newReceipt, imagePreview: imageUrl});
-    }
-  };
-
-  const handleUploadContract = (e, staffId) => {
-    const file = e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      const newContract = {
-        id: Date.now(),
-        date: new Date().toLocaleDateString('vi-VN').replace(/\//g, '-'),
-        url: imageUrl
-      };
-      
-      setStaffList(prev => prev.map(s => {
-        if (s.id === staffId) {
-          return { ...s, contracts: [...(s.contracts || []), newContract] };
-        }
-        return s;
-      }));
-    }
-  };
-
-  const handleUploadReceipt = (event) => {
-    if (!newReceipt.amount) { alert("Vui lòng nhập số tiền!"); return; }
-    const targetStaffName = selectedStaffInEvent ? selectedStaffInEvent.name : currentUser.name;
-    const finalImageUrl = newReceipt.imagePreview || 'https://images.unsplash.com/photo-1620052581237-5d38f29ea15c?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80';
-    
-    setEventsData(eventsData.map(e => e.id === event.id ? {
-      ...e, receipts: [...(e.receipts || []), {
-        id: Date.now(), staffName: targetStaffName, type: newReceipt.type, amount: Number(newReceipt.amount),
-        date: new Date().toLocaleDateString('vi-VN').replace(/\//g, '-'), imageUrl: finalImageUrl
-      }]
-    } : e));
-    
-    setShowReceiptForm(false);
-    setNewReceipt({ type: 'Vé tàu/xe', amount: '', imagePreview: null });
-  };
-
-  const handleCreateStaff = () => {
-    if (!newStaff.name || !newStaff.dob) { alert("Vui lòng nhập đủ tên và ngày sinh!"); return; }
-    // Không cần upload hợp đồng ở đây nữa
-    setStaffList([...staffList, { ...newStaff, id: Date.now(), contracts: [] }]);
-    setShowAddStaffForm(false);
-    setNewStaff({ name: '', dob: '', city: '' });
-  };
-
-  const handleAddStaffToEvent = (staffMember, eventId) => {
-    setEventsData(eventsData.map(e => {
-      if (e.id === eventId) {
-        if (e.staff.some(s => s.name === staffMember.name)) return e;
-        return { ...e, staff: [...e.staff, { name: staffMember.name, city: staffMember.city }] };
-      }
-      return e;
-    }));
-    setShowStaffPicker(false);
-  };
-
-
-  const renderDashboard = () => {
-    const lowStockItems = inventoryData.filter(item => item.current <= item.threshold);
-    const netProfit = mockFinances.totalIncome - mockFinances.totalExpense;
-    const nextEvent = eventsData.find(e => e.status === 'Sắp tới') || eventsData[0];
-
+  // ── Chưa đăng nhập → hiện màn hình Login ──────────────────────────────────
+  if (!currentUser) {
     return (
-      <div className="space-y-6 animate-fade-in pb-20">
-        <h2 className="text-2xl font-bold text-gray-800">Tổng quan</h2>
-        {nextEvent && (
-          <div onClick={() => setSelectedEvent(nextEvent)} className="cursor-pointer bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-5 text-white shadow-lg hover:scale-[1.02] transition">
-            <p className="text-blue-100 text-sm">Festival tiếp theo</p>
-            <h3 className="text-xl font-bold mt-1">{nextEvent.name}</h3>
-            <p className="text-sm mt-2 flex items-center gap-2"><Calendar size={16} /> {nextEvent.date} | {nextEvent.location}</p>
-          </div>
-        )}
-        <div className="grid grid-cols-2 gap-4">
-          {currentUser?.role === 'admin' && (
-            <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-              <p className="text-gray-500 text-sm">Lợi nhuận ròng</p>
-              <p className="text-xl font-bold text-emerald-600 mt-1">€{netProfit}</p>
-            </div>
-          )}
-          <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-            <p className="text-gray-500 text-sm">Cảnh báo kho</p>
-            <p className="text-xl font-bold text-red-500 mt-1 flex items-center gap-2">{lowStockItems.length} món <AlertTriangle size={18} /></p>
-          </div>
-        </div>
-        {lowStockItems.length > 0 && (
-          <div className="bg-red-50 p-4 rounded-2xl border border-red-100">
-            <h4 className="font-semibold text-red-800 flex items-center gap-2 mb-3"><AlertTriangle size={18} /> Cần nhập thêm</h4>
-            <div className="space-y-2">
-              {lowStockItems.map(item => (
-                <div key={item.id} className="flex justify-between items-center text-sm">
-                  <span className="text-red-900 font-medium">{item.name}</span>
-                  <span className="text-red-600 bg-red-100 px-2 py-1 rounded-md">Còn {item.current} {item.unit}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+      <div className="min-h-screen bg-gray-100 flex justify-center">
+        <LoginScreen />
       </div>
     );
-  };
+  }
 
-  const renderSchedule = () => (
-    <div className="space-y-6 pb-20 animate-fade-in">
-      <h2 className="text-2xl font-bold text-gray-800">Lịch trình</h2>
-      {currentUser?.role === 'admin' && (
-        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
-          <h3 className="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-sm"><Plus size={16} className="text-blue-600"/> Thêm sự kiện nhanh</h3>
-          <p className="text-[11px] text-gray-500 mb-2">Mẫu: 25-06-2026 Otaku Caen</p>
-          <div className="flex gap-2">
-            <input type="text" value={newEventInput} onChange={(e) => setNewEventInput(e.target.value)} placeholder="Nhập text..." className="flex-1 bg-gray-50 border border-gray-300 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500" />
-            <button onClick={handleSmartAddEvent} className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-blue-700 transition">Tạo</button>
-          </div>
-        </div>
-      )}
-      <div className="space-y-4">
-        {eventsData.map(event => (
-          <div key={event.id} onClick={() => setSelectedEvent(event)} className="cursor-pointer bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex gap-4 hover:border-blue-300 transition">
-            <div className="bg-blue-50 text-blue-600 p-3 rounded-xl flex flex-col items-center justify-center min-w-[60px]">
-              <span className="text-lg font-bold">{event.date.split('-')[0]}</span>
-              <span className="text-xs">Thg {event.date.split('-')[1]}</span>
-            </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-gray-800 text-lg">{event.name}</h3>
-              <p className="text-gray-500 text-sm flex items-center gap-1 mt-1"><MapPin size={12}/> {event.location}</p>
-              <span className={`inline-block mt-2 text-xs px-2 py-1 rounded-md ${event.status === 'Đã hoàn thành' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>{event.status}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderInventory = () => (
-    <div className="space-y-6 pb-20 animate-fade-in">
-      <h2 className="text-2xl font-bold text-gray-800">Kho hàng</h2>
-      <div className="bg-white border border-gray-200 p-4 rounded-2xl shadow-sm">
-        <h3 className="text-gray-800 font-bold mb-2 flex items-center gap-2"><FileText size={18}/> Cập nhật kho thông minh</h3>
-        <p className="text-gray-500 text-xs mb-3">Mẫu: Thịt bò 5.5, Xúc xích 30</p>
-        <textarea value={inventoryInput} onChange={(e) => setInventoryInput(e.target.value)} placeholder="Nhập đoạn text..." className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 mb-3" rows={3} />
-        <button onClick={handleParseInventory} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium w-full shadow-sm hover:bg-blue-700">Trích xuất & Cập nhật kho</button>
-        {parsedInventory.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-gray-100">
-            <h4 className="text-sm font-semibold text-gray-700 mb-2">Kết quả:</h4>
-            <div className="space-y-2">
-              {parsedInventory.map((item, idx) => (
-                <div key={idx} className="flex justify-between items-center text-sm p-2 bg-gray-50 rounded-md">
-                  <span className={item.status === 'error' ? 'text-red-500 line-through' : 'text-gray-800'}>{item.name}</span>
-                  {item.status === 'success' && (
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-blue-600">{item.qty}</span>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded ${item.action === 'created' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-200 text-gray-600'}`}>
-                        {item.action === 'created' ? '+ Thêm mới' : 'Cập nhật'}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        {inventoryData.map((item, index) => {
-          const isLow = item.current <= item.threshold;
-          const percentage = Math.min((item.current / (item.threshold * 2)) * 100, 100);
-          return (
-            <div key={item.id} className={`p-4 ${index !== inventoryData.length - 1 ? 'border-b border-gray-50' : ''}`}>
-              <div className="flex justify-between items-center mb-2">
-                <span className="font-medium text-gray-800">{item.name}</span>
-                <div className="flex items-center gap-2">
-                  <span className={`font-bold ${isLow ? 'text-red-500' : 'text-gray-800'}`}>{item.current}</span>
-                  {editingUnitId === item.id ? (
-                    <select autoFocus onBlur={() => setEditingUnitId(null)} onChange={(e) => handleUnitChange(item.id, e.target.value)} className="text-xs bg-blue-50 border border-blue-200 text-blue-700 rounded p-1 outline-none" defaultValue={item.unit}>
-                      {unitOptions.map(u => <option key={u} value={u}>{u}</option>)}
-                    </select>
-                  ) : (
-                    <span onClick={() => setEditingUnitId(item.id)} className="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded cursor-pointer">{item.unit}</span>
-                  )}
-                </div>
-              </div>
-              <div className="w-full bg-gray-100 rounded-full h-2">
-                <div className={`h-2 rounded-full transition-all ${isLow ? 'bg-red-500' : 'bg-emerald-500'}`} style={{ width: `${percentage}%` }}></div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-
-  const renderStaffProfileView = (targetStaff) => {
-    // Thu thập tất cả biên lai của người này từ mọi sự kiện
-    const allStaffReceipts = eventsData.reduce((acc, event) => {
-      const matchingReceipts = (event.receipts || []).filter(r => r.staffName === targetStaff.name);
-      return acc.concat(matchingReceipts.map(r => ({ ...r, eventName: event.name })));
-    }, []);
-    const totalGlobalExpense = allStaffReceipts.reduce((sum, r) => sum + r.amount, 0);
-
-    return (
-      <div className="space-y-6 animate-fade-in pb-20">
-        {currentUser.role === 'admin' ? (
-          <button onClick={() => setSelectedGlobalStaff(null)} className="flex items-center text-blue-600 font-medium hover:bg-blue-50 px-2 py-1 rounded-lg transition -ml-2">
-            <ChevronLeft size={20} /> Danh sách nhân sự
-          </button>
-        ) : (
-          <h2 className="text-2xl font-bold text-gray-800">Hồ sơ của tôi</h2>
-        )}
-        
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
-          <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100">
-            <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-100 text-indigo-700 rounded-full flex items-center justify-center font-black text-3xl shadow-inner border border-indigo-200/50">
-              {targetStaff.name.charAt(0)}
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800">{targetStaff.name}</h2>
-              <p className="text-sm text-gray-500 flex items-center gap-1 mt-1"><Calendar size={14}/> Sinh: {targetStaff.dob}</p>
-              <p className="text-sm text-gray-500 flex items-center gap-1 mt-0.5"><MapPin size={14}/> {targetStaff.city || 'Chưa cập nhật'}</p>
-            </div>
-          </div>
-
-          {/* Lịch sử Hợp đồng */}
-          <div className="mb-6">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="font-bold text-gray-800 text-sm flex items-center gap-2"><Briefcase size={16}/> Lịch sử Hợp đồng</h3>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-3">
-              {/* Nút Upload hợp đồng luôn nằm đầu tiên */}
-              <div onClick={() => contractInputRef.current.click()} className="h-32 border-2 border-dashed border-indigo-300 bg-indigo-50 rounded-xl flex flex-col items-center justify-center text-indigo-600 cursor-pointer hover:bg-indigo-100 transition">
-                <Upload size={20} className="mb-2" />
-                <span className="text-xs font-semibold text-center px-2">Tải hợp đồng<br/>mới lên</span>
-              </div>
-              <input type="file" ref={contractInputRef} onChange={(e) => handleUploadContract(e, targetStaff.id)} accept="image/*,.pdf" className="hidden" />
-
-              {/* Danh sách hợp đồng đã tải */}
-              {targetStaff.contracts?.slice().reverse().map((contract) => (
-                <div key={contract.id} className="relative h-32 rounded-xl border border-gray-200 overflow-hidden group">
-                  <img src={contract.url} alt="Contract" className="w-full h-full object-cover" />
-                  <div className="absolute bottom-0 w-full bg-black/60 p-1.5 backdrop-blur-sm">
-                    <p className="text-[10px] text-white font-medium text-center">{contract.date}</p>
-                  </div>
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer">
-                    <span className="bg-white text-gray-800 px-2 py-1 rounded text-xs font-bold shadow">Xem</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Tổng chi phí đã báo cáo */}
-          <div>
-            <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-xl mb-4 flex justify-between items-center shadow-sm">
-              <div className="flex items-center gap-2">
-                <div className="bg-indigo-100 p-1.5 rounded-lg text-indigo-600"><Receipt size={18}/></div>
-                <span className="font-semibold text-indigo-800 text-sm">Tổng chi phí đã báo cáo</span>
-              </div>
-              <span className="text-2xl font-black text-indigo-600">€{totalGlobalExpense}</span>
-            </div>
-
-            <h3 className="font-bold text-gray-800 text-sm mb-3">Lịch sử hoá đơn</h3>
-            <div className="space-y-3">
-              {allStaffReceipts.length > 0 ? (
-                allStaffReceipts.map((receipt) => (
-                  <div key={receipt.id} className="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-gray-200 shadow-sm cursor-pointer">
-                        <img src={receipt.imageUrl} alt="receipt" className="w-full h-full object-cover" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-800 text-sm">{receipt.type}</p>
-                        <p className="text-[10px] text-gray-500">{receipt.eventName} • {receipt.date}</p>
-                      </div>
-                    </div>
-                    <p className="font-bold text-gray-800">€{receipt.amount}</p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-gray-500 text-center py-4 border border-dashed border-gray-200 rounded-xl">Chưa có dữ liệu.</p>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const renderHRGlobal = () => {
-    if (selectedGlobalStaff) {
-      return renderStaffProfileView(selectedGlobalStaff);
-    }
-
-    return (
-      <div className="space-y-6 pb-20 animate-fade-in">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-gray-800">Hồ sơ Nhân sự</h2>
-          <button onClick={() => setShowAddStaffForm(!showAddStaffForm)} className={`p-2 rounded-xl transition ${showAddStaffForm ? 'bg-red-50 text-red-600' : 'bg-indigo-50 text-indigo-600'}`}>
-            <UserPlus size={20} />
-          </button>
-        </div>
-
-        {showAddStaffForm && (
-          <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 space-y-3">
-            <h3 className="font-semibold text-gray-800 border-b pb-2 mb-2">Thêm hồ sơ mới</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs font-semibold text-gray-600 mb-1 block">Họ và Tên</label>
-                <input type="text" value={newStaff.name} onChange={e => setNewStaff({...newStaff, name: e.target.value})} className="w-full text-sm border border-gray-300 rounded-lg p-2 outline-none focus:ring-2 focus:ring-indigo-500" placeholder="VD: Sophie" />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-gray-600 mb-1 block">Ngày sinh</label>
-                <input type="text" value={newStaff.dob} onChange={e => setNewStaff({...newStaff, dob: e.target.value})} className="w-full text-sm border border-gray-300 rounded-lg p-2 outline-none focus:ring-2 focus:ring-indigo-500" placeholder="DD-MM-YYYY" />
-              </div>
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-gray-600 mb-1 block">Thành phố (Nơi ở)</label>
-              <input type="text" value={newStaff.city} onChange={e => setNewStaff({...newStaff, city: e.target.value})} className="w-full text-sm border border-gray-300 rounded-lg p-2 outline-none focus:ring-2 focus:ring-indigo-500" placeholder="VD: Paris" />
-            </div>
-            {/* Đã bỏ phần upload hợp đồng ở đây theo yêu cầu */}
-            <button onClick={handleCreateStaff} className="w-full bg-indigo-600 text-white font-medium py-2 rounded-lg text-sm shadow-sm mt-2">Lưu Hồ sơ</button>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 gap-3">
-          {staffList.map((staff) => (
-            <div key={staff.id} onClick={() => setSelectedGlobalStaff(staff)} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer hover:border-indigo-300 transition">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center font-bold text-lg">{staff.name.charAt(0)}</div>
-                <div>
-                  <h3 className="font-bold text-gray-800">{staff.name}</h3>
-                  <p className="text-xs text-gray-500">{staff.dob} • {staff.city}</p>
-                </div>
-              </div>
-              <ChevronLeft size={20} className="text-gray-400 rotate-180" />
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
-  const renderEventDetail = () => {
-    if (!selectedEvent) return null;
-    const event = eventsData.find(e => e.id === selectedEvent.id) || selectedEvent;
-    
-    if (selectedStaffInEvent) {
-      const staffReceipts = (event.receipts || []).filter(r => r.staffName === selectedStaffInEvent.name);
-      const totalStaffExpense = staffReceipts.reduce((sum, r) => sum + r.amount, 0);
-
-      return (
-        <div className="space-y-6 animate-fade-in pb-20">
-          <button onClick={() => {setSelectedStaffInEvent(null); setShowReceiptForm(false);}} className="flex items-center text-blue-600 font-medium hover:bg-blue-50 px-2 py-1 rounded-lg transition -ml-2">
-            <ChevronLeft size={20} /> Sự kiện {event.name}
-          </button>
-          
-          <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
-            <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-700 rounded-2xl flex items-center justify-center font-black text-2xl shadow-inner border border-blue-200/50">
-                {selectedStaffInEvent.name.charAt(0)}
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-800">{selectedStaffInEvent.name}</h2>
-                <p className="text-sm text-gray-500 flex items-center gap-1 mt-0.5"><MapPin size={14}/> {selectedStaffInEvent.city || 'Chưa cập nhật'}</p>
-              </div>
-            </div>
-
-            <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-xl mb-6 flex justify-between items-center shadow-sm">
-              <div className="flex items-center gap-2">
-                <div className="bg-emerald-100 p-1.5 rounded-lg text-emerald-600"><Receipt size={18}/></div>
-                <span className="font-semibold text-emerald-800 text-sm">Chi phí kỳ này</span>
-              </div>
-              <span className="text-2xl font-black text-emerald-600">€{totalStaffExpense}</span>
-            </div>
-
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-bold text-gray-800 text-sm">Hoá đơn đã gửi</h3>
-              {/* Nút báo cáo bill chỉ dành cho Staff hoặc nếu Admin muốn báo cáo hộ */}
-              <button onClick={() => setShowReceiptForm(!showReceiptForm)} className={`text-xs px-3 py-1.5 rounded-lg font-medium transition ${showReceiptForm ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'}`}>
-                {showReceiptForm ? 'Hủy' : '+ Tải Bill lên'}
-              </button>
-            </div>
-
-            {showReceiptForm && (
-              <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-4 animate-fade-in space-y-3">
-                <div>
-                  <label className="text-xs font-semibold text-gray-600 mb-1 block">Loại chi phí</label>
-                  <select value={newReceipt.type} onChange={(e) => setNewReceipt({...newReceipt, type: e.target.value})} className="w-full text-sm border border-gray-300 rounded-lg p-2.5 bg-white outline-none focus:ring-2 focus:ring-blue-500">
-                    <option>Vé tàu/xe</option><option>Uber/Taxi</option><option>Ăn uống</option><option>Khác</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-gray-600 mb-1 block">Số tiền (€)</label>
-                  <input type="number" value={newReceipt.amount} onChange={(e) => setNewReceipt({...newReceipt, amount: e.target.value})} placeholder="VD: 45" className="w-full text-sm border border-gray-300 rounded-lg p-2.5 bg-white outline-none focus:ring-2 focus:ring-blue-500" />
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-gray-600 mb-1 block">Chụp ảnh / Chọn File (Bắt buộc)</label>
-                  {newReceipt.imagePreview ? (
-                    <div className="relative w-full h-32 rounded-lg border border-gray-300 overflow-hidden group">
-                      <img src={newReceipt.imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                      <button onClick={() => setNewReceipt({...newReceipt, imagePreview: null})} className="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100">Xoá</button>
-                    </div>
-                  ) : (
-                    <div onClick={() => receiptInputRef.current.click()} className="w-full flex flex-col items-center justify-center gap-2 py-4 border-2 border-dashed border-blue-300 bg-blue-50 text-blue-600 rounded-lg cursor-pointer hover:bg-blue-100 transition">
-                      <Camera size={24} /> <span className="text-xs font-medium">Bấm để chụp hoặc chọn Ảnh</span>
-                    </div>
-                  )}
-                  {/* Chức năng mở Camera / Bộ nhớ ảnh thật của điện thoại */}
-                  <input type="file" ref={receiptInputRef} onChange={(e) => handleImageChange(e, 'receipt')} accept="image/*" capture="environment" className="hidden" />
-                </div>
-                <button onClick={() => handleUploadReceipt(event)} className="w-full bg-blue-600 text-white font-medium py-2.5 rounded-lg text-sm mt-2 shadow-sm">Gửi báo cáo</button>
-              </div>
-            )}
-
-            <div className="space-y-3">
-              {staffReceipts.length > 0 ? (
-                staffReceipts.map((receipt) => (
-                  <div key={receipt.id} className="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-gray-200"><img src={receipt.imageUrl} alt="receipt" className="w-full h-full object-cover" /></div>
-                      <div><p className="font-semibold text-gray-800 text-sm">{receipt.type}</p><p className="text-[10px] text-gray-500">{receipt.date}</p></div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold text-gray-800">€{receipt.amount}</p>
-                      {currentUser?.role === 'admin' ? <button className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded mt-1 font-semibold border border-emerald-200 shadow-sm">Tính lương</button> : <span className="text-[10px] text-orange-500 font-medium bg-orange-50 px-2 py-0.5 rounded">Chờ duyệt</span>}
-                    </div>
-                  </div>
-                ))
-              ) : <p className="text-sm text-gray-500 text-center py-4 border border-dashed border-gray-200 rounded-xl bg-gray-50">Chưa có hoá đơn nào.</p>}
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    const totalExpense = Object.values(event.financials.expenses).reduce((a, b) => a + b, 0);
-    const netProfit = event.financials.income - totalExpense;
-    const availableStaff = staffList.filter(s => !(event.staff || []).some(es => es.name === s.name));
-
-    return (
-      <div className="space-y-6 animate-fade-in pb-20">
-        <button onClick={() => setSelectedEvent(null)} className="flex items-center text-blue-600 font-medium hover:bg-blue-50 px-2 py-1 rounded-lg transition -ml-2"><ChevronLeft size={20} /> Quay lại</button>
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">{event.name}</h2>
-          <div className="flex flex-wrap gap-3 mt-2 text-sm text-gray-600"><span className="flex items-center gap-1"><Calendar size={16}/> {event.date}</span><span className="flex items-center gap-1"><MapPin size={16}/> {event.location}</span></div>
-        </div>
-
-        {currentUser?.role === 'admin' && (
-          <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
-            <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><PieChart size={18}/> Báo cáo tài chính</h3>
-            <div className="flex justify-between items-center bg-gray-50 p-3 rounded-xl"><span className="font-bold text-gray-800">LỢI NHUẬN RÒNG</span><span className={`text-xl font-black ${netProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>{netProfit >= 0 ? '+' : ''}€{netProfit}</span></div>
-          </div>
-        )}
-
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
-          <div className="flex justify-between items-center mb-1">
-            <h3 className="font-bold text-gray-800 flex items-center gap-2"><Users size={18}/> Đội ngũ Nhân sự</h3>
-            {currentUser?.role === 'admin' && (
-              <button onClick={() => setShowStaffPicker(!showStaffPicker)} className="text-xs bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg font-medium hover:bg-blue-100 transition">+ Phân công</button>
-            )}
-          </div>
-          
-          {showStaffPicker && (
-            <div className="bg-gray-50 border border-gray-200 p-3 rounded-xl mb-4 mt-2 animate-fade-in">
-              <p className="text-xs text-gray-500 font-semibold mb-2">Chọn nhân viên từ hệ thống:</p>
-              <div className="flex flex-wrap gap-2">
-                {availableStaff.length > 0 ? availableStaff.map(s => (
-                  <span key={s.id} onClick={() => handleAddStaffToEvent(s, event.id)} className="text-xs bg-white border border-gray-300 px-3 py-1.5 rounded-full cursor-pointer hover:border-blue-500 hover:text-blue-600 transition shadow-sm">
-                    + {s.name}
-                  </span>
-                )) : <span className="text-xs text-gray-400">Tất cả nhân viên đã tham gia chợ này.</span>}
-              </div>
-            </div>
-          )}
-
-          <p className="text-xs text-gray-500 mb-4 mt-2">Bấm vào tên để xem & báo cáo chi phí</p>
-          <div className="grid grid-cols-2 gap-3">
-            {(event.staff || []).map((p, idx) => {
-              const staffTotal = (event.receipts || []).filter(r => r.staffName === p.name).reduce((sum, r) => sum + r.amount, 0);
-              return (
-                <div key={idx} onClick={() => setSelectedStaffInEvent(p)} className="cursor-pointer bg-blue-50 border border-blue-100 p-3 rounded-xl hover:bg-blue-100 hover:border-blue-300 transition group shadow-sm">
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="w-8 h-8 bg-blue-200 text-blue-700 rounded-full flex items-center justify-center font-bold text-xs shadow-inner">{p.name.charAt(0)}</div>
-                    <ChevronLeft size={16} className="text-blue-400 rotate-180" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-gray-800 text-sm">{p.name}</p>
-                    <p className="text-[10px] text-gray-500 flex justify-between mt-0.5"><span>{p.city}</span>{staffTotal > 0 && <span className="font-bold text-emerald-600">€{staffTotal}</span>}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    );
-  };
+  // ── Đã đăng nhập → hiện App shell ─────────────────────────────────────────
+  const isInDetail = selectedEventId !== null || selectedStaffId !== null;
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center font-sans">
-      {!currentUser ? (
-        <div className="w-full max-w-md bg-white min-h-screen relative shadow-2xl flex flex-col items-center justify-center p-8 animate-fade-in">
-          <div className="w-24 h-24 bg-blue-50 text-blue-600 rounded-[2rem] flex items-center justify-center mb-8 shadow-inner"><Lock size={48} strokeWidth={1.5} /></div>
-          <h1 className="text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">FestManager</h1>
-          <p className="text-gray-500 mb-12 text-center text-sm font-medium">Hệ thống quản lý F&B lưu động</p>
-          <div className="w-full space-y-4">
-            <button onClick={() => setCurrentUser({ role: 'admin', name: 'Lance' })} className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-4 rounded-2xl shadow-lg hover:scale-95 transition">Vào bằng quyền Quản lý (Admin)</button>
-            <div className="relative py-4 flex items-center justify-center"><div className="border-b border-gray-200 w-full"></div><span className="absolute bg-white px-3 text-xs text-gray-400">HOẶC</span></div>
-            {/* Đăng nhập bằng tài khoản Staff "Linh" để xem giao diện Hồ sơ cá nhân */}
-            <button onClick={() => setCurrentUser({ role: 'staff', name: 'Linh' })} className="w-full bg-emerald-50 text-emerald-700 font-bold py-4 rounded-2xl border border-emerald-100 hover:scale-95 transition shadow-sm">Vào bằng Nhân viên "Linh"</button>
-          </div>
-        </div>
-      ) : (
-        <div className="w-full max-w-md bg-gray-50 min-h-screen relative shadow-2xl flex flex-col">
-          <header className="bg-white px-6 py-4 sticky top-0 z-10 shadow-sm flex justify-between items-center">
-            <h1 className="text-xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent cursor-pointer" onClick={() => {setActiveTab('dashboard'); setSelectedEvent(null); setSelectedGlobalStaff(null);}}>FestManager</h1>
-            <div className="flex items-center gap-4">
-              <div className="flex flex-col text-right"><span className="text-sm font-bold text-gray-800">{currentUser.name}</span><span className={`text-[10px] font-bold uppercase ${currentUser.role === 'admin' ? 'text-blue-600' : 'text-emerald-600'}`}>{currentUser.role === 'admin' ? 'Quản lý' : 'Nhân sự'}</span></div>
-              <button onClick={() => { setCurrentUser(null); setActiveTab('dashboard'); setSelectedEvent(null); setSelectedGlobalStaff(null); }} className="w-10 h-10 bg-gray-100 hover:bg-red-50 hover:text-red-600 text-gray-500 rounded-full flex items-center justify-center transition"><LogOut size={18} /></button>
-            </div>
-          </header>
+      <div className="w-full max-w-md bg-gray-50 min-h-screen relative shadow-2xl flex flex-col">
 
-          <main className="flex-1 overflow-y-auto p-6 scroll-smooth">
-            {selectedEvent ? renderEventDetail() : (
-              <>
-                {activeTab === 'dashboard' && renderDashboard()}
-                {activeTab === 'schedule' && renderSchedule()}
-                {activeTab === 'inventory' && renderInventory()}
-                {/* Chỉ admin thấy tài chính */}
-                {activeTab === 'finance' && currentUser.role === 'admin' && (
-                  <div className="space-y-6 pb-20 animate-fade-in">
-                    <h2 className="text-2xl font-bold text-gray-800">Tài chính</h2>
-                    <div className="space-y-4">
-                      {eventsData.map(event => {
-                        const totalExpense = event.financials ? Object.values(event.financials.expenses).reduce((a, b) => a + b, 0) : 0;
-                        const netProfit = (event.financials?.income || 0) - totalExpense;
-                        return (
-                          <div key={event.id} onClick={() => setSelectedEvent(event)} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 cursor-pointer hover:border-blue-300">
-                            <div className="flex justify-between items-center mb-3">
-                              <div><h4 className="font-bold text-gray-800">{event.name}</h4><p className="text-xs text-gray-500">{event.date}</p></div>
-                              <span className={`px-2 py-1 rounded-md text-xs font-bold ${event.status !== 'Đã hoàn thành' ? 'bg-gray-100 text-gray-600' : netProfit >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
-                                {event.status !== 'Đã hoàn thành' ? 'Chưa chốt' : netProfit >= 0 ? 'Lãi' : 'Lỗ'}
-                              </span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                              <div className="text-gray-600">Thu: <span className="text-emerald-600 font-semibold">€{event.financials?.income || 0}</span></div>
-                              <div className="text-gray-600">Chi: <span className="text-red-500 font-semibold">€{totalExpense}</span></div>
-                              <div className="font-bold text-gray-800">= <span className={netProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}>€{netProfit}</span></div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-                {/* View HR cho Admin */}
-                {activeTab === 'hr' && currentUser.role === 'admin' && renderHRGlobal()}
-                
-                {/* View Profile của chính Nhân sự */}
-                {activeTab === 'profile' && currentUser.role === 'staff' && renderStaffProfileView(staffList.find(s => s.name === currentUser.name))}
-              </>
-            )}
-          </main>
+        <Header onLogoClick={handleLogoClick} />
 
-          {!selectedEvent && !selectedGlobalStaff && (
-            <nav className="bg-white border-t border-gray-200 absolute bottom-0 w-full px-4 py-3 flex justify-between items-center pb-safe z-20">
-              <button onClick={() => setActiveTab('dashboard')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'dashboard' ? 'text-blue-600' : 'text-gray-400'}`}><LayoutDashboard size={24} /><span className="text-[10px] font-medium">Tổng quan</span></button>
-              <button onClick={() => setActiveTab('schedule')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'schedule' ? 'text-blue-600' : 'text-gray-400'}`}><Calendar size={24} /><span className="text-[10px] font-medium">Lịch trình</span></button>
-              <button onClick={() => setActiveTab('inventory')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'inventory' ? 'text-blue-600' : 'text-gray-400'}`}><Package size={24} /><span className="text-[10px] font-medium">Kho hàng</span></button>
-              
-              {/* Admin Menu */}
-              {currentUser.role === 'admin' && (
-                <>
-                  <button onClick={() => setActiveTab('finance')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'finance' ? 'text-blue-600' : 'text-gray-400'}`}><DollarSign size={24} /><span className="text-[10px] font-medium">Tài chính</span></button>
-                  <button onClick={() => setActiveTab('hr')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'hr' ? 'text-blue-600' : 'text-gray-400'}`}><Users size={24} /><span className="text-[10px] font-medium">Nhân sự</span></button>
-                </>
-              )}
+        <main className="flex-1 overflow-y-auto p-6 scroll-smooth">
 
-              {/* Staff Menu */}
-              {currentUser.role === 'staff' && (
-                <button onClick={() => setActiveTab('profile')} className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'profile' ? 'text-blue-600' : 'text-gray-400'}`}><User size={24} /><span className="text-[10px] font-medium">Hồ sơ</span></button>
-              )}
-            </nav>
+          {/* ── Màn hình chi tiết Event ────────────────────────────────────
+              (Sẽ uncomment khi tạo EventDetail.tsx ở bước tiếp theo)
+
+          {selectedEventId && (
+            <EventDetail
+              eventId={selectedEventId}
+              onBack={() => setSelectedEventId(null)}
+            />
           )}
-        </div>
-      )}
+          ──────────────────────────────────────────────────────────────── */}
+
+          {/* ── Các tab chính ─────────────────────────────────────────────
+              Tạm thời dùng placeholder, sẽ thay bằng component thật dần
+
+          {!selectedEventId && (
+            <>
+              {activeTab === 'dashboard' && <Dashboard onSelectEvent={setSelectedEventId} />}
+              {activeTab === 'schedule'  && <Schedule  onSelectEvent={setSelectedEventId} />}
+              {activeTab === 'inventory' && <Inventory />}
+              {activeTab === 'finance'   && currentUser.role === 'admin' && <Finance onSelectEvent={setSelectedEventId} />}
+              {activeTab === 'hr'        && currentUser.role === 'admin' && <HRGlobal onSelectStaff={setSelectedStaffId} />}
+              {activeTab === 'profile'   && currentUser.role === 'staff' && <StaffProfile staffId={currentUser.id} />}
+            </>
+          )}
+          ──────────────────────────────────────────────────────────────── */}
+
+          {/* PLACEHOLDER — xóa khi uncomment các screen bên trên */}
+          <div className="flex flex-col items-center justify-center h-64 gap-3 text-gray-400">
+            <p className="text-lg font-bold">Tab: {activeTab}</p>
+            <p className="text-sm">Components đang được tạo...</p>
+          </div>
+
+        </main>
+
+        {/* BottomNav ẩn khi đang xem chi tiết */}
+        {!isInDetail && (
+          <BottomNav
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
+        )}
+
+      </div>
     </div>
   );
 }
