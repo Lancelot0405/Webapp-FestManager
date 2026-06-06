@@ -14,6 +14,7 @@ export default function Inventory() {
   const { state, setInventoryItem, createInventoryItem, addInventoryLog } = useApp();
   const { inventory, inventoryLogs, currentUser } = state;
   const isAdmin = currentUser?.role === 'admin';
+  const canEdit = currentUser?.role === 'admin' || currentUser?.role === 'staff';
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editQty, setEditQty] = useState('');
@@ -170,7 +171,7 @@ export default function Inventory() {
                   {isLow && <p className="text-xs text-red-500">Sắp hết hàng!</p>}
                 </div>
                 <div className="flex items-center gap-2">
-                  {isAdmin && editingId === item.id ? (
+                  {canEdit && editingId === item.id ? (
                     <>
                       <input
                         type="number"
@@ -199,11 +200,11 @@ export default function Inventory() {
                     <button
                       className={`text-sm font-semibold ${isLow ? 'text-red-600' : isWarn ? 'text-yellow-600' : 'text-gray-700'}`}
                       onClick={() => {
-                        if (!isAdmin) return;
+                        if (!canEdit) return;
                         setEditingId(item.id);
                         setEditQty(String(item.current));
                       }}
-                      disabled={!isAdmin}
+                      disabled={!canEdit}
                     >
                       {item.current} / {item.threshold} {item.unit}
                     </button>
