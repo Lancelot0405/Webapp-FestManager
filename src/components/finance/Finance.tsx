@@ -2,27 +2,122 @@
 // src/components/finance/Finance.tsx  (admin only)
 // =============================================================================
 
-import { TrendingUp, TrendingDown, DollarSign, FileSpreadsheet } from 'lucide-react';
+import { useState } from 'react';
+import { TrendingUp, TrendingDown, DollarSign, FileSpreadsheet, Pencil, Check, X } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { useApp } from '../../context/AppContext';
-import { computeFinancialSummary } from '../../data/mockData';
 import StatusBadge from '../shared/StatusBadge';
+import type { ExpenseStatus, FestivalEvent } from '../../types';
 
 interface FinanceProps {
   onSelectEvent: (id: number) => void;
 }
 
 export default function Finance({ onSelectEvent }: FinanceProps) {
-  const { state } = useApp();
+  const { state, updateEvent, updateExpenseStatus } = useApp();
   const { events } = state;
-  const { totalIncome, totalExpense, netProfit } = computeFinancialSummary(events);
+
+  // Month filter
+  const [selectedMonth, setSelectedMonth] = useState<string>('all');
+
+  // Edit state
+  const [editingEventId, setEditingEventId] = useState<number | null>(null);
+  const [editIncome, setEditIncome] = useState<number>(0);
+  const [editRent, setEditRent] = useState<number>(0);
+  const [editIngredients, setEditIngredients] = useState<number>(0);
+  const [editTransport, setEditTransport] = useState<number>(0);
+  const [editStaff, setEditStaff] = useState<number>(0);
+
+  // Collect available months from all events
+  const allMonths: string[] = [];
+  events.forEach(e => {
+    const parts = e.date.split('-');
+    if (parts.length === 3) {
+      const month = `${parts[1]}/${parts[2]}`; // MM/YYYY
+      if (!allMonths.includes(month)) allMonths.push(month);
+    }
+  });
+  allMonths.sort();
+
+  // Filter events by selected month
+  const filteredEvents = selectedMonth === 'all'
+    ? events
+    : events.filter(e => {
+        const parts = e.date.split('-');
+        if (parts.length === 3) {
+          return `${parts[1]}/${parts[2]}` === selectedMonth;
+        }
+        return false;
+      });
+
+  // Compute totals from filtered events
+  const allApprovedReceiptsTotal = filteredEvents.reduce((sum, e) =>
+    sum + e.receipts.filter(r => r.status === 'approved').reduce((s, r) => s + r.amount, 0), 0
+  );
+  const totalIncome = filteredEvents.reduce((sum, e) => sum + e.financials.income, 0);
+  const totalExpense = filteredEvents.reduce((sum, e) => {
+    const fixedExp = Object.values(e.financials.expenses).reduce<number>((s, v) => s + (v ?? 0), 0);
+    const approvedReceipts = e.receipts.filter(r => r.status === 'approved').reduce((s, r) => s + r.amount, 0);
+    return sum + fixedExp + approvedReceipts;
+  }, 0);
+  const netProfit = totalIncome - totalExpense;
+
+  // Cost breakdown by category across filtered events
+  const breakdownRent = filteredEvents.reduce((s, e) => s + (e.financials.expenses.rent ?? 0), 0);
+  const breakdownIngredients = filteredEvents.reduce((s, e) => s + (e.financials.expenses.ingredients ?? 0), 0);
+  const breakdownTransport = filteredEvents.reduce((s, e) => s + (e.financials.expenses.transport ?? 0), 0);
+  const breakdownStaff = filteredEvents.reduce((s, e) => s + (e.financials.expenses.staff ?? 0), 0);
+  const breakdownApprovedReceipts = allApprovedReceiptsTotal;
+
+  // Extra keys
+  const knownKeys = new Set(['rent', 'ingredients', 'transport', 'staff']);
+  const breakdownOther = filteredEvents.reduce((sum, e) => {
+    return sum + Object.entries(e.financials.expenses)
+      .filter(([k]) => !knownKeys.has(k))
+      .reduce<number>((s, [, v]) => s + (v ?? 0), 0);
+  }, 0);
+
+  // Pending receipts across filtered events
+  const pendingReceipts = filteredEvents.flatMap(e =>
+    e.receipts
+      .filter(r => r.status === 'pending')
+      .map(r => ({ ...r, eventName: e.name, eventId: e.id }))
+  );
+
+  const startEditing = (event: FestivalEvent) => {
+    setEditingEventId(event.id);
+    setEditIncome(event.financials.income);
+    setEditRent(event.financials.expenses.rent ?? 0);
+    setEditIngredients(event.financials.expenses.ingredients ?? 0);
+    setEditTransport(event.financials.expenses.transport ?? 0);
+    setEditStaff(event.financials.expenses.staff ?? 0);
+  };
+
+  const saveEditing = (event: FestivalEvent) => {
+    updateEvent({
+      ...event,
+      financials: {
+        income: editIncome,
+        expenses: {
+          ...event.financials.expenses,
+          rent: editRent,
+          ingredients: editIngredients,
+          transport: editTransport,
+          staff: editStaff,
+        },
+      },
+    });
+    setEditingEventId(null);
+  };
 
   const handleExport = () => {
     const rows = events.map(event => {
       const expTotal = Object.values(event.financials.expenses).reduce<number>(
         (s, v) => s + (v ?? 0), 0
       );
-      const profit = event.financials.income - expTotal;
+      const approvedReceipts = event.receipts.filter(r => r.status === 'approved').reduce((s, r) => s + r.amount, 0);
+      const totalExp = expTotal + approvedReceipts;
+      const profit = event.financials.income - totalExp;
       const pendingExpenses = event.receipts.filter(r => r.status === 'pending').length;
 
       return {
@@ -31,7 +126,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
         'Địa điểm': event.location,
         'Trạng thái': event.status,
         'Doanh thu (€)': event.financials.income,
-        'Chi phí (€)': expTotal,
+        'Chi phí (€)': totalExp,
         'Lợi nhuận (€)': profit,
         'Số nhân viên': event.staff.length,
         'Số chi phí chờ duyệt': pendingExpenses,
@@ -46,6 +141,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
 
   return (
     <div className="space-y-6 pb-20">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-gray-800">Tài chính</h1>
         <button
@@ -56,6 +152,35 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
           Xuất Excel
         </button>
       </div>
+
+      {/* Month filter */}
+      {allMonths.length > 0 && (
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          <button
+            onClick={() => setSelectedMonth('all')}
+            className={`shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition ${
+              selectedMonth === 'all'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            Tất cả
+          </button>
+          {allMonths.map(m => (
+            <button
+              key={m}
+              onClick={() => setSelectedMonth(m)}
+              className={`shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition ${
+                selectedMonth === m
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              {m}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Summary cards */}
       <div className="grid grid-cols-1 gap-3">
@@ -82,54 +207,201 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
         />
       </div>
 
+      {/* Cost breakdown chart */}
+      {totalExpense > 0 && (
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <h2 className="text-base font-semibold text-gray-700 mb-3">Phân bổ chi phí (tất cả sự kiện)</h2>
+          <div className="space-y-2">
+            {breakdownRent > 0 && (
+              <BarRow label="Booth/Thuê" value={breakdownRent} maxVal={totalExpense} color="bg-purple-400" showPct totalVal={totalExpense} />
+            )}
+            {breakdownIngredients > 0 && (
+              <BarRow label="Nguyên liệu" value={breakdownIngredients} maxVal={totalExpense} color="bg-orange-400" showPct totalVal={totalExpense} />
+            )}
+            {breakdownTransport > 0 && (
+              <BarRow label="Vận chuyển" value={breakdownTransport} maxVal={totalExpense} color="bg-blue-400" showPct totalVal={totalExpense} />
+            )}
+            {breakdownStaff > 0 && (
+              <BarRow label="Lương NV" value={breakdownStaff} maxVal={totalExpense} color="bg-yellow-400" showPct totalVal={totalExpense} />
+            )}
+            {breakdownApprovedReceipts > 0 && (
+              <BarRow label="Chi phí NV" value={breakdownApprovedReceipts} maxVal={totalExpense} color="bg-pink-400" showPct totalVal={totalExpense} />
+            )}
+            {breakdownOther > 0 && (
+              <BarRow label="Khác" value={breakdownOther} maxVal={totalExpense} color="bg-gray-400" showPct totalVal={totalExpense} />
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Pending staff expenses */}
+      <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <h2 className="text-base font-semibold text-gray-700 mb-3">Chi phí nhân viên chờ duyệt</h2>
+        {pendingReceipts.length === 0 ? (
+          <p className="text-sm text-green-600">Không có chi phí chờ duyệt ✓</p>
+        ) : (
+          <div className="space-y-2">
+            {pendingReceipts.map(r => (
+              <div key={`${r.eventId}-${r.id}`} className="flex items-center justify-between gap-2 py-2 border-b border-gray-50 last:border-0">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-gray-800">{r.staffName}</p>
+                  <p className="text-xs text-gray-500">{r.type} · {r.amount.toLocaleString('fr-FR')}€ · {r.date}</p>
+                  <p className="text-xs text-blue-500">{r.eventName}</p>
+                </div>
+                <div className="flex gap-1.5 shrink-0">
+                  <button
+                    onClick={() => updateExpenseStatus(r.eventId, r.id, 'approved' as ExpenseStatus)}
+                    className="flex items-center gap-0.5 px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 text-xs font-medium rounded-lg transition"
+                  >
+                    <Check size={12} /> Duyệt
+                  </button>
+                  <button
+                    onClick={() => updateExpenseStatus(r.eventId, r.id, 'rejected' as ExpenseStatus)}
+                    className="flex items-center gap-0.5 px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-medium rounded-lg transition"
+                  >
+                    <X size={12} /> Từ chối
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Per-event breakdown */}
       <div>
         <h2 className="text-base font-semibold text-gray-700 mb-3">Theo sự kiện</h2>
         <div className="space-y-3">
-          {events.map(event => {
-            const expTotal = Object.values(event.financials.expenses).reduce<number>(
+          {filteredEvents.map(event => {
+            const fixedExp = Object.values(event.financials.expenses).reduce<number>(
               (s, v) => s + (v ?? 0), 0
             );
+            const approvedReceiptsForEvent = event.receipts
+              .filter(r => r.status === 'approved')
+              .reduce((s, r) => s + r.amount, 0);
+            const expTotal = fixedExp + approvedReceiptsForEvent;
             const profit = event.financials.income - expTotal;
             const maxVal = Math.max(event.financials.income, expTotal, 1);
+            const isEditing = editingEventId === event.id;
 
             return (
-              <button
+              <div
                 key={event.id}
-                onClick={() => onSelectEvent(event.id)}
-                className="w-full text-left bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:border-blue-200 transition-colors"
+                className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
               >
                 <div className="flex justify-between items-start mb-3">
-                  <div className="min-w-0 flex-1">
+                  <button
+                    onClick={() => onSelectEvent(event.id)}
+                    className="min-w-0 flex-1 text-left hover:opacity-75 transition-opacity"
+                  >
                     <p className="font-semibold text-gray-800 truncate">{event.name}</p>
                     <p className="text-xs text-gray-500 mt-0.5">{event.date}</p>
+                  </button>
+                  <div className="flex items-center gap-2 shrink-0 ml-2">
+                    <StatusBadge status={event.status} />
+                    <button
+                      onClick={() => isEditing ? setEditingEventId(null) : startEditing(event)}
+                      className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-blue-500 transition"
+                    >
+                      <Pencil size={14} />
+                    </button>
                   </div>
-                  <StatusBadge status={event.status} />
                 </div>
 
-                {/* Bar comparison */}
-                <div className="space-y-1.5">
-                  <BarRow
-                    label="Doanh thu"
-                    value={event.financials.income}
-                    maxVal={maxVal}
-                    color="bg-green-400"
-                  />
-                  <BarRow
-                    label="Chi phí"
-                    value={expTotal}
-                    maxVal={maxVal}
-                    color="bg-red-400"
-                  />
-                </div>
-
-                <div className="mt-3 flex justify-between text-xs font-semibold">
-                  <span className="text-gray-500">Lợi nhuận</span>
-                  <span className={profit >= 0 ? 'text-green-600' : 'text-red-600'}>
-                    {profit >= 0 ? '+' : ''}{profit.toLocaleString('fr-FR')}€
-                  </span>
-                </div>
-              </button>
+                {isEditing ? (
+                  <div className="space-y-2 mt-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-xs text-gray-500">Doanh thu (€)</label>
+                        <input
+                          type="number"
+                          value={editIncome}
+                          onChange={e => setEditIncome(Number(e.target.value))}
+                          className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm mt-0.5"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">Chi phí - Booth (€)</label>
+                        <input
+                          type="number"
+                          value={editRent}
+                          onChange={e => setEditRent(Number(e.target.value))}
+                          className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm mt-0.5"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">Chi phí - Nguyên liệu (€)</label>
+                        <input
+                          type="number"
+                          value={editIngredients}
+                          onChange={e => setEditIngredients(Number(e.target.value))}
+                          className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm mt-0.5"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">Chi phí - Vận chuyển (€)</label>
+                        <input
+                          type="number"
+                          value={editTransport}
+                          onChange={e => setEditTransport(Number(e.target.value))}
+                          className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm mt-0.5"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">Chi phí - Lương (€)</label>
+                        <input
+                          type="number"
+                          value={editStaff}
+                          onChange={e => setEditStaff(Number(e.target.value))}
+                          className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm mt-0.5"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex gap-2 mt-2">
+                      <button
+                        onClick={() => saveEditing(event)}
+                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-1.5 rounded-lg transition"
+                      >
+                        Lưu
+                      </button>
+                      <button
+                        onClick={() => setEditingEventId(null)}
+                        className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium py-1.5 rounded-lg transition"
+                      >
+                        Hủy
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="space-y-1.5">
+                      <BarRow
+                        label="Doanh thu"
+                        value={event.financials.income}
+                        maxVal={maxVal}
+                        color="bg-green-400"
+                      />
+                      <BarRow
+                        label="Chi phí"
+                        value={expTotal}
+                        maxVal={maxVal}
+                        color="bg-red-400"
+                      />
+                    </div>
+                    {approvedReceiptsForEvent > 0 && (
+                      <p className="text-xs text-gray-400 mt-1">
+                        Bao gồm {approvedReceiptsForEvent.toLocaleString('fr-FR')}€ chi phí nhân viên
+                      </p>
+                    )}
+                    <div className="mt-3 flex justify-between text-xs font-semibold">
+                      <span className="text-gray-500">Lợi nhuận</span>
+                      <span className={profit >= 0 ? 'text-green-600' : 'text-red-600'}>
+                        {profit >= 0 ? '+' : ''}{profit.toLocaleString('fr-FR')}€
+                      </span>
+                    </div>
+                  </>
+                )}
+              </div>
             );
           })}
         </div>
@@ -164,13 +436,16 @@ interface BarRowProps {
   value: number;
   maxVal: number;
   color: string;
+  showPct?: boolean;
+  totalVal?: number;
 }
 
-function BarRow({ label, value, maxVal, color }: BarRowProps) {
+function BarRow({ label, value, maxVal, color, showPct, totalVal }: BarRowProps) {
   const pct = maxVal > 0 ? Math.round((value / maxVal) * 100) : 0;
+  const pctOfTotal = totalVal && totalVal > 0 ? Math.round((value / totalVal) * 100) : null;
   return (
     <div className="flex items-center gap-2">
-      <span className="text-xs text-gray-500 w-16 shrink-0">{label}</span>
+      <span className="text-xs text-gray-500 w-20 shrink-0">{label}</span>
       <div className="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
         <div
           className={`h-full rounded-full ${color} transition-all`}
@@ -180,6 +455,9 @@ function BarRow({ label, value, maxVal, color }: BarRowProps) {
       <span className="text-xs font-medium text-gray-700 w-14 text-right shrink-0">
         {value.toLocaleString('fr-FR')}€
       </span>
+      {showPct && pctOfTotal !== null && (
+        <span className="text-xs text-gray-400 w-8 text-right shrink-0">{pctOfTotal}%</span>
+      )}
     </div>
   );
 }
