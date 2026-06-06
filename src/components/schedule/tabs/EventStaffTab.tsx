@@ -3,7 +3,7 @@
 // =============================================================================
 
 import { useState } from 'react';
-import { UserMinus, UserPlus } from 'lucide-react';
+import { UserMinus, UserPlus, Check } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 import type { FestivalEvent } from '../../../types';
 
@@ -15,9 +15,26 @@ export default function EventStaffTab({ event }: Props) {
   const { state, addStaffToEvent, removeStaffFromEvent } = useApp();
   const isAdmin = state.currentUser?.role === 'admin';
   const [showAdd, setShowAdd] = useState(false);
+  const [selected, setSelected] = useState<Set<number>>(new Set());
 
   const assignedIds = new Set(event.staff.map(s => s.id));
   const availableStaff = state.staff.filter(s => !assignedIds.has(s.id));
+
+  const toggleSelect = (id: number) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const handleConfirmAdd = () => {
+    state.staff
+      .filter(s => selected.has(s.id))
+      .forEach(s => addStaffToEvent(event.id, { id: s.id, name: s.name, city: s.city }));
+    setSelected(new Set());
+    setShowAdd(false);
+  };
 
   return (
     <div className="space-y-4">
@@ -25,7 +42,7 @@ export default function EventStaffTab({ event }: Props) {
         <p className="text-sm text-gray-500">{event.staff.length} nhân viên được phân công</p>
         {isAdmin && (
           <button
-            onClick={() => setShowAdd(!showAdd)}
+            onClick={() => { setShowAdd(!showAdd); setSelected(new Set()); }}
             className="flex items-center gap-1 text-blue-600 text-sm font-medium"
           >
             <UserPlus size={16} />
@@ -34,22 +51,37 @@ export default function EventStaffTab({ event }: Props) {
         )}
       </div>
 
-      {/* Add staff dropdown */}
-      {showAdd && isAdmin && availableStaff.length > 0 && (
+      {/* Multi-select staff panel */}
+      {showAdd && isAdmin && (
         <div className="bg-blue-50 rounded-xl p-3 space-y-2">
-          <p className="text-xs font-medium text-blue-700 mb-2">Chọn nhân viên để thêm</p>
-          {availableStaff.map(s => (
-            <button
-              key={s.id}
-              onClick={() => {
-                addStaffToEvent(event.id, { id: s.id, name: s.name, city: s.city });
-                setShowAdd(false);
-              }}
-              className="w-full text-left bg-white rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-blue-100 transition-colors"
-            >
-              {s.name} — {s.city}
-            </button>
-          ))}
+          <p className="text-xs font-medium text-blue-700">Chọn nhân viên để thêm</p>
+          {availableStaff.length === 0 ? (
+            <p className="text-xs text-gray-400 py-2 text-center">Tất cả nhân viên đã được phân công</p>
+          ) : (
+            <>
+              {availableStaff.map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => toggleSelect(s.id)}
+                  className={`w-full flex items-center justify-between text-left rounded-lg px-3 py-2 text-sm transition-colors border ${
+                    selected.has(s.id)
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white text-gray-700 border-gray-100 hover:bg-blue-100'
+                  }`}
+                >
+                  <span>{s.name}{s.city ? ` — ${s.city}` : ''}</span>
+                  {selected.has(s.id) && <Check size={15} className="shrink-0" />}
+                </button>
+              ))}
+              <button
+                onClick={handleConfirmAdd}
+                disabled={selected.size === 0}
+                className="w-full mt-1 bg-blue-600 disabled:opacity-40 text-white text-sm font-medium py-2 rounded-lg"
+              >
+                Thêm {selected.size > 0 ? `${selected.size} nhân viên` : ''}
+              </button>
+            </>
+          )}
         </div>
       )}
 
