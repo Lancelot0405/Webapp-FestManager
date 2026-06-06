@@ -1,46 +1,125 @@
-// =============================================================================
-// src/components/layout/LoginScreen.tsx
-// =============================================================================
-
-import { Lock } from 'lucide-react';
+import { useState } from 'react';
+import { Lock, Mail, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 import { useApp } from '../../context/AppContext';
 
 export default function LoginScreen() {
   const { login } = useApp();
+  const [email, setEmail]       = useState('');
+  const [password, setPassword] = useState('');
+  const [showPw, setShowPw]     = useState(false);
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState('');
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    const { data, error: authError } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+
+    if (authError || !data.user) {
+      setError(authError?.message === 'Invalid login credentials'
+        ? 'Email hoặc mật khẩu không đúng'
+        : (authError?.message ?? 'Đăng nhập thất bại'));
+      setLoading(false);
+      return;
+    }
+
+    // Lấy thông tin role từ bảng profiles
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id, name, role')
+      .eq('id', data.user.id)
+      .single();
+
+    if (profile) {
+      login({ id: profile.id, name: profile.name, role: profile.role });
+    } else {
+      // Fallback: dùng email làm name, role mặc định là staff
+      login({
+        id: data.user.id as unknown as number,
+        name: data.user.email?.split('@')[0] ?? 'User',
+        role: 'staff',
+      });
+    }
+
+    setLoading(false);
+  };
 
   return (
-    <div className="w-full max-w-md bg-white min-h-screen relative shadow-2xl flex flex-col items-center justify-center p-8">
-      <div className="w-24 h-24 bg-blue-50 text-blue-600 rounded-[2rem] flex items-center justify-center mb-8 shadow-inner">
-        <Lock size={48} strokeWidth={1.5} />
+    <div className="w-full max-w-md bg-white min-h-screen shadow-2xl flex flex-col items-center justify-center p-8">
+      <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-[1.5rem] flex items-center justify-center mb-8 shadow-inner">
+        <Lock size={40} strokeWidth={1.5} />
       </div>
 
-      <h1 className="text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">
+      <h1 className="text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
         FestManager
       </h1>
-      <p className="text-gray-500 mb-12 text-center text-sm font-medium">
-        Hệ thống quản lý F&amp;B lưu động
-      </p>
+      <p className="text-gray-400 mb-10 text-sm">Hệ thống quản lý F&amp;B lưu động</p>
 
-      <div className="w-full space-y-4">
-        <button
-          onClick={() => login({ id: 1, name: 'Lance', role: 'admin' })}
-          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-4 rounded-2xl shadow-lg hover:scale-95 transition"
-        >
-          Vào bằng quyền Quản lý (Admin)
-        </button>
-
-        <div className="relative py-4 flex items-center justify-center">
-          <div className="border-b border-gray-200 w-full" />
-          <span className="absolute bg-white px-3 text-xs text-gray-400">HOẶC</span>
+      <form onSubmit={handleLogin} className="w-full space-y-4">
+        {/* Email */}
+        <div>
+          <label className="text-xs font-semibold text-gray-600 mb-1 block">Email</label>
+          <div className="relative">
+            <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="email"
+              required
+              autoComplete="email"
+              placeholder="ten@example.com"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+            />
+          </div>
         </div>
 
+        {/* Password */}
+        <div>
+          <label className="text-xs font-semibold text-gray-600 mb-1 block">Mật khẩu</label>
+          <div className="relative">
+            <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type={showPw ? 'text' : 'password'}
+              required
+              autoComplete="current-password"
+              placeholder="••••••••"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              className="w-full pl-9 pr-10 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPw(v => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div className="flex items-center gap-2 text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2.5 text-sm">
+            <AlertCircle size={15} className="shrink-0" />
+            {error}
+          </div>
+        )}
+
+        {/* Submit */}
         <button
-          onClick={() => login({ id: 2, name: 'Linh', role: 'staff' })}
-          className="w-full bg-emerald-50 text-emerald-700 font-bold py-4 rounded-2xl border border-emerald-100 hover:scale-95 transition shadow-sm"
+          type="submit"
+          disabled={loading}
+          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-3.5 rounded-xl shadow-lg hover:opacity-90 disabled:opacity-60 transition mt-2"
         >
-          Vào bằng Nhân viên &ldquo;Linh&rdquo;
+          {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
         </button>
-      </div>
+      </form>
     </div>
   );
 }
