@@ -22,7 +22,7 @@ import BottomNav   from './components/layout/BottomNav';
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const { state, logout } = useApp();
+  const { state, logout: contextLogout } = useApp();
   const { currentUser } = state;
 
   // ── UI state (cục bộ trong App — không cần vào Context) ───────────────────
@@ -39,7 +39,7 @@ export default function App() {
 
   // Đăng xuất rồi reset toàn bộ UI state
   const handleLogout = () => {
-    logout();
+    contextLogout();
     setActiveTab('dashboard');
     setSelectedEventId(null);
     setSelectedStaffId(null);
@@ -61,7 +61,7 @@ export default function App() {
     <div className="min-h-screen bg-gray-100 flex justify-center font-sans">
       <div className="w-full max-w-md bg-gray-50 min-h-screen relative shadow-2xl flex flex-col">
 
-        <Header onLogoClick={handleLogoClick} />
+        <Header onLogoClick={handleLogoClick} onLogout={handleLogout} />
 
         <main className="flex-1 overflow-y-auto p-6 scroll-smooth">
 

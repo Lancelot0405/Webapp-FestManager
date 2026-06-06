@@ -6,12 +6,12 @@ import { LogOut } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 interface HeaderProps {
-  /** Gọi khi bấm logo — về Dashboard và xóa selection */
   onLogoClick: () => void;
+  onLogout: () => void;
 }
 
-export default function Header({ onLogoClick }: HeaderProps) {
-  const { state, logout } = useApp();
+export default function Header({ onLogoClick, onLogout }: HeaderProps) {
+  const { state } = useApp();
   const { currentUser } = state;
 
   if (!currentUser) return null;
@@ -40,7 +40,7 @@ export default function Header({ onLogoClick }: HeaderProps) {
         </div>
 
         <button
-          onClick={logout}
+          onClick={onLogout}
           className="w-10 h-10 bg-gray-100 hover:bg-red-50 hover:text-red-600 text-gray-500 rounded-full flex items-center justify-center transition"
           title="Đăng xuất"
         >
