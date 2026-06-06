@@ -409,7 +409,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (eventId: number, expense: Expense) => {
       dispatch({ type: 'ADD_EXPENSE', payload: { eventId, expense } });
       supabase.from('expenses').insert({
-        id: expense.id,
         staff_id: parseInt(String(expense.staffId), 10) || null,
         staff_name: expense.staffName,
         festival_id: expense.festivalId,
@@ -465,7 +464,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (log: InventoryLogEntry) => {
       dispatch({ type: 'ADD_INVENTORY_LOG', payload: log });
       supabase.from('inventory_logs').insert({
-        id: log.id,
         item_id: log.itemId,
         item_name: log.itemName,
         qty: log.qty,
@@ -484,7 +482,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addStaff = useCallback((staff: StaffMember) => {
     dispatch({ type: 'ADD_STAFF', payload: staff });
     supabase.from('staff_members').insert({
-      id: staff.id,
       name: staff.name,
       dob: staff.dob,
       city: staff.city,
@@ -510,7 +507,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (staffId: number, contract: StaffMember['contracts'][0]) => {
       dispatch({ type: 'ADD_CONTRACT', payload: { staffId, contract } });
       supabase.from('contracts').insert({
-        id: contract.id,
         staff_id: staffId,
         date: contract.date,
         url: contract.url,
