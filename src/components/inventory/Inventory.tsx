@@ -1,60 +1,71 @@
-// =============================================================================
-// src/components/inventory/Inventory.tsx
-// =============================================================================
-
 import { useState } from 'react';
-import { Plus, Check, X } from 'lucide-react';
+import { Plus, Check, X, ChevronDown } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import type { InventoryUnit } from '../../types';
 import InventoryLogList from './InventoryLogList';
 
-const UNITS: InventoryUnit[] = ['kg', 'g', 'lít', 'ml', 'cái', 'lon', 'hộp', 'xiên', 'thùng', 'phần'];
+const UNITS: InventoryUnit[] = ['kg', 'g', 'lít', 'ml', 'cái', 'lon', 'hộp', 'túi', 'xiên', 'thùng', 'phần'];
 
 export default function Inventory() {
-  const { state, setInventoryItem, createInventoryItem, addInventoryLog } = useApp();
+  const { state, setInventoryItem, createInventoryItem, updateInventoryUnit, addInventoryLog } = useApp();
   const { inventory, inventoryLogs, currentUser } = state;
-  const canEdit = !!currentUser;
 
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editQty, setEditQty] = useState('');
+  const [editingId, setEditingId]     = useState<number | null>(null);
+  const [editQty, setEditQty]         = useState('');
+  const [editUnit, setEditUnit]       = useState<InventoryUnit>('kg');
+  const [unitMenuId, setUnitMenuId]   = useState<number | null>(null);
 
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newName, setNewName] = useState('');
-  const [newCurrent, setNewCurrent] = useState('');
+  const [newName, setNewName]         = useState('');
+  const [newCurrent, setNewCurrent]   = useState('');
   const [newThreshold, setNewThreshold] = useState('');
-  const [newUnit, setNewUnit] = useState<InventoryUnit>('kg');
+  const [newUnit, setNewUnit]         = useState<InventoryUnit>('kg');
 
-  const handleSaveEdit = (itemId: number, itemName: string, unit: InventoryUnit) => {
+  const startEdit = (itemId: number, current: number, unit: InventoryUnit) => {
+    setEditingId(itemId);
+    setEditQty(String(current));
+    setEditUnit(unit);
+    setUnitMenuId(null);
+  };
+
+  const handleSaveEdit = (itemId: number, itemName: string) => {
     const qty = parseFloat(editQty);
     if (isNaN(qty) || qty < 0) return;
     setInventoryItem(itemId, qty);
+    if (editUnit !== inventory.find(i => i.id === itemId)?.unit) {
+      updateInventoryUnit(itemId, editUnit);
+    }
     if (currentUser) {
       addInventoryLog({
         id: Date.now(),
         itemId,
         itemName,
         qty,
-        unit,
+        unit: editUnit,
         action: 'set',
         festivalId: null,
         festivalName: 'Kiểm kho tổng',
-        timestamp: new Date().toLocaleString('fr-FR', { hour12: false }).replace(',', ''),
+        timestamp: new Date().toLocaleString('vi-VN', { hour12: false }),
         submittedBy: currentUser.name,
       });
     }
     setEditingId(null);
   };
 
+  const handleQuickUnit = (itemId: number, unit: InventoryUnit) => {
+    updateInventoryUnit(itemId, unit);
+    setUnitMenuId(null);
+  };
+
   const handleAddItem = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim() || !newCurrent || !newThreshold) return;
-    const itemData = {
+    createInventoryItem({
       name: newName.trim(),
       current: parseFloat(newCurrent),
       threshold: parseFloat(newThreshold),
       unit: newUnit,
-    };
-    createInventoryItem(itemData);
+    });
     if (currentUser) {
       addInventoryLog({
         id: Date.now(),
@@ -65,146 +76,139 @@ export default function Inventory() {
         action: 'created',
         festivalId: null,
         festivalName: 'Kho',
-        timestamp: new Date().toLocaleString('fr-FR', { hour12: false }).replace(',', ''),
+        timestamp: new Date().toLocaleString('vi-VN', { hour12: false }),
         submittedBy: currentUser.name,
       });
     }
-    setNewName('');
-    setNewCurrent('');
-    setNewThreshold('');
-    setNewUnit('kg');
+    setNewName(''); setNewCurrent(''); setNewThreshold(''); setNewUnit('kg');
     setShowAddForm(false);
   };
 
   return (
-    <div className="space-y-4 pb-20">
+    <div className="space-y-4 pb-20" onClick={() => setUnitMenuId(null)}>
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold text-gray-800">Kho hàng</h1>
         <button
-          onClick={() => setShowAddForm(true)}
+          onClick={e => { e.stopPropagation(); setShowAddForm(true); }}
           className="flex items-center gap-1 bg-blue-600 text-white text-sm font-medium px-3 py-2 rounded-lg"
         >
-          <Plus size={16} />
-          Thêm mặt hàng
+          <Plus size={16} /> Thêm mặt hàng
         </button>
       </div>
 
+      {/* Form thêm mặt hàng */}
       {showAddForm && (
-        <form
-          onSubmit={handleAddItem}
-          className="bg-white rounded-xl border border-blue-200 p-4 shadow-sm space-y-3"
-        >
+        <form onSubmit={handleAddItem} className="bg-white rounded-xl border border-blue-200 p-4 shadow-sm space-y-3">
           <div className="flex justify-between items-center">
             <p className="font-semibold text-gray-800 text-sm">Thêm mặt hàng mới</p>
-            <button type="button" onClick={() => setShowAddForm(false)} className="text-gray-400 hover:text-gray-600">
-              <X size={16} />
-            </button>
+            <button type="button" onClick={() => setShowAddForm(false)} className="text-gray-400"><X size={16} /></button>
           </div>
           <div>
             <label className="text-xs text-gray-600 font-medium">Tên mặt hàng</label>
-            <input
-              required
-              className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
-              placeholder="VD: Thịt bò"
-              value={newName}
-              onChange={e => setNewName(e.target.value)}
-            />
+            <input required className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
+              placeholder="VD: Thịt bò" value={newName} onChange={e => setNewName(e.target.value)} />
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             <div>
-              <label className="text-xs text-gray-600 font-medium">Số lượng hiện tại</label>
-              <input
-                type="number" min="0" step="0.1" required
+              <label className="text-xs text-gray-600 font-medium">Số lượng</label>
+              <input type="number" min="0" step="0.1" required
                 className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
-                value={newCurrent}
-                onChange={e => setNewCurrent(e.target.value)}
-              />
+                value={newCurrent} onChange={e => setNewCurrent(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs text-gray-600 font-medium">Ngưỡng cảnh báo</label>
-              <input
-                type="number" min="0" step="0.1" required
+              <label className="text-xs text-gray-600 font-medium">Cảnh báo</label>
+              <input type="number" min="0" step="0.1" required
                 className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
-                value={newThreshold}
-                onChange={e => setNewThreshold(e.target.value)}
-              />
+                value={newThreshold} onChange={e => setNewThreshold(e.target.value)} />
+            </div>
+            <div>
+              <label className="text-xs text-gray-600 font-medium">Đơn vị</label>
+              <select className="mt-1 w-full border border-gray-200 rounded-lg px-2 py-2 text-sm"
+                value={newUnit} onChange={e => setNewUnit(e.target.value as InventoryUnit)}>
+                {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+              </select>
             </div>
           </div>
-          <div>
-            <label className="text-xs text-gray-600 font-medium">Đơn vị</label>
-            <select
-              className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
-              value={newUnit}
-              onChange={e => setNewUnit(e.target.value as InventoryUnit)}
-            >
-              {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
-            </select>
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white font-medium py-2 rounded-lg text-sm"
-          >
-            Thêm
-          </button>
+          <button type="submit" className="w-full bg-blue-600 text-white font-medium py-2 rounded-lg text-sm">Thêm</button>
         </form>
       )}
 
-      {/* Inventory list */}
+      {/* Danh sách kho */}
       <div className="space-y-2">
         {inventory.map(item => {
-          const isLow = item.current < item.threshold;
+          const isLow  = item.current < item.threshold;
           const isWarn = !isLow && item.current < item.threshold * 1.5;
-          const bg = isLow
-            ? 'bg-red-50 border-red-200'
-            : isWarn
-            ? 'bg-yellow-50 border-yellow-200'
-            : 'bg-white border-gray-100';
+          const bg = isLow ? 'bg-red-50 border-red-200' : isWarn ? 'bg-yellow-50 border-yellow-200' : 'bg-white border-gray-100';
 
           return (
-            <div key={item.id} className={`rounded-xl p-3 shadow-sm border ${bg}`}>
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="font-medium text-gray-800 text-sm">{item.name}</p>
+            <div key={item.id} className={`rounded-xl p-3 shadow-sm border ${bg}`} onClick={e => e.stopPropagation()}>
+              <div className="flex justify-between items-center gap-2">
+                {/* Tên */}
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-gray-800 text-sm truncate">{item.name}</p>
                   {isLow && <p className="text-xs text-red-500">Sắp hết hàng!</p>}
                 </div>
-                <div className="flex items-center gap-2">
-                  {canEdit && editingId === item.id ? (
+
+                {/* Số lượng + đơn vị */}
+                <div className="flex items-center gap-1 shrink-0">
+                  {editingId === item.id ? (
                     <>
                       <input
-                        type="number"
-                        min="0"
-                        step="0.1"
-                        className="w-20 border border-gray-200 rounded-lg px-2 py-1 text-sm text-right"
+                        type="number" min="0" step="0.1" autoFocus
+                        className="w-16 border border-gray-300 rounded-lg px-2 py-1 text-sm text-right"
                         value={editQty}
                         onChange={e => setEditQty(e.target.value)}
-                        autoFocus
                       />
-                      <span className="text-xs text-gray-500">{item.unit}</span>
-                      <button
-                        onClick={() => handleSaveEdit(item.id, item.name, item.unit)}
-                        className="p-1 text-green-600 hover:bg-green-50 rounded"
+                      {/* Đơn vị có thể đổi khi đang edit */}
+                      <select
+                        className="border border-gray-300 rounded-lg px-1 py-1 text-sm bg-white"
+                        value={editUnit}
+                        onChange={e => setEditUnit(e.target.value as InventoryUnit)}
                       >
+                        {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                      </select>
+                      <button onClick={() => handleSaveEdit(item.id, item.name)} className="p-1 text-green-600 hover:bg-green-50 rounded">
                         <Check size={15} />
                       </button>
-                      <button
-                        onClick={() => setEditingId(null)}
-                        className="p-1 text-gray-400 hover:bg-gray-50 rounded"
-                      >
+                      <button onClick={() => setEditingId(null)} className="p-1 text-gray-400 hover:bg-gray-50 rounded">
                         <X size={15} />
                       </button>
                     </>
                   ) : (
-                    <button
-                      className={`text-sm font-semibold ${isLow ? 'text-red-600' : isWarn ? 'text-yellow-600' : 'text-gray-700'}`}
-                      onClick={() => {
-                        if (!canEdit) return;
-                        setEditingId(item.id);
-                        setEditQty(String(item.current));
-                      }}
-                      disabled={!canEdit}
-                    >
-                      {item.current} / {item.threshold} {item.unit}
-                    </button>
+                    <>
+                      {/* Số lượng — bấm để sửa */}
+                      <button
+                        className={`text-sm font-semibold ${isLow ? 'text-red-600' : isWarn ? 'text-yellow-600' : 'text-gray-700'}`}
+                        onClick={() => startEdit(item.id, item.current, item.unit)}
+                      >
+                        {item.current}
+                      </button>
+
+                      {/* Đơn vị — bấm để đổi nhanh */}
+                      <div className="relative">
+                        <button
+                          className="flex items-center gap-0.5 text-sm text-gray-500 hover:text-blue-600 hover:bg-blue-50 px-1 py-0.5 rounded transition"
+                          onClick={e => { e.stopPropagation(); setUnitMenuId(unitMenuId === item.id ? null : item.id); }}
+                        >
+                          {item.unit}
+                          <ChevronDown size={11} />
+                        </button>
+
+                        {unitMenuId === item.id && (
+                          <div className="absolute right-0 top-7 z-20 bg-white border border-gray-200 rounded-xl shadow-lg py-1 min-w-[80px]">
+                            {UNITS.map(u => (
+                              <button
+                                key={u}
+                                className={`w-full text-left px-3 py-1.5 text-sm hover:bg-blue-50 ${u === item.unit ? 'text-blue-600 font-semibold' : 'text-gray-700'}`}
+                                onClick={() => handleQuickUnit(item.id, u)}
+                              >
+                                {u}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </>
                   )}
                 </div>
               </div>
@@ -213,7 +217,6 @@ export default function Inventory() {
         })}
       </div>
 
-      {/* Inventory logs */}
       <InventoryLogList logs={inventoryLogs.slice(0, 10)} />
     </div>
   );

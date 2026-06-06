@@ -107,7 +107,8 @@ export type InventoryUnit =
   | 'hộp'
   | 'xiên'
   | 'thùng'
-  | 'phần';
+  | 'phần'
+  | 'túi';
 
 export interface InventoryItem {
   id: number;
