@@ -7,25 +7,18 @@ import InventoryLogList from './InventoryLogList';
 
 const UNITS: InventoryUnit[] = ['kg', 'g', 'lít', 'ml', 'cái', 'lon', 'hộp', 'túi', 'xiên', 'thùng', 'phần'];
 
-const VALID_UNITS = new Set<string>(UNITS);
-function parseUnit(raw: string): InventoryUnit {
-  const v = raw.trim().toLowerCase();
-  return VALID_UNITS.has(v) ? (v as InventoryUnit) : 'cái';
-}
-
 export default function Inventory() {
   const { state, setInventoryItem, createInventoryItem, deleteInventoryItem, updateInventoryUnit, addInventoryLog } = useApp();
   const { inventory, inventoryLogs, currentUser } = state;
 
-  const [editingId,    setEditingId]    = useState<number | null>(null);
-  const [editQty,      setEditQty]      = useState('');
-  const [editUnit,     setEditUnit]     = useState<InventoryUnit>('kg');
-  const [unitMenuId,   setUnitMenuId]   = useState<number | null>(null);
-  const [showAddForm,  setShowAddForm]  = useState(false);
-  const [newName,      setNewName]      = useState('');
-  const [newCurrent,   setNewCurrent]   = useState('');
-  const [newThreshold, setNewThreshold] = useState('');
-  const [newUnit,      setNewUnit]      = useState<InventoryUnit>('kg');
+  const [editingId,   setEditingId]   = useState<number | null>(null);
+  const [editQty,     setEditQty]     = useState('');
+  const [editUnit,    setEditUnit]    = useState<InventoryUnit>('kg');
+  const [unitMenuId,  setUnitMenuId]  = useState<number | null>(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newName,     setNewName]     = useState('');
+  const [newCurrent,  setNewCurrent]  = useState('');
+  const [newUnit,     setNewUnit]     = useState<InventoryUnit>('kg');
   const [importing,    setImporting]    = useState(false);
   const importRef = useRef<HTMLInputElement>(null);
 
@@ -52,8 +45,8 @@ export default function Inventory() {
 
   const handleAddItem = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newName.trim() || !newCurrent || !newThreshold) return;
-    createInventoryItem({ name: newName.trim(), current: parseFloat(newCurrent), threshold: parseFloat(newThreshold), unit: newUnit });
+    if (!newName.trim() || !newCurrent) return;
+    createInventoryItem({ name: newName.trim(), current: parseFloat(newCurrent), threshold: 0, unit: newUnit });
     if (currentUser) {
       addInventoryLog({
         id: Date.now(), itemId: Date.now() + 1, itemName: newName.trim(),
@@ -63,7 +56,7 @@ export default function Inventory() {
         submittedBy: currentUser.name,
       });
     }
-    setNewName(''); setNewCurrent(''); setNewThreshold(''); setNewUnit('kg');
+    setNewName(''); setNewCurrent(''); setNewUnit('kg');
     setShowAddForm(false);
   };
 
@@ -87,10 +80,8 @@ export default function Inventory() {
         rows.forEach((row, i) => {
           const nameRaw = String(row[0] ?? '').trim();
           if (!nameRaw || (i === 0 && isNaN(Number(row[1])))) return;
-          const current   = parseFloat(String(row[1] ?? '0')) || 0;
-          const threshold = parseFloat(String(row[2] ?? '0')) || 0;
-          const unit      = parseUnit(String(row[3] ?? 'cái'));
-          createInventoryItem({ name: nameRaw, current, threshold, unit });
+          const current = parseFloat(String(row[1] ?? '0')) || 0;
+          createInventoryItem({ name: nameRaw, current, threshold: 0, unit: 'cái' });
           imported++;
         });
         alert(`Đã import ${imported} mặt hàng thành công.`);
@@ -128,7 +119,7 @@ export default function Inventory() {
       {/* Hướng dẫn import */}
       <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2 text-xs text-green-700">
         <Upload size={11} className="inline mr-1" />
-        File Excel: 4 cột <strong>Tên | Số lượng | Cảnh báo | Đơn vị</strong>
+        File Excel: 2 cột <strong>Tên | Số lượng</strong> — đơn vị chỉnh trong app sau
       </div>
 
       {/* Form thêm */}
@@ -143,18 +134,12 @@ export default function Inventory() {
             <input required className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
               placeholder="VD: Thịt bò" value={newName} onChange={e => setNewName(e.target.value)} />
           </div>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="text-xs text-gray-600 font-medium">Số lượng</label>
               <input type="number" min="0" step="0.1" required
                 className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
                 value={newCurrent} onChange={e => setNewCurrent(e.target.value)} />
-            </div>
-            <div>
-              <label className="text-xs text-gray-600 font-medium">Cảnh báo</label>
-              <input type="number" min="0" step="0.1" required
-                className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
-                value={newThreshold} onChange={e => setNewThreshold(e.target.value)} />
             </div>
             <div>
               <label className="text-xs text-gray-600 font-medium">Đơn vị</label>
