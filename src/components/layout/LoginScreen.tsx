@@ -112,13 +112,13 @@ export default function LoginScreen() {
       {mode === 'login' && (
         <form onSubmit={handleLogin} className="w-full space-y-4">
           <Field label="Tên đăng nhập" icon={<User size={16} />}>
-            <input type="text" required autoComplete="username" placeholder="admin"
+            <input type="text" required autoComplete="username"
               value={username} onChange={e => setUsername(e.target.value)}
               className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
           </Field>
 
           <Field label="Mật khẩu" icon={<Lock size={16} />}>
-            <input type={showPw ? 'text' : 'password'} required autoComplete="current-password" placeholder="••••••••"
+            <input type={showPw ? 'text' : 'password'} required autoComplete="current-password"
               value={password} onChange={e => setPassword(e.target.value)}
               className="w-full pl-9 pr-10 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
             <button type="button" onClick={() => setShowPw(v => !v)}
@@ -140,19 +140,19 @@ export default function LoginScreen() {
       {mode === 'register' && (
         <form onSubmit={handleRegister} className="w-full space-y-4">
           <Field label="Tên đăng nhập" icon={<User size={16} />}>
-            <input type="text" required placeholder="VD: nguyenvana"
+            <input type="text" required
               value={username} onChange={e => setUsername(e.target.value.replace(/\s/g, ''))}
               className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
           </Field>
 
           <Field label="Tên hiển thị" icon={<User size={16} />}>
-            <input type="text" placeholder="VD: Nguyễn Văn A"
+            <input type="text"
               value={displayName} onChange={e => setDisplayName(e.target.value)}
               className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
           </Field>
 
           <Field label="Mật khẩu" icon={<Lock size={16} />}>
-            <input type={showPw ? 'text' : 'password'} required placeholder="Tối thiểu 6 ký tự"
+            <input type={showPw ? 'text' : 'password'} required
               value={password} onChange={e => setPassword(e.target.value)}
               className="w-full pl-9 pr-10 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
             <button type="button" onClick={() => setShowPw(v => !v)}
@@ -162,14 +162,10 @@ export default function LoginScreen() {
           </Field>
 
           <Field label="Xác nhận mật khẩu" icon={<Lock size={16} />}>
-            <input type="password" required placeholder="Nhập lại mật khẩu"
+            <input type="password" required
               value={password2} onChange={e => setPassword2(e.target.value)}
               className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
           </Field>
-
-          <p className="text-xs text-gray-400 text-center">
-            Tài khoản mới sẽ có quyền <span className="font-semibold text-emerald-600">Nhân sự</span>. Admin có thể thay đổi sau.
-          </p>
 
           {error   && <ErrorMsg msg={error} />}
           {success && (
