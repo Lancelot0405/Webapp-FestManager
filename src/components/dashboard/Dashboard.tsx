@@ -85,7 +85,7 @@ export default function Dashboard({ onSelectEvent }: DashboardProps) {
           <StatCard
             icon={<Calendar size={20} className="text-blue-500" />}
             label="Sự kiện của tôi"
-            value={events.filter(e => e.staff.some(s => s.id === currentUser.id)).length}
+            value={events.filter(e => e.staff.some(s => String(s.id) === currentUser.id)).length}
             bg="bg-blue-50"
           />
           <StatCard

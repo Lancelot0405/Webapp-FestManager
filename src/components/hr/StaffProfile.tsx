@@ -9,7 +9,7 @@ import { ExpenseStatusBadge } from '../shared/StatusBadge';
 import type { ExpenseCategory, Expense } from '../../types';
 
 interface StaffProfileProps {
-  staffId: number;
+  staffId: string;
   onBack?: () => void;
 }
 
@@ -19,7 +19,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
   const { state, addExpense } = useApp();
   const { staff, events, currentUser } = state;
 
-  const member = staff.find(s => s.id === staffId);
+  const member = staff.find(s => String(s.id) === staffId);
 
   const [showForm, setShowForm] = useState(false);
   const [formEventId, setFormEventId] = useState<number | ''>('');
@@ -42,7 +42,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
   );
 
   // Events this staff is assigned to
-  const myEvents = events.filter(e => e.staff.some(s => s.id === staffId));
+  const myEvents = events.filter(e => e.staff.some(s => String(s.id) === staffId));
 
   const handleSubmitExpense = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +50,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
     const [yyyy, mm, dd] = formDate.split('-');
     const newExpense: Expense = {
       id: Date.now(),
-      staffId: member.id,
+      staffId: String(member.id),
       staffName: member.name,
       festivalId: formEventId as number,
       type: formCategory,

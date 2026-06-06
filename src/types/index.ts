@@ -10,7 +10,7 @@
 export type UserRole = 'admin' | 'staff';
 
 export interface CurrentUser {
-  id: number;
+  id: string;
   name: string;
   role: UserRole;
 }
@@ -60,7 +60,7 @@ export type ExpenseStatus = 'pending' | 'approved' | 'rejected';
 
 export interface Expense {
   id: number;
-  staffId: number;
+  staffId: string;
   staffName: string;
   festivalId: number;
   type: ExpenseCategory;

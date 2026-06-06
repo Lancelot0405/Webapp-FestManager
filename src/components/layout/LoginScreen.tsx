@@ -31,7 +31,7 @@ export default function LoginScreen() {
 
     // Lấy thông tin role từ bảng profiles
     const { data: profile } = await supabase
-      .from('profiles')
+      .from('users')
       .select('id, name, role')
       .eq('id', data.user.id)
       .single();
@@ -41,7 +41,7 @@ export default function LoginScreen() {
     } else {
       // Fallback: dùng email làm name, role mặc định là staff
       login({
-        id: data.user.id as unknown as number,
+        id: data.user.id,
         name: data.user.email?.split('@')[0] ?? 'User',
         role: 'staff',
       });

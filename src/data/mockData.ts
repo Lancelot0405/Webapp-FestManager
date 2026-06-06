@@ -86,7 +86,7 @@ import type {
       receipts: [
         {
           id: 101,
-          staffId: 2,
+          staffId: "2",
           staffName: 'Linh',
           festivalId: 1,
           type: 'Vé tàu/xe',
@@ -145,7 +145,7 @@ import type {
       receipts: [
         {
           id: 102,
-          staffId: 3,
+          staffId: "3",
           staffName: 'Minh',
           festivalId: 3,
           type: 'Uber/Taxi',
@@ -157,7 +157,7 @@ import type {
         },
         {
           id: 103,
-          staffId: 1,
+          staffId: "1",
           staffName: 'Lance',
           festivalId: 3,
           type: 'Vé tàu/xe',

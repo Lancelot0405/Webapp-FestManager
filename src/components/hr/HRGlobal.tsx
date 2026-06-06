@@ -8,7 +8,7 @@ import { useApp } from '../../context/AppContext';
 import AddStaffForm from './AddStaffForm';
 
 interface HRGlobalProps {
-  onSelectStaff: (id: number) => void;
+  onSelectStaff: (id: string) => void;
 }
 
 export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
@@ -48,7 +48,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
           {staff.map(s => (
             <button
               key={s.id}
-              onClick={() => onSelectStaff(s.id)}
+              onClick={() => onSelectStaff(String(s.id))}
               className="w-full text-left bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:border-blue-200 transition-colors"
             >
               <div className="flex items-center gap-3">

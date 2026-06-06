@@ -27,7 +27,7 @@ export default function App() {
   // ── UI state (cục bộ trong App — không cần vào Context) ───────────────────
   const [activeTab,        setActiveTab]        = useState<ActiveTab>('dashboard');
   const [selectedEventId,  setSelectedEventId]  = useState<number | null>(null);
-  const [selectedStaffId,  setSelectedStaffId]  = useState<number | null>(null);
+  const [selectedStaffId,  setSelectedStaffId]  = useState<string | null>(null);
 
   // Reset về Dashboard + xóa mọi selection đang chọn
   const handleLogoClick = () => {
