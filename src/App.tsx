@@ -20,7 +20,81 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 
-const mockEvents = [
+// === ĐỊNH NGHĨA CÁC INTERFACE ĐỂ SỬA LỖI TYPESCRIPT ===
+interface Staff {
+  name: string;
+  city: string;
+}
+
+interface Expenses {
+  rent: number;
+  ingredients?: number;
+  transport?: number;
+  staff?: number;
+  [key: string]: number | undefined; // Cho phép key động tránh lỗi index signature
+}
+
+interface Financials {
+  income: number;
+  expenses: Expenses;
+}
+
+interface ReceiptItem {
+  id: number;
+  staffName: string;
+  type: string;
+  amount: number;
+  date: string;
+  imageUrl: string;
+}
+
+interface InventoryReported {
+  name: string;
+  qty: number;
+  unit: string;
+}
+
+interface ExtraInfo {
+  booth: string;
+  hygienePermit: string;
+  organizerContact: string;
+}
+
+interface EventItem {
+  id: number;
+  name: string;
+  date: string;
+  location: string;
+  status: string;
+  staff: Staff[];
+  financials: Financials;
+  inventoryReported: InventoryReported[];
+  receipts: ReceiptItem[];
+  extra: ExtraInfo;
+}
+
+interface InventoryItem {
+  id: number;
+  name: string;
+  current: number;
+  threshold: number;
+  unit: string;
+}
+
+interface User {
+  role: 'admin' | 'staff';
+  name: string;
+}
+
+interface ParsedInventoryItem {
+  name: string;
+  qty: number;
+  status: 'success' | 'error';
+  action?: 'updated' | 'created';
+}
+
+// === MOCK DATA VỚI KIỂU DỮ LIỆU CHUẨN ===
+const mockEvents: EventItem[] = [
   { 
     id: 1, name: 'Paris Food Festival', date: '15-06-2026', location: 'Champ de Mars', status: 'Sắp tới',
     staff: [{name: 'Lance', city: 'Paris'}, {name: 'Linh', city: 'Lyon'}],
@@ -51,7 +125,7 @@ const mockEvents = [
   }
 ];
 
-const mockInventory = [
+const mockInventory: InventoryItem[] = [
   { id: 1, name: 'Thịt bò', current: 5, threshold: 10, unit: 'kg' },
   { id: 2, name: 'Vỏ bánh bao', current: 150, threshold: 50, unit: 'cái' },
   { id: 3, name: 'Rau xà lách', current: 2, threshold: 5, unit: 'kg' },
@@ -69,35 +143,30 @@ const mockFinances = {
 };
 
 export default function App() {
-  const [currentUser, setCurrentUser] = useState(null); 
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [inventoryInput, setInventoryInput] = useState('');
-  const [parsedInventory, setParsedInventory] = useState([]);
+  // Fix lỗi gán Type cho useState nhận giá trị null ban đầu
+  const [currentUser, setCurrentUser] = useState<User | null>(null); 
+  const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
+  const [inventoryInput, setInventoryInput] = useState<string>('');
+  const [parsedInventory, setParsedInventory] = useState<ParsedInventoryItem[]>([]);
 
-  // States for dynamic data
-  const [eventsData, setEventsData] = useState(mockEvents);
-  const [inventoryData, setInventoryData] = useState(mockInventory);
+  const [eventsData, setEventsData] = useState<EventItem[]>(mockEvents);
+  const [inventoryData, setInventoryData] = useState<InventoryItem[]>(mockInventory);
   
-  // Unit editing state
-  const [editingUnitId, setEditingUnitId] = useState(null);
+  const [editingUnitId, setEditingUnitId] = useState<number | null>(null);
   const unitOptions = ['kg', 'g', 'lít', 'ml', 'cái', 'lon', 'hộp', 'xiên', 'thùng', 'phần'];
 
-  // Event list states (Add quick event)
-  const [showAddEventForm, setShowAddEventForm] = useState(false);
-  const [newEventInput, setNewEventInput] = useState('');
+  const [showAddEventForm, setShowAddEventForm] = useState<boolean>(false);
+  const [newEventInput, setNewEventInput] = useState<string>('');
 
-  // Event detail states
-  const [showReceiptForm, setShowReceiptForm] = useState(false);
-  const [newReceipt, setNewReceipt] = useState({ type: 'Vé tàu/xe', amount: '' });
-  const [receiptImage, setReceiptImage] = useState(null); 
-  const [selectedStaff, setSelectedStaff] = useState(null);
+  const [showReceiptForm, setShowReceiptForm] = useState<boolean>(false);
+  const [newReceipt, setNewReceipt] = useState<{ type: string; amount: string }>({ type: 'Vé tàu/xe', amount: '' });
+  const [receiptImage, setReceiptImage] = useState<string | null>(null); 
+  const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
   
-  // Refs cho upload ảnh (Camera và Gallery tách biệt)
-  const fileInputRef = useRef(null); // Camera
-  const galleryInputRef = useRef(null); // Từ máy
+  const fileInputRef = useRef<HTMLInputElement>(null); 
+  const galleryInputRef = useRef<HTMLInputElement>(null); 
 
-  // Reset forms when changing events
   useEffect(() => {
     if (!selectedEvent) {
       setSelectedStaff(null);
@@ -107,7 +176,8 @@ export default function App() {
     }
   }, [selectedEvent]);
 
-  const handleUnitChange = (id, newUnit) => {
+  // Sửa lỗi Parameter 'id' và 'newUnit' implicitly has an 'any' type
+  const handleUnitChange = (id: number, newUnit: string) => {
     setInventoryData(prev => prev.map(item => item.id === id ? { ...item, unit: newUnit } : item));
     setEditingUnitId(null);
   };
@@ -117,12 +187,12 @@ export default function App() {
     const items = inventoryInput.split(',').map(item => item.trim());
     let updatedInventory = [...inventoryData]; 
 
-    const parsed = items.map(item => {
+    const parsed: ParsedInventoryItem[] = items.map(item => {
       const match = item.match(/^(.*?)\s+(\d+(?:\.\d+)?)$/);
       if (match) {
         const name = match[1].trim();
         const qty = Number(match[2]);
-        let action = '';
+        let action: 'updated' | 'created' = 'updated';
 
         const existingItemIndex = updatedInventory.findIndex(
           inv => inv.name.toLowerCase() === name.toLowerCase()
@@ -152,28 +222,26 @@ export default function App() {
   };
 
   const handleAddEvent = () => {
-    if (!newEventInput.trim()) return;
+    if (!newEventInput.trim() || !currentUser) return;
     
-    // Tách chuỗi theo dấu cách. Giả định từ cuối cùng là Thành phố, phần trước đó là Tên sự kiện.
-    // VD: "Otaku Caen" -> parts = ["Otaku", "Caen"]
     const parts = newEventInput.trim().split(/\s+/);
     let location = 'Chưa xác định';
     let name = newEventInput.trim();
 
     if (parts.length > 1) {
-      location = parts.pop(); // Lấy phần tử cuối làm thành phố
-      name = parts.join(' '); // Nối các phần tử còn lại làm tên
+      location = parts.pop() || 'Chưa xác định'; 
+      name = parts.join(' '); 
     }
 
     const todayStr = new Date().toLocaleDateString('vi-VN').replace(/\//g, '-');
 
-    const newEventObj = {
+    const newEventObj: EventItem = {
       id: Date.now(),
       name: name,
-      date: todayStr, // Lấy ngày hiện tại làm mặc định
+      date: todayStr, 
       location: location,
       status: 'Lên kế hoạch',
-      staff: [{name: currentUser.name, city: location}], // Tự động thêm admin vào
+      staff: [{name: currentUser.name, city: location}], 
       financials: { income: 0, expenses: { rent: 0 } },
       inventoryReported: [],
       receipts: [],
@@ -185,20 +253,23 @@ export default function App() {
     setShowAddEventForm(false);
   };
 
-  // Hàm xử lý khi chọn ảnh từ Camera hoặc Gallery
-  const handleImageCapture = (e) => {
-    const file = e.target.files[0];
+  // Sửa lỗi Parameter 'e' implicitly has an 'any' type
+  const handleImageCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setReceiptImage(reader.result); // Lưu ảnh dưới dạng Base64
+        if (typeof reader.result === 'string') {
+          setReceiptImage(reader.result); 
+        }
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleUploadReceipt = (event) => {
-    if (!newReceipt.amount) {
+  // Sửa lỗi Parameter 'event' implicitly has an 'any' type
+  const handleUploadReceipt = (event: EventItem) => {
+    if (!newReceipt.amount || !currentUser) {
       alert("Vui lòng nhập số tiền!"); 
       return;
     }
@@ -303,7 +374,6 @@ export default function App() {
         )}
       </div>
 
-      {/* Form thêm nhanh sự kiện */}
       {showAddEventForm && (
         <div className="bg-white p-4 rounded-2xl shadow-sm border border-blue-200 animate-fade-in">
           <h3 className="font-bold text-gray-800 mb-1 text-sm">Thêm sự kiện nhanh</h3>
@@ -459,7 +529,7 @@ export default function App() {
       <div className="space-y-4">
         <h3 className="font-semibold text-gray-800">Hiệu quả các sự kiện</h3>
         {eventsData.map(event => {
-          const totalExpense = event.financials ? Object.values(event.financials.expenses).reduce((a, b) => a + b, 0) : 0;
+          const totalExpense = event.financials ? Object.values(event.financials.expenses).reduce((a, b) => a + (b || 0), 0) : 0;
           const netProfit = (event.financials?.income || 0) - totalExpense;
           const isCompleted = event.status === 'Đã hoàn thành';
 
@@ -504,7 +574,7 @@ export default function App() {
   const renderEventDetail = () => {
     if (!selectedEvent) return null;
     const event = eventsData.find(e => e.id === selectedEvent.id) || selectedEvent;
-    const totalExpense = Object.values(event.financials.expenses).reduce((a, b) => a + b, 0);
+    const totalExpense = Object.values(event.financials.expenses).reduce((a, b) => a + (b || 0), 0);
     const netProfit = event.financials.income - totalExpense;
 
     if (selectedStaff) {
@@ -578,11 +648,9 @@ export default function App() {
                   />
                 </div>
                 
-                {/* Khu vực chụp/tải ảnh tách biệt */}
                 <div>
                   <label className="text-xs font-semibold text-gray-600 mb-1 block">Hình ảnh hoá đơn</label>
                   
-                  {/* Input ẩn gọi Camera (dùng capture="environment") */}
                   <input 
                     type="file"
                     accept="image/*"
@@ -592,7 +660,6 @@ export default function App() {
                     onChange={handleImageCapture}
                   />
 
-                  {/* Input ẩn để chọn file/Gallery (không dùng capture) */}
                   <input 
                     type="file"
                     accept="image/*"
@@ -604,13 +671,15 @@ export default function App() {
                   {!receiptImage ? (
                     <div className="grid grid-cols-2 gap-3">
                       <button 
-                        onClick={() => fileInputRef.current.click()}
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
                         className="w-full flex flex-col items-center justify-center gap-2 py-4 border-2 border-dashed border-blue-300 bg-blue-50/50 text-blue-600 rounded-xl text-sm font-medium hover:bg-blue-100 transition shadow-sm"
                       >
                         <Camera size={24} /> Chụp ảnh bill
                       </button>
                       <button 
-                        onClick={() => galleryInputRef.current.click()}
+                        type="button"
+                        onClick={() => galleryInputRef.current?.click()}
                         className="w-full flex flex-col items-center justify-center gap-2 py-4 border-2 border-dashed border-emerald-300 bg-emerald-50/50 text-emerald-600 rounded-xl text-sm font-medium hover:bg-emerald-100 transition shadow-sm"
                       >
                         <ImageIcon size={24} /> Chọn từ máy
@@ -621,13 +690,15 @@ export default function App() {
                       <img src={receiptImage} alt="Preview" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                          <button 
-                            onClick={() => galleryInputRef.current.click()}
+                            type="button"
+                            onClick={() => galleryInputRef.current?.click()}
                             className="bg-white/90 text-gray-800 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm flex items-center gap-1 hover:bg-white"
                          >
                            <ImageIcon size={14}/> Đổi ảnh khác
                          </button>
                       </div>
                       <button 
+                        type="button"
                         onClick={() => setReceiptImage(null)}
                         className="absolute top-2 right-2 bg-red-500/90 hover:bg-red-600 text-white p-1.5 rounded-full shadow-sm backdrop-blur-sm transition"
                       >
@@ -712,7 +783,7 @@ export default function App() {
               {Object.entries(event.financials.expenses).map(([key, val]) => (
                 <div key={key} className="flex justify-between text-sm text-gray-600">
                   <span className="capitalize">{key === 'rent' ? 'Thuê gian hàng' : key === 'ingredients' ? 'Nguyên liệu' : key === 'transport' ? 'Vận chuyển' : key === 'staff' ? 'Nhân sự' : key}</span>
-                  <span className="text-red-500">-€{val}</span>
+                  <span className="text-red-500">-€{val || 0}</span>
                 </div>
               ))}
             </div>
