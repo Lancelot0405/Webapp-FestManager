@@ -35,7 +35,7 @@ export default function Dashboard({ onSelectEvent }: DashboardProps) {
     e => e.status === 'Sắp tới' || e.status === 'Lên kế hoạch' || e.status === 'Đang diễn ra'
   );
   const lowStockCount = inventory.filter(i => i.current < i.threshold).length;
-  const allStaffIds = new Set(events.flatMap(e => e.staff.map(s => s.id)));
+  const totalStaff = staff.length;
   const pendingExpenses = events.flatMap(e => e.receipts).filter(r => r.status === 'pending');
   const myPendingExpenses = pendingExpenses.filter(r =>
     myNumericId != null && r.staffId === String(myNumericId)
@@ -75,7 +75,7 @@ export default function Dashboard({ onSelectEvent }: DashboardProps) {
           <StatCard
             icon={<Users size={20} className="text-purple-500" />}
             label="Tổng nhân viên"
-            value={allStaffIds.size}
+            value={totalStaff}
             bg="bg-purple-50"
           />
           <StatCard

@@ -91,6 +91,8 @@ type Action =
       payload: { itemId: number; qty: number } }
   | { type: 'CREATE_INVENTORY_ITEM';
       payload: Omit<InventoryItem, 'id'> }
+  | { type: 'DELETE_INVENTORY_ITEM';
+      payload: number }
   | { type: 'UPDATE_INVENTORY_UNIT';
       payload: { itemId: number; unit: InventoryUnit } }
   | { type: 'ADD_INVENTORY_LOG';
@@ -242,6 +244,12 @@ function appReducer(state: AppState, action: Action): AppState {
         ],
       };
 
+    case 'DELETE_INVENTORY_ITEM':
+      return {
+        ...state,
+        inventory: state.inventory.filter(i => i.id !== action.payload),
+      };
+
     case 'UPDATE_INVENTORY_UNIT':
       return {
         ...state,
@@ -316,6 +324,7 @@ interface AppContextValue {
   // --- Inventory ---
   setInventoryItem:     (itemId: number, qty: number)                    => void;
   createInventoryItem:  (item: Omit<InventoryItem, 'id'>)                => void;
+  deleteInventoryItem:  (itemId: number)                                 => void;
   updateInventoryUnit:  (itemId: number, unit: InventoryUnit)            => void;
   addInventoryLog:      (log: InventoryLogEntry)                         => void;
 
@@ -496,6 +505,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     []
   );
 
+  const deleteInventoryItem = useCallback((itemId: number) => {
+    dispatch({ type: 'DELETE_INVENTORY_ITEM', payload: itemId });
+    supabase.from('inventory_items').delete().eq('id', itemId).then();
+  }, []);
+
   const updateInventoryUnit = useCallback(
     (itemId: number, unit: InventoryUnit) => {
       dispatch({ type: 'UPDATE_INVENTORY_UNIT', payload: { itemId, unit } });
@@ -567,7 +581,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addEvent, updateEvent, deleteEvent,
     addStaffToEvent, removeStaffFromEvent,
     addExpense, updateExpenseStatus,
-    setInventoryItem, createInventoryItem, updateInventoryUnit, addInventoryLog,
+    setInventoryItem, createInventoryItem, deleteInventoryItem, updateInventoryUnit, addInventoryLog,
     addStaff, updateStaff, addContract,
   };
 
