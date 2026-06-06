@@ -410,7 +410,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'ADD_EXPENSE', payload: { eventId, expense } });
       supabase.from('expenses').insert({
         id: expense.id,
-        staff_id: expense.staffId,
+        staff_id: parseInt(String(expense.staffId), 10) || null,
         staff_name: expense.staffName,
         festival_id: expense.festivalId,
         type: expense.type,
