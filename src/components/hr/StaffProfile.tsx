@@ -44,8 +44,13 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
   );
   const myEvents = events.filter(e => e.staff.some(s => String(s.id) === staffId));
 
+  const MAX_FILE_MB = 5;
+
   // Upload file lên Supabase Storage
   const uploadFile = async (file: File, bucket: string, folder: string) => {
+    if (file.size > MAX_FILE_MB * 1024 * 1024) {
+      throw new Error(`File quá lớn. Vui lòng chọn file dưới ${MAX_FILE_MB}MB.`);
+    }
     const ext  = file.name.split('.').pop();
     const path = `${folder}/${Date.now()}.${ext}`;
     const { error } = await supabase.storage.from(bucket).upload(path, file);
@@ -67,8 +72,8 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
         url,
         fileName: file.name,
       });
-    } catch {
-      alert('Upload thất bại. Vui lòng thử lại.');
+    } catch (err: any) {
+      alert(err?.message ?? 'Upload thất bại. Vui lòng thử lại.');
     } finally {
       setUploadingContract(false);
       if (contractFileRef.current) contractFileRef.current.value = '';
@@ -100,8 +105,8 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
       addExpense(formEventId as number, newExpense);
       setShowExpenseForm(false);
       setFormAmount(''); setFormDate(''); setFormEventId(''); setExpenseFile(null);
-    } catch {
-      alert('Upload ảnh thất bại. Vui lòng thử lại.');
+    } catch (err: any) {
+      alert(err?.message ?? 'Upload ảnh thất bại. Vui lòng thử lại.');
     } finally {
       setUploadingExp(false);
     }

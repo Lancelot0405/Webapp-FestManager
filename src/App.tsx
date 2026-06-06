@@ -22,7 +22,12 @@ import StaffProfile from './components/hr/StaffProfile';
 
 export default function App() {
   const { state, logout: contextLogout } = useApp();
-  const { currentUser } = state;
+  const { currentUser, staff } = state;
+
+  // Tìm numeric staff id cho user đang đăng nhập (dùng cho tab profile của staff)
+  const myStaffId = currentUser
+    ? String(staff.find(s => s.userId === currentUser.id)?.id ?? '')
+    : '';
 
   // ── UI state (cục bộ trong App — không cần vào Context) ───────────────────
   const [activeTab,        setActiveTab]        = useState<ActiveTab>('dashboard');
@@ -98,8 +103,11 @@ export default function App() {
               {activeTab === 'hr' && currentUser.role === 'admin' && (
                 <HRGlobal onSelectStaff={setSelectedStaffId} />
               )}
-              {activeTab === 'profile' && currentUser.role === 'staff' && (
-                <StaffProfile staffId={currentUser.id} />
+              {activeTab === 'profile' && currentUser.role === 'staff' && myStaffId && (
+                <StaffProfile staffId={myStaffId} />
+              )}
+              {activeTab === 'profile' && currentUser.role === 'staff' && !myStaffId && (
+                <p className="text-center text-gray-400 py-20 text-sm">Đang tải hồ sơ...</p>
               )}
             </>
           )}

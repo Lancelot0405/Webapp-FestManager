@@ -34,6 +34,7 @@ export async function fetchStaff(): Promise<StaffMember[]> {
 
   return data.map((row: any): StaffMember => ({
     id: row.id,
+    userId: row.user_id ?? undefined,
     name: row.name ?? '',
     dob: row.dob ?? '',
     city: row.city ?? '',

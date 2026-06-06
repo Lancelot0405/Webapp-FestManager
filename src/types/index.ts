@@ -30,6 +30,7 @@ export interface Contract {
 
 export interface StaffMember {
   id: number;
+  userId?: string; // Supabase Auth UUID
   name: string;
   /** Format: DD-MM-YYYY */
   dob: string;
