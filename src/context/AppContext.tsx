@@ -376,7 +376,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // --- Events ---
   const addEvent = useCallback(async (event: FestivalEvent) => {
     dispatch({ type: 'ADD_EVENT', payload: event });
-    const { data } = await supabase.from('events').insert({
+    const { data, error } = await supabase.from('events').insert({
       name: event.name,
       date: toISODate(event.date),
       location: event.location,
@@ -388,6 +388,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       hygiene_permit: event.extra.hygienePermit,
       organizer_contact: event.extra.organizerContact,
     }).select('id').single();
+    if (error) {
+      console.error('[addEvent] Supabase insert error:', error.message, error.code, error.details);
+      alert(`Lỗi lưu sự kiện: ${error.message}`);
+      return;
+    }
     if (data?.id && data.id !== event.id) {
       dispatch({ type: 'UPDATE_EVENT_ID', payload: { localId: event.id, dbId: data.id } });
     }
