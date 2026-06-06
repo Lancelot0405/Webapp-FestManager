@@ -240,7 +240,7 @@ export default function Inventory() {
         })}
       </div>
 
-      <InventoryLogList logs={inventoryLogs.slice(0, 10)} />
+      <InventoryLogList logs={inventoryLogs} />
     </div>
   );
 }

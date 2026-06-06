@@ -3,7 +3,8 @@
 // =============================================================================
 
 import { useState } from 'react';
-import { ArrowLeft, Trash2 } from 'lucide-react';
+import { ArrowLeft, Trash2, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { useApp } from '../../context/AppContext';
 import EventInfoTab       from './tabs/EventInfoTab';
 import EventStaffTab      from './tabs/EventStaffTab';
@@ -40,6 +41,40 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
     }
   };
 
+  const handleExport = () => {
+    if (!event) return;
+    const wb = XLSX.utils.book_new();
+
+    // Sheet 1: Event info
+    const expTotal = Object.values(event.financials.expenses).reduce<number>((s, v) => s + (v ?? 0), 0);
+    const infoRows = [
+      { 'Thông tin': 'Tên sự kiện', 'Giá trị': event.name },
+      { 'Thông tin': 'Ngày', 'Giá trị': event.date },
+      { 'Thông tin': 'Địa điểm', 'Giá trị': event.location },
+      { 'Thông tin': 'Trạng thái', 'Giá trị': event.status },
+      { 'Thông tin': 'Doanh thu (€)', 'Giá trị': event.financials.income },
+      { 'Thông tin': 'Chi phí (€)', 'Giá trị': expTotal },
+      { 'Thông tin': 'Lợi nhuận (€)', 'Giá trị': event.financials.income - expTotal },
+      { 'Thông tin': 'Số nhân viên', 'Giá trị': event.staff.length },
+    ];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(infoRows), 'Thông tin');
+
+    // Sheet 2: Expenses
+    if (event.receipts.length > 0) {
+      const expRows = event.receipts.map(r => ({
+        'Nhân viên': r.staffName,
+        'Loại': r.type,
+        'Số tiền (€)': r.amount,
+        'Ngày': r.date,
+        'Trạng thái': r.status,
+      }));
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(expRows), 'Chi phí');
+    }
+
+    const safeName = event.name.replace(/[/\\?%*:|"<>]/g, '-');
+    XLSX.writeFile(wb, `su-kien-${safeName}.xlsx`);
+  };
+
   if (!event) {
     return (
       <div className="text-center py-20 text-gray-400">
@@ -61,13 +96,22 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
           <p className="text-xs text-gray-500">{event.date} · {event.location}</p>
         </div>
         {isAdmin && (
-          <button
-            onClick={handleDelete}
-            className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0"
-            title="Xóa sự kiện"
-          >
-            <Trash2 size={18} />
-          </button>
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              onClick={handleExport}
+              className="p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+              title="Xuất Excel"
+            >
+              <Download size={18} />
+            </button>
+            <button
+              onClick={handleDelete}
+              className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              title="Xóa sự kiện"
+            >
+              <Trash2 size={18} />
+            </button>
+          </div>
         )}
       </div>
 
