@@ -25,9 +25,11 @@ export default function App() {
   const { currentUser, staff } = state;
 
   // Tìm numeric staff id cho user đang đăng nhập (dùng cho tab profile của staff)
-  const myStaffId = currentUser
-    ? String(staff.find(s => s.userId === currentUser.id)?.id ?? '')
-    : '';
+  const myStaffMember = currentUser
+    ? (staff.find(s => s.userId === currentUser.id)
+       ?? staff.find(s => s.name.toLowerCase() === currentUser.name.toLowerCase()))
+    : null;
+  const myStaffId = myStaffMember ? String(myStaffMember.id) : '';
 
   // ── UI state (cục bộ trong App — không cần vào Context) ───────────────────
   const [activeTab,        setActiveTab]        = useState<ActiveTab>('dashboard');

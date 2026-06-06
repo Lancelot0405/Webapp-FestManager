@@ -28,10 +28,13 @@ export default function EventExpensesTab({ event }: Props) {
   const [uploading, setUploading]       = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Tìm staffId (numeric string) của user đang đăng nhập
-  const myNumericStaffId = currentUser
-    ? String(staff.find(s => s.userId === currentUser.id)?.id ?? currentUser.id)
+  // Tìm staff member của user đang đăng nhập
+  // Thử match theo userId (UUID), sau đó fallback theo name
+  const myStaffMember = currentUser
+    ? (staff.find(s => s.userId === currentUser.id)
+       ?? staff.find(s => s.name.toLowerCase() === currentUser.name.toLowerCase()))
     : null;
+  const myNumericStaffId = myStaffMember ? String(myStaffMember.id) : null;
 
   const resetForm = () => {
     setFormCategory('Vé tàu/xe');
