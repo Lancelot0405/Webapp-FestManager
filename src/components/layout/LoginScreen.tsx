@@ -73,11 +73,21 @@ export default function LoginScreen() {
     }
 
     if (data.user) {
-      // Lưu profile vào bảng users với role mặc định là 'staff'
+      const name = displayName.trim() || username.trim();
+
+      // Lưu profile vào bảng users
       await supabase.from('users').insert({
-        id:   data.user.id,
-        name: displayName.trim() || username.trim(),
+        id: data.user.id,
+        name,
         role: 'staff',
+      });
+
+      // Tạo luôn record nhân viên để hiện ở tab Nhân sự
+      await supabase.from('staff_members').insert({
+        user_id: data.user.id,
+        name,
+        dob:  '',
+        city: '',
       });
     }
 

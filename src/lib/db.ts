@@ -1,0 +1,172 @@
+// =============================================================================
+// FESTMANAGER — SUPABASE DATA FETCHERS
+// src/lib/db.ts
+// =============================================================================
+
+import { supabase } from './supabase';
+import type {
+  StaffMember,
+  FestivalEvent,
+  InventoryItem,
+  InventoryLogEntry,
+  Expense,
+  StaffRef,
+  EventStatus,
+  InventoryUnit,
+  InventoryLogAction,
+  ExpenseStatus,
+  ExpenseCategory,
+} from '../types';
+
+// -----------------------------------------------------------------------------
+// STAFF
+// -----------------------------------------------------------------------------
+
+export async function fetchStaff(): Promise<StaffMember[]> {
+  const { data, error } = await supabase
+    .from('staff_members')
+    .select('*, contracts(*)');
+
+  if (error || !data || data.length === 0) {
+    if (error) console.error('[db] fetchStaff error:', error.message);
+    return [];
+  }
+
+  return data.map((row: any): StaffMember => ({
+    id: row.id,
+    name: row.name ?? '',
+    dob: row.dob ?? '',
+    city: row.city ?? '',
+    contracts: (row.contracts ?? []).map((c: any) => ({
+      id: c.id,
+      date: c.date ?? '',
+      url: c.url ?? '',
+      fileName: c.file_name ?? undefined,
+    })),
+  }));
+}
+
+// -----------------------------------------------------------------------------
+// EVENTS
+// -----------------------------------------------------------------------------
+
+export async function fetchEvents(): Promise<FestivalEvent[]> {
+  const { data, error } = await supabase
+    .from('events')
+    .select(`*, event_staff(staff_id, staff_members(id, name, city, users(role))), receipts:expenses(*)`);
+
+  if (error || !data || data.length === 0) {
+    if (error) console.error('[db] fetchEvents error:', error.message);
+    return [];
+  }
+
+  return data.map((row: any): FestivalEvent => {
+    // Map staff from event_staff junction
+    const staff: StaffRef[] = (row.event_staff ?? []).map((es: any) => {
+      const sm = es.staff_members;
+      return {
+        id: sm?.id ?? es.staff_id,
+        name: sm?.name ?? '',
+        city: sm?.city ?? '',
+      };
+    });
+
+    // expenses jsonb column = breakdown data
+    const breakdown = row.expenses ?? {};
+
+    // receipts alias = individual expense records
+    const receipts: Expense[] = (row.receipts ?? []).map((r: any): Expense => ({
+      id: r.id,
+      staffId: String(r.staff_id ?? ''),
+      staffName: r.staff_name ?? '',
+      festivalId: r.festival_id ?? row.id,
+      type: (r.type ?? 'Khác') as ExpenseCategory,
+      amount: r.amount ?? 0,
+      date: r.date ?? '',
+      imageUrl: r.image_url ?? '',
+      status: (r.status ?? 'pending') as ExpenseStatus,
+    }));
+
+    return {
+      id: row.id,
+      name: row.name ?? '',
+      date: row.date ?? '',
+      location: row.location ?? '',
+      status: (row.status ?? 'Lên kế hoạch') as EventStatus,
+      staff,
+      financials: {
+        income: row.income ?? 0,
+        expenses: {
+          rent: breakdown.rent ?? 0,
+          ingredients: breakdown.ingredients ?? 0,
+          transport: breakdown.transport ?? 0,
+          staff: breakdown.staff ?? 0,
+          ...breakdown,
+        },
+      },
+      inventoryReported: (row.inventory_reported ?? []).map((item: any) => ({
+        name: item.name ?? '',
+        current: item.current ?? 0,
+        unit: (item.unit ?? 'cái') as InventoryUnit,
+      })),
+      receipts,
+      extra: {
+        booth: row.booth ?? '',
+        hygienePermit: row.hygiene_permit ?? '',
+        organizerContact: row.organizer_contact ?? '',
+      },
+    };
+  });
+}
+
+// -----------------------------------------------------------------------------
+// INVENTORY
+// -----------------------------------------------------------------------------
+
+export async function fetchInventory(): Promise<InventoryItem[]> {
+  const { data, error } = await supabase
+    .from('inventory_items')
+    .select('*');
+
+  if (error || !data || data.length === 0) {
+    if (error) console.error('[db] fetchInventory error:', error.message);
+    return [];
+  }
+
+  return data.map((row: any): InventoryItem => ({
+    id: row.id,
+    name: row.name ?? '',
+    current: row.current ?? 0,
+    threshold: row.threshold ?? 0,
+    unit: (row.unit ?? 'cái') as InventoryUnit,
+  }));
+}
+
+// -----------------------------------------------------------------------------
+// INVENTORY LOGS
+// -----------------------------------------------------------------------------
+
+export async function fetchInventoryLogs(): Promise<InventoryLogEntry[]> {
+  const { data, error } = await supabase
+    .from('inventory_logs')
+    .select('*')
+    .order('timestamp', { ascending: false });
+
+  if (error || !data || data.length === 0) {
+    if (error) console.error('[db] fetchInventoryLogs error:', error.message);
+    return [];
+  }
+
+  return data.map((row: any): InventoryLogEntry => ({
+    id: row.id,
+    itemId: row.item_id,
+    itemName: row.item_name ?? '',
+    qty: row.qty ?? 0,
+    unit: (row.unit ?? 'cái') as InventoryUnit,
+    action: (row.action ?? 'set') as InventoryLogAction,
+    festivalId: row.festival_id ?? null,
+    festivalName: row.festival_name ?? '',
+    timestamp: row.timestamp ?? '',
+    submittedBy: row.submitted_by ?? '',
+  }));
+}
