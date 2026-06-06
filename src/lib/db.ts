@@ -43,6 +43,7 @@ export async function fetchStaff(): Promise<StaffMember[]> {
       date: c.date ?? '',
       url: c.url ?? '',
       fileName: c.file_name ?? undefined,
+      festivalId: c.festival_id ?? undefined,
     })),
     carteVitale: row.carte_vitale_url
       ? { url: row.carte_vitale_url, fileName: row.carte_vitale_name ?? '', uploadedAt: row.carte_vitale_uploaded_at ?? '' }

@@ -5,23 +5,25 @@
 import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import EventInfoTab from './tabs/EventInfoTab';
-import EventStaffTab from './tabs/EventStaffTab';
-import EventExpensesTab from './tabs/EventExpensesTab';
-import EventInventoryTab from './tabs/EventInventoryTab';
+import EventInfoTab       from './tabs/EventInfoTab';
+import EventStaffTab      from './tabs/EventStaffTab';
+import EventExpensesTab   from './tabs/EventExpensesTab';
+import EventInventoryTab  from './tabs/EventInventoryTab';
+import EventContractsTab  from './tabs/EventContractsTab';
 
 interface EventDetailProps {
   eventId: number;
   onBack: () => void;
 }
 
-type Tab = 'info' | 'staff' | 'expenses' | 'inventory';
+type Tab = 'info' | 'staff' | 'expenses' | 'inventory' | 'contracts';
 
 const TABS: { id: Tab; label: string }[] = [
-  { id: 'info',      label: 'Thông tin' },
-  { id: 'staff',     label: 'Nhân sự'   },
-  { id: 'expenses',  label: 'Chi phí'   },
-  { id: 'inventory', label: 'Kho'       },
+  { id: 'info',      label: 'Thông tin'  },
+  { id: 'staff',     label: 'Nhân sự'    },
+  { id: 'expenses',  label: 'Chi phí'    },
+  { id: 'inventory', label: 'Kho'        },
+  { id: 'contracts', label: 'Hợp đồng'  },
 ];
 
 export default function EventDetail({ eventId, onBack }: EventDetailProps) {
@@ -73,6 +75,7 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
       {activeTab === 'staff'     && <EventStaffTab event={event} />}
       {activeTab === 'expenses'  && <EventExpensesTab event={event} />}
       {activeTab === 'inventory' && <EventInventoryTab event={event} />}
+      {activeTab === 'contracts' && <EventContractsTab event={event} />}
     </div>
   );
 }

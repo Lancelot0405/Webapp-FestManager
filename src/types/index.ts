@@ -26,6 +26,8 @@ export interface Contract {
   /** URL to the file — blob URL (dev) or Supabase Storage URL (prod) */
   url: string;
   fileName?: string;
+  /** Which festival this contract belongs to (optional) */
+  festivalId?: number;
 }
 
 export interface StaffDocument {

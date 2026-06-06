@@ -525,6 +525,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         date: contract.date,
         url: contract.url,
         file_name: contract.fileName,
+        festival_id: contract.festivalId ?? null,
       }).then();
     },
     []
