@@ -308,36 +308,43 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
 
   // ---------------------------------------------------------------------------
-  // Load real data from Supabase on mount
+  // Load real data from Supabase
   // ---------------------------------------------------------------------------
+  async function loadData() {
+    const [staff, events, inventory, inventoryLogs] = await Promise.all([
+      fetchStaff(),
+      fetchEvents(),
+      fetchInventory(),
+      fetchInventoryLogs(),
+    ]);
+
+    const payload: Partial<AppState> = { staff };
+    if (events.length > 0)        payload.events        = events;
+    if (inventory.length > 0)     payload.inventory     = inventory;
+    if (inventoryLogs.length > 0) payload.inventoryLogs = inventoryLogs;
+
+    dispatch({ type: 'INIT_DATA', payload });
+  }
+
   useEffect(() => {
-    async function loadData() {
-      const [staff, events, inventory, inventoryLogs] = await Promise.all([
-        fetchStaff(),
-        fetchEvents(),
-        fetchInventory(),
-        fetchInventoryLogs(),
-      ]);
-
-      const payload: Partial<AppState> = {
-        // Staff luôn lấy từ Supabase (kể cả rỗng) — để đăng ký mới hiện ngay
-        staff,
-      };
-      if (events.length > 0)        payload.events        = events;
-      if (inventory.length > 0)     payload.inventory     = inventory;
-      if (inventoryLogs.length > 0) payload.inventoryLogs = inventoryLogs;
-
-      dispatch({ type: 'INIT_DATA', payload });
-    }
-
-    loadData();
-  }, []);
+    // Lắng nghe auth state — load data mỗi khi user đăng nhập/đăng xuất
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        loadData();
+      } else {
+        dispatch({ type: 'INIT_DATA', payload: { staff: [] } });
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // --- Auth ---
   const login  = useCallback((user: CurrentUser) =>
     dispatch({ type: 'LOGIN', payload: user }), []);
-  const logout = useCallback(() =>
-    dispatch({ type: 'LOGOUT' }), []);
+  const logout = useCallback(() => {
+    supabase.auth.signOut();
+    dispatch({ type: 'LOGOUT' });
+  }, []);
 
   // --- Events ---
   const addEvent = useCallback((event: FestivalEvent) => {
