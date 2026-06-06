@@ -13,8 +13,7 @@ const UNITS: InventoryUnit[] = ['kg', 'g', 'lít', 'ml', 'cái', 'lon', 'hộp',
 export default function Inventory() {
   const { state, setInventoryItem, createInventoryItem, addInventoryLog } = useApp();
   const { inventory, inventoryLogs, currentUser } = state;
-  const isAdmin = currentUser?.role === 'admin';
-  const canEdit = currentUser?.role === 'admin' || currentUser?.role === 'staff';
+  const canEdit = !!currentUser;
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editQty, setEditQty] = useState('');
