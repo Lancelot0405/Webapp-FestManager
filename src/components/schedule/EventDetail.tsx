@@ -3,7 +3,7 @@
 // =============================================================================
 
 import { useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Trash2 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import EventInfoTab       from './tabs/EventInfoTab';
 import EventStaffTab      from './tabs/EventStaffTab';
@@ -27,9 +27,18 @@ const TABS: { id: Tab; label: string }[] = [
 ];
 
 export default function EventDetail({ eventId, onBack }: EventDetailProps) {
-  const { state } = useApp();
+  const { state, deleteEvent } = useApp();
   const event = state.events.find(e => e.id === eventId);
   const [activeTab, setActiveTab] = useState<Tab>('info');
+  const isAdmin = state.currentUser?.role === 'admin';
+
+  const handleDelete = () => {
+    if (!event) return;
+    if (window.confirm(`Xóa sự kiện "${event.name}"?\nThao tác này không thể hoàn tác.`)) {
+      deleteEvent(event.id);
+      onBack();
+    }
+  };
 
   if (!event) {
     return (
@@ -47,10 +56,19 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
         <button onClick={onBack} className="p-1 text-gray-500 hover:text-gray-700">
           <ArrowLeft size={22} />
         </button>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <h1 className="font-bold text-gray-800 text-lg truncate">{event.name}</h1>
           <p className="text-xs text-gray-500">{event.date} · {event.location}</p>
         </div>
+        {isAdmin && (
+          <button
+            onClick={handleDelete}
+            className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0"
+            title="Xóa sự kiện"
+          >
+            <Trash2 size={18} />
+          </button>
+        )}
       </div>
 
       {/* Tabs */}

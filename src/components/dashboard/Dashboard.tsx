@@ -12,11 +12,23 @@ interface DashboardProps {
 
 export default function Dashboard({ onSelectEvent }: DashboardProps) {
   const { state } = useApp();
-  const { currentUser, events, inventory } = state;
+  const { currentUser, events, inventory, staff } = state;
 
   if (!currentUser) return null;
 
   const isAdmin = currentUser.role === 'admin';
+
+  // Tìm numeric staff ID của user hiện tại
+  const myStaffMember = isAdmin ? null : (
+    staff.find(s => s.userId === currentUser.id)
+    ?? staff.find(s => s.name.toLowerCase() === currentUser.name.toLowerCase())
+  );
+  const myNumericId = myStaffMember?.id ?? null;
+
+  // Events mà staff được phân công
+  const myEvents = myNumericId
+    ? events.filter(e => e.staff.some(s => s.id === myNumericId))
+    : [];
 
   // Computed stats
   const upcomingEvents = events.filter(
@@ -25,18 +37,19 @@ export default function Dashboard({ onSelectEvent }: DashboardProps) {
   const lowStockCount = inventory.filter(i => i.current < i.threshold).length;
   const allStaffIds = new Set(events.flatMap(e => e.staff.map(s => s.id)));
   const pendingExpenses = events.flatMap(e => e.receipts).filter(r => r.status === 'pending');
-  const myPendingExpenses = pendingExpenses.filter(r => r.staffId === currentUser.id);
+  const myPendingExpenses = pendingExpenses.filter(r =>
+    myNumericId != null && r.staffId === String(myNumericId)
+  );
 
-  // Show 3 nearest upcoming events
-  const displayEvents = [...upcomingEvents]
-    .sort((a, b) => {
-      const parse = (d: string) => {
-        const [dd, mm, yyyy] = d.split('-');
-        return new Date(`${yyyy}-${mm}-${dd}`).getTime();
-      };
-      return parse(a.date) - parse(b.date);
-    })
-    .slice(0, 3);
+  // Admin: 3 sự kiện sắp nhất; Staff: sự kiện được phân công
+  const parse = (d: string) => {
+    const [dd, mm, yyyy] = d.split('-');
+    return new Date(`${yyyy}-${mm}-${dd}`).getTime();
+  };
+
+  const displayEvents = isAdmin
+    ? [...upcomingEvents].sort((a, b) => parse(a.date) - parse(b.date)).slice(0, 3)
+    : [...myEvents].sort((a, b) => parse(a.date) - parse(b.date));
 
   return (
     <div className="space-y-6 pb-20">
@@ -85,7 +98,7 @@ export default function Dashboard({ onSelectEvent }: DashboardProps) {
           <StatCard
             icon={<Calendar size={20} className="text-blue-500" />}
             label="Sự kiện của tôi"
-            value={events.filter(e => e.staff.some(s => String(s.id) === currentUser.id)).length}
+            value={myEvents.length}
             bg="bg-blue-50"
           />
           <StatCard

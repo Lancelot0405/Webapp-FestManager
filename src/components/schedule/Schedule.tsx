@@ -19,11 +19,21 @@ function parseDate(d: string): number {
 
 export default function Schedule({ onSelectEvent }: ScheduleProps) {
   const { state } = useApp();
-  const { events, currentUser } = state;
+  const { events, currentUser, staff } = state;
   const isAdmin = currentUser?.role === 'admin';
   const [showAddForm, setShowAddForm] = useState(false);
 
-  const sorted = [...events].sort((a, b) => parseDate(a.date) - parseDate(b.date));
+  // Staff chỉ thấy events được phân công
+  const myStaffMember = !isAdmin && currentUser
+    ? (staff.find(s => s.userId === currentUser.id)
+       ?? staff.find(s => s.name.toLowerCase() === currentUser.name.toLowerCase()))
+    : null;
+
+  const visibleEvents = isAdmin
+    ? events
+    : events.filter(e => myStaffMember && e.staff.some(s => s.id === myStaffMember.id));
+
+  const sorted = [...visibleEvents].sort((a, b) => parseDate(a.date) - parseDate(b.date));
 
   return (
     <div className="space-y-4 pb-20">

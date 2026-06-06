@@ -70,6 +70,7 @@ type Action =
   | { type: 'ADD_EVENT';            payload: FestivalEvent }
   | { type: 'UPDATE_EVENT';         payload: FestivalEvent }
   | { type: 'UPDATE_EVENT_ID';      payload: { localId: number; dbId: number } }
+  | { type: 'DELETE_EVENT';         payload: number }
 
   // --- Staff assignment (trong 1 event) ---
   | { type: 'ADD_STAFF_TO_EVENT';
@@ -143,6 +144,12 @@ function appReducer(state: AppState, action: Action): AppState {
         events: state.events.map(e =>
           e.id === action.payload.localId ? { ...e, id: action.payload.dbId } : e
         ),
+      };
+
+    case 'DELETE_EVENT':
+      return {
+        ...state,
+        events: state.events.filter(e => e.id !== action.payload),
       };
 
     // -------------------------------------------------------------------------
@@ -296,6 +303,7 @@ interface AppContextValue {
   // --- Events ---
   addEvent:    (event: FestivalEvent)  => void;
   updateEvent: (event: FestivalEvent)  => void;
+  deleteEvent: (eventId: number)       => void;
 
   // --- Staff in event ---
   addStaffToEvent:      (eventId: number, staffRef: FestivalEvent['staff'][0]) => void;
@@ -396,6 +404,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (data?.id && data.id !== event.id) {
       dispatch({ type: 'UPDATE_EVENT_ID', payload: { localId: event.id, dbId: data.id } });
     }
+  }, []);
+
+  const deleteEvent = useCallback((eventId: number) => {
+    dispatch({ type: 'DELETE_EVENT', payload: eventId });
+    supabase.from('events').delete().eq('id', eventId).then();
+    supabase.from('event_staff').delete().eq('event_id', eventId).then();
   }, []);
 
   const updateEvent = useCallback((event: FestivalEvent) => {
@@ -550,7 +564,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const value: AppContextValue = {
     state,
     login, logout,
-    addEvent, updateEvent,
+    addEvent, updateEvent, deleteEvent,
     addStaffToEvent, removeStaffFromEvent,
     addExpense, updateExpenseStatus,
     setInventoryItem, createInventoryItem, updateInventoryUnit, addInventoryLog,
