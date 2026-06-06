@@ -28,15 +28,21 @@ export interface Contract {
   fileName?: string;
 }
 
+export interface StaffDocument {
+  url: string;
+  fileName: string;
+  uploadedAt: string;
+}
+
 export interface StaffMember {
   id: number;
-  userId?: string; // Supabase Auth UUID
+  userId?: string;
   name: string;
-  /** Format: DD-MM-YYYY */
   dob: string;
-  /** Departure city — used to estimate travel costs */
   city: string;
   contracts: Contract[];
+  carteVitale?: StaffDocument;
+  titreSejour?: StaffDocument;
 }
 
 // Lightweight version embedded inside Event.staff[]

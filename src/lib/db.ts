@@ -44,6 +44,12 @@ export async function fetchStaff(): Promise<StaffMember[]> {
       url: c.url ?? '',
       fileName: c.file_name ?? undefined,
     })),
+    carteVitale: row.carte_vitale_url
+      ? { url: row.carte_vitale_url, fileName: row.carte_vitale_name ?? '', uploadedAt: row.carte_vitale_uploaded_at ?? '' }
+      : undefined,
+    titreSejour: row.titre_sejour_url
+      ? { url: row.titre_sejour_url, fileName: row.titre_sejour_name ?? '', uploadedAt: row.titre_sejour_uploaded_at ?? '' }
+      : undefined,
   }));
 }
 

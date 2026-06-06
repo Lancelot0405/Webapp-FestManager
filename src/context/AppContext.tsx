@@ -485,8 +485,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }).then();
   }, []);
 
-  const updateStaff = useCallback((staff: StaffMember) =>
-    dispatch({ type: 'UPDATE_STAFF', payload: staff }), []);
+  const updateStaff = useCallback((staff: StaffMember) => {
+    dispatch({ type: 'UPDATE_STAFF', payload: staff });
+    supabase.from('staff_members').update({
+      name:                    staff.name,
+      dob:                     staff.dob,
+      city:                    staff.city,
+      carte_vitale_url:        staff.carteVitale?.url        ?? null,
+      carte_vitale_name:       staff.carteVitale?.fileName   ?? null,
+      carte_vitale_uploaded_at:staff.carteVitale?.uploadedAt ?? null,
+      titre_sejour_url:        staff.titreSejour?.url        ?? null,
+      titre_sejour_name:       staff.titreSejour?.fileName   ?? null,
+      titre_sejour_uploaded_at:staff.titreSejour?.uploadedAt ?? null,
+    }).eq('id', staff.id).then();
+  }, []);
 
   const addContract = useCallback(
     (staffId: number, contract: StaffMember['contracts'][0]) => {
