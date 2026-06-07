@@ -223,7 +223,8 @@ function RevenueChart({ events }: { events: FestivalEvent[] }) {
 
   if (entries.length === 0) return <p className="text-sm text-gray-400 text-center py-4">Chưa có dữ liệu</p>;
 
-  const maxVal = Math.max(...entries.map(([, v]) => v), 1);
+  const dataMax = Math.max(...entries.map(([, v]) => v), 1);
+  const maxVal = Math.max(dataMax, 100000);
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-gray-100 dark:border-slate-700">
