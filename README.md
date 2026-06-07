@@ -1,78 +1,94 @@
+<div align="center">
+
+<img src="public/icons/icon-192.png" alt="FestManager" width="100" style="border-radius:22px; margin-bottom:12px" />
+
 # FestManager
 
-<p align="center">
-  <img src="public/icons/icon-192.png" alt="FestManager Logo" width="96" height="96" style="border-radius: 20px" />
-</p>
+**Ứng dụng quản lý sự kiện & F&B lưu động**
 
-<p align="center">
-  <strong>Ứng dụng quản lý sự kiện & lễ hội — dành cho doanh nghiệp F&B và tổ chức sự kiện</strong>
-</p>
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Supabase](https://img.shields.io/badge/Supabase-Backend-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![PWA](https://img.shields.io/badge/PWA-Ready-5A0FC8)](https://web.dev/progressive-web-apps/)
+[![Vercel](https://img.shields.io/badge/Deploy-Vercel-000?logo=vercel&logoColor=white)](https://vercel.com)
 
-<p align="center">
-  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" />
-  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white" />
-  <img src="https://img.shields.io/badge/Supabase-Backend-3ECF8E?logo=supabase&logoColor=white" />
-  <img src="https://img.shields.io/badge/PWA-Ready-5A0FC8?logo=pwa&logoColor=white" />
-  <img src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white" />
-</p>
+</div>
 
 ---
 
 ## Giới thiệu
 
-**FestManager** là ứng dụng web quản lý sự kiện và lễ hội được xây dựng dưới dạng Progressive Web App (PWA), tối ưu cho thiết bị di động. Ứng dụng phục vụ hai nhóm người dùng:
+**FestManager** là Progressive Web App (PWA) quản lý toàn diện cho các doanh nghiệp F&B tham gia lễ hội và sự kiện ngoài trời. Tối ưu hoàn toàn cho thiết bị di động, hỗ trợ cài đặt lên màn hình chính (iOS & Android), hoạt động mượt mà với Dark Mode.
 
-- **Quản lý (Admin)** — Toàn quyền điều phối sự kiện, nhân sự, kho hàng, tài chính và khách hàng
-- **Nhân sự (Staff)** — Xem lịch phân công, hồ sơ cá nhân và chi phí cần duyệt
+Hệ thống phục vụ hai nhóm người dùng:
+
+| Vai trò | Quyền hạn |
+|---------|-----------|
+| **Quản lý (Admin)** | Toàn quyền: sự kiện, nhân sự, kho hàng, tài chính, khách hàng, phê duyệt chi phí |
+| **Nhân sự (Staff)** | Xem lịch phân công, hồ sơ cá nhân, nộp & theo dõi chi phí cá nhân |
 
 ---
 
-## Tính năng chính
+## Tính năng
 
 ### Quản lý sự kiện
-- Tạo, chỉnh sửa, nhân bản (clone) sự kiện với đầy đủ thông tin: ngày, địa điểm, trạng thái
-- Xem lịch sự kiện theo danh sách, lọc theo trạng thái
-- Phân công nhân sự cho từng sự kiện
+- Tạo, chỉnh sửa, nhân bản (clone) sự kiện
+- Phân công nhân viên cho từng sự kiện
+- Theo dõi trạng thái: *Lên kế hoạch / Sắp tới / Đang diễn ra / Hoàn thành / Đã huỷ*
+- Quản lý hợp đồng & tài liệu đính kèm
 - Xuất báo cáo sự kiện dạng **PDF**
+- Xuất danh sách sự kiện dạng **Excel**
 
-### Quản lý nhân sự
-- Thêm nhân viên, tạo tài khoản đăng nhập trực tiếp từ giao diện admin
-- Hồ sơ nhân viên: tên, số điện thoại, thành phố, vai trò
-- Đổi tên đăng nhập và mật khẩu ngay trong ứng dụng
+### Kho hàng
+- **2 danh mục riêng biệt:** Thực phẩm & Trang thiết bị
+- Chỉnh sửa tên, số lượng, ngưỡng cảnh báo, đơn vị ngay inline khi bấm vào mặt hàng
+- Cảnh báo tự động khi tồn kho dưới ngưỡng
+- Import hàng loạt từ file Excel (2 cột: Tên | Số lượng)
+- **Tab Lịch sử** riêng — theo dõi toàn bộ thay đổi kho
 
-### Quản lý kho hàng
-- Theo dõi số lượng tồn kho, cảnh báo khi dưới ngưỡng tối thiểu
-- Lịch sử nhập/xuất kho
+### Tài chính
+- Tổng quan doanh thu / chi phí / lợi nhuận theo tháng
+- Phân bổ chi phí theo danh mục (biểu đồ thanh)
+- Phê duyệt / từ chối chi phí nhân viên kèm hóa đơn
+- Chỉnh sửa tài chính trực tiếp trên từng sự kiện
+- Xuất báo cáo tài chính **Excel**
 
-### Quản lý tài chính
-- Theo dõi thu nhập và chi phí theo từng sự kiện
-- Duyệt / từ chối biên lai chi phí của nhân viên
-
-### Quản lý khách hàng
-- Danh sách đối tác / đơn vị tổ chức
-- Thêm, chỉnh sửa, xóa thông tin liên hệ
+### Nhân sự
+- Hồ sơ đầy đủ: họ tên, ngày sinh, nơi ở, số điện thoại, loại hợp đồng
+- Admin tạo tài khoản đăng nhập trực tiếp cho nhân viên
+- Admin xem tên đăng nhập hiện tại của nhân viên
+- Đổi tên đăng nhập & mật khẩu ngay trong ứng dụng
+- Quản lý tài liệu cá nhân: Carte Vitale, Titre de Séjour
+- Nộp chi phí cá nhân kèm ảnh hóa đơn
 
 ### Dashboard & Analytics
-- Thống kê nhanh: sự kiện sắp tới, nhân sự, cảnh báo kho, chi phí chờ duyệt
-- Biểu đồ doanh thu theo tháng
-- Bảng xếp hạng nhân viên tích cực nhất
+- Thống kê nhanh: sự kiện sắp tới, tổng nhân viên, kho sắp hết, chi phí chờ duyệt
+- **Biểu đồ doanh thu** theo tháng (trục max 100 000€)
+- **Bảng xếp hạng** top 3 nhân viên tích cực nhất
 
-### Thông báo & PWA
-- **Push Notification** (Web Push API + VAPID): admin nhận thông báo realtime khi có cập nhật
-- Cài đặt ứng dụng lên màn hình chính (iOS Safari & Android Chrome)
-- Hỗ trợ chế độ **Dark Mode** với nút chuyển đổi ngay trên header
+### Khách hàng / Đối tác
+- Quản lý danh sách đơn vị tổ chức & đối tác
+- Thêm, chỉnh sửa, xóa thông tin liên hệ
+
+### PWA & Trải nghiệm người dùng
+- **Dark Mode** với nút chuyển đổi trên Header và trang Login — lưu theo thiết bị
+- **Push Notification** (Web Push API + VAPID): thông báo realtime cho admin
+- **Cài đặt app** lên màn hình chính — iOS Safari & Android Chrome; nút hiện trên cả trang Login và Header
 - Splash screen khi khởi động, offline-ready qua Service Worker
+- Fix iOS Safari auto-zoom trên các ô input
 
 ---
 
-## Công nghệ sử dụng
+## Công nghệ
 
 | Lớp | Công nghệ |
 |-----|-----------|
-| Frontend | React 19, TypeScript, Vite |
-| Styling | Tailwind CSS 4 |
+| Frontend | React 19, TypeScript 5, Vite 8 |
+| Styling | Tailwind CSS 4 (Dark Mode: class) |
 | Backend / DB | Supabase (PostgreSQL, Auth, Realtime, Storage) |
 | PDF Export | @react-pdf/renderer |
+| Excel Export | xlsx |
 | Push Notification | Web Push API, VAPID, Supabase Edge Functions |
 | PWA | Service Worker, Web App Manifest |
 | Deploy | Vercel |
@@ -82,34 +98,32 @@
 ## Cài đặt & Chạy local
 
 ```bash
-# Clone repository
+# 1. Clone
 git clone https://github.com/Lancelot0405/Webapp-FestManager.git
 cd Webapp-FestManager
 
-# Cài dependencies
+# 2. Cài dependencies
 npm install
 
-# Tạo file môi trường
+# 3. Tạo file môi trường
 cp .env.example .env
-# Điền VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_SUPABASE_SERVICE_ROLE_KEY, VITE_VAPID_PUBLIC_KEY
+# → Điền đầy đủ các biến bên dưới
 
-# Chạy development server
+# 4. Chạy dev server
 npm run dev
 
-# Build production
+# 5. Build production
 npm run build
 ```
 
----
+### Biến môi trường
 
-## Biến môi trường
-
-| Biến | Mô tả |
-|------|-------|
-| `VITE_SUPABASE_URL` | URL của Supabase project |
-| `VITE_SUPABASE_ANON_KEY` | Anon/public key của Supabase |
-| `VITE_SUPABASE_SERVICE_ROLE_KEY` | Service role key (chỉ dùng server-side) |
-| `VITE_VAPID_PUBLIC_KEY` | VAPID public key cho Web Push |
+| Biến | Mô tả | Bắt buộc |
+|------|-------|----------|
+| `VITE_SUPABASE_URL` | URL của Supabase project | ✅ |
+| `VITE_SUPABASE_ANON_KEY` | Anon/public key | ✅ |
+| `VITE_SUPABASE_SERVICE_ROLE_KEY` | Service role key (admin operations) | ✅ |
+| `VITE_VAPID_PUBLIC_KEY` | VAPID public key cho Web Push | ✅ |
 
 ---
 
@@ -118,31 +132,45 @@ npm run build
 ```
 src/
 ├── components/
-│   ├── clients/        # Quản lý khách hàng
-│   ├── dashboard/      # Dashboard & Analytics
-│   ├── finance/        # Tài chính
-│   ├── hr/             # Nhân sự
-│   ├── inventory/      # Kho hàng
-│   ├── layout/         # Header, BottomNav, LoginScreen
-│   ├── schedule/       # Lịch sự kiện, EventDetail, PDF Export
-│   └── shared/         # ErrorBoundary, StatusBadge, Toast...
-├── context/            # AppContext, ThemeContext, ToastContext
-├── hooks/              # usePushNotifications, useInstallPrompt, useRealtimeNotifications
-├── lib/                # supabase client, db helpers
-└── types/              # TypeScript interfaces
+│   ├── clients/            # Quản lý khách hàng / đối tác
+│   ├── dashboard/          # Dashboard, biểu đồ doanh thu, top nhân viên
+│   ├── finance/            # Tài chính, phê duyệt chi phí, xuất Excel
+│   ├── hr/                 # HRGlobal, StaffProfile, AddStaffForm
+│   ├── inventory/          # Kho hàng (Thực phẩm / Trang thiết bị / Lịch sử)
+│   ├── layout/             # Header, BottomNav, LoginScreen
+│   ├── schedule/           # Schedule, EventDetail, PDF Export
+│   │   └── tabs/           # Thông tin, Nhân sự, Chi phí, Kho, Hợp đồng
+│   └── shared/             # ErrorBoundary, StatusBadge, DocThumbnail, Toast
+├── context/
+│   ├── AppContext.tsx       # Global state + Supabase sync
+│   ├── ThemeContext.tsx     # Dark / Light mode
+│   └── ToastContext.tsx     # Toast notifications
+├── hooks/
+│   ├── useInstallPrompt.ts         # PWA install prompt
+│   ├── usePushNotifications.ts     # Web Push subscribe
+│   └── useRealtimeNotifications.ts # Supabase Realtime
+├── lib/
+│   ├── supabase.ts         # Supabase clients (anon + admin)
+│   └── db.ts               # Data fetching helpers
+└── types/
+    └── index.ts            # TypeScript interfaces
 ```
 
 ---
 
-## Screenshots
+## Supabase — Migration cần thiết
 
-> *(Cập nhật ảnh chụp màn hình sau khi deploy)*
+Chạy các lệnh sau trong **SQL Editor** của Supabase:
 
----
+```sql
+-- Thêm cột phone cho nhân viên
+ALTER TABLE public.staff_members
+  ADD COLUMN IF NOT EXISTS phone TEXT;
 
-## Đóng góp
-
-Pull requests và issues đều được hoan nghênh. Vui lòng tạo issue trước khi gửi PR lớn để thảo luận về hướng triển khai.
+-- Thêm cột category cho kho hàng (food / equipment)
+ALTER TABLE public.inventory_items
+  ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'food';
+```
 
 ---
 
@@ -154,6 +182,6 @@ Dự án này được phát hành dưới giấy phép [MIT License](LICENSE).
 
 ---
 
-<p align="center">
+<div align="center">
   Được xây dựng với ❤️ bởi <strong>Duy Truong HO (Lance)</strong>
-</p>
+</div>
