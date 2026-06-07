@@ -123,7 +123,14 @@ export type InventoryUnit =
   | 'xiên'
   | 'thùng'
   | 'phần'
-  | 'túi';
+  | 'túi'
+  | 'đôi'
+  | 'bộ'
+  | 'chai'
+  | 'cuộn'
+  | 'chiếc';
+
+export type InventoryCategory = 'food' | 'equipment';
 
 export interface InventoryItem {
   id: number;
@@ -132,6 +139,7 @@ export interface InventoryItem {
   /** Alert triggers when current <= threshold */
   threshold: number;
   unit: InventoryUnit;
+  category?: InventoryCategory;
 }
 
 export type InventoryLogAction = 'set' | 'created';

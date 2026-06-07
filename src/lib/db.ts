@@ -13,6 +13,7 @@ import type {
   StaffRef,
   EventStatus,
   InventoryUnit,
+  InventoryCategory,
   InventoryLogAction,
   ExpenseStatus,
   ExpenseCategory,
@@ -185,6 +186,7 @@ export async function fetchInventory(): Promise<InventoryItem[]> {
     current: row.current ?? 0,
     threshold: row.threshold ?? 0,
     unit: (row.unit ?? 'cái') as InventoryUnit,
+    category: (row.category ?? 'food') as InventoryCategory,
   }));
 }
 

@@ -547,6 +547,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         current: item.current,
         threshold: item.threshold,
         unit: item.unit,
+        category: item.category ?? 'food',
       }).then();
     },
     []
