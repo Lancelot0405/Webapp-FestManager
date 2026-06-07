@@ -21,7 +21,7 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
 
   const { notifications, clearAll, clearOne } = useRealtimeNotifications(isAdmin);
   const { subscribed, loading: pushLoading, subscribe } = usePushNotifications();
-  const { canInstall, isIos, triggerInstall } = useInstallPrompt();
+  const { isIos, isStandalone, triggerInstall } = useInstallPrompt();
 
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
   const [showInstallModal, setShowInstallModal]   = useState(false);
@@ -41,11 +41,11 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
   if (!currentUser) return null;
 
   const handleInstallClick = async () => {
-    if (isIos) {
+    const result = await triggerInstall();
+    // 'installed' → Chrome đã xử lý, không cần làm gì thêm
+    // 'guide' hoặc 'already' → hiện popup hướng dẫn/nhắc nhở
+    if (result === 'guide' || result === 'already') {
       setShowInstallModal(v => !v);
-    } else {
-      const installed = await triggerInstall();
-      if (!installed) setShowInstallModal(v => !v);
     }
   };
 
@@ -67,39 +67,62 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
             </span>
           </div>
 
-          {/* Nút cài app — hiện cho tất cả khi chưa cài */}
-          {canInstall && (
-            <div className="relative" ref={installRef}>
-              <button
-                onClick={handleInstallClick}
-                className="w-9 h-9 bg-gray-100 hover:bg-indigo-50 hover:text-indigo-600 text-gray-500 rounded-full flex items-center justify-center transition-colors"
-                title="Cài đặt ứng dụng"
-              >
-                <Download size={16} />
-              </button>
+          {/* Nút cài app — luôn hiện */}
+          <div className="relative" ref={installRef}>
+            <button
+              onClick={handleInstallClick}
+              className="w-9 h-9 bg-gray-100 hover:bg-indigo-50 hover:text-indigo-600 text-gray-500 rounded-full flex items-center justify-center transition-colors"
+              title="Cài đặt ứng dụng"
+            >
+              <Download size={16} />
+            </button>
 
-              {/* iOS install guide */}
-              {showInstallModal && (
-                <div className="absolute right-0 top-11 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <Smartphone size={16} className="text-indigo-600" />
-                      <p className="text-sm font-semibold text-gray-800">Cài đặt FestManager</p>
-                    </div>
-                    <button onClick={() => setShowInstallModal(false)} className="text-gray-400">
-                      <X size={15} />
-                    </button>
+            {showInstallModal && (
+              <div className="absolute right-0 top-11 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Smartphone size={16} className="text-indigo-600" />
+                    <p className="text-sm font-semibold text-gray-800">
+                      {isStandalone ? 'Đã cài đặt' : 'Cài đặt FestManager'}
+                    </p>
                   </div>
+                  <button onClick={() => setShowInstallModal(false)} className="text-gray-400">
+                    <X size={15} />
+                  </button>
+                </div>
+
+                {isStandalone ? (
+                  /* Đã cài — nhắc nhở */
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-600">
+                      FestManager đã được cài trên thiết bị của bạn. 🎉
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      Nếu muốn cài lại, hãy xóa app khỏi màn hình chính rồi làm theo hướng dẫn bên dưới.
+                    </p>
+                    <div className="pt-1 space-y-2">
+                      <InstallStep n={1} text='Bấm nút Chia sẻ ↑ ở thanh dưới Safari' />
+                      <InstallStep n={2} text='Cuộn xuống → chọn "Thêm vào màn hình chính"' />
+                      <InstallStep n={3} text='Bấm "Thêm" góc trên phải' />
+                    </div>
+                  </div>
+                ) : isIos ? (
+                  /* iOS chưa cài */
                   <div className="space-y-2.5">
                     <InstallStep n={1} text='Bấm nút Chia sẻ ↑ ở thanh dưới Safari' />
                     <InstallStep n={2} text='Cuộn xuống → chọn "Thêm vào màn hình chính"' />
                     <InstallStep n={3} text='Bấm "Thêm" góc trên phải' />
                   </div>
-                  <p className="text-xs text-gray-400 mt-3">Yêu cầu Safari trên iOS 16.4+</p>
-                </div>
-              )}
-            </div>
-          )}
+                ) : (
+                  /* Android/Desktop không có prompt (đã cài hoặc không hỗ trợ) */
+                  <p className="text-sm text-gray-500">
+                    Trình duyệt của bạn không hỗ trợ cài đặt tự động. Hãy dùng menu trình duyệt → "Cài đặt ứng dụng" hoặc "Thêm vào màn hình chính".
+                  </p>
+                )}
+                <p className="text-xs text-gray-400 mt-3">Yêu cầu Safari iOS 16.4+ hoặc Chrome Android</p>
+              </div>
+            )}
+          </div>
 
           {/* Chuông thông báo — admin */}
           {isAdmin && (

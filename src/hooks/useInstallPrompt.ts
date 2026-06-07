@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 
 export function useInstallPrompt() {
   const [installPrompt, setInstallPrompt] = useState<any>(null);
-  const [isIos, setIsIos] = useState(false);
-  const [isStandalone, setIsStandalone] = useState(false);
+  const [isIos, setIsIos]                 = useState(false);
+  const [isStandalone, setIsStandalone]   = useState(false);
 
   useEffect(() => {
     const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -20,14 +20,18 @@ export function useInstallPrompt() {
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
-  const triggerInstall = async () => {
-    if (!installPrompt) return false;
-    await installPrompt.prompt();
-    setInstallPrompt(null);
-    return true;
+  const triggerInstall = async (): Promise<'installed' | 'guide' | 'already'> => {
+    // Đã cài rồi (standalone) → nhắc nhở
+    if (isStandalone) return 'already';
+    // Android/Chrome có prompt → cài trực tiếp
+    if (installPrompt) {
+      await installPrompt.prompt();
+      setInstallPrompt(null);
+      return 'installed';
+    }
+    // iOS hoặc không có prompt → hiện hướng dẫn
+    return 'guide';
   };
 
-  const canInstall = !isStandalone && (installPrompt !== null || isIos);
-
-  return { canInstall, isIos, triggerInstall };
+  return { isIos, isStandalone, triggerInstall };
 }
