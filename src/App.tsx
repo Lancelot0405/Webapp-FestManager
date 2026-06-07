@@ -120,7 +120,7 @@ export default function App() {
               {activeTab === 'inventory' && (
                 <Inventory />
               )}
-              {activeTab === 'finance' && currentUser.role === 'admin' && (
+              {activeTab === 'finance' && canViewAll && (
                 <Finance onSelectEvent={setSelectedEventId} />
               )}
               {activeTab === 'hr' && canViewAll && (
@@ -132,7 +132,7 @@ export default function App() {
               {activeTab === 'profile' && (currentUser.role === 'staff' || isManager) && !myStaffId && (
                 <p className="text-center text-gray-400 py-20 text-sm">Đang tải hồ sơ...</p>
               )}
-              {activeTab === 'clients' && currentUser.role === 'admin' && (
+              {activeTab === 'clients' && canViewAll && (
                 <Clients />
               )}
             </>
