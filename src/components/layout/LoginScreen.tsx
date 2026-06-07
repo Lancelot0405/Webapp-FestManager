@@ -85,24 +85,24 @@ export default function LoginScreen() {
   return (
     <div className="w-full max-w-md flex flex-col items-center justify-center min-h-screen px-4 py-8">
       {/* Card */}
-      <div className="w-full bg-white rounded-3xl p-8 shadow-2xl">
+      <div className="w-full bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-2xl">
         {/* Logo */}
         <div className="flex flex-col items-center mb-7">
           <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-3 shadow-lg">
             <span className="text-white font-black text-xl tracking-tight">FM</span>
           </div>
-          <h1 className="text-2xl font-black text-gray-900">FestManager</h1>
-          <p className="text-gray-400 text-sm mt-0.5">Hệ thống quản lý F&amp;B lưu động</p>
+          <h1 className="text-2xl font-black text-gray-900 dark:text-gray-100">FestManager</h1>
+          <p className="text-gray-400 dark:text-gray-500 text-sm mt-0.5">Hệ thống quản lý F&amp;B lưu động</p>
         </div>
 
         {/* Tab login / register */}
-        <div className="flex w-full bg-gray-100 rounded-xl p-1 mb-6">
+        <div className="flex w-full bg-gray-100 dark:bg-slate-700 rounded-xl p-1 mb-6">
           <button
-            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition ${mode === 'login' ? 'bg-white shadow text-blue-600' : 'text-gray-500'}`}
+            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition ${mode === 'login' ? 'bg-white dark:bg-slate-600 shadow text-blue-600' : 'text-gray-500 dark:text-gray-400'}`}
             onClick={() => reset('login')}
           >Đăng nhập</button>
           <button
-            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition ${mode === 'register' ? 'bg-white shadow text-blue-600' : 'text-gray-500'}`}
+            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition ${mode === 'register' ? 'bg-white dark:bg-slate-600 shadow text-blue-600' : 'text-gray-500 dark:text-gray-400'}`}
             onClick={() => reset('register')}
           >Đăng ký</button>
         </div>
@@ -113,13 +113,13 @@ export default function LoginScreen() {
             <Field label="Tên đăng nhập" icon={<User size={16} />}>
               <input type="text" required autoComplete="username" placeholder="Nhập tên đăng nhập"
                 value={username} onChange={e => setUsername(e.target.value)}
-                className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
+                className="w-full pl-9 pr-4 py-3 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
             </Field>
 
             <Field label="Mật khẩu" icon={<Lock size={16} />}>
               <input type={showPw ? 'text' : 'password'} required autoComplete="current-password" placeholder="Nhập mật khẩu"
                 value={password} onChange={e => setPassword(e.target.value)}
-                className="w-full pl-9 pr-10 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
+                className="w-full pl-9 pr-10 py-3 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
               <button type="button" onClick={() => setShowPw(v => !v)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -144,19 +144,19 @@ export default function LoginScreen() {
             <Field label="Tên đăng nhập" icon={<User size={16} />}>
               <input type="text" required placeholder="Không dấu, không khoảng trắng"
                 value={username} onChange={e => setUsername(e.target.value.replace(/\s/g, ''))}
-                className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
+                className="w-full pl-9 pr-4 py-3 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
             </Field>
 
             <Field label="Tên hiển thị" icon={<User size={16} />}>
               <input type="text" placeholder="Tên đầy đủ của bạn"
                 value={displayName} onChange={e => setDisplayName(e.target.value)}
-                className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
+                className="w-full pl-9 pr-4 py-3 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
             </Field>
 
             <Field label="Mật khẩu" icon={<Lock size={16} />}>
               <input type={showPw ? 'text' : 'password'} required placeholder="Tối thiểu 6 ký tự"
                 value={password} onChange={e => setPassword(e.target.value)}
-                className="w-full pl-9 pr-10 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
+                className="w-full pl-9 pr-10 py-3 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
               <button type="button" onClick={() => setShowPw(v => !v)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}

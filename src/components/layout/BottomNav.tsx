@@ -44,7 +44,7 @@ import {
     const tabs = currentUser.role === 'admin' ? ADMIN_TABS : STAFF_TABS;
 
     return (
-      <nav className="bg-white/95 backdrop-blur-sm border-t border-gray-100 fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md pb-safe z-20">
+      <nav className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm border-t border-gray-100 dark:border-slate-700 fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md pb-safe z-20">
         <div className="flex justify-around items-center px-2 pt-2">
           {tabs.map(({ tab, icon, label }) => {
             const isActive = activeTab === tab;
@@ -55,13 +55,13 @@ import {
                 className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all duration-150 min-w-0 flex-1 ${
                   isActive
                     ? 'text-blue-600'
-                    : 'text-gray-400 active:bg-gray-100'
+                    : 'text-gray-400 dark:text-gray-500 active:bg-gray-100'
                 }`}
               >
-                <div className={`p-1.5 rounded-xl transition-all duration-150 ${isActive ? 'bg-blue-50' : ''}`}>
+                <div className={`p-1.5 rounded-xl transition-all duration-150 ${isActive ? 'bg-blue-50 dark:bg-blue-900/30' : ''}`}>
                   {icon}
                 </div>
-                <span className={`text-[10px] font-semibold leading-none transition-colors ${isActive ? 'text-blue-600' : 'text-gray-400'}`}>
+                <span className={`text-[10px] font-semibold leading-none transition-colors ${isActive ? 'text-blue-600' : 'text-gray-400 dark:text-gray-500'}`}>
                   {label}
                 </span>
               </button>
