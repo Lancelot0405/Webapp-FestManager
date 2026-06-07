@@ -21,7 +21,10 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
   const member = staff.find(s => String(s.id) === staffId);
   const isOwnProfile = currentUser && member?.userId === currentUser.id;
   const isAdmin      = currentUser?.role === 'admin';
+  const isManager    = currentUser?.role === 'manager';
   const canEdit      = isOwnProfile || isAdmin;
+  // Manager can VIEW all staff but cannot edit or see credentials
+  void isManager;
 
   // ── Edit thông tin cá nhân ──────────────────────────────────────────────
   const [editing,           setEditing]           = useState(false);

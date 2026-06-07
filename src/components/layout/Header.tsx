@@ -18,10 +18,11 @@ interface HeaderProps {
 export default function Header({ onLogoClick, onLogout }: HeaderProps) {
   const { state } = useApp();
   const { currentUser } = state;
-  const isAdmin = currentUser?.role === 'admin';
+  const isAdmin   = currentUser?.role === 'admin';
+  const isManager = currentUser?.role === 'manager';
   const { theme, toggleTheme } = useTheme();
 
-  const { notifications, clearAll, clearOne } = useRealtimeNotifications(isAdmin);
+  const { notifications, clearAll, clearOne } = useRealtimeNotifications(isAdmin || isManager);
   const { subscribed, loading: pushLoading, subscribe } = usePushNotifications();
   const { isIos, isStandalone, triggerInstall } = useInstallPrompt();
 
@@ -64,8 +65,8 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
         <div className="flex items-center gap-1.5">
           <div className="flex flex-col text-right mr-1">
             <span className="text-sm font-semibold text-gray-800 dark:text-gray-100 leading-tight">{currentUser.name}</span>
-            <span className={`text-[10px] font-bold uppercase tracking-wide ${isAdmin ? 'text-blue-600' : 'text-emerald-600'}`}>
-              {isAdmin ? 'Quản lý' : 'Nhân sự'}
+            <span className={`text-[10px] font-bold uppercase tracking-wide ${isAdmin ? 'text-blue-600' : isManager ? 'text-indigo-600' : 'text-emerald-600'}`}>
+              {isAdmin ? 'Quản lý' : isManager ? 'Quản lý' : 'Nhân viên'}
             </span>
           </div>
 

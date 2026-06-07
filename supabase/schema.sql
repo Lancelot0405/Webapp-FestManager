@@ -14,7 +14,8 @@ create extension if not exists "uuid-ossp";
 create table if not exists public.users (
   id          uuid primary key references auth.users(id) on delete cascade,
   name        text        not null,
-  role        text        not null check (role in ('admin', 'staff')),
+  role        text        not null check (role in ('admin', 'manager', 'staff')),
+  status      text        not null default 'active' check (status in ('active', 'pending')),
   created_at  timestamptz not null default now()
 );
 
@@ -27,6 +28,7 @@ create table if not exists public.events (
   id                  bigint      generated always as identity primary key,
   name                text        not null,
   date                text        not null,
+  end_date            text,
   location            text        not null,
   status              text        not null
     check (status in ('Lên kế hoạch', 'Sắp tới', 'Đang diễn ra', 'Đã hoàn thành')),
@@ -209,6 +211,15 @@ returns boolean language sql security definer stable as $$
   );
 $$;
 
+-- Helper: kiểm tra user hiện tại có role manager (đã duyệt) không
+create or replace function public.is_manager()
+returns boolean language sql security definer stable as $$
+  select exists (
+    select 1 from public.users
+    where id = auth.uid() and role = 'manager' and status = 'active'
+  );
+$$;
+
 -- Helper: lấy staff_member id của user hiện tại
 create or replace function public.my_staff_id()
 returns bigint language sql security definer stable as $$
@@ -221,6 +232,10 @@ $$;
 create policy "users: admin full access"
   on public.users for all
   using (public.is_admin());
+
+create policy "users: manager read all"
+  on public.users for select
+  using (public.is_manager());
 
 create policy "users: read own"
   on public.users for select
@@ -235,10 +250,15 @@ create policy "events: admin full access"
   on public.events for all
   using (public.is_admin());
 
+create policy "events: manager read all"
+  on public.events for select
+  using (public.is_manager());
+
 create policy "events: staff read assigned"
   on public.events for select
   using (
     public.is_admin()
+    or public.is_manager()
     or exists (
       select 1 from public.event_staff
       where event_id = events.id and staff_id = public.my_staff_id()
@@ -250,6 +270,10 @@ create policy "staff_members: admin full access"
   on public.staff_members for all
   using (public.is_admin());
 
+create policy "staff_members: manager read all"
+  on public.staff_members for select
+  using (public.is_manager());
+
 create policy "staff_members: read own"
   on public.staff_members for select
   using (user_id = auth.uid());
@@ -259,6 +283,10 @@ create policy "contracts: admin full access"
   on public.contracts for all
   using (public.is_admin());
 
+create policy "contracts: manager read all"
+  on public.contracts for select
+  using (public.is_manager());
+
 create policy "contracts: staff read own"
   on public.contracts for select
   using (staff_id = public.my_staff_id());
@@ -267,6 +295,10 @@ create policy "contracts: staff read own"
 create policy "event_staff: admin full access"
   on public.event_staff for all
   using (public.is_admin());
+
+create policy "event_staff: manager read all"
+  on public.event_staff for select
+  using (public.is_manager());
 
 create policy "event_staff: staff read own"
   on public.event_staff for select
@@ -300,6 +332,10 @@ create policy "inventory_logs: staff insert own"
 create policy "expenses: admin full access"
   on public.expenses for all
   using (public.is_admin());
+
+create policy "expenses: manager read all"
+  on public.expenses for select
+  using (public.is_manager());
 
 create policy "expenses: staff read own"
   on public.expenses for select

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, User, Trash2, Search } from 'lucide-react';
+import { Plus, User, Trash2, Search, ShieldCheck, Check, X } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import AddStaffForm from './AddStaffForm';
 import type { StaffMember } from '../../types';
@@ -11,12 +11,16 @@ interface HRGlobalProps {
 type TypeFilter = 'Tất cả' | 'Nhân viên cứng' | 'Part-time';
 
 export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
-  const { state, deleteStaff } = useApp();
-  const { staff, events, currentUser } = state;
-  const isAdmin = currentUser?.role === 'admin';
-  const [showForm, setShowForm] = useState(false);
-  const [search, setSearch] = useState('');
-  const [typeFilter, setTypeFilter] = useState<TypeFilter>('Tất cả');
+  const { state, deleteStaff, approveRegistration, rejectRegistration } = useApp();
+  const { staff, events, currentUser, pendingRegistrations } = state;
+  const isAdmin   = currentUser?.role === 'admin';
+  const isManager = currentUser?.role === 'manager';
+  const canViewAll = isAdmin || isManager;
+
+  const [showForm,    setShowForm]    = useState(false);
+  const [search,      setSearch]      = useState('');
+  const [typeFilter,  setTypeFilter]  = useState<TypeFilter>('Tất cả');
+  const [showPending, setShowPending] = useState(true);
 
   const eventCountMap = new Map<number, number>();
   for (const event of events) {
@@ -33,7 +37,13 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
   };
 
   const q = search.trim().toLowerCase();
-  const filtered = staff.filter(s => {
+
+  // Staff only sees themselves; admin/manager sees all
+  const visibleStaff = canViewAll
+    ? staff
+    : staff.filter(s => s.userId === currentUser?.id);
+
+  const filtered = visibleStaff.filter(s => {
     const matchSearch = !q || s.name.toLowerCase().includes(q) || s.city.toLowerCase().includes(q);
     const matchType =
       typeFilter === 'Tất cả' ||
@@ -98,6 +108,62 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
         )}
       </div>
 
+      {/* Pending registrations — admin only */}
+      {isAdmin && pendingRegistrations.length > 0 && (
+        <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-700 rounded-xl overflow-hidden">
+          <button
+            onClick={() => setShowPending(v => !v)}
+            className="w-full flex items-center justify-between px-4 py-3"
+          >
+            <div className="flex items-center gap-2">
+              <ShieldCheck size={16} className="text-indigo-600 dark:text-indigo-400" />
+              <span className="text-sm font-semibold text-indigo-700 dark:text-indigo-300">
+                Yêu cầu đăng ký quản lý
+              </span>
+              <span className="bg-indigo-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                {pendingRegistrations.length}
+              </span>
+            </div>
+            <span className="text-indigo-400 text-xs">{showPending ? '▲' : '▼'}</span>
+          </button>
+
+          {showPending && (
+            <div className="px-4 pb-4 space-y-2">
+              {pendingRegistrations.map(req => (
+                <div
+                  key={req.id}
+                  className="bg-white dark:bg-slate-800 rounded-xl p-3 border border-indigo-100 dark:border-slate-600 flex items-center gap-3"
+                >
+                  <div className="w-9 h-9 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center shrink-0">
+                    <ShieldCheck size={16} className="text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{req.displayName}</p>
+                    <p className="text-xs text-indigo-600 dark:text-indigo-400">Quản lý · Chờ duyệt</p>
+                  </div>
+                  <div className="flex gap-1.5 shrink-0">
+                    <button
+                      onClick={() => approveRegistration(req.userId)}
+                      className="flex items-center gap-1 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors"
+                      title="Duyệt"
+                    >
+                      <Check size={12} /> Duyệt
+                    </button>
+                    <button
+                      onClick={() => rejectRegistration(req.userId)}
+                      className="flex items-center gap-1 bg-red-400 hover:bg-red-500 text-white text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors"
+                      title="Từ chối"
+                    >
+                      <X size={12} /> Từ chối
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Search */}
       <div className="relative">
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -111,21 +177,23 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
       </div>
 
       {/* Type filter pills */}
-      <div className="flex gap-1.5">
-        {(['Tất cả', 'Nhân viên cứng', 'Part-time'] as TypeFilter[]).map(t => (
-          <button
-            key={t}
-            onClick={() => setTypeFilter(t)}
-            className={`px-3 py-1 rounded-full text-xs font-medium transition ${
-              typeFilter === t
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
-            }`}
-          >
-            {t}
-          </button>
-        ))}
-      </div>
+      {canViewAll && (
+        <div className="flex gap-1.5">
+          {(['Tất cả', 'Nhân viên cứng', 'Part-time'] as TypeFilter[]).map(t => (
+            <button
+              key={t}
+              onClick={() => setTypeFilter(t)}
+              className={`px-3 py-1 rounded-full text-xs font-medium transition ${
+                typeFilter === t
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+      )}
 
       {showForm && isAdmin && (
         <AddStaffForm onClose={() => setShowForm(false)} />
@@ -133,7 +201,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
 
       {filtered.length === 0 ? (
         <p className="text-sm text-gray-400 text-center py-10">Chưa có nhân viên</p>
-      ) : typeFilter === 'Tất cả' && isAdmin ? (
+      ) : typeFilter === 'Tất cả' && canViewAll ? (
         // Grouped view
         <>
           {permanent.length > 0 && (
@@ -158,7 +226,6 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
           )}
         </>
       ) : (
-        // Flat list when filtered or staff view
         renderList(filtered)
       )}
     </div>

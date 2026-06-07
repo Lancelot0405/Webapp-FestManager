@@ -78,6 +78,10 @@ export default function App() {
   }
 
   // ── Đã đăng nhập → hiện App shell ─────────────────────────────────────────
+  const isAdmin   = currentUser.role === 'admin';
+  const isManager = currentUser.role === 'manager';
+  const canViewAll = isAdmin || isManager;
+
   const isInDetail = selectedEventId !== null || selectedStaffId !== null;
 
   return (
@@ -117,19 +121,19 @@ export default function App() {
               {activeTab === 'inventory' && (
                 <Inventory />
               )}
-              {activeTab === 'finance' && currentUser.role === 'admin' && (
+              {activeTab === 'finance' && canViewAll && (
                 <Finance onSelectEvent={setSelectedEventId} />
               )}
-              {activeTab === 'hr' && currentUser.role === 'admin' && (
+              {activeTab === 'hr' && canViewAll && (
                 <HRGlobal onSelectStaff={setSelectedStaffId} />
               )}
-              {activeTab === 'profile' && currentUser.role === 'staff' && myStaffId && (
+              {activeTab === 'profile' && (currentUser.role === 'staff' || isManager) && myStaffId && (
                 <StaffProfile staffId={myStaffId} />
               )}
-              {activeTab === 'profile' && currentUser.role === 'staff' && !myStaffId && (
+              {activeTab === 'profile' && (currentUser.role === 'staff' || isManager) && !myStaffId && (
                 <p className="text-center text-gray-400 py-20 text-sm">Đang tải hồ sơ...</p>
               )}
-              {activeTab === 'clients' && currentUser.role === 'admin' && (
+              {activeTab === 'clients' && canViewAll && (
                 <Clients />
               )}
             </>

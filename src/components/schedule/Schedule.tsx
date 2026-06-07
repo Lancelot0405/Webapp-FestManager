@@ -7,13 +7,15 @@ import { Plus, Trash2, Search } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
 import AddEventForm from './AddEventForm';
-import type { EventStatus } from '../../types';
+import { computeEventStatus } from '../../lib/eventStatus';
+import type { EventStatus, FestivalEvent } from '../../types';
 
 interface ScheduleProps {
   onSelectEvent: (id: number) => void;
 }
 
 function parseDate(d: string): number {
+  if (!d) return 0;
   const [dd, mm, yyyy] = d.split('-');
   return new Date(`${yyyy}-${mm}-${dd}`).getTime();
 }
@@ -31,24 +33,32 @@ const STATUS_FILTERS: StatusFilter[] = [
 export default function Schedule({ onSelectEvent }: ScheduleProps) {
   const { state, deleteEvent } = useApp();
   const { events, currentUser, staff } = state;
-  const isAdmin = currentUser?.role === 'admin';
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [search, setSearch] = useState('');
+  const isAdmin   = currentUser?.role === 'admin';
+  const isManager = currentUser?.role === 'manager';
+  const canViewAll = isAdmin || isManager;
+
+  const [showAddForm,  setShowAddForm]  = useState(false);
+  const [search,       setSearch]       = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('Tất cả');
 
-  // Staff chỉ thấy events được phân công
-  const myStaffMember = !isAdmin && currentUser
+  // Staff chỉ thấy events được phân công; admin/manager thấy tất cả
+  const myStaffMember = !canViewAll && currentUser
     ? (staff.find(s => s.userId === currentUser.id)
        ?? staff.find(s => s.name.toLowerCase() === currentUser.name.toLowerCase()))
     : null;
 
-  const visibleEvents = isAdmin
+  const visibleEvents = canViewAll
     ? events
     : events.filter(e => myStaffMember && e.staff.some(s => s.id === myStaffMember.id));
 
-  // Apply search and status filter on top of visibleEvents
+  // Compute effective status for each event
+  const withComputedStatus = visibleEvents.map(e => ({
+    ...e,
+    status: computeEventStatus(e.date, e.endDate),
+  }));
+
   const q = search.trim().toLowerCase();
-  const filtered = visibleEvents.filter(e => {
+  const filtered = withComputedStatus.filter(e => {
     const matchSearch = !q || e.name.toLowerCase().includes(q) || e.location.toLowerCase().includes(q);
     const matchStatus = statusFilter === 'Tất cả' || e.status === statusFilter;
     return matchSearch && matchStatus;
@@ -109,39 +119,59 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
       ) : (
         <div className="space-y-3">
           {sorted.map(event => (
-            <div
+            <EventCard
               key={event.id}
-              className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700 hover:border-blue-200 transition-colors flex items-stretch"
-            >
-              <button
-                onClick={() => onSelectEvent(event.id)}
-                className="flex-1 text-left p-4 min-w-0"
-              >
-                <div className="flex justify-between items-start gap-2">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-800 dark:text-gray-100 truncate">{event.name}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{event.date}</p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 truncate mt-0.5">{event.location}</p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{event.staff.length} nhân viên</p>
-                  </div>
-                  <StatusBadge status={event.status} />
-                </div>
-              </button>
-              {isAdmin && (
-                <button
-                  onClick={() => {
-                    if (window.confirm(`Xóa sự kiện "${event.name}"?\nThao tác này không thể hoàn tác.`)) {
-                      deleteEvent(event.id);
-                    }
-                  }}
-                  className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-gray-100 dark:border-slate-700 transition-colors rounded-r-xl"
-                >
-                  <Trash2 size={16} />
-                </button>
-              )}
-            </div>
+              event={event}
+              isAdmin={isAdmin}
+              onSelect={() => onSelectEvent(event.id)}
+              onDelete={() => {
+                if (window.confirm(`Xóa sự kiện "${event.name}"?\nThao tác này không thể hoàn tác.`)) {
+                  deleteEvent(event.id);
+                }
+              }}
+            />
           ))}
         </div>
+      )}
+    </div>
+  );
+}
+
+function EventCard({
+  event,
+  isAdmin,
+  onSelect,
+  onDelete,
+}: {
+  event: FestivalEvent;
+  isAdmin: boolean;
+  onSelect: () => void;
+  onDelete: () => void;
+}) {
+  const dateDisplay = event.endDate && event.endDate !== event.date
+    ? `${event.date} → ${event.endDate}`
+    : event.date;
+
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700 hover:border-blue-200 transition-colors flex items-stretch">
+      <button onClick={onSelect} className="flex-1 text-left p-4 min-w-0">
+        <div className="flex justify-between items-start gap-2">
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-gray-800 dark:text-gray-100 truncate">{event.name}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{dateDisplay}</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 truncate mt-0.5">{event.location}</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{event.staff.length} nhân viên</p>
+          </div>
+          <StatusBadge status={event.status} />
+        </div>
+      </button>
+      {isAdmin && (
+        <button
+          onClick={onDelete}
+          className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-gray-100 dark:border-slate-700 transition-colors rounded-r-xl"
+        >
+          <Trash2 size={16} />
+        </button>
       )}
     </div>
   );
