@@ -93,64 +93,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <div className="w-full max-w-md flex flex-col items-center justify-center min-h-screen px-4 py-8 relative">
-
-      {/* Floating buttons — top right */}
-      <div className="absolute top-6 right-4 flex gap-2">
-        {/* Install */}
-        <div className="relative">
-          <button
-            onClick={handleInstallClick}
-            className="w-9 h-9 bg-white/20 hover:bg-white/30 text-white rounded-full flex items-center justify-center transition-colors backdrop-blur-sm"
-            title="Cài đặt ứng dụng"
-          >
-            <Download size={16} />
-          </button>
-          {showInstallModal && (
-            <div className="absolute right-0 top-11 w-72 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 z-50 p-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <Smartphone size={16} className="text-indigo-600" />
-                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
-                    {isStandalone ? 'Đã cài đặt' : 'Cài đặt FestManager'}
-                  </p>
-                </div>
-                <button onClick={() => setShowInstallModal(false)} className="text-gray-400"><X size={15} /></button>
-              </div>
-              {isStandalone ? (
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600 dark:text-gray-300">FestManager đã được cài trên thiết bị của bạn. 🎉</p>
-                  <div className="pt-1 space-y-2">
-                    <InstallStep n={1} text='Bấm nút Chia sẻ ↑ ở thanh dưới Safari' />
-                    <InstallStep n={2} text='Cuộn xuống → chọn "Thêm vào màn hình chính"' />
-                    <InstallStep n={3} text='Bấm "Thêm" góc trên phải' />
-                  </div>
-                </div>
-              ) : isIos ? (
-                <div className="space-y-2.5">
-                  <InstallStep n={1} text='Bấm nút Chia sẻ ↑ ở thanh dưới Safari' />
-                  <InstallStep n={2} text='Cuộn xuống → chọn "Thêm vào màn hình chính"' />
-                  <InstallStep n={3} text='Bấm "Thêm" góc trên phải' />
-                </div>
-              ) : (
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Trình duyệt của bạn không hỗ trợ cài đặt tự động. Dùng menu trình duyệt → "Cài đặt ứng dụng".
-                </p>
-              )}
-              <p className="text-xs text-gray-400 mt-3">Yêu cầu Safari iOS 16.4+ hoặc Chrome Android</p>
-            </div>
-          )}
-        </div>
-
-        {/* Dark mode toggle */}
-        <button
-          onClick={toggleTheme}
-          className="w-9 h-9 bg-white/20 hover:bg-white/30 text-white rounded-full flex items-center justify-center transition-colors backdrop-blur-sm"
-          title={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
-        >
-          {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-        </button>
-      </div>
+    <div className="w-full max-w-md flex flex-col items-center justify-center min-h-screen px-4 py-8">
 
       {/* Card */}
       <div className="w-full bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-2xl">
@@ -250,6 +193,66 @@ export default function LoginScreen() {
             </button>
           </form>
         )}
+
+        {/* Divider */}
+        <div className="border-t border-gray-100 dark:border-slate-700 mt-6 pt-4 flex items-center justify-center gap-3">
+          {/* Dark mode toggle */}
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-600 dark:text-gray-300 text-xs font-medium transition-colors"
+            title={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
+          >
+            {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+            {theme === 'dark' ? 'Giao diện sáng' : 'Giao diện tối'}
+          </button>
+
+          {/* Install app */}
+          <div className="relative">
+            <button
+              onClick={handleInstallClick}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-600 dark:text-gray-300 text-xs font-medium transition-colors"
+              title="Cài đặt ứng dụng"
+            >
+              <Download size={14} />
+              Cài đặt app
+            </button>
+            {showInstallModal && (
+              <div className="absolute bottom-11 right-0 w-72 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 z-50 p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Smartphone size={16} className="text-indigo-600" />
+                    <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                      {isStandalone ? 'Đã cài đặt' : 'Cài đặt FestManager'}
+                    </p>
+                  </div>
+                  <button onClick={() => setShowInstallModal(false)} className="text-gray-400"><X size={15} /></button>
+                </div>
+                {isStandalone ? (
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-600 dark:text-gray-300">FestManager đã được cài trên thiết bị của bạn. 🎉</p>
+                    <div className="pt-1 space-y-2">
+                      <InstallStep n={1} text='Bấm nút Chia sẻ ↑ ở thanh dưới Safari' />
+                      <InstallStep n={2} text='Cuộn xuống → chọn "Thêm vào màn hình chính"' />
+                      <InstallStep n={3} text='Bấm "Thêm" góc trên phải' />
+                    </div>
+                  </div>
+                ) : isIos ? (
+                  <div className="space-y-2.5">
+                    <InstallStep n={1} text='Bấm nút Chia sẻ ↑ ở thanh dưới Safari' />
+                    <InstallStep n={2} text='Cuộn xuống → chọn "Thêm vào màn hình chính"' />
+                    <InstallStep n={3} text='Bấm "Thêm" góc trên phải' />
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Trình duyệt của bạn không hỗ trợ cài đặt tự động. Dùng menu trình duyệt → "Cài đặt ứng dụng".
+                  </p>
+                )}
+                <p className="text-xs text-gray-400 mt-3">Yêu cầu Safari iOS 16.4+ hoặc Chrome Android</p>
+              </div>
+            )}
+          </div>
+        </div>
+
       </div>
     </div>
   );
