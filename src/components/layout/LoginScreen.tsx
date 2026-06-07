@@ -138,6 +138,9 @@ export default function LoginScreen() {
         {/* ── FORM ĐĂNG KÝ ── */}
         {mode === 'register' && (
           <form onSubmit={handleRegister} className="w-full space-y-4">
+            <div className="bg-blue-50 border border-blue-100 rounded-xl px-3 py-2.5 text-xs text-blue-700">
+              💡 Nếu admin đã tạo tài khoản cho bạn, hãy dùng thông tin đăng nhập do admin cung cấp thay vì đăng ký mới.
+            </div>
             <Field label="Tên đăng nhập" icon={<User size={16} />}>
               <input type="text" required placeholder="Không dấu, không khoảng trắng"
                 value={username} onChange={e => setUsername(e.target.value.replace(/\s/g, ''))}

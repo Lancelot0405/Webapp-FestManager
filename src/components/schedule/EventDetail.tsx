@@ -3,9 +3,11 @@
 // =============================================================================
 
 import { useState } from 'react';
-import { ArrowLeft, Trash2, Download } from 'lucide-react';
+import { ArrowLeft, Trash2, Download, Copy } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { useApp } from '../../context/AppContext';
+import { useToast } from '../../context/ToastContext';
+import EventPDFExport     from './EventPDFExport';
 import EventInfoTab       from './tabs/EventInfoTab';
 import EventStaffTab      from './tabs/EventStaffTab';
 import EventExpensesTab   from './tabs/EventExpensesTab';
@@ -28,10 +30,18 @@ const TABS: { id: Tab; label: string }[] = [
 ];
 
 export default function EventDetail({ eventId, onBack }: EventDetailProps) {
-  const { state, deleteEvent } = useApp();
+  const { state, deleteEvent, cloneEvent } = useApp();
+  const showToast = useToast();
   const event = state.events.find(e => e.id === eventId);
   const [activeTab, setActiveTab] = useState<Tab>('info');
   const isAdmin = state.currentUser?.role === 'admin';
+
+  const handleClone = () => {
+    if (!event) return;
+    cloneEvent(event);
+    showToast(`Đã nhân bản "${event.name}"`, 'success');
+    onBack();
+  };
 
   const handleDelete = () => {
     if (!event) return;
@@ -103,6 +113,14 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
               title="Xuất Excel"
             >
               <Download size={18} />
+            </button>
+            <EventPDFExport event={event} />
+            <button
+              onClick={handleClone}
+              className="p-2 text-green-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+              title="Nhân bản sự kiện"
+            >
+              <Copy size={18} />
             </button>
             <button
               onClick={handleDelete}

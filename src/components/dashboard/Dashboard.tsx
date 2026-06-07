@@ -5,7 +5,7 @@
 import { Calendar, Users, Package, Clock } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
-import type { ActiveTab } from '../../types';
+import type { ActiveTab, FestivalEvent, StaffMember } from '../../types';
 
 interface DashboardProps {
   onSelectEvent: (id: number) => void;
@@ -165,6 +165,17 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
           </div>
         </div>
       )}
+
+      {/* Analytics section - admin only */}
+      {isAdmin && (
+        <div>
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Doanh thu theo tháng</h2>
+          <RevenueChart events={events} />
+
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 mt-4">Top nhân viên</h2>
+          <TopStaffList events={events} staff={staff} />
+        </div>
+      )}
     </div>
   );
 }
@@ -191,5 +202,72 @@ function StatCard({ icon, label, value, bg, alert, onClick }: StatCardProps) {
         <p className="text-xs text-gray-500 leading-tight">{label}</p>
       </div>
     </button>
+  );
+}
+
+function RevenueChart({ events }: { events: FestivalEvent[] }) {
+  const monthMap: Record<string, number> = {};
+  events.forEach(e => {
+    const [dd, mm, yyyy] = e.date.split('-');
+    void dd;
+    const key = `${mm}/${yyyy}`;
+    monthMap[key] = (monthMap[key] ?? 0) + e.financials.income;
+  });
+  const entries = Object.entries(monthMap)
+    .sort((a, b) => {
+      const [ma, ya] = a[0].split('/');
+      const [mb, yb] = b[0].split('/');
+      return new Date(`${ya}-${ma}-01`).getTime() - new Date(`${yb}-${mb}-01`).getTime();
+    })
+    .slice(-6);
+
+  if (entries.length === 0) return <p className="text-sm text-gray-400 text-center py-4">Chưa có dữ liệu</p>;
+
+  const maxVal = Math.max(...entries.map(([, v]) => v), 1);
+
+  return (
+    <div className="bg-white rounded-2xl p-4 border border-gray-100">
+      <div className="flex items-end gap-2 h-24">
+        {entries.map(([month, val]) => (
+          <div key={month} className="flex-1 flex flex-col items-center gap-1">
+            <div
+              className="w-full bg-blue-500 rounded-t-md transition-all"
+              style={{ height: `${Math.max((val / maxVal) * 80, 4)}px` }}
+            />
+            <span className="text-[9px] text-gray-400 leading-none">{month}</span>
+          </div>
+        ))}
+      </div>
+      <p className="text-xs text-gray-400 mt-2 text-right">Max: {maxVal.toLocaleString('fr-FR')}€</p>
+    </div>
+  );
+}
+
+function TopStaffList({ events, staff }: { events: FestivalEvent[]; staff: StaffMember[] }) {
+  const counts: Record<number, number> = {};
+  events.forEach(e => e.staff.forEach(s => { counts[s.id] = (counts[s.id] ?? 0) + 1; }));
+  const top = Object.entries(counts)
+    .sort((a, b) => Number(b[1]) - Number(a[1]))
+    .slice(0, 3)
+    .map(([id, count]) => ({ member: staff.find(s => s.id === Number(id)), count }))
+    .filter(x => x.member);
+
+  if (top.length === 0) return <p className="text-sm text-gray-400 text-center py-4">Chưa có dữ liệu</p>;
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50">
+      {top.map(({ member, count }, i) => (
+        <div key={member!.id} className="flex items-center gap-3 px-4 py-3">
+          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${i === 0 ? 'bg-yellow-100 text-yellow-700' : i === 1 ? 'bg-gray-100 text-gray-600' : 'bg-orange-50 text-orange-600'}`}>
+            {i + 1}
+          </span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-800 truncate">{member!.name}</p>
+            <p className="text-xs text-gray-400">{member!.city}</p>
+          </div>
+          <span className="text-sm font-bold text-blue-600">{count} sự kiện</span>
+        </div>
+      ))}
+    </div>
   );
 }

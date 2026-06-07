@@ -3,9 +3,10 @@
 // =============================================================================
 
 import { useState, useRef, useEffect } from 'react';
-import { LogOut, Bell, X } from 'lucide-react';
+import { LogOut, Bell, X, BellPlus } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
+import { usePushNotifications } from '../../hooks/usePushNotifications';
 
 interface HeaderProps {
   onLogoClick: () => void;
@@ -18,6 +19,7 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
   const isAdmin = currentUser?.role === 'admin';
 
   const { notifications, clearAll, clearOne } = useRealtimeNotifications(isAdmin);
+  const { subscribed, loading: pushLoading, subscribe } = usePushNotifications();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -113,6 +115,27 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Push notification subscribe — hiện cho staff chưa subscribe */}
+          {!isAdmin && !subscribed && (
+            <button
+              onClick={subscribe}
+              disabled={pushLoading}
+              className="w-9 h-9 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full flex items-center justify-center transition-colors disabled:opacity-60 relative"
+              title="Bật thông báo đẩy"
+            >
+              <BellPlus size={16} />
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-orange-400 rounded-full border-2 border-white" />
+            </button>
+          )}
+          {!isAdmin && subscribed && (
+            <div
+              className="w-9 h-9 bg-green-50 text-green-600 rounded-full flex items-center justify-center"
+              title="Đã bật thông báo"
+            >
+              <Bell size={16} />
             </div>
           )}
 
