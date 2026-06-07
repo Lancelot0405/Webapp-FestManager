@@ -38,7 +38,7 @@ export default function InventoryLogList({ logs }: Props) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-gray-700">
+        <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
           Lịch sử thay đổi ({filtered.length})
         </h2>
         {filtered.length > COLLAPSED_COUNT && (
@@ -60,13 +60,13 @@ export default function InventoryLogList({ logs }: Props) {
             placeholder="Tìm mặt hàng..."
             value={itemSearch}
             onChange={e => setItemSearch(e.target.value)}
-            className="w-full pl-7 pr-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-blue-400"
+            className="w-full pl-7 pr-2 py-1.5 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg text-xs focus:outline-none focus:border-blue-400"
           />
         </div>
         <select
           value={festivalFilter}
           onChange={e => setFestivalFilter(e.target.value)}
-          className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-blue-400 bg-white"
+          className="border border-gray-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-blue-400 bg-white dark:bg-slate-700 dark:text-gray-100"
         >
           <option value="">Tất cả sự kiện</option>
           {festivalNames.map(name => (
@@ -77,19 +77,19 @@ export default function InventoryLogList({ logs }: Props) {
 
       {/* Log list */}
       {filtered.length === 0 ? (
-        <p className="text-xs text-gray-400 text-center py-4">Không có bản ghi nào</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500 text-center py-4">Không có bản ghi nào</p>
       ) : (
         <div className="space-y-2">
           {displayed.map(log => (
-            <div key={log.id} className="bg-white rounded-xl p-3 border border-gray-100 shadow-sm">
+            <div key={log.id} className="bg-white dark:bg-slate-800 rounded-xl p-3 border border-gray-100 dark:border-slate-700 shadow-sm">
               <div className="flex justify-between items-start gap-2">
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-gray-800 truncate">{log.itemName}</p>
-                  <p className="text-xs text-gray-500 truncate">{log.festivalName} · {log.submittedBy}</p>
+                  <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">{log.itemName}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{log.festivalName} · {log.submittedBy}</p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-sm font-bold text-gray-700">{log.qty} {log.unit}</p>
-                  <p className="text-xs text-gray-400">{log.timestamp}</p>
+                  <p className="text-sm font-bold text-gray-700 dark:text-gray-200">{log.qty} {log.unit}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">{log.timestamp}</p>
                 </div>
               </div>
             </div>
@@ -98,7 +98,7 @@ export default function InventoryLogList({ logs }: Props) {
       )}
 
       {!expanded && filtered.length > COLLAPSED_COUNT && (
-        <p className="text-xs text-gray-400 text-center">
+        <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
           Hiển thị {COLLAPSED_COUNT}/{filtered.length} bản ghi
         </p>
       )}

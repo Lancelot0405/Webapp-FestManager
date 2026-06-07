@@ -84,7 +84,7 @@ export default function EventContractsTab({ event }: Props) {
 
   return (
     <div className="space-y-2">
-      <p className="text-sm text-gray-500 mb-3">
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
         Hợp đồng đã ký cho sự kiện này
       </p>
 
@@ -97,33 +97,33 @@ export default function EventContractsTab({ event }: Props) {
         if (!isAdmin && !isMe) return null;
 
         return (
-          <div key={ref.id} className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+          <div key={ref.id} className="bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 shadow-sm overflow-hidden">
             {/* Header */}
             <button
               className="w-full flex justify-between items-center px-4 py-3 text-left"
               onClick={() => toggle(ref.id)}
             >
               <div>
-                <p className="text-sm font-semibold text-gray-800">
+                <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
                   {ref.name}
                   {isMe && <span className="ml-2 text-xs text-blue-500 font-normal">(bạn)</span>}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   {eventContracts.length > 0
                     ? `${eventContracts.length} hợp đồng`
                     : 'Chưa có hợp đồng'}
                 </p>
               </div>
               {isOpen
-                ? <ChevronUp size={16} className="text-gray-400" />
-                : <ChevronDown size={16} className="text-gray-400" />}
+                ? <ChevronUp size={16} className="text-gray-400 dark:text-gray-500" />
+                : <ChevronDown size={16} className="text-gray-400 dark:text-gray-500" />}
             </button>
 
             {isOpen && (
-              <div className="border-t border-gray-100">
+              <div className="border-t border-gray-100 dark:border-slate-700">
                 {/* Upload button — nhân viên tự upload, hoặc admin upload hộ */}
                 {(isMe || isAdmin) && (
-                  <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+                  <div className="px-4 py-3 bg-gray-50 dark:bg-slate-700/50 border-b border-gray-100 dark:border-slate-700">
                     <label className={`flex items-center gap-2 cursor-pointer w-fit ${isBusy ? 'opacity-60 pointer-events-none' : ''}`}>
                       {isBusy
                         ? <Loader size={14} className="animate-spin text-blue-500" />
@@ -142,24 +142,24 @@ export default function EventContractsTab({ event }: Props) {
                         }}
                       />
                     </label>
-                    <p className="text-xs text-gray-400 mt-0.5">Ảnh hoặc PDF, tối đa {MAX_FILE_MB}MB</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Ảnh hoặc PDF, tối đa {MAX_FILE_MB}MB</p>
                   </div>
                 )}
 
                 {/* Danh sách hợp đồng */}
-                <div className="divide-y divide-gray-50">
+                <div className="divide-y divide-gray-50 dark:divide-slate-700">
                   {eventContracts.length === 0 ? (
-                    <p className="px-4 py-3 text-xs text-gray-400">Chưa có hợp đồng nào được tải lên</p>
+                    <p className="px-4 py-3 text-xs text-gray-400 dark:text-gray-500">Chưa có hợp đồng nào được tải lên</p>
                   ) : (
                     eventContracts.map(c => (
                       <div key={c.id} className="px-4 py-3 space-y-2">
                         <div className="flex items-center gap-2">
                           <FileText size={14} className="text-blue-400 shrink-0" />
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-800 truncate">
+                            <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">
                               {c.fileName ?? 'Hợp đồng'}
                             </p>
-                            <p className="text-xs text-gray-400">{c.date}</p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500">{c.date}</p>
                           </div>
                         </div>
                         <DocThumbnail url={c.url} fileName={c.fileName ?? 'Hợp đồng'} />
