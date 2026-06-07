@@ -158,22 +158,6 @@ src/
 
 ---
 
-## Supabase — Migration cần thiết
-
-Chạy các lệnh sau trong **SQL Editor** của Supabase:
-
-```sql
--- Thêm cột phone cho nhân viên
-ALTER TABLE public.staff_members
-  ADD COLUMN IF NOT EXISTS phone TEXT;
-
--- Thêm cột category cho kho hàng (food / equipment)
-ALTER TABLE public.inventory_items
-  ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'food';
-```
-
----
-
 ## Bản quyền
 
 Copyright © 2025 **Duy Truong HO (Lance)**. All rights reserved.
