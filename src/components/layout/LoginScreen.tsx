@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Moon, Sun, Download, Smartphone, X } from 'lucide-react';
+import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Moon, Sun, Download, Smartphone, X, ShieldCheck } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -8,25 +8,28 @@ import { useInstallPrompt } from '../../hooks/useInstallPrompt';
 const DOMAIN = '@festmanager.com';
 
 type Mode = 'login' | 'register';
+type RegisterRole = 'staff' | 'manager';
 
 export default function LoginScreen() {
   const { login } = useApp();
   const { theme, toggleTheme } = useTheme();
   const { isIos, isStandalone, triggerInstall } = useInstallPrompt();
   const [showInstallModal, setShowInstallModal] = useState(false);
-  const [mode,       setMode]      = useState<Mode>('login');
-  const [username,   setUsername]  = useState('');
-  const [displayName,setDisplayName] = useState('');
-  const [password,   setPassword]  = useState('');
-  const [password2,  setPassword2] = useState('');
-  const [showPw,     setShowPw]    = useState(false);
-  const [loading,    setLoading]   = useState(false);
-  const [error,      setError]     = useState('');
-  const [success,    setSuccess]   = useState('');
+  const [mode,           setMode]         = useState<Mode>('login');
+  const [username,       setUsername]     = useState('');
+  const [displayName,    setDisplayName]  = useState('');
+  const [password,       setPassword]     = useState('');
+  const [password2,      setPassword2]    = useState('');
+  const [registerRole,   setRegisterRole] = useState<RegisterRole>('staff');
+  const [showPw,         setShowPw]       = useState(false);
+  const [loading,        setLoading]      = useState(false);
+  const [error,          setError]        = useState('');
+  const [success,        setSuccess]      = useState('');
 
   const reset = (nextMode: Mode) => {
     setMode(nextMode); setError(''); setSuccess('');
     setUsername(''); setDisplayName(''); setPassword(''); setPassword2('');
+    setRegisterRole('staff');
   };
 
   // ── ĐĂNG NHẬP ────────────────────────────────────────────────────────────
@@ -43,9 +46,19 @@ export default function LoginScreen() {
     }
 
     const { data: profile } = await supabase
-      .from('users').select('id, name, role').eq('id', data.user.id).single();
+      .from('users').select('id, name, role, status').eq('id', data.user.id).single();
 
     if (profile) {
+      if (profile.status === 'pending') {
+        await supabase.auth.signOut();
+        setError('Tài khoản quản lý của bạn đang chờ admin duyệt. Vui lòng liên hệ admin.');
+        setLoading(false); return;
+      }
+      if (profile.status === 'rejected') {
+        await supabase.auth.signOut();
+        setError('Yêu cầu đăng ký quản lý của bạn đã bị từ chối. Vui lòng liên hệ admin.');
+        setLoading(false); return;
+      }
       login({ id: profile.id, name: profile.name, role: profile.role });
     } else {
       login({ id: data.user.id, name: username.trim(), role: 'staff' });
@@ -78,13 +91,28 @@ export default function LoginScreen() {
 
     if (data.user) {
       const name = displayName.trim() || username.trim();
-      await supabase.from('users').update({ name }).eq('id', data.user.id);
-      await supabase.from('staff_members').update({ name }).eq('user_id', data.user.id);
+      const status = registerRole === 'manager' ? 'pending' : 'active';
+
+      await supabase.from('users').upsert({
+        id: data.user.id,
+        name,
+        role: registerRole,
+        status,
+      });
+
+      if (registerRole === 'staff') {
+        await supabase.from('staff_members').update({ name }).eq('user_id', data.user.id);
+        setSuccess('Đăng ký thành công! Bạn có thể đăng nhập ngay.');
+        setTimeout(() => reset('login'), 2000);
+      } else {
+        // Manager: sign out immediately, wait for admin approval
+        await supabase.auth.signOut();
+        setSuccess('Yêu cầu đăng ký quản lý đã được gửi! Admin sẽ duyệt tài khoản của bạn.');
+        setTimeout(() => reset('login'), 3000);
+      }
     }
 
-    setSuccess('Đăng ký thành công! Bạn có thể đăng nhập ngay.');
     setLoading(false);
-    setTimeout(() => reset('login'), 2000);
   };
 
   const handleInstallClick = async () => {
@@ -152,6 +180,41 @@ export default function LoginScreen() {
             <div className="bg-blue-50 border border-blue-100 rounded-xl px-3 py-2.5 text-xs text-blue-700">
               💡 Nếu admin đã tạo tài khoản cho bạn, hãy dùng thông tin đăng nhập do admin cung cấp thay vì đăng ký mới.
             </div>
+
+            {/* Role selection */}
+            <div>
+              <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1.5 block">Đăng ký với vai trò</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setRegisterRole('staff')}
+                  className={`py-2.5 rounded-xl text-sm font-medium border transition-colors flex items-center justify-center gap-1.5 ${
+                    registerRole === 'staff'
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600'
+                  }`}
+                >
+                  <User size={14} /> Nhân viên
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRegisterRole('manager')}
+                  className={`py-2.5 rounded-xl text-sm font-medium border transition-colors flex items-center justify-center gap-1.5 ${
+                    registerRole === 'manager'
+                      ? 'bg-indigo-600 text-white border-indigo-600'
+                      : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600'
+                  }`}
+                >
+                  <ShieldCheck size={14} /> Quản lý
+                </button>
+              </div>
+              {registerRole === 'manager' && (
+                <p className="mt-1.5 text-xs text-indigo-600 dark:text-indigo-400">
+                  ⏳ Tài khoản quản lý cần được admin duyệt trước khi đăng nhập.
+                </p>
+              )}
+            </div>
+
             <Field label="Tên đăng nhập" icon={<User size={16} />}>
               <input type="text" required placeholder="Không dấu, không khoảng trắng"
                 value={username} onChange={e => setUsername(e.target.value.replace(/\s/g, ''))}
@@ -188,8 +251,12 @@ export default function LoginScreen() {
             )}
 
             <button type="submit" disabled={loading}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl shadow-md disabled:opacity-60 transition-colors">
-              {loading ? 'Đang tạo tài khoản...' : 'Tạo tài khoản'}
+              className={`w-full text-white font-semibold py-3 rounded-xl shadow-md disabled:opacity-60 transition-colors ${
+                registerRole === 'manager'
+                  ? 'bg-indigo-600 hover:bg-indigo-700'
+                  : 'bg-emerald-600 hover:bg-emerald-700'
+              }`}>
+              {loading ? 'Đang xử lý...' : registerRole === 'manager' ? 'Gửi yêu cầu đăng ký' : 'Tạo tài khoản'}
             </button>
           </form>
         )}

@@ -22,6 +22,7 @@ import type {
   ExpenseStatus,
   InventoryUnit,
   Client,
+  RegistrationRequest,
 } from '../types';
 
 import { supabase } from '../lib/supabase';
@@ -31,6 +32,7 @@ import {
   fetchInventory,
   fetchInventoryLogs,
   fetchClients,
+  fetchPendingRegistrations,
   toISODate,
 } from '../lib/db';
 
@@ -39,23 +41,25 @@ import {
 // =============================================================================
 
 interface AppState {
-  currentUser:    CurrentUser | null;
-  events:         FestivalEvent[];
-  inventory:      InventoryItem[];
-  inventoryLogs:  InventoryLogEntry[];
-  staff:          StaffMember[];
-  clients:        Client[];
-  loading:        boolean;
+  currentUser:            CurrentUser | null;
+  events:                 FestivalEvent[];
+  inventory:              InventoryItem[];
+  inventoryLogs:          InventoryLogEntry[];
+  staff:                  StaffMember[];
+  clients:                Client[];
+  pendingRegistrations:   RegistrationRequest[];
+  loading:                boolean;
 }
 
 const initialState: AppState = {
-  currentUser:   null,
-  events:        [],
-  inventory:     [],
-  inventoryLogs: [],
-  staff:         [],
-  clients:       [],
-  loading:       true,
+  currentUser:          null,
+  events:               [],
+  inventory:            [],
+  inventoryLogs:        [],
+  staff:                [],
+  clients:              [],
+  pendingRegistrations: [],
+  loading:              true,
 };
 
 // =============================================================================
@@ -114,7 +118,11 @@ type Action =
   // --- Clients ---
   | { type: 'ADD_CLIENT';    payload: Client }
   | { type: 'UPDATE_CLIENT'; payload: Client }
-  | { type: 'DELETE_CLIENT'; payload: number };
+  | { type: 'DELETE_CLIENT'; payload: number }
+
+  // --- Registration Requests ---
+  | { type: 'SET_PENDING_REGISTRATIONS'; payload: RegistrationRequest[] }
+  | { type: 'REMOVE_PENDING_REGISTRATION'; payload: string };
 
 // =============================================================================
 // 3. REDUCER
@@ -340,6 +348,15 @@ function appReducer(state: AppState, action: Action): AppState {
         clients: state.clients.filter(c => c.id !== action.payload),
       };
 
+    case 'SET_PENDING_REGISTRATIONS':
+      return { ...state, pendingRegistrations: action.payload };
+
+    case 'REMOVE_PENDING_REGISTRATION':
+      return {
+        ...state,
+        pendingRegistrations: state.pendingRegistrations.filter(r => r.id !== action.payload),
+      };
+
     default:
       return state;
   }
@@ -390,6 +407,10 @@ interface AppContextValue {
   addClient:    (client: Client) => void;
   updateClient: (client: Client) => void;
   deleteClient: (clientId: number) => void;
+
+  // --- Registration Requests ---
+  approveRegistration: (userId: string) => void;
+  rejectRegistration:  (userId: string) => void;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -404,7 +425,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // ---------------------------------------------------------------------------
   // Load real data from Supabase
   // ---------------------------------------------------------------------------
-  async function loadData() {
+  async function loadData(role?: string) {
     const [staff, events, inventory, inventoryLogs, clients] = await Promise.all([
       fetchStaff(),
       fetchEvents(),
@@ -413,15 +434,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       fetchClients(),
     ]);
 
-    const payload: Partial<AppState> = {
-      staff,
-      events,
-      inventory,
-      inventoryLogs,
-      clients,
-    };
-
+    const payload: Partial<AppState> = { staff, events, inventory, inventoryLogs, clients };
     dispatch({ type: 'INIT_DATA', payload });
+
+    if (role === 'admin') {
+      const pendingRegistrations = await fetchPendingRegistrations();
+      dispatch({ type: 'SET_PENDING_REGISTRATIONS', payload: pendingRegistrations });
+    }
   }
 
   useEffect(() => {
@@ -429,11 +448,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (session?.user) {
         // Khôi phục profile từ bảng users
         const { data: profile } = await supabase
-          .from('users').select('id, name, role').eq('id', session.user.id).single();
+          .from('users').select('id, name, role, status').eq('id', session.user.id).single();
         if (profile) {
           dispatch({ type: 'LOGIN', payload: { id: profile.id, name: profile.name, role: profile.role } });
+          loadData(profile.role);
+        } else {
+          loadData();
         }
-        loadData();
       } else {
         dispatch({ type: 'LOGOUT' });
         dispatch({ type: 'INIT_DATA', payload: { staff: [] } });
@@ -491,6 +512,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const { data, error } = await supabase.from('events').insert({
       name: event.name,
       date: toISODate(event.date),
+      end_date: event.endDate ? toISODate(event.endDate) : null,
       location: event.location,
       status: event.status,
       income: event.financials.income,
@@ -521,6 +543,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     supabase.from('events').update({
       name: event.name,
       date: toISODate(event.date),
+      end_date: event.endDate ? toISODate(event.endDate) : null,
       location: event.location,
       status: event.status,
       income: event.financials.income,
@@ -705,6 +728,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     supabase.from('events').insert({
       name: cloned.name,
       date: toISODate(cloned.date),
+      end_date: cloned.endDate ? toISODate(cloned.endDate) : null,
       location: cloned.location,
       status: cloned.status,
       income: 0,
@@ -752,6 +776,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     supabase.from('clients').delete().eq('id', clientId).then();
   }, []);
 
+  // --- Registration Requests ---
+  const approveRegistration = useCallback(async (userId: string) => {
+    await supabase.from('users').update({ status: 'active' }).eq('id', userId);
+    dispatch({ type: 'REMOVE_PENDING_REGISTRATION', payload: userId });
+  }, []);
+
+  const rejectRegistration = useCallback(async (userId: string) => {
+    await supabase.from('users').update({ status: 'rejected' }).eq('id', userId);
+    dispatch({ type: 'REMOVE_PENDING_REGISTRATION', payload: userId });
+  }, []);
+
   const value: AppContextValue = {
     state,
     login, logout,
@@ -762,6 +797,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addStaff, updateStaff, deleteStaff, addContract,
     cloneEvent,
     addClient, updateClient, deleteClient,
+    approveRegistration, rejectRegistration,
   };
 
   return (

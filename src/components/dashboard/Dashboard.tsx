@@ -18,10 +18,12 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
 
   if (!currentUser) return null;
 
-  const isAdmin = currentUser.role === 'admin';
+  const isAdmin   = currentUser.role === 'admin';
+  const isManager = currentUser.role === 'manager';
+  const canViewAll = isAdmin || isManager;
 
   // Tìm numeric staff ID của user hiện tại
-  const myStaffMember = isAdmin ? null : (
+  const myStaffMember = canViewAll ? null : (
     staff.find(s => s.userId === currentUser.id)
     ?? staff.find(s => s.name.toLowerCase() === currentUser.name.toLowerCase())
   );
@@ -43,13 +45,13 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
     myNumericId != null && r.staffId === String(myNumericId)
   );
 
-  // Admin: 3 sự kiện sắp nhất; Staff: sự kiện được phân công
+  // Admin/Manager: 3 sự kiện sắp nhất; Staff: sự kiện được phân công
   const parse = (d: string) => {
     const [dd, mm, yyyy] = d.split('-');
     return new Date(`${yyyy}-${mm}-${dd}`).getTime();
   };
 
-  const displayEvents = isAdmin
+  const displayEvents = canViewAll
     ? [...upcomingEvents].sort((a, b) => parse(a.date) - parse(b.date)).slice(0, 3)
     : [...myEvents].sort((a, b) => parse(a.date) - parse(b.date));
 
@@ -61,12 +63,12 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
           Xin chào, {currentUser.name} 👋
         </h1>
         <p className="text-blue-100 text-sm mt-0.5">
-          {isAdmin ? 'Bảng điều khiển quản trị' : 'Bảng thông tin cá nhân'}
+          {canViewAll ? 'Bảng điều khiển quản trị' : 'Bảng thông tin cá nhân'}
         </p>
       </div>
 
       {/* Quick stats */}
-      {isAdmin ? (
+      {canViewAll ? (
         <div className="grid grid-cols-2 gap-3">
           <StatCard
             icon={<Calendar size={20} className="text-blue-500" />}
@@ -122,7 +124,7 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
       {/* Upcoming events */}
       <div>
         <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
-          {isAdmin ? 'Sự kiện sắp tới' : 'Sự kiện của tôi'}
+          {canViewAll ? 'Sự kiện sắp tới' : 'Sự kiện của tôi'}
         </h2>
         {displayEvents.length === 0 ? (
           <p className="text-sm text-gray-400 text-center py-6">Không có sự kiện nào</p>
@@ -149,7 +151,7 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
       </div>
 
       {/* Staff: pending expenses */}
-      {!isAdmin && myPendingExpenses.length > 0 && (
+      {!canViewAll && myPendingExpenses.length > 0 && (
         <div>
           <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Chi phí chờ duyệt</h2>
           <div className="space-y-2">
@@ -166,8 +168,8 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
         </div>
       )}
 
-      {/* Analytics section - admin only */}
-      {isAdmin && (
+      {/* Analytics section - admin/manager */}
+      {canViewAll && (
         <div>
           <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Doanh thu theo tháng</h2>
           <RevenueChart events={events} />

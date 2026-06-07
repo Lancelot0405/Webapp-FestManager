@@ -18,6 +18,7 @@ import type {
   ExpenseStatus,
   ExpenseCategory,
   Client,
+  RegistrationRequest,
 } from '../types';
 
 // -----------------------------------------------------------------------------
@@ -138,6 +139,7 @@ export async function fetchEvents(): Promise<FestivalEvent[]> {
       id: row.id,
       name: row.name ?? '',
       date: fromISODate(row.date ?? ''),
+      endDate: row.end_date ? fromISODate(row.end_date) : undefined,
       location: row.location ?? '',
       status: (row.status ?? 'Lên kế hoạch') as EventStatus,
       staff,
@@ -216,6 +218,30 @@ export async function fetchInventoryLogs(): Promise<InventoryLogEntry[]> {
     festivalName: row.festival_name ?? '',
     timestamp: row.timestamp ?? '',
     submittedBy: row.submitted_by ?? '',
+  }));
+}
+
+// -----------------------------------------------------------------------------
+// REGISTRATION REQUESTS (pending manager approvals)
+// -----------------------------------------------------------------------------
+
+export async function fetchPendingRegistrations(): Promise<RegistrationRequest[]> {
+  const { data, error } = await supabase
+    .from('users')
+    .select('id, name, role, status, created_at')
+    .eq('role', 'manager')
+    .eq('status', 'pending');
+
+  if (error || !data) return [];
+
+  return data.map((row: any): RegistrationRequest => ({
+    id: row.id,
+    userId: row.id,
+    username: '',
+    displayName: row.name ?? '',
+    requestedRole: 'manager',
+    status: 'pending',
+    createdAt: row.created_at ?? '',
   }));
 }
 

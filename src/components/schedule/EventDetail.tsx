@@ -34,7 +34,9 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
   const showToast = useToast();
   const event = state.events.find(e => e.id === eventId);
   const [activeTab, setActiveTab] = useState<Tab>('info');
-  const isAdmin = state.currentUser?.role === 'admin';
+  const isAdmin   = state.currentUser?.role === 'admin';
+  const isManager = state.currentUser?.role === 'manager';
+  void isManager;
 
   const handleClone = () => {
     if (!event) return;

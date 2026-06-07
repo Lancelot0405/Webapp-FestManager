@@ -7,12 +7,24 @@
 // AUTH & USER
 // -----------------------------------------------------------------------------
 
-export type UserRole = 'admin' | 'staff';
+export type UserRole = 'admin' | 'manager' | 'staff';
 
 export interface CurrentUser {
   id: string;
   name: string;
   role: UserRole;
+}
+
+export type RegistrationStatus = 'pending' | 'approved' | 'rejected';
+
+export interface RegistrationRequest {
+  id: string;
+  userId: string;
+  username: string;
+  displayName: string;
+  requestedRole: 'manager';
+  status: RegistrationStatus;
+  createdAt: string;
 }
 
 // -----------------------------------------------------------------------------
@@ -183,6 +195,8 @@ export interface FestivalEvent {
   name: string;
   /** Format: DD-MM-YYYY */
   date: string;
+  /** Format: DD-MM-YYYY — end date of the event */
+  endDate?: string;
   location: string;
   status: EventStatus;
   staff: StaffRef[];

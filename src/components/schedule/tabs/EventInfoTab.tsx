@@ -18,7 +18,8 @@ export default function EventInfoTab({ event }: Props) {
       {/* Basic info */}
       <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm space-y-3">
         <Row label="Tên sự kiện" value={event.name} />
-        <Row label="Ngày" value={event.date} />
+        <Row label="Ngày bắt đầu" value={event.date} />
+        {event.endDate && <Row label="Ngày kết thúc" value={event.endDate} />}
         <Row label="Địa điểm" value={event.location} />
         <div className="flex justify-between items-center">
           <span className="text-sm text-gray-500 dark:text-gray-400">Trạng thái</span>
