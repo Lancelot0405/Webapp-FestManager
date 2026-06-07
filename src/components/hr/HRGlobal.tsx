@@ -50,7 +50,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
       {list.map(s => (
         <div
           key={s.id}
-          className="bg-white rounded-xl shadow-sm border border-gray-100 hover:border-blue-200 transition-colors flex items-stretch"
+          className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700 hover:border-blue-200 transition-colors flex items-stretch"
         >
           <button
             onClick={() => onSelectStaff(String(s.id))}
@@ -61,19 +61,19 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
                 <User size={18} className="text-blue-600" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-gray-800">{s.name}</p>
-                <p className="text-xs text-gray-500">{s.city}</p>
+                <p className="font-semibold text-gray-800 dark:text-gray-100">{s.name}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{s.city}</p>
               </div>
               <div className="text-right shrink-0">
-                <p className="text-xs text-gray-500">{eventCountMap.get(s.id) ?? 0} sự kiện</p>
-                <p className="text-xs text-gray-400">{s.contracts.length} hợp đồng</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{eventCountMap.get(s.id) ?? 0} sự kiện</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">{s.contracts.length} hợp đồng</p>
               </div>
             </div>
           </button>
           {isAdmin && (
             <button
               onClick={e => handleDelete(e, s.id, s.name)}
-              className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-gray-100 transition-colors rounded-r-xl"
+              className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-gray-100 dark:border-slate-700 transition-colors rounded-r-xl"
             >
               <Trash2 size={15} />
             </button>
@@ -86,7 +86,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
   return (
     <div className="space-y-4 pb-20">
       <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold text-gray-800">Nhân sự</h1>
+        <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">Nhân sự</h1>
         {isAdmin && (
           <button
             onClick={() => setShowForm(true)}
@@ -106,7 +106,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
           placeholder="Tìm theo tên hoặc thành phố..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400"
+          className="w-full pl-9 pr-3 py-2 border border-gray-200 dark:border-slate-600 dark:bg-slate-800 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-blue-400"
         />
       </div>
 
@@ -119,7 +119,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
             className={`px-3 py-1 rounded-full text-xs font-medium transition ${
               typeFilter === t
                 ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
             }`}
           >
             {t}

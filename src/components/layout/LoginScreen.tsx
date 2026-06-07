@@ -166,7 +166,7 @@ export default function LoginScreen() {
             <Field label="Xác nhận mật khẩu" icon={<Lock size={16} />}>
               <input type="password" required placeholder="Nhập lại mật khẩu"
                 value={password2} onChange={e => setPassword2(e.target.value)}
-                className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
+                className="w-full pl-9 pr-4 py-3 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
             </Field>
 
             {error   && <ErrorMsg msg={error} />}
@@ -190,7 +190,7 @@ export default function LoginScreen() {
 function Field({ label, icon, children }: { label: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
     <div>
-      <label className="text-xs font-semibold text-gray-600 mb-1 block">{label}</label>
+      <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1 block">{label}</label>
       <div className="relative">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">{icon}</span>
         {children}

@@ -101,7 +101,7 @@ export default function Inventory() {
     <div className="space-y-4 pb-20" onClick={() => setUnitMenuId(null)}>
       {/* Header */}
       <div className="flex justify-between items-center gap-2">
-        <h1 className="text-xl font-bold text-gray-800">Kho hàng</h1>
+        <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">Kho hàng</h1>
         <div className="flex gap-2">
           <label className={`flex items-center gap-1 bg-green-600 text-white text-sm font-medium px-3 py-2 rounded-lg cursor-pointer ${importing ? 'opacity-60 pointer-events-none' : ''}`}>
             <FileSpreadsheet size={15} />
@@ -125,33 +125,33 @@ export default function Inventory() {
 
       {/* Form thêm */}
       {showAddForm && (
-        <form onSubmit={handleAddItem} className="bg-white rounded-xl border border-blue-200 p-4 shadow-sm space-y-3" onClick={e => e.stopPropagation()}>
+        <form onSubmit={handleAddItem} className="bg-white dark:bg-slate-800 rounded-xl border border-blue-200 dark:border-blue-800 p-4 shadow-sm space-y-3" onClick={e => e.stopPropagation()}>
           <div className="flex justify-between items-center">
-            <p className="font-semibold text-gray-800 text-sm">Thêm mặt hàng mới</p>
+            <p className="font-semibold text-gray-800 dark:text-gray-100 text-sm">Thêm mặt hàng mới</p>
             <button type="button" onClick={() => setShowAddForm(false)} className="text-gray-400"><X size={16} /></button>
           </div>
           <div>
-            <label className="text-xs text-gray-600 font-medium">Tên mặt hàng</label>
-            <input required className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
+            <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Tên mặt hàng</label>
+            <input required className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm"
               placeholder="VD: Thịt bò" value={newName} onChange={e => setNewName(e.target.value)} />
           </div>
           <div className="grid grid-cols-3 gap-2">
             <div>
-              <label className="text-xs text-gray-600 font-medium">Số lượng</label>
+              <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Số lượng</label>
               <input type="number" min="0" step="0.1" required
-                className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
+                className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm"
                 value={newCurrent} onChange={e => setNewCurrent(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs text-gray-600 font-medium">Cảnh báo</label>
+              <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Cảnh báo</label>
               <input type="number" min="0" step="0.1"
-                className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
+                className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm"
                 placeholder="0"
                 value={newThreshold} onChange={e => setNewThreshold(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs text-gray-600 font-medium">Đơn vị</label>
-              <select className="mt-1 w-full border border-gray-200 rounded-lg px-2 py-2 text-sm"
+              <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Đơn vị</label>
+              <select className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-2 py-2 text-sm"
                 value={newUnit} onChange={e => setNewUnit(e.target.value as InventoryUnit)}>
                 {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
               </select>
@@ -166,14 +166,14 @@ export default function Inventory() {
         {inventory.map(item => {
           const isLow  = item.current < item.threshold;
           const isWarn = !isLow && item.current < item.threshold * 1.5;
-          const bg = isLow ? 'bg-red-50 border-red-200' : isWarn ? 'bg-yellow-50 border-yellow-200' : 'bg-white border-gray-100';
+          const bg = isLow ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' : isWarn ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800' : 'bg-white dark:bg-slate-800 border-gray-100 dark:border-slate-700';
 
           return (
             <div key={item.id} className={`rounded-xl shadow-sm border ${bg} flex items-stretch`} onClick={e => e.stopPropagation()}>
               <div className="flex-1 p-3">
                 <div className="flex justify-between items-center gap-2">
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-800 text-sm truncate">{item.name}</p>
+                    <p className="font-medium text-gray-800 dark:text-gray-100 text-sm truncate">{item.name}</p>
                     {isLow && <p className="text-xs text-red-500">Sắp hết hàng!</p>}
                   </div>
 
@@ -181,9 +181,9 @@ export default function Inventory() {
                     {editingId === item.id ? (
                       <>
                         <input type="number" min="0" step="0.1" autoFocus
-                          className="w-16 border border-gray-300 rounded-lg px-2 py-1 text-sm text-right"
+                          className="w-16 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-2 py-1 text-sm text-right"
                           value={editQty} onChange={e => setEditQty(e.target.value)} />
-                        <select className="border border-gray-300 rounded-lg px-1 py-1 text-sm bg-white"
+                        <select className="border border-gray-300 dark:border-slate-600 rounded-lg px-1 py-1 text-sm bg-white dark:bg-slate-700 dark:text-gray-100"
                           value={editUnit} onChange={e => setEditUnit(e.target.value as InventoryUnit)}>
                           {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
                         </select>
@@ -210,10 +210,10 @@ export default function Inventory() {
                             {item.unit}<ChevronDown size={11} />
                           </button>
                           {unitMenuId === item.id && (
-                            <div className="absolute right-0 top-7 z-20 bg-white border border-gray-200 rounded-xl shadow-lg py-1 min-w-[80px]">
+                            <div className="absolute right-0 top-7 z-20 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl shadow-lg py-1 min-w-[80px]">
                               {UNITS.map(u => (
                                 <button key={u}
-                                  className={`w-full text-left px-3 py-1.5 text-sm hover:bg-blue-50 ${u === item.unit ? 'text-blue-600 font-semibold' : 'text-gray-700'}`}
+                                  className={`w-full text-left px-3 py-1.5 text-sm hover:bg-blue-50 dark:hover:bg-blue-900/30 ${u === item.unit ? 'text-blue-600 font-semibold' : 'text-gray-700 dark:text-gray-200'}`}
                                   onClick={() => { updateInventoryUnit(item.id, u); setUnitMenuId(null); }}>
                                   {u}
                                 </button>
@@ -230,7 +230,7 @@ export default function Inventory() {
               {editingId !== item.id && (
                 <button
                   onClick={() => handleDelete(item.id, item.name)}
-                  className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-gray-100 transition-colors rounded-r-xl"
+                  className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-gray-100 dark:border-slate-700 transition-colors rounded-r-xl"
                 >
                   <Trash2 size={15} />
                 </button>

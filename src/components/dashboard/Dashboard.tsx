@@ -72,21 +72,21 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
             icon={<Calendar size={20} className="text-blue-500" />}
             label="Sự kiện sắp tới"
             value={upcomingEvents.length}
-            bg="bg-blue-50"
+            bg="bg-blue-50 dark:bg-blue-900/20"
             onClick={() => onNavigate('schedule')}
           />
           <StatCard
             icon={<Users size={20} className="text-purple-500" />}
             label="Tổng nhân viên"
             value={totalStaff}
-            bg="bg-purple-50"
+            bg="bg-purple-50 dark:bg-purple-900/20"
             onClick={() => onNavigate('hr')}
           />
           <StatCard
             icon={<Package size={20} className="text-red-500" />}
             label="Kho sắp hết"
             value={lowStockCount}
-            bg="bg-red-50"
+            bg="bg-red-50 dark:bg-red-900/20"
             alert={lowStockCount > 0}
             onClick={() => onNavigate('inventory')}
           />
@@ -94,7 +94,7 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
             icon={<Clock size={20} className="text-yellow-500" />}
             label="Chi phí chờ duyệt"
             value={pendingExpenses.length}
-            bg="bg-yellow-50"
+            bg="bg-yellow-50 dark:bg-yellow-900/20"
             alert={pendingExpenses.length > 0}
             onClick={() => onNavigate('finance')}
           />
@@ -105,14 +105,14 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
             icon={<Calendar size={20} className="text-blue-500" />}
             label="Sự kiện của tôi"
             value={myEvents.length}
-            bg="bg-blue-50"
+            bg="bg-blue-50 dark:bg-blue-900/20"
             onClick={() => onNavigate('schedule')}
           />
           <StatCard
             icon={<Clock size={20} className="text-yellow-500" />}
             label="Chi phí chờ duyệt"
             value={myPendingExpenses.length}
-            bg="bg-yellow-50"
+            bg="bg-yellow-50 dark:bg-yellow-900/20"
             alert={myPendingExpenses.length > 0}
             onClick={() => onNavigate('profile')}
           />
@@ -121,7 +121,7 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
 
       {/* Upcoming events */}
       <div>
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
+        <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
           {isAdmin ? 'Sự kiện sắp tới' : 'Sự kiện của tôi'}
         </h2>
         {displayEvents.length === 0 ? (
@@ -132,13 +132,13 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
               <button
                 key={event.id}
                 onClick={() => onSelectEvent(event.id)}
-                className="w-full text-left bg-white rounded-2xl p-4 border border-gray-100 hover:shadow-md hover:border-blue-100 transition-all duration-150"
+                className="w-full text-left bg-white dark:bg-slate-800 rounded-2xl p-4 border border-gray-100 dark:border-slate-700 hover:shadow-md hover:border-blue-100 transition-all duration-150"
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-800 truncate">{event.name}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{event.date} · {event.location}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{event.staff.length} nhân viên</p>
+                    <p className="font-semibold text-gray-800 dark:text-gray-100 truncate">{event.name}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{event.date} · {event.location}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{event.staff.length} nhân viên</p>
                   </div>
                   <StatusBadge status={event.status} />
                 </div>
@@ -151,13 +151,13 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
       {/* Staff: pending expenses */}
       {!isAdmin && myPendingExpenses.length > 0 && (
         <div>
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Chi phí chờ duyệt</h2>
+          <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Chi phí chờ duyệt</h2>
           <div className="space-y-2">
             {myPendingExpenses.map(exp => (
-              <div key={exp.id} className="bg-yellow-50 rounded-2xl p-3 flex justify-between items-center border border-yellow-100">
+              <div key={exp.id} className="bg-yellow-50 dark:bg-yellow-900/20 rounded-2xl p-3 flex justify-between items-center border border-yellow-100 dark:border-yellow-800">
                 <div>
-                  <p className="text-sm font-medium text-gray-800">{exp.type}</p>
-                  <p className="text-xs text-gray-500">{exp.date}</p>
+                  <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{exp.type}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{exp.date}</p>
                 </div>
                 <span className="text-sm font-bold text-yellow-700">{exp.amount}€</span>
               </div>
@@ -169,7 +169,7 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
       {/* Analytics section - admin only */}
       {isAdmin && (
         <div>
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Doanh thu theo tháng</h2>
+          <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Doanh thu theo tháng</h2>
           <RevenueChart events={events} />
 
           <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 mt-4">Top nhân viên</h2>
@@ -198,8 +198,8 @@ function StatCard({ icon, label, value, bg, alert, onClick }: StatCardProps) {
     >
       <div className="shrink-0">{icon}</div>
       <div>
-        <p className={`text-2xl font-bold ${alert ? 'text-red-600' : 'text-gray-800'}`}>{value}</p>
-        <p className="text-xs text-gray-500 leading-tight">{label}</p>
+        <p className={`text-2xl font-bold ${alert ? 'text-red-600' : 'text-gray-800 dark:text-gray-100'}`}>{value}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 leading-tight">{label}</p>
       </div>
     </button>
   );
@@ -226,7 +226,7 @@ function RevenueChart({ events }: { events: FestivalEvent[] }) {
   const maxVal = Math.max(...entries.map(([, v]) => v), 1);
 
   return (
-    <div className="bg-white rounded-2xl p-4 border border-gray-100">
+    <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-gray-100 dark:border-slate-700">
       <div className="flex items-end gap-2 h-24">
         {entries.map(([month, val]) => (
           <div key={month} className="flex-1 flex flex-col items-center gap-1">
@@ -234,11 +234,11 @@ function RevenueChart({ events }: { events: FestivalEvent[] }) {
               className="w-full bg-blue-500 rounded-t-md transition-all"
               style={{ height: `${Math.max((val / maxVal) * 80, 4)}px` }}
             />
-            <span className="text-[9px] text-gray-400 leading-none">{month}</span>
+            <span className="text-[9px] text-gray-400 dark:text-gray-500 leading-none">{month}</span>
           </div>
         ))}
       </div>
-      <p className="text-xs text-gray-400 mt-2 text-right">Max: {maxVal.toLocaleString('fr-FR')}€</p>
+      <p className="text-xs text-gray-400 dark:text-gray-500 mt-2 text-right">Max: {maxVal.toLocaleString('fr-FR')}€</p>
     </div>
   );
 }
@@ -255,15 +255,15 @@ function TopStaffList({ events, staff }: { events: FestivalEvent[]; staff: Staff
   if (top.length === 0) return <p className="text-sm text-gray-400 text-center py-4">Chưa có dữ liệu</p>;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50">
+    <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-slate-700 divide-y divide-gray-50 dark:divide-slate-700">
       {top.map(({ member, count }, i) => (
         <div key={member!.id} className="flex items-center gap-3 px-4 py-3">
           <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${i === 0 ? 'bg-yellow-100 text-yellow-700' : i === 1 ? 'bg-gray-100 text-gray-600' : 'bg-orange-50 text-orange-600'}`}>
             {i + 1}
           </span>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-800 truncate">{member!.name}</p>
-            <p className="text-xs text-gray-400">{member!.city}</p>
+            <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">{member!.name}</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500">{member!.city}</p>
           </div>
           <span className="text-sm font-bold text-blue-600">{count} sự kiện</span>
         </div>

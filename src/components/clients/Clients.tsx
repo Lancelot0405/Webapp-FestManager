@@ -69,7 +69,7 @@ export default function Clients() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-bold text-gray-800">Khách hàng</h1>
+        <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100">Khách hàng</h1>
         <button onClick={openAdd} className="flex items-center gap-1.5 bg-blue-600 text-white text-sm font-medium px-3 py-1.5 rounded-xl">
           <Plus size={15} /> Thêm
         </button>
@@ -78,7 +78,7 @@ export default function Clients() {
       <div className="relative">
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
-          className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-xl text-sm bg-white"
+          className="w-full pl-9 pr-3 py-2 border border-gray-200 dark:border-slate-600 dark:bg-slate-800 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm bg-white"
           placeholder="Tìm kiếm khách hàng..."
           value={search}
           onChange={e => setSearch(e.target.value)}
@@ -86,9 +86,9 @@ export default function Clients() {
       </div>
 
       {showForm && (
-        <div className="bg-white rounded-xl border border-blue-200 p-4 shadow-sm">
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-blue-200 dark:border-blue-800 p-4 shadow-sm">
           <div className="flex justify-between items-center mb-3">
-            <p className="font-semibold text-sm text-gray-800">{editingId ? 'Chỉnh sửa' : 'Thêm khách hàng mới'}</p>
+            <p className="font-semibold text-sm text-gray-800 dark:text-gray-100">{editingId ? 'Chỉnh sửa' : 'Thêm khách hàng mới'}</p>
             <button onClick={() => { setShowForm(false); resetForm(); }} className="text-gray-400"><X size={16} /></button>
           </div>
           <form onSubmit={handleSubmit} className="space-y-2.5">
@@ -129,12 +129,12 @@ export default function Clients() {
           {filtered.map(client => {
             const clientEvents = events.filter(e => client.eventIds.includes(e.id));
             return (
-              <div key={client.id} className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
+              <div key={client.id} className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-gray-100 dark:border-slate-700 shadow-sm">
                 <div className="flex justify-between items-start">
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-800 truncate">{client.name}</p>
+                    <p className="font-semibold text-gray-800 dark:text-gray-100 truncate">{client.name}</p>
                     {client.contactName && (
-                      <p className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 flex items-center gap-1">
                         <Check size={11} /> {client.contactName}
                       </p>
                     )}
@@ -149,17 +149,17 @@ export default function Clients() {
                   </div>
                 </div>
                 <div className="mt-2 space-y-1">
-                  {client.phone && <p className="text-xs text-gray-500 flex items-center gap-1.5"><Phone size={11} /> {client.phone}</p>}
-                  {client.email && <p className="text-xs text-gray-500 flex items-center gap-1.5"><Mail size={11} /> {client.email}</p>}
-                  {client.city  && <p className="text-xs text-gray-500 flex items-center gap-1.5"><MapPin size={11} /> {client.city}</p>}
+                  {client.phone && <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5"><Phone size={11} /> {client.phone}</p>}
+                  {client.email && <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5"><Mail size={11} /> {client.email}</p>}
+                  {client.city  && <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5"><MapPin size={11} /> {client.city}</p>}
                 </div>
                 {clientEvents.length > 0 && (
-                  <div className="mt-2 pt-2 border-t border-gray-50">
-                    <p className="text-xs text-gray-400">{clientEvents.length} sự kiện liên quan</p>
+                  <div className="mt-2 pt-2 border-t border-gray-50 dark:border-slate-700">
+                    <p className="text-xs text-gray-400 dark:text-gray-500">{clientEvents.length} sự kiện liên quan</p>
                   </div>
                 )}
                 {client.notes && (
-                  <p className="text-xs text-gray-400 mt-1.5 italic">{client.notes}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1.5 italic">{client.notes}</p>
                 )}
               </div>
             );
@@ -173,7 +173,7 @@ export default function Clients() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="text-xs font-medium text-gray-600 mb-1 block">{label}</label>
+      <label className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1 block">{label}</label>
       {children}
     </div>
   );

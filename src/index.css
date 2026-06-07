@@ -92,3 +92,11 @@ textarea {
   border-color: #60a5fa;
   outline: none;
 }
+.dark .form-input {
+  border-color: #475569;
+  background-color: #334155;
+  color: #f3f4f6;
+}
+.dark .form-input:focus {
+  border-color: #60a5fa;
+}
