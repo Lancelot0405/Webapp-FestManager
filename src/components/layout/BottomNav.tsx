@@ -28,6 +28,14 @@ import {
     { tab: 'clients',   icon: <Building2      size={20} />, label: 'Khách hàng' },
   ];
 
+  const MANAGER_TABS: { tab: ActiveTab; icon: React.ReactNode; label: string }[] = [
+    { tab: 'dashboard', icon: <LayoutDashboard size={20} />, label: 'Tổng quan' },
+    { tab: 'schedule',  icon: <Calendar       size={20} />, label: 'Lịch trình' },
+    { tab: 'inventory', icon: <Package        size={20} />, label: 'Kho hàng'   },
+    { tab: 'hr',        icon: <Users          size={20} />, label: 'Nhân sự'    },
+    { tab: 'profile',   icon: <User           size={20} />, label: 'Hồ sơ'      },
+  ];
+
   const STAFF_TABS: { tab: ActiveTab; icon: React.ReactNode; label: string }[] = [
     { tab: 'dashboard', icon: <LayoutDashboard size={20} />, label: 'Tổng quan' },
     { tab: 'schedule',  icon: <Calendar       size={20} />, label: 'Lịch trình' },
@@ -41,7 +49,9 @@ import {
 
     if (!currentUser) return null;
 
-    const tabs = (currentUser.role === 'admin' || currentUser.role === 'manager') ? ADMIN_TABS : STAFF_TABS;
+    const tabs = currentUser.role === 'admin'   ? ADMIN_TABS
+               : currentUser.role === 'manager' ? MANAGER_TABS
+               : STAFF_TABS;
 
     return (
       <nav className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm border-t border-gray-100 dark:border-slate-700 fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md pb-safe z-20">
