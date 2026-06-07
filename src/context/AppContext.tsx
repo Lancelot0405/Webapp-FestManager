@@ -442,6 +442,41 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ---------------------------------------------------------------------------
+  // Supabase Realtime — tự động refresh khi dữ liệu thay đổi từ bất kỳ client
+  // ---------------------------------------------------------------------------
+  useEffect(() => {
+    const channel = supabase
+      .channel('festmanager-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'staff_members' }, () => {
+        fetchStaff().then(staff => dispatch({ type: 'INIT_DATA', payload: { staff } }));
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, () => {
+        fetchEvents().then(events => dispatch({ type: 'INIT_DATA', payload: { events } }));
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'event_staff' }, () => {
+        fetchEvents().then(events => dispatch({ type: 'INIT_DATA', payload: { events } }));
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, () => {
+        fetchEvents().then(events => dispatch({ type: 'INIT_DATA', payload: { events } }));
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'contracts' }, () => {
+        fetchStaff().then(staff => dispatch({ type: 'INIT_DATA', payload: { staff } }));
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_items' }, () => {
+        fetchInventory().then(inventory => dispatch({ type: 'INIT_DATA', payload: { inventory } }));
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_logs' }, () => {
+        fetchInventoryLogs().then(inventoryLogs => dispatch({ type: 'INIT_DATA', payload: { inventoryLogs } }));
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'clients' }, () => {
+        fetchClients().then(clients => dispatch({ type: 'INIT_DATA', payload: { clients } }));
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // --- Auth ---
   const login  = useCallback((user: CurrentUser) =>
     dispatch({ type: 'LOGIN', payload: user }), []);
