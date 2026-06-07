@@ -1,7 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY ?? '';
+const STORAGE_KEY = 'fm_push_subscribed';
 
 function urlBase64ToUint8Array(base64String: string): ArrayBuffer {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -15,11 +16,17 @@ function urlBase64ToUint8Array(base64String: string): ArrayBuffer {
 }
 
 export function usePushNotifications() {
-  const [subscribed, setSubscribed] = useState(false);
+  // Khởi tạo từ localStorage để giữ trạng thái sau reload
+  const [subscribed, setSubscribed] = useState(() => localStorage.getItem(STORAGE_KEY) === '1');
   const [loading, setLoading] = useState(false);
+  const [supported, setSupported] = useState(false);
+
+  useEffect(() => {
+    setSupported('serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window);
+  }, []);
 
   const subscribe = useCallback(async () => {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    if (!supported) return;
     if (!VAPID_PUBLIC_KEY) {
       console.warn('[Push] VITE_VAPID_PUBLIC_KEY not set');
       return;
@@ -41,12 +48,13 @@ export function usePushNotifications() {
         user_id: (await supabase.auth.getUser()).data.user?.id,
       });
 
+      localStorage.setItem(STORAGE_KEY, '1');
       setSubscribed(true);
     } catch (err) {
       console.error('[Push] Subscribe error:', err);
     }
     setLoading(false);
-  }, []);
+  }, [supported]);
 
-  return { subscribed, loading, subscribe };
+  return { subscribed, loading, subscribe, supported };
 }

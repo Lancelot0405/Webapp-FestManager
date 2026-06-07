@@ -2,7 +2,8 @@
 // src/components/dashboard/Dashboard.tsx
 // =============================================================================
 
-import { Calendar, Users, Package, Clock } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Calendar, Users, Package, Clock, Download, X } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
 import type { ActiveTab, FestivalEvent, StaffMember } from '../../types';
@@ -15,6 +16,42 @@ interface DashboardProps {
 export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps) {
   const { state } = useApp();
   const { currentUser, events, inventory, staff } = state;
+
+  // PWA install prompt
+  const [installPrompt, setInstallPrompt] = useState<Event & { prompt: () => Promise<void> } | null>(null);
+  const [installDismissed, setInstallDismissed] = useState(() => localStorage.getItem('fm_install_dismissed') === '1');
+  const [isIos, setIsIos] = useState(false);
+  const [showIosGuide, setShowIosGuide] = useState(false);
+
+  useEffect(() => {
+    // Detect iOS (Safari)
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !(window as any).MSStream;
+    const standalone = (window.navigator as any).standalone === true;
+    setIsIos(ios && !standalone);
+
+    // Chrome/Android install prompt
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setInstallPrompt(e as any);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (isIos) { setShowIosGuide(true); return; }
+    if (!installPrompt) return;
+    await installPrompt.prompt();
+    setInstallPrompt(null);
+  };
+
+  const dismissInstall = () => {
+    localStorage.setItem('fm_install_dismissed', '1');
+    setInstallDismissed(true);
+    setShowIosGuide(false);
+  };
+
+  const showInstallBanner = !installDismissed && (installPrompt !== null || isIos);
 
   if (!currentUser) return null;
 
@@ -64,6 +101,46 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
           {isAdmin ? 'Bảng điều khiển quản trị' : 'Bảng thông tin cá nhân'}
         </p>
       </div>
+
+      {/* PWA Install Banner */}
+      {showInstallBanner && !showIosGuide && (
+        <div className="bg-gradient-to-r from-indigo-500 to-blue-500 rounded-2xl p-4 flex items-center gap-3 text-white shadow-md">
+          <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
+            <Download size={20} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-sm leading-tight">Cài đặt FestManager</p>
+            <p className="text-xs text-white/80 mt-0.5">Thêm vào màn hình chính để dùng nhanh hơn</p>
+          </div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={handleInstall}
+              className="bg-white text-blue-600 text-xs font-bold px-3 py-1.5 rounded-lg"
+            >
+              Cài
+            </button>
+            <button onClick={dismissInstall} className="text-white/60 hover:text-white p-1">
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* iOS install guide */}
+      {showIosGuide && (
+        <div className="bg-white rounded-2xl p-4 border border-blue-100 shadow-sm space-y-3">
+          <div className="flex justify-between items-center">
+            <p className="font-semibold text-gray-800 text-sm">Cài app trên iPhone / iPad</p>
+            <button onClick={dismissInstall} className="text-gray-400"><X size={16} /></button>
+          </div>
+          <div className="space-y-2.5">
+            <Step n={1} text='Bấm nút Chia sẻ ở thanh dưới Safari (biểu tượng hình vuông có mũi tên lên ↑)' />
+            <Step n={2} text='Cuộn xuống và chọn "Thêm vào màn hình chính"' />
+            <Step n={3} text='Bấm "Thêm" ở góc phải trên cùng' />
+          </div>
+          <p className="text-xs text-gray-400">Sau khi cài xong, mở app từ màn hình chính để dùng như ứng dụng native.</p>
+        </div>
+      )}
 
       {/* Quick stats */}
       {isAdmin ? (
@@ -202,6 +279,15 @@ function StatCard({ icon, label, value, bg, alert, onClick }: StatCardProps) {
         <p className="text-xs text-gray-500 leading-tight">{label}</p>
       </div>
     </button>
+  );
+}
+
+function Step({ n, text }: { n: number; text: string }) {
+  return (
+    <div className="flex gap-3 items-start">
+      <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{n}</span>
+      <p className="text-sm text-gray-700 leading-snug">{text}</p>
+    </div>
   );
 }
 

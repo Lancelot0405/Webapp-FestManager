@@ -118,25 +118,32 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
             </div>
           )}
 
-          {/* Push notification subscribe — hiện cho staff chưa subscribe */}
-          {!isAdmin && !subscribed && (
-            <button
-              onClick={subscribe}
-              disabled={pushLoading}
-              className="w-9 h-9 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full flex items-center justify-center transition-colors disabled:opacity-60 relative"
-              title="Bật thông báo đẩy"
-            >
-              <BellPlus size={16} />
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-orange-400 rounded-full border-2 border-white" />
-            </button>
-          )}
-          {!isAdmin && subscribed && (
-            <div
-              className="w-9 h-9 bg-green-50 text-green-600 rounded-full flex items-center justify-center"
-              title="Đã bật thông báo"
-            >
-              <Bell size={16} />
-            </div>
+          {/* Push notification — staff only */}
+          {!isAdmin && (
+            subscribed ? (
+              <div
+                className="w-9 h-9 bg-green-50 text-green-600 rounded-full flex items-center justify-center"
+                title="Đã bật thông báo"
+              >
+                <Bell size={16} />
+              </div>
+            ) : (
+              <button
+                onClick={subscribe}
+                disabled={pushLoading}
+                className="w-9 h-9 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full flex items-center justify-center transition-colors disabled:opacity-60 relative"
+                title="Bật thông báo đẩy"
+              >
+                {pushLoading ? (
+                  <span className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <BellPlus size={16} />
+                    <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-orange-400 rounded-full border-2 border-white" />
+                  </>
+                )}
+              </button>
+            )
           )}
 
           <button
