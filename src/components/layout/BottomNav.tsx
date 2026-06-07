@@ -41,7 +41,7 @@ import {
 
     if (!currentUser) return null;
 
-    const tabs = currentUser.role === 'admin' ? ADMIN_TABS : STAFF_TABS;
+    const tabs = (currentUser.role === 'admin' || currentUser.role === 'manager') ? ADMIN_TABS : STAFF_TABS;
 
     return (
       <nav className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm border-t border-gray-100 dark:border-slate-700 fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md pb-safe z-20">

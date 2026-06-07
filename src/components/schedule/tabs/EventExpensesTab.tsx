@@ -16,7 +16,9 @@ const MAX_FILE_MB = 5;
 export default function EventExpensesTab({ event }: Props) {
   const { state, addExpense, updateExpenseStatus } = useApp();
   const { currentUser, staff } = state;
-  const isAdmin = currentUser?.role === 'admin';
+  const isAdmin   = currentUser?.role === 'admin';
+  const isManager = currentUser?.role === 'manager';
+  const canViewAll = isAdmin || isManager;
 
   const [expandedStaff, setExpandedStaff] = useState<string | null>(null);
   const [showFormForStaff, setShowFormForStaff] = useState<string | null>(null);
@@ -96,7 +98,7 @@ export default function EventExpensesTab({ event }: Props) {
   );
 
   // Nếu staff chưa có chi phí nào, thêm entry rỗng để họ vẫn thấy tên mình
-  if (!isAdmin && myNumericStaffId && currentUser && !byStaff[myNumericStaffId]) {
+  if (!canViewAll && myNumericStaffId && currentUser && !byStaff[myNumericStaffId]) {
     byStaff[myNumericStaffId] = { name: currentUser.name, expenses: [] };
   }
 
@@ -124,7 +126,7 @@ export default function EventExpensesTab({ event }: Props) {
             const total        = expenses.reduce((s, e) => s + e.amount, 0);
             const pendingCount = expenses.filter(e => e.status === 'pending').length;
             const isOpen       = expandedStaff === staffId;
-            const isMe         = !isAdmin && staffId === myNumericStaffId;
+            const isMe         = !canViewAll && staffId === myNumericStaffId;
             const showForm     = showFormForStaff === staffId;
 
             return (
