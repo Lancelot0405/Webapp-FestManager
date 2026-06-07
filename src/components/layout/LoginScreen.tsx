@@ -105,7 +105,15 @@ export default function LoginScreen() {
         setSuccess('Đăng ký thành công! Bạn có thể đăng nhập ngay.');
         setTimeout(() => reset('login'), 2000);
       } else {
-        // Manager: sign out immediately, wait for admin approval
+        // Manager: tạo staff_members row để tab Hồ sơ hoạt động sau khi được duyệt
+        await supabaseAdmin.from('staff_members').insert({
+          name,
+          user_id: data.user.id,
+          dob: '',
+          city: '',
+          staff_type: 'permanent',
+        });
+        // Sign out immediately, wait for admin approval
         await supabase.auth.signOut();
         setSuccess('Yêu cầu đăng ký quản lý đã được gửi! Admin sẽ duyệt tài khoản của bạn.');
         setTimeout(() => reset('login'), 3000);
