@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
+import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Moon, Sun, Download, Smartphone, X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useApp } from '../../context/AppContext';
+import { useTheme } from '../../context/ThemeContext';
+import { useInstallPrompt } from '../../hooks/useInstallPrompt';
 
 const DOMAIN = '@festmanager.com';
 
@@ -9,6 +11,9 @@ type Mode = 'login' | 'register';
 
 export default function LoginScreen() {
   const { login } = useApp();
+  const { theme, toggleTheme } = useTheme();
+  const { isIos, isStandalone, triggerInstall } = useInstallPrompt();
+  const [showInstallModal, setShowInstallModal] = useState(false);
   const [mode,       setMode]      = useState<Mode>('login');
   const [username,   setUsername]  = useState('');
   const [displayName,setDisplayName] = useState('');
@@ -82,8 +87,71 @@ export default function LoginScreen() {
     setTimeout(() => reset('login'), 2000);
   };
 
+  const handleInstallClick = async () => {
+    const result = await triggerInstall();
+    if (result === 'guide' || result === 'already') setShowInstallModal(v => !v);
+  };
+
   return (
-    <div className="w-full max-w-md flex flex-col items-center justify-center min-h-screen px-4 py-8">
+    <div className="w-full max-w-md flex flex-col items-center justify-center min-h-screen px-4 py-8 relative">
+
+      {/* Floating buttons — top right */}
+      <div className="absolute top-6 right-4 flex gap-2">
+        {/* Install */}
+        <div className="relative">
+          <button
+            onClick={handleInstallClick}
+            className="w-9 h-9 bg-white/20 hover:bg-white/30 text-white rounded-full flex items-center justify-center transition-colors backdrop-blur-sm"
+            title="Cài đặt ứng dụng"
+          >
+            <Download size={16} />
+          </button>
+          {showInstallModal && (
+            <div className="absolute right-0 top-11 w-72 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 z-50 p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Smartphone size={16} className="text-indigo-600" />
+                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                    {isStandalone ? 'Đã cài đặt' : 'Cài đặt FestManager'}
+                  </p>
+                </div>
+                <button onClick={() => setShowInstallModal(false)} className="text-gray-400"><X size={15} /></button>
+              </div>
+              {isStandalone ? (
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600 dark:text-gray-300">FestManager đã được cài trên thiết bị của bạn. 🎉</p>
+                  <div className="pt-1 space-y-2">
+                    <InstallStep n={1} text='Bấm nút Chia sẻ ↑ ở thanh dưới Safari' />
+                    <InstallStep n={2} text='Cuộn xuống → chọn "Thêm vào màn hình chính"' />
+                    <InstallStep n={3} text='Bấm "Thêm" góc trên phải' />
+                  </div>
+                </div>
+              ) : isIos ? (
+                <div className="space-y-2.5">
+                  <InstallStep n={1} text='Bấm nút Chia sẻ ↑ ở thanh dưới Safari' />
+                  <InstallStep n={2} text='Cuộn xuống → chọn "Thêm vào màn hình chính"' />
+                  <InstallStep n={3} text='Bấm "Thêm" góc trên phải' />
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Trình duyệt của bạn không hỗ trợ cài đặt tự động. Dùng menu trình duyệt → "Cài đặt ứng dụng".
+                </p>
+              )}
+              <p className="text-xs text-gray-400 mt-3">Yêu cầu Safari iOS 16.4+ hoặc Chrome Android</p>
+            </div>
+          )}
+        </div>
+
+        {/* Dark mode toggle */}
+        <button
+          onClick={toggleTheme}
+          className="w-9 h-9 bg-white/20 hover:bg-white/30 text-white rounded-full flex items-center justify-center transition-colors backdrop-blur-sm"
+          title={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
+        >
+          {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
+      </div>
+
       {/* Card */}
       <div className="w-full bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-2xl">
         {/* Logo */}
@@ -203,6 +271,15 @@ function ErrorMsg({ msg }: { msg: string }) {
   return (
     <div className="flex items-center gap-2 text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2.5 text-sm">
       <AlertCircle size={15} className="shrink-0" /> {msg}
+    </div>
+  );
+}
+
+function InstallStep({ n, text }: { n: number; text: string }) {
+  return (
+    <div className="flex gap-2.5 items-start">
+      <span className="w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">{n}</span>
+      <p className="text-xs text-gray-700 dark:text-gray-300 leading-snug">{text}</p>
     </div>
   );
 }
