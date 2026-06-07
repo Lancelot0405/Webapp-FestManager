@@ -213,14 +213,6 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
               <input className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
                 value={editName} onChange={e => setEditName(e.target.value)} />
             </div>
-            {isAdmin && member.userId && (
-              <div>
-                <label className="text-xs text-gray-500 font-medium">Tên tài khoản <span className="text-gray-400">(để trống nếu không đổi)</span></label>
-                <input className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
-                  placeholder="username mới"
-                  value={editUsername} onChange={e => setEditUsername(e.target.value)} />
-              </div>
-            )}
             <div>
               <label className="text-xs text-gray-500 font-medium">Ngày sinh (DD-MM-YYYY)</label>
               <input className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
@@ -300,44 +292,74 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
         )}
       </div>
 
-      {/* ── ĐỔI MẬT KHẨU (chỉ admin) ──────────────────────────────────── */}
+      {/* ── QUẢN LÝ TÀI KHOẢN (chỉ admin) ─────────────────────────────── */}
       {isAdmin && member.userId && (
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <KeyRound size={16} className="text-orange-500" />
-              <p className="text-sm font-semibold text-gray-700">Đổi mật khẩu</p>
-            </div>
-            <button
-              onClick={() => { setShowPwForm(!showPwForm); setPwMsg(''); setNewPassword(''); }}
-              className="text-xs text-orange-600 bg-orange-50 px-2.5 py-1.5 rounded-lg hover:bg-orange-100"
-            >
-              {showPwForm ? 'Huỷ' : 'Đổi mật khẩu'}
-            </button>
-          </div>
-          {pwMsg && (
-            <p className={`mt-2 text-xs ${pwMsg.startsWith('Lỗi') ? 'text-red-500' : 'text-green-600'}`}>{pwMsg}</p>
-          )}
-          {showPwForm && (
-            <form onSubmit={handleChangePassword} className="mt-3 flex gap-2">
-              <input
-                required
-                type="password"
-                minLength={6}
-                placeholder="Mật khẩu mới (tối thiểu 6 ký tự)"
-                className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"
-                value={newPassword}
-                onChange={e => setNewPassword(e.target.value)}
-              />
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 space-y-4">
+          <p className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+            <KeyRound size={15} className="text-orange-500" /> Quản lý tài khoản
+          </p>
+
+          {/* Đổi tên tài khoản */}
+          <div>
+            <label className="text-xs text-gray-500 font-medium block mb-1">Tên đăng nhập</label>
+            <div className="flex gap-2">
+              <div className="flex-1 flex items-center border border-gray-200 rounded-lg overflow-hidden">
+                <input
+                  className="flex-1 px-3 py-2 text-sm"
+                  placeholder="username mới"
+                  value={editUsername}
+                  onChange={e => setEditUsername(e.target.value.replace(/\s/g, '').toLowerCase())}
+                />
+                <span className="px-2 text-xs text-gray-400 bg-gray-50 border-l border-gray-200 py-2 shrink-0">@festmanager.com</span>
+              </div>
               <button
-                type="submit"
-                disabled={pwLoading}
-                className="flex items-center gap-1 bg-orange-500 text-white text-sm font-medium px-3 py-2 rounded-lg disabled:opacity-60"
+                onClick={async () => {
+                  if (!editUsername.trim()) return;
+                  await supabase.from('users').update({ name: editUsername.trim() }).eq('id', member.userId!);
+                  setEditUsername('');
+                  setPwMsg('Đã cập nhật tên tài khoản!');
+                  setTimeout(() => setPwMsg(''), 3000);
+                }}
+                className="flex items-center gap-1 bg-blue-600 text-white text-sm font-medium px-3 py-2 rounded-lg"
               >
-                {pwLoading ? <Loader size={13} className="animate-spin" /> : <Check size={13} />}
-                Lưu
+                <Check size={13} /> Lưu
               </button>
-            </form>
+            </div>
+          </div>
+
+          {/* Đổi mật khẩu */}
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <label className="text-xs text-gray-500 font-medium">Mật khẩu</label>
+              <button
+                onClick={() => { setShowPwForm(!showPwForm); setPwMsg(''); setNewPassword(''); }}
+                className="text-xs text-orange-600 bg-orange-50 px-2.5 py-1 rounded-lg"
+              >
+                {showPwForm ? 'Huỷ' : 'Đổi mật khẩu'}
+              </button>
+            </div>
+            {showPwForm && (
+              <form onSubmit={handleChangePassword} className="flex gap-2">
+                <input
+                  required type="password" minLength={6}
+                  placeholder="Mật khẩu mới (tối thiểu 6 ký tự)"
+                  className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                />
+                <button
+                  type="submit" disabled={pwLoading}
+                  className="flex items-center gap-1 bg-orange-500 text-white text-sm font-medium px-3 py-2 rounded-lg disabled:opacity-60"
+                >
+                  {pwLoading ? <Loader size={13} className="animate-spin" /> : <Check size={13} />}
+                  Lưu
+                </button>
+              </form>
+            )}
+          </div>
+
+          {pwMsg && (
+            <p className={`text-xs ${pwMsg.startsWith('Lỗi') ? 'text-red-500' : 'text-green-600'}`}>{pwMsg}</p>
           )}
         </div>
       )}

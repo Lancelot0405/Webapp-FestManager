@@ -3,10 +3,11 @@
 // =============================================================================
 
 import { useState, useRef, useEffect } from 'react';
-import { LogOut, Bell, X, BellPlus } from 'lucide-react';
+import { LogOut, Bell, X, BellPlus, Download, Smartphone } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
 import { usePushNotifications } from '../../hooks/usePushNotifications';
+import { useInstallPrompt } from '../../hooks/useInstallPrompt';
 
 interface HeaderProps {
   onLogoClick: () => void;
@@ -20,24 +21,36 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
 
   const { notifications, clearAll, clearOne } = useRealtimeNotifications(isAdmin);
   const { subscribed, loading: pushLoading, subscribe } = usePushNotifications();
-  const [showDropdown, setShowDropdown] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const { canInstall, isIos, triggerInstall } = useInstallPrompt();
 
-  // Close dropdown when clicking outside
+  const [showNotifDropdown, setShowNotifDropdown] = useState(false);
+  const [showInstallModal, setShowInstallModal]   = useState(false);
+  const notifRef   = useRef<HTMLDivElement>(null);
+  const installRef = useRef<HTMLDivElement>(null);
+
+  // Đóng dropdown khi click ngoài
   useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setShowDropdown(false);
-      }
+    const handler = (e: MouseEvent) => {
+      if (notifRef.current   && !notifRef.current.contains(e.target as Node))   setShowNotifDropdown(false);
+      if (installRef.current && !installRef.current.contains(e.target as Node)) setShowInstallModal(false);
     };
-    if (showDropdown) document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, [showDropdown]);
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   if (!currentUser) return null;
 
+  const handleInstallClick = async () => {
+    if (isIos) {
+      setShowInstallModal(v => !v);
+    } else {
+      const installed = await triggerInstall();
+      if (!installed) setShowInstallModal(v => !v);
+    }
+  };
+
   return (
-    <header className="bg-white/95 backdrop-blur-sm border-b border-gray-100 px-5 sticky top-0 z-10 pt-safe shadow-sm">
+    <header className="bg-white/95 backdrop-blur-sm border-b border-gray-100 px-4 sticky top-0 z-10 pt-safe shadow-sm">
       <div className="flex justify-between items-center h-14">
         <h1
           onClick={onLogoClick}
@@ -46,25 +59,53 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
           FestManager
         </h1>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <div className="flex flex-col text-right mr-1">
-            <span className="text-sm font-semibold text-gray-800 leading-tight">
-              {currentUser.name}
-            </span>
-            <span
-              className={`text-[10px] font-bold uppercase tracking-wide ${
-                currentUser.role === 'admin' ? 'text-blue-600' : 'text-emerald-600'
-              }`}
-            >
-              {currentUser.role === 'admin' ? 'Quản lý' : 'Nhân sự'}
+            <span className="text-sm font-semibold text-gray-800 leading-tight">{currentUser.name}</span>
+            <span className={`text-[10px] font-bold uppercase tracking-wide ${isAdmin ? 'text-blue-600' : 'text-emerald-600'}`}>
+              {isAdmin ? 'Quản lý' : 'Nhân sự'}
             </span>
           </div>
 
-          {/* Bell icon — admin only */}
-          {isAdmin && (
-            <div className="relative" ref={dropdownRef}>
+          {/* Nút cài app — hiện cho tất cả khi chưa cài */}
+          {canInstall && (
+            <div className="relative" ref={installRef}>
               <button
-                onClick={() => setShowDropdown(v => !v)}
+                onClick={handleInstallClick}
+                className="w-9 h-9 bg-gray-100 hover:bg-indigo-50 hover:text-indigo-600 text-gray-500 rounded-full flex items-center justify-center transition-colors"
+                title="Cài đặt ứng dụng"
+              >
+                <Download size={16} />
+              </button>
+
+              {/* iOS install guide */}
+              {showInstallModal && (
+                <div className="absolute right-0 top-11 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Smartphone size={16} className="text-indigo-600" />
+                      <p className="text-sm font-semibold text-gray-800">Cài đặt FestManager</p>
+                    </div>
+                    <button onClick={() => setShowInstallModal(false)} className="text-gray-400">
+                      <X size={15} />
+                    </button>
+                  </div>
+                  <div className="space-y-2.5">
+                    <InstallStep n={1} text='Bấm nút Chia sẻ ↑ ở thanh dưới Safari' />
+                    <InstallStep n={2} text='Cuộn xuống → chọn "Thêm vào màn hình chính"' />
+                    <InstallStep n={3} text='Bấm "Thêm" góc trên phải' />
+                  </div>
+                  <p className="text-xs text-gray-400 mt-3">Yêu cầu Safari trên iOS 16.4+</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Chuông thông báo — admin */}
+          {isAdmin && (
+            <div className="relative" ref={notifRef}>
+              <button
+                onClick={() => setShowNotifDropdown(v => !v)}
                 className="w-9 h-9 bg-gray-100 hover:bg-yellow-50 hover:text-yellow-600 text-gray-500 rounded-full flex items-center justify-center transition-colors relative"
                 title="Thông báo"
               >
@@ -76,22 +117,18 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
                 )}
               </button>
 
-              {showDropdown && (
+              {showNotifDropdown && (
                 <div className="absolute right-0 top-11 w-80 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden">
                   <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
                     <p className="text-sm font-semibold text-gray-800">
                       Thông báo {notifications.length > 0 && `(${notifications.length})`}
                     </p>
                     {notifications.length > 0 && (
-                      <button
-                        onClick={clearAll}
-                        className="text-xs text-red-500 hover:text-red-700 font-medium"
-                      >
+                      <button onClick={clearAll} className="text-xs text-red-500 hover:text-red-700 font-medium">
                         Xóa tất cả
                       </button>
                     )}
                   </div>
-
                   <div className="max-h-72 overflow-y-auto">
                     {notifications.length === 0 ? (
                       <p className="text-sm text-gray-400 text-center py-6">Không có thông báo</p>
@@ -103,10 +140,7 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
                             <p className="text-sm text-gray-800 leading-snug">{n.message}</p>
                             <p className="text-xs text-gray-400 mt-0.5">{n.timestamp}</p>
                           </div>
-                          <button
-                            onClick={() => clearOne(n.id)}
-                            className="shrink-0 text-gray-300 hover:text-gray-500 mt-0.5"
-                          >
+                          <button onClick={() => clearOne(n.id)} className="shrink-0 text-gray-300 hover:text-gray-500 mt-0.5">
                             <X size={14} />
                           </button>
                         </div>
@@ -118,13 +152,10 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
             </div>
           )}
 
-          {/* Push notification — staff only */}
+          {/* Push subscribe — staff */}
           {!isAdmin && (
             subscribed ? (
-              <div
-                className="w-9 h-9 bg-green-50 text-green-600 rounded-full flex items-center justify-center"
-                title="Đã bật thông báo"
-              >
+              <div className="w-9 h-9 bg-green-50 text-green-600 rounded-full flex items-center justify-center" title="Đã bật thông báo">
                 <Bell size={16} />
               </div>
             ) : (
@@ -134,14 +165,10 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
                 className="w-9 h-9 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full flex items-center justify-center transition-colors disabled:opacity-60 relative"
                 title="Bật thông báo đẩy"
               >
-                {pushLoading ? (
-                  <span className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <BellPlus size={16} />
-                    <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-orange-400 rounded-full border-2 border-white" />
-                  </>
-                )}
+                {pushLoading
+                  ? <span className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+                  : <><BellPlus size={16} /><span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-orange-400 rounded-full border-2 border-white" /></>
+                }
               </button>
             )
           )}
@@ -156,5 +183,14 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
         </div>
       </div>
     </header>
+  );
+}
+
+function InstallStep({ n, text }: { n: number; text: string }) {
+  return (
+    <div className="flex gap-2.5 items-start">
+      <span className="w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">{n}</span>
+      <p className="text-xs text-gray-700 leading-snug">{text}</p>
+    </div>
   );
 }
