@@ -1,28 +1,48 @@
-const CACHE_NAME = 'festmanager-v1';
-const ASSETS = ['/', '/index.html'];
+const CACHE_NAME = 'festmanager-v3';
 
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
-  );
+  // Kích hoạt SW mới ngay lập tức, không chờ tab cũ đóng
   self.skipWaiting();
 });
 
 self.addEventListener('activate', e => {
+  // Xóa toàn bộ cache cũ khi SW mới kích hoạt
   e.waitUntil(
     caches.keys().then(keys =>
       Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
-  if (e.request.url.includes('supabase')) return; // never cache API calls
-  e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
-  );
+  if (e.request.url.includes('supabase')) return;
+
+  // Với HTML: luôn lấy từ network trước (network-first), fallback về cache
+  // Với JS/CSS/assets: dùng cache-first nhưng update cache ngầm
+  const isHTML = e.request.headers.get('accept')?.includes('text/html');
+
+  if (isHTML) {
+    e.respondWith(
+      fetch(e.request)
+        .then(res => {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+          return res;
+        })
+        .catch(() => caches.match(e.request))
+    );
+  } else {
+    e.respondWith(
+      caches.match(e.request).then(cached => {
+        const fetchPromise = fetch(e.request).then(res => {
+          caches.open(CACHE_NAME).then(c => c.put(e.request, res.clone()));
+          return res;
+        });
+        return cached || fetchPromise;
+      })
+    );
+  }
 });
 
 self.addEventListener('push', e => {
