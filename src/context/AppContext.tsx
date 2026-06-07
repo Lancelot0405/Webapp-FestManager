@@ -606,6 +606,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       name:                    staff.name,
       dob:                     staff.dob,
       city:                    staff.city,
+      phone:                   staff.phone ?? null,
       staff_type:              staff.staffType,
       carte_vitale_url:        staff.carteVitale?.url        ?? null,
       carte_vitale_name:       staff.carteVitale?.fileName   ?? null,

@@ -44,6 +44,7 @@ export interface StaffMember {
   name: string;
   dob: string;
   city: string;
+  phone?: string;
   staffType: StaffType;
   contracts: Contract[];
   carteVitale?: StaffDocument;

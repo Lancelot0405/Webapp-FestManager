@@ -30,6 +30,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
   const [editCity,          setEditCity]          = useState('');
   const [editStaffType,     setEditStaffType]     = useState<'permanent' | 'part-time'>('permanent');
   const [editUsername,      setEditUsername]      = useState('');
+  const [editPhone,         setEditPhone]         = useState('');
   const [editCarteNum,      setEditCarteNum]      = useState('');
   const [editTitreNum,      setEditTitreNum]      = useState('');
   const [copiedField,       setCopiedField]       = useState<string | null>(null);
@@ -97,6 +98,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
     setEditStaffType(member.staffType ?? 'permanent');
     setEditUsername('');
     setEditCarteNum(member.carteVitaleNumber ?? '');
+    setEditPhone(member.phone ?? '');
     setEditTitreNum(member.titreSejeurNumber ?? '');
     setEditing(true);
   };
@@ -107,6 +109,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
       name: editName.trim(),
       dob: editDob.trim(),
       city: editCity.trim(),
+      phone: editPhone.trim() || undefined,
       staffType: editStaffType,
       carteVitaleNumber: editCarteNum.trim() || undefined,
       titreSejeurNumber: editTitreNum.trim() || undefined,
@@ -229,6 +232,12 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                 placeholder="Paris, Lyon..." value={editCity} onChange={e => setEditCity(e.target.value)} />
             </div>
             <div>
+              <label className="text-xs text-gray-500 font-medium">Số điện thoại</label>
+              <input className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
+                type="tel" placeholder="+33 6 XX XX XX XX"
+                value={editPhone} onChange={e => setEditPhone(e.target.value)} />
+            </div>
+            <div>
               <label className="text-xs text-gray-500 font-medium">Số Carte Vitale</label>
               <input className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono"
                 placeholder="1 85 01 75 XXX XXX XX"
@@ -276,10 +285,11 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
           </div>
         ) : (
           <div className="space-y-2">
-            <Row label="Họ tên"    value={member.name} />
-            <Row label="Ngày sinh" value={member.dob || '—'} />
-            <Row label="Nơi ở"    value={member.city || '—'} />
-            <Row label="Sự kiện"  value={`${myEvents.length} sự kiện`} />
+            <Row label="Họ tên"        value={member.name} />
+            <Row label="Ngày sinh"     value={member.dob || '—'} />
+            <Row label="Nơi ở"         value={member.city || '—'} />
+            <Row label="Điện thoại"    value={member.phone || '—'} />
+            <Row label="Sự kiện"       value={`${myEvents.length} sự kiện`} />
             {isAdmin && (
               <Row
                 label="Loại"

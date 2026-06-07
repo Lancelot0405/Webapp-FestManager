@@ -39,6 +39,7 @@ export async function fetchStaff(): Promise<StaffMember[]> {
     name: row.name ?? '',
     dob: row.dob ?? '',
     city: row.city ?? '',
+    phone: row.phone ?? undefined,
     staffType: row.staff_type === 'part-time' ? 'part-time' : 'permanent',
     contracts: (row.contracts ?? []).map((c: any) => ({
       id: c.id,
