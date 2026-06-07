@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Moon, Sun, Download, Smartphone, X, ShieldCheck } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { supabase, supabaseAdmin } from '../../lib/supabase';
 import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useInstallPrompt } from '../../hooks/useInstallPrompt';
@@ -93,7 +93,7 @@ export default function LoginScreen() {
       const name = displayName.trim() || username.trim();
       const status = registerRole === 'manager' ? 'pending' : 'active';
 
-      await supabase.from('users').upsert({
+      await supabaseAdmin.from('users').upsert({
         id: data.user.id,
         name,
         role: registerRole,
@@ -105,7 +105,15 @@ export default function LoginScreen() {
         setSuccess('Đăng ký thành công! Bạn có thể đăng nhập ngay.');
         setTimeout(() => reset('login'), 2000);
       } else {
-        // Manager: sign out immediately, wait for admin approval
+        // Manager: create a staff_members profile row so the profile tab works after approval
+        await supabaseAdmin.from('staff_members').insert({
+          name,
+          user_id: data.user.id,
+          dob: '',
+          city: '',
+          staff_type: 'permanent',
+        });
+        // Sign out immediately, wait for admin approval
         await supabase.auth.signOut();
         setSuccess('Yêu cầu đăng ký quản lý đã được gửi! Admin sẽ duyệt tài khoản của bạn.');
         setTimeout(() => reset('login'), 3000);
