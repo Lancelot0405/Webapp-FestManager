@@ -66,7 +66,7 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
           <div className="flex flex-col text-right mr-1">
             <span className="text-sm font-semibold text-gray-800 dark:text-gray-100 leading-tight">{currentUser.name}</span>
             <span className={`text-[10px] font-bold uppercase tracking-wide ${isAdmin ? 'text-blue-600' : isManager ? 'text-indigo-600' : 'text-emerald-600'}`}>
-              {isAdmin ? 'Quản lý' : isManager ? 'Quản lý' : 'Nhân viên'}
+              {isAdmin ? 'Admin' : isManager ? 'Quản lý' : 'Nhân viên'}
             </span>
           </div>
 

@@ -109,7 +109,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
       </div>
 
       {/* Pending registrations — admin only */}
-      {isAdmin && pendingRegistrations.length > 0 && (
+      {isAdmin && (
         <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-700 rounded-xl overflow-hidden">
           <button
             onClick={() => setShowPending(v => !v)}
@@ -129,6 +129,11 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
 
           {showPending && (
             <div className="px-4 pb-4 space-y-2">
+              {pendingRegistrations.length === 0 && (
+                <p className="text-xs text-indigo-400 dark:text-indigo-500 text-center py-2">
+                  Chưa có yêu cầu đăng ký nào
+                </p>
+              )}
               {pendingRegistrations.map(req => (
                 <div
                   key={req.id}
