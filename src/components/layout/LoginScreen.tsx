@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Moon, Sun, Download, Smartphone, X, ShieldCheck } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { supabase, supabaseAdmin } from '../../lib/supabase';
 import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useInstallPrompt } from '../../hooks/useInstallPrompt';
@@ -91,17 +91,17 @@ export default function LoginScreen() {
 
     if (data.user) {
       const name = displayName.trim() || username.trim();
-      const status = registerRole === 'manager' ? 'pending' : 'active';
 
-      await supabase.from('users').upsert({
+      // Dùng supabaseAdmin để bypass RLS khi insert vào bảng users
+      await supabaseAdmin.from('users').upsert({
         id: data.user.id,
         name,
         role: registerRole,
-        status,
+        status: registerRole === 'manager' ? 'pending' : 'active',
       });
 
       if (registerRole === 'staff') {
-        await supabase.from('staff_members').update({ name }).eq('user_id', data.user.id);
+        await supabaseAdmin.from('staff_members').update({ name }).eq('user_id', data.user.id);
         setSuccess('Đăng ký thành công! Bạn có thể đăng nhập ngay.');
         setTimeout(() => reset('login'), 2000);
       } else {

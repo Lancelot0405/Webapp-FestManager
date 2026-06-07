@@ -450,10 +450,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const { data: profile } = await supabase
           .from('users').select('id, name, role, status').eq('id', session.user.id).single();
         if (profile) {
+          // Chặn tài khoản pending/rejected tự động đăng nhập
+          if (profile.status === 'pending' || profile.status === 'rejected') {
+            await supabase.auth.signOut();
+            return;
+          }
           dispatch({ type: 'LOGIN', payload: { id: profile.id, name: profile.name, role: profile.role } });
           loadData(profile.role);
         } else {
-          loadData();
+          // Không tìm thấy profile (race condition khi đăng ký) — không cho login
+          await supabase.auth.signOut();
         }
       } else {
         dispatch({ type: 'LOGOUT' });
@@ -462,6 +468,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
     return () => subscription.unsubscribe();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ---------------------------------------------------------------------------
+  // Refresh khi user quay lại tab (bắt thay đổi từ Supabase dashboard)
+  // ---------------------------------------------------------------------------
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible' && state.currentUser) {
+        loadData(state.currentUser.role);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [state.currentUser]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---------------------------------------------------------------------------
   // Supabase Realtime — tự động refresh khi dữ liệu thay đổi từ bất kỳ client
