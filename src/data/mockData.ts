@@ -24,6 +24,7 @@ import type {
       name: 'Lance',
       dob: '04-05-1995',
       city: 'Paris',
+      staffType: 'permanent',
       contracts: [],
     },
     {
@@ -31,6 +32,7 @@ import type {
       name: 'Linh',
       dob: '12-10-1998',
       city: 'Lyon',
+      staffType: 'permanent',
       contracts: [
         {
           id: 999,
@@ -45,6 +47,7 @@ import type {
       name: 'Minh',
       dob: '22-01-2000',
       city: 'Marseille',
+      staffType: 'permanent',
       contracts: [],
     },
     {
@@ -52,6 +55,7 @@ import type {
       name: 'Sophie',
       dob: '15-08-1999',
       city: 'Caen',
+      staffType: 'permanent',
       contracts: [],
     },
     {
@@ -59,6 +63,7 @@ import type {
       name: 'Alex',
       dob: '01-01-2000',
       city: 'Lille',
+      staffType: 'permanent',
       contracts: [],
     },
   ];
@@ -86,7 +91,7 @@ import type {
       receipts: [
         {
           id: 101,
-          staffId: 2,
+          staffId: "2",
           staffName: 'Linh',
           festivalId: 1,
           type: 'Vé tàu/xe',
@@ -145,7 +150,7 @@ import type {
       receipts: [
         {
           id: 102,
-          staffId: 3,
+          staffId: "3",
           staffName: 'Minh',
           festivalId: 3,
           type: 'Uber/Taxi',
@@ -157,7 +162,7 @@ import type {
         },
         {
           id: 103,
-          staffId: 1,
+          staffId: "1",
           staffName: 'Lance',
           festivalId: 3,
           type: 'Vé tàu/xe',

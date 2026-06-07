@@ -19,15 +19,23 @@ import Inventory    from './components/inventory/Inventory';
 import Finance      from './components/finance/Finance';
 import HRGlobal     from './components/hr/HRGlobal';
 import StaffProfile from './components/hr/StaffProfile';
+import Clients      from './components/clients/Clients';
 
 export default function App() {
   const { state, logout: contextLogout } = useApp();
-  const { currentUser } = state;
+  const { currentUser, staff } = state;
+
+  // Tìm numeric staff id cho user đang đăng nhập (dùng cho tab profile của staff)
+  const myStaffMember = currentUser
+    ? (staff.find(s => s.userId === currentUser.id)
+       ?? staff.find(s => s.name.toLowerCase() === currentUser.name.toLowerCase()))
+    : null;
+  const myStaffId = myStaffMember ? String(myStaffMember.id) : '';
 
   // ── UI state (cục bộ trong App — không cần vào Context) ───────────────────
   const [activeTab,        setActiveTab]        = useState<ActiveTab>('dashboard');
   const [selectedEventId,  setSelectedEventId]  = useState<number | null>(null);
-  const [selectedStaffId,  setSelectedStaffId]  = useState<number | null>(null);
+  const [selectedStaffId,  setSelectedStaffId]  = useState<string | null>(null);
 
   // Reset về Dashboard + xóa mọi selection đang chọn
   const handleLogoClick = () => {
@@ -47,7 +55,7 @@ export default function App() {
   // ── Chưa đăng nhập → hiện màn hình Login ──────────────────────────────────
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-gray-100 flex justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 flex justify-center">
         <LoginScreen />
       </div>
     );
@@ -57,12 +65,12 @@ export default function App() {
   const isInDetail = selectedEventId !== null || selectedStaffId !== null;
 
   return (
-    <div className="min-h-screen bg-gray-100 flex justify-center font-sans">
-      <div className="w-full max-w-md bg-gray-50 min-h-screen relative shadow-2xl flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex justify-center font-sans">
+      <div className="w-full max-w-md bg-slate-50 min-h-screen shadow-xl flex flex-col">
 
         <Header onLogoClick={handleLogoClick} onLogout={handleLogout} />
 
-        <main className="flex-1 overflow-y-auto p-6 scroll-smooth">
+        <main className="flex-1 overflow-y-auto px-4 py-5 pb-24 scroll-smooth-ios">
 
           {/* ── Màn hình chi tiết Event ──────────────────────────────────── */}
           {selectedEventId && (
@@ -84,7 +92,7 @@ export default function App() {
           {!selectedEventId && !selectedStaffId && (
             <>
               {activeTab === 'dashboard' && (
-                <Dashboard onSelectEvent={setSelectedEventId} />
+                <Dashboard onSelectEvent={setSelectedEventId} onNavigate={setActiveTab} />
               )}
               {activeTab === 'schedule' && (
                 <Schedule onSelectEvent={setSelectedEventId} />
@@ -98,8 +106,14 @@ export default function App() {
               {activeTab === 'hr' && currentUser.role === 'admin' && (
                 <HRGlobal onSelectStaff={setSelectedStaffId} />
               )}
-              {activeTab === 'profile' && currentUser.role === 'staff' && (
-                <StaffProfile staffId={currentUser.id} />
+              {activeTab === 'profile' && currentUser.role === 'staff' && myStaffId && (
+                <StaffProfile staffId={myStaffId} />
+              )}
+              {activeTab === 'profile' && currentUser.role === 'staff' && !myStaffId && (
+                <p className="text-center text-gray-400 py-20 text-sm">Đang tải hồ sơ...</p>
+              )}
+              {activeTab === 'clients' && currentUser.role === 'admin' && (
+                <Clients />
               )}
             </>
           )}

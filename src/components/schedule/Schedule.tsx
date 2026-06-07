@@ -3,10 +3,11 @@
 // =============================================================================
 
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Trash2, Search } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
 import AddEventForm from './AddEventForm';
+import type { EventStatus } from '../../types';
 
 interface ScheduleProps {
   onSelectEvent: (id: number) => void;
@@ -17,13 +18,43 @@ function parseDate(d: string): number {
   return new Date(`${yyyy}-${mm}-${dd}`).getTime();
 }
 
+type StatusFilter = 'Tất cả' | EventStatus;
+
+const STATUS_FILTERS: StatusFilter[] = [
+  'Tất cả',
+  'Sắp tới',
+  'Đang diễn ra',
+  'Đã hoàn thành',
+  'Lên kế hoạch',
+];
+
 export default function Schedule({ onSelectEvent }: ScheduleProps) {
-  const { state } = useApp();
-  const { events, currentUser } = state;
+  const { state, deleteEvent } = useApp();
+  const { events, currentUser, staff } = state;
   const isAdmin = currentUser?.role === 'admin';
   const [showAddForm, setShowAddForm] = useState(false);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('Tất cả');
 
-  const sorted = [...events].sort((a, b) => parseDate(a.date) - parseDate(b.date));
+  // Staff chỉ thấy events được phân công
+  const myStaffMember = !isAdmin && currentUser
+    ? (staff.find(s => s.userId === currentUser.id)
+       ?? staff.find(s => s.name.toLowerCase() === currentUser.name.toLowerCase()))
+    : null;
+
+  const visibleEvents = isAdmin
+    ? events
+    : events.filter(e => myStaffMember && e.staff.some(s => s.id === myStaffMember.id));
+
+  // Apply search and status filter on top of visibleEvents
+  const q = search.trim().toLowerCase();
+  const filtered = visibleEvents.filter(e => {
+    const matchSearch = !q || e.name.toLowerCase().includes(q) || e.location.toLowerCase().includes(q);
+    const matchStatus = statusFilter === 'Tất cả' || e.status === statusFilter;
+    return matchSearch && matchStatus;
+  });
+
+  const sorted = [...filtered].sort((a, b) => parseDate(a.date) - parseDate(b.date));
 
   return (
     <div className="space-y-4 pb-20">
@@ -40,6 +71,35 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
         )}
       </div>
 
+      {/* Search input */}
+      <div className="relative">
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+        <input
+          type="text"
+          placeholder="Tìm theo tên hoặc địa điểm..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400"
+        />
+      </div>
+
+      {/* Status filter pills */}
+      <div className="flex flex-wrap gap-1.5">
+        {STATUS_FILTERS.map(s => (
+          <button
+            key={s}
+            onClick={() => setStatusFilter(s)}
+            className={`px-3 py-1 rounded-full text-xs font-medium transition ${
+              statusFilter === s
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            {s}
+          </button>
+        ))}
+      </div>
+
       {showAddForm && isAdmin && (
         <AddEventForm onClose={() => setShowAddForm(false)} />
       )}
@@ -49,21 +109,37 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
       ) : (
         <div className="space-y-3">
           {sorted.map(event => (
-            <button
+            <div
               key={event.id}
-              onClick={() => onSelectEvent(event.id)}
-              className="w-full text-left bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:border-blue-200 transition-colors"
+              className="bg-white rounded-xl shadow-sm border border-gray-100 hover:border-blue-200 transition-colors flex items-stretch"
             >
-              <div className="flex justify-between items-start gap-2">
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-gray-800 truncate">{event.name}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{event.date}</p>
-                  <p className="text-xs text-gray-400 truncate mt-0.5">{event.location}</p>
-                  <p className="text-xs text-gray-400 mt-1">{event.staff.length} nhân viên</p>
+              <button
+                onClick={() => onSelectEvent(event.id)}
+                className="flex-1 text-left p-4 min-w-0"
+              >
+                <div className="flex justify-between items-start gap-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-gray-800 truncate">{event.name}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{event.date}</p>
+                    <p className="text-xs text-gray-400 truncate mt-0.5">{event.location}</p>
+                    <p className="text-xs text-gray-400 mt-1">{event.staff.length} nhân viên</p>
+                  </div>
+                  <StatusBadge status={event.status} />
                 </div>
-                <StatusBadge status={event.status} />
-              </div>
-            </button>
+              </button>
+              {isAdmin && (
+                <button
+                  onClick={() => {
+                    if (window.confirm(`Xóa sự kiện "${event.name}"?\nThao tác này không thể hoàn tác.`)) {
+                      deleteEvent(event.id);
+                    }
+                  }}
+                  className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-gray-100 transition-colors rounded-r-xl"
+                >
+                  <Trash2 size={16} />
+                </button>
+              )}
+            </div>
           ))}
         </div>
       )}

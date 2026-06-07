@@ -5,47 +5,62 @@
 import { Calendar, Users, Package, Clock } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
+import type { ActiveTab, FestivalEvent, StaffMember } from '../../types';
 
 interface DashboardProps {
   onSelectEvent: (id: number) => void;
+  onNavigate: (tab: ActiveTab) => void;
 }
 
-export default function Dashboard({ onSelectEvent }: DashboardProps) {
+export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps) {
   const { state } = useApp();
-  const { currentUser, events, inventory } = state;
+  const { currentUser, events, inventory, staff } = state;
 
   if (!currentUser) return null;
 
   const isAdmin = currentUser.role === 'admin';
+
+  // Tìm numeric staff ID của user hiện tại
+  const myStaffMember = isAdmin ? null : (
+    staff.find(s => s.userId === currentUser.id)
+    ?? staff.find(s => s.name.toLowerCase() === currentUser.name.toLowerCase())
+  );
+  const myNumericId = myStaffMember?.id ?? null;
+
+  // Events mà staff được phân công
+  const myEvents = myNumericId
+    ? events.filter(e => e.staff.some(s => s.id === myNumericId))
+    : [];
 
   // Computed stats
   const upcomingEvents = events.filter(
     e => e.status === 'Sắp tới' || e.status === 'Lên kế hoạch' || e.status === 'Đang diễn ra'
   );
   const lowStockCount = inventory.filter(i => i.current < i.threshold).length;
-  const allStaffIds = new Set(events.flatMap(e => e.staff.map(s => s.id)));
+  const totalStaff = staff.length;
   const pendingExpenses = events.flatMap(e => e.receipts).filter(r => r.status === 'pending');
-  const myPendingExpenses = pendingExpenses.filter(r => r.staffId === currentUser.id);
+  const myPendingExpenses = pendingExpenses.filter(r =>
+    myNumericId != null && r.staffId === String(myNumericId)
+  );
 
-  // Show 3 nearest upcoming events
-  const displayEvents = [...upcomingEvents]
-    .sort((a, b) => {
-      const parse = (d: string) => {
-        const [dd, mm, yyyy] = d.split('-');
-        return new Date(`${yyyy}-${mm}-${dd}`).getTime();
-      };
-      return parse(a.date) - parse(b.date);
-    })
-    .slice(0, 3);
+  // Admin: 3 sự kiện sắp nhất; Staff: sự kiện được phân công
+  const parse = (d: string) => {
+    const [dd, mm, yyyy] = d.split('-');
+    return new Date(`${yyyy}-${mm}-${dd}`).getTime();
+  };
+
+  const displayEvents = isAdmin
+    ? [...upcomingEvents].sort((a, b) => parse(a.date) - parse(b.date)).slice(0, 3)
+    : [...myEvents].sort((a, b) => parse(a.date) - parse(b.date));
 
   return (
-    <div className="space-y-6 pb-20">
-      {/* Welcome */}
-      <div>
-        <h1 className="text-xl font-bold text-gray-800">
+    <div className="space-y-5">
+      {/* Welcome banner */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-500 rounded-2xl p-5 text-white">
+        <h1 className="text-lg font-bold leading-tight">
           Xin chào, {currentUser.name} 👋
         </h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-blue-100 text-sm mt-0.5">
           {isAdmin ? 'Bảng điều khiển quản trị' : 'Bảng thông tin cá nhân'}
         </p>
       </div>
@@ -58,12 +73,14 @@ export default function Dashboard({ onSelectEvent }: DashboardProps) {
             label="Sự kiện sắp tới"
             value={upcomingEvents.length}
             bg="bg-blue-50"
+            onClick={() => onNavigate('schedule')}
           />
           <StatCard
             icon={<Users size={20} className="text-purple-500" />}
             label="Tổng nhân viên"
-            value={allStaffIds.size}
+            value={totalStaff}
             bg="bg-purple-50"
+            onClick={() => onNavigate('hr')}
           />
           <StatCard
             icon={<Package size={20} className="text-red-500" />}
@@ -71,6 +88,7 @@ export default function Dashboard({ onSelectEvent }: DashboardProps) {
             value={lowStockCount}
             bg="bg-red-50"
             alert={lowStockCount > 0}
+            onClick={() => onNavigate('inventory')}
           />
           <StatCard
             icon={<Clock size={20} className="text-yellow-500" />}
@@ -78,6 +96,7 @@ export default function Dashboard({ onSelectEvent }: DashboardProps) {
             value={pendingExpenses.length}
             bg="bg-yellow-50"
             alert={pendingExpenses.length > 0}
+            onClick={() => onNavigate('finance')}
           />
         </div>
       ) : (
@@ -85,8 +104,9 @@ export default function Dashboard({ onSelectEvent }: DashboardProps) {
           <StatCard
             icon={<Calendar size={20} className="text-blue-500" />}
             label="Sự kiện của tôi"
-            value={events.filter(e => e.staff.some(s => s.id === currentUser.id)).length}
+            value={myEvents.length}
             bg="bg-blue-50"
+            onClick={() => onNavigate('schedule')}
           />
           <StatCard
             icon={<Clock size={20} className="text-yellow-500" />}
@@ -94,24 +114,25 @@ export default function Dashboard({ onSelectEvent }: DashboardProps) {
             value={myPendingExpenses.length}
             bg="bg-yellow-50"
             alert={myPendingExpenses.length > 0}
+            onClick={() => onNavigate('profile')}
           />
         </div>
       )}
 
       {/* Upcoming events */}
       <div>
-        <h2 className="text-base font-semibold text-gray-700 mb-3">
+        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
           {isAdmin ? 'Sự kiện sắp tới' : 'Sự kiện của tôi'}
         </h2>
         {displayEvents.length === 0 ? (
           <p className="text-sm text-gray-400 text-center py-6">Không có sự kiện nào</p>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {displayEvents.map(event => (
               <button
                 key={event.id}
                 onClick={() => onSelectEvent(event.id)}
-                className="w-full text-left bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:border-blue-200 transition-colors"
+                className="w-full text-left bg-white rounded-2xl p-4 border border-gray-100 hover:shadow-md hover:border-blue-100 transition-all duration-150"
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1 min-w-0">
@@ -130,10 +151,10 @@ export default function Dashboard({ onSelectEvent }: DashboardProps) {
       {/* Staff: pending expenses */}
       {!isAdmin && myPendingExpenses.length > 0 && (
         <div>
-          <h2 className="text-base font-semibold text-gray-700 mb-3">Chi phí chờ duyệt</h2>
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Chi phí chờ duyệt</h2>
           <div className="space-y-2">
             {myPendingExpenses.map(exp => (
-              <div key={exp.id} className="bg-yellow-50 rounded-lg p-3 flex justify-between items-center">
+              <div key={exp.id} className="bg-yellow-50 rounded-2xl p-3 flex justify-between items-center border border-yellow-100">
                 <div>
                   <p className="text-sm font-medium text-gray-800">{exp.type}</p>
                   <p className="text-xs text-gray-500">{exp.date}</p>
@@ -142,6 +163,17 @@ export default function Dashboard({ onSelectEvent }: DashboardProps) {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Analytics section - admin only */}
+      {isAdmin && (
+        <div>
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Doanh thu theo tháng</h2>
+          <RevenueChart events={events} />
+
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 mt-4">Top nhân viên</h2>
+          <TopStaffList events={events} staff={staff} />
         </div>
       )}
     </div>
@@ -155,16 +187,87 @@ interface StatCardProps {
   value: number;
   bg: string;
   alert?: boolean;
+  onClick?: () => void;
 }
 
-function StatCard({ icon, label, value, bg, alert }: StatCardProps) {
+function StatCard({ icon, label, value, bg, alert, onClick }: StatCardProps) {
   return (
-    <div className={`${bg} rounded-xl p-4 flex items-center gap-3`}>
+    <button
+      onClick={onClick}
+      className={`${bg} rounded-2xl p-4 flex items-center gap-3 w-full text-left transition-all duration-150 active:opacity-70 ${onClick ? 'hover:brightness-95 cursor-pointer' : ''}`}
+    >
       <div className="shrink-0">{icon}</div>
       <div>
         <p className={`text-2xl font-bold ${alert ? 'text-red-600' : 'text-gray-800'}`}>{value}</p>
         <p className="text-xs text-gray-500 leading-tight">{label}</p>
       </div>
+    </button>
+  );
+}
+
+function RevenueChart({ events }: { events: FestivalEvent[] }) {
+  const monthMap: Record<string, number> = {};
+  events.forEach(e => {
+    const [dd, mm, yyyy] = e.date.split('-');
+    void dd;
+    const key = `${mm}/${yyyy}`;
+    monthMap[key] = (monthMap[key] ?? 0) + e.financials.income;
+  });
+  const entries = Object.entries(monthMap)
+    .sort((a, b) => {
+      const [ma, ya] = a[0].split('/');
+      const [mb, yb] = b[0].split('/');
+      return new Date(`${ya}-${ma}-01`).getTime() - new Date(`${yb}-${mb}-01`).getTime();
+    })
+    .slice(-6);
+
+  if (entries.length === 0) return <p className="text-sm text-gray-400 text-center py-4">Chưa có dữ liệu</p>;
+
+  const maxVal = Math.max(...entries.map(([, v]) => v), 1);
+
+  return (
+    <div className="bg-white rounded-2xl p-4 border border-gray-100">
+      <div className="flex items-end gap-2 h-24">
+        {entries.map(([month, val]) => (
+          <div key={month} className="flex-1 flex flex-col items-center gap-1">
+            <div
+              className="w-full bg-blue-500 rounded-t-md transition-all"
+              style={{ height: `${Math.max((val / maxVal) * 80, 4)}px` }}
+            />
+            <span className="text-[9px] text-gray-400 leading-none">{month}</span>
+          </div>
+        ))}
+      </div>
+      <p className="text-xs text-gray-400 mt-2 text-right">Max: {maxVal.toLocaleString('fr-FR')}€</p>
+    </div>
+  );
+}
+
+function TopStaffList({ events, staff }: { events: FestivalEvent[]; staff: StaffMember[] }) {
+  const counts: Record<number, number> = {};
+  events.forEach(e => e.staff.forEach(s => { counts[s.id] = (counts[s.id] ?? 0) + 1; }));
+  const top = Object.entries(counts)
+    .sort((a, b) => Number(b[1]) - Number(a[1]))
+    .slice(0, 3)
+    .map(([id, count]) => ({ member: staff.find(s => s.id === Number(id)), count }))
+    .filter(x => x.member);
+
+  if (top.length === 0) return <p className="text-sm text-gray-400 text-center py-4">Chưa có dữ liệu</p>;
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50">
+      {top.map(({ member, count }, i) => (
+        <div key={member!.id} className="flex items-center gap-3 px-4 py-3">
+          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${i === 0 ? 'bg-yellow-100 text-yellow-700' : i === 1 ? 'bg-gray-100 text-gray-600' : 'bg-orange-50 text-orange-600'}`}>
+            {i + 1}
+          </span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-800 truncate">{member!.name}</p>
+            <p className="text-xs text-gray-400">{member!.city}</p>
+          </div>
+          <span className="text-sm font-bold text-blue-600">{count} sự kiện</span>
+        </div>
+      ))}
     </div>
   );
 }

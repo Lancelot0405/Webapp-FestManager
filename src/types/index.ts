@@ -10,7 +10,7 @@
 export type UserRole = 'admin' | 'staff';
 
 export interface CurrentUser {
-  id: number;
+  id: string;
   name: string;
   role: UserRole;
 }
@@ -26,16 +26,30 @@ export interface Contract {
   /** URL to the file — blob URL (dev) or Supabase Storage URL (prod) */
   url: string;
   fileName?: string;
+  /** Which festival this contract belongs to (optional) */
+  festivalId?: number;
 }
+
+export interface StaffDocument {
+  url: string;
+  fileName: string;
+  uploadedAt: string;
+}
+
+export type StaffType = 'permanent' | 'part-time';
 
 export interface StaffMember {
   id: number;
+  userId?: string;
   name: string;
-  /** Format: DD-MM-YYYY */
   dob: string;
-  /** Departure city — used to estimate travel costs */
   city: string;
+  staffType: StaffType;
   contracts: Contract[];
+  carteVitale?: StaffDocument;
+  titreSejour?: StaffDocument;
+  carteVitaleNumber?: string;
+  titreSejeurNumber?: string;
 }
 
 // Lightweight version embedded inside Event.staff[]
@@ -60,7 +74,7 @@ export type ExpenseStatus = 'pending' | 'approved' | 'rejected';
 
 export interface Expense {
   id: number;
-  staffId: number;
+  staffId: string;
   staffName: string;
   festivalId: number;
   type: ExpenseCategory;
@@ -107,7 +121,8 @@ export type InventoryUnit =
   | 'hộp'
   | 'xiên'
   | 'thùng'
-  | 'phần';
+  | 'phần'
+  | 'túi';
 
 export interface InventoryItem {
   id: number;
@@ -180,7 +195,24 @@ export type ActiveTab =
   | 'inventory'
   | 'finance'
   | 'hr'
-  | 'profile';
+  | 'profile'
+  | 'clients';
+
+// -----------------------------------------------------------------------------
+// CLIENTS
+// -----------------------------------------------------------------------------
+
+export interface Client {
+  id: number;
+  name: string;
+  contactName: string;
+  phone: string;
+  email: string;
+  city: string;
+  notes: string;
+  /** IDs of events associated with this client */
+  eventIds: number[];
+}
 
 /** Result of parsing one line from the Smart Inventory Input */
 export interface ParsedInventoryResult {

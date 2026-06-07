@@ -3,31 +3,87 @@
 // =============================================================================
 
 import { useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Trash2, Download, Copy } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { useApp } from '../../context/AppContext';
-import EventInfoTab from './tabs/EventInfoTab';
-import EventStaffTab from './tabs/EventStaffTab';
-import EventExpensesTab from './tabs/EventExpensesTab';
-import EventInventoryTab from './tabs/EventInventoryTab';
+import { useToast } from '../../context/ToastContext';
+import EventPDFExport     from './EventPDFExport';
+import EventInfoTab       from './tabs/EventInfoTab';
+import EventStaffTab      from './tabs/EventStaffTab';
+import EventExpensesTab   from './tabs/EventExpensesTab';
+import EventInventoryTab  from './tabs/EventInventoryTab';
+import EventContractsTab  from './tabs/EventContractsTab';
 
 interface EventDetailProps {
   eventId: number;
   onBack: () => void;
 }
 
-type Tab = 'info' | 'staff' | 'expenses' | 'inventory';
+type Tab = 'info' | 'staff' | 'expenses' | 'inventory' | 'contracts';
 
 const TABS: { id: Tab; label: string }[] = [
-  { id: 'info',      label: 'Thông tin' },
-  { id: 'staff',     label: 'Nhân sự'   },
-  { id: 'expenses',  label: 'Chi phí'   },
-  { id: 'inventory', label: 'Kho'       },
+  { id: 'info',      label: 'Thông tin'  },
+  { id: 'staff',     label: 'Nhân sự'    },
+  { id: 'expenses',  label: 'Chi phí'    },
+  { id: 'inventory', label: 'Kho'        },
+  { id: 'contracts', label: 'Hợp đồng'  },
 ];
 
 export default function EventDetail({ eventId, onBack }: EventDetailProps) {
-  const { state } = useApp();
+  const { state, deleteEvent, cloneEvent } = useApp();
+  const showToast = useToast();
   const event = state.events.find(e => e.id === eventId);
   const [activeTab, setActiveTab] = useState<Tab>('info');
+  const isAdmin = state.currentUser?.role === 'admin';
+
+  const handleClone = () => {
+    if (!event) return;
+    cloneEvent(event);
+    showToast(`Đã nhân bản "${event.name}"`, 'success');
+    onBack();
+  };
+
+  const handleDelete = () => {
+    if (!event) return;
+    if (window.confirm(`Xóa sự kiện "${event.name}"?\nThao tác này không thể hoàn tác.`)) {
+      deleteEvent(event.id);
+      onBack();
+    }
+  };
+
+  const handleExport = () => {
+    if (!event) return;
+    const wb = XLSX.utils.book_new();
+
+    // Sheet 1: Event info
+    const expTotal = Object.values(event.financials.expenses).reduce<number>((s, v) => s + (v ?? 0), 0);
+    const infoRows = [
+      { 'Thông tin': 'Tên sự kiện', 'Giá trị': event.name },
+      { 'Thông tin': 'Ngày', 'Giá trị': event.date },
+      { 'Thông tin': 'Địa điểm', 'Giá trị': event.location },
+      { 'Thông tin': 'Trạng thái', 'Giá trị': event.status },
+      { 'Thông tin': 'Doanh thu (€)', 'Giá trị': event.financials.income },
+      { 'Thông tin': 'Chi phí (€)', 'Giá trị': expTotal },
+      { 'Thông tin': 'Lợi nhuận (€)', 'Giá trị': event.financials.income - expTotal },
+      { 'Thông tin': 'Số nhân viên', 'Giá trị': event.staff.length },
+    ];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(infoRows), 'Thông tin');
+
+    // Sheet 2: Expenses
+    if (event.receipts.length > 0) {
+      const expRows = event.receipts.map(r => ({
+        'Nhân viên': r.staffName,
+        'Loại': r.type,
+        'Số tiền (€)': r.amount,
+        'Ngày': r.date,
+        'Trạng thái': r.status,
+      }));
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(expRows), 'Chi phí');
+    }
+
+    const safeName = event.name.replace(/[/\\?%*:|"<>]/g, '-');
+    XLSX.writeFile(wb, `su-kien-${safeName}.xlsx`);
+  };
 
   if (!event) {
     return (
@@ -45,10 +101,36 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
         <button onClick={onBack} className="p-1 text-gray-500 hover:text-gray-700">
           <ArrowLeft size={22} />
         </button>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <h1 className="font-bold text-gray-800 text-lg truncate">{event.name}</h1>
           <p className="text-xs text-gray-500">{event.date} · {event.location}</p>
         </div>
+        {isAdmin && (
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              onClick={handleExport}
+              className="p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+              title="Xuất Excel"
+            >
+              <Download size={18} />
+            </button>
+            <EventPDFExport event={event} />
+            <button
+              onClick={handleClone}
+              className="p-2 text-green-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+              title="Nhân bản sự kiện"
+            >
+              <Copy size={18} />
+            </button>
+            <button
+              onClick={handleDelete}
+              className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              title="Xóa sự kiện"
+            >
+              <Trash2 size={18} />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Tabs */}
@@ -73,6 +155,7 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
       {activeTab === 'staff'     && <EventStaffTab event={event} />}
       {activeTab === 'expenses'  && <EventExpensesTab event={event} />}
       {activeTab === 'inventory' && <EventInventoryTab event={event} />}
+      {activeTab === 'contracts' && <EventContractsTab event={event} />}
     </div>
   );
 }
