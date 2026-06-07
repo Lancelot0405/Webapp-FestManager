@@ -99,6 +99,8 @@ type Action =
       payload: number }
   | { type: 'UPDATE_INVENTORY_UNIT';
       payload: { itemId: number; unit: InventoryUnit } }
+  | { type: 'UPDATE_INVENTORY_ITEM';
+      payload: { itemId: number; name: string; current: number; threshold: number; unit: InventoryUnit } }
   | { type: 'ADD_INVENTORY_LOG';
       payload: InventoryLogEntry }
 
@@ -270,6 +272,16 @@ function appReducer(state: AppState, action: Action): AppState {
         ),
       };
 
+    case 'UPDATE_INVENTORY_ITEM':
+      return {
+        ...state,
+        inventory: state.inventory.map(item =>
+          item.id === action.payload.itemId
+            ? { ...item, name: action.payload.name, current: action.payload.current, threshold: action.payload.threshold, unit: action.payload.unit }
+            : item
+        ),
+      };
+
     case 'ADD_INVENTORY_LOG':
       return {
         ...state,
@@ -362,6 +374,7 @@ interface AppContextValue {
   createInventoryItem:  (item: Omit<InventoryItem, 'id'>)                => void;
   deleteInventoryItem:  (itemId: number)                                 => void;
   updateInventoryUnit:  (itemId: number, unit: InventoryUnit)            => void;
+  updateInventoryItem:  (itemId: number, name: string, current: number, threshold: number, unit: InventoryUnit) => void;
   addInventoryLog:      (log: InventoryLogEntry)                         => void;
 
   // --- HR ---
@@ -566,6 +579,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     []
   );
 
+  const updateInventoryItem = useCallback(
+    (itemId: number, name: string, current: number, threshold: number, unit: InventoryUnit) => {
+      dispatch({ type: 'UPDATE_INVENTORY_ITEM', payload: { itemId, name, current, threshold, unit } });
+      supabase.from('inventory_items').update({ name, current, threshold, unit }).eq('id', itemId).then();
+    },
+    []
+  );
+
   const addInventoryLog = useCallback(
     (log: InventoryLogEntry) => {
       dispatch({ type: 'ADD_INVENTORY_LOG', payload: log });
@@ -702,7 +723,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addEvent, updateEvent, deleteEvent,
     addStaffToEvent, removeStaffFromEvent,
     addExpense, updateExpenseStatus,
-    setInventoryItem, createInventoryItem, deleteInventoryItem, updateInventoryUnit, addInventoryLog,
+    setInventoryItem, createInventoryItem, deleteInventoryItem, updateInventoryUnit, updateInventoryItem, addInventoryLog,
     addStaff, updateStaff, deleteStaff, addContract,
     cloneEvent,
     addClient, updateClient, deleteClient,
