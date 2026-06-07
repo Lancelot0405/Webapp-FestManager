@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, FileText, Plus, Upload, Image, X, Loader, Pencil, Check, CreditCard, ShieldCheck, KeyRound, Copy, CheckCheck } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { ExpenseStatusBadge } from '../shared/StatusBadge';
@@ -40,6 +40,17 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
   const [newPassword, setNewPassword] = useState('');
   const [pwLoading,   setPwLoading]   = useState(false);
   const [pwMsg,       setPwMsg]       = useState('');
+
+  // ── Username hiện tại (fetch từ Supabase Auth) ───────────────────────────
+  const [currentUsername, setCurrentUsername] = useState<string | null>(null);
+  useEffect(() => {
+    if (!isAdmin || !member?.userId) return;
+    supabaseAdmin.auth.admin.getUserById(member.userId).then(({ data }) => {
+      const email = data?.user?.email ?? '';
+      const username = email.replace('@festmanager.com', '');
+      setCurrentUsername(username || null);
+    });
+  }, [isAdmin, member?.userId]);
 
   // ── Upload tài liệu ─────────────────────────────────────────────────────
   const [uploadingContract,  setUploadingContract]  = useState(false);
@@ -302,6 +313,17 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
           {/* Đổi tên tài khoản */}
           <div>
             <label className="text-xs text-gray-500 dark:text-gray-400 font-medium block mb-1">Tên đăng nhập</label>
+
+            {/* Hiển thị username hiện tại */}
+            {currentUsername && (
+              <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-gray-50 dark:bg-slate-700/50 rounded-lg border border-gray-100 dark:border-slate-600">
+                <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">Hiện tại:</span>
+                <span className="text-sm font-mono font-medium text-blue-600 dark:text-blue-400 flex-1 truncate">
+                  {currentUsername}<span className="text-gray-400 dark:text-gray-500">@festmanager.com</span>
+                </span>
+              </div>
+            )}
+
             <div className="flex gap-2">
               <div className="flex-1 flex items-center border border-gray-200 dark:border-slate-600 rounded-lg overflow-hidden">
                 <input
@@ -316,6 +338,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                 onClick={async () => {
                   if (!editUsername.trim()) return;
                   await supabase.from('users').update({ name: editUsername.trim() }).eq('id', member.userId!);
+                  setCurrentUsername(editUsername.trim());
                   setEditUsername('');
                   setPwMsg('Đã cập nhật tên tài khoản!');
                   setTimeout(() => setPwMsg(''), 3000);
