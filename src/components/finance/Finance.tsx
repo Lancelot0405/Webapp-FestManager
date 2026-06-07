@@ -189,21 +189,21 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
           label="Tổng doanh thu"
           value={totalIncome}
           color="text-green-600"
-          bg="bg-green-50"
+          bg="bg-green-50 dark:bg-green-900/20"
         />
         <SummaryCard
           icon={<TrendingDown size={20} className="text-red-500" />}
           label="Tổng chi phí"
           value={totalExpense}
           color="text-red-600"
-          bg="bg-red-50"
+          bg="bg-red-50 dark:bg-red-900/20"
         />
         <SummaryCard
           icon={<DollarSign size={20} className={netProfit >= 0 ? 'text-blue-500' : 'text-orange-500'} />}
           label="Lợi nhuận ròng"
           value={netProfit}
           color={netProfit >= 0 ? 'text-blue-600' : 'text-orange-600'}
-          bg={netProfit >= 0 ? 'bg-blue-50' : 'bg-orange-50'}
+          bg={netProfit >= 0 ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-orange-50 dark:bg-orange-900/20'}
         />
       </div>
 
@@ -235,8 +235,8 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
       )}
 
       {/* Pending staff expenses */}
-      <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-        <h2 className="text-base font-semibold text-gray-700 mb-3">Chi phí nhân viên chờ duyệt</h2>
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-slate-700">
+        <h2 className="text-base font-semibold text-gray-700 dark:text-gray-200 mb-3">Chi phí nhân viên chờ duyệt</h2>
         {pendingReceipts.length === 0 ? (
           <p className="text-sm text-green-600">Không có chi phí chờ duyệt ✓</p>
         ) : (
@@ -270,7 +270,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
 
       {/* Per-event breakdown */}
       <div>
-        <h2 className="text-base font-semibold text-gray-700 mb-3">Theo sự kiện</h2>
+        <h2 className="text-base font-semibold text-gray-700 dark:text-gray-200 mb-3">Theo sự kiện</h2>
         <div className="space-y-3">
           {filteredEvents.map(event => {
             const fixedExp = Object.values(event.financials.expenses).reduce<number>(
@@ -287,7 +287,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
             return (
               <div
                 key={event.id}
-                className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+                className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-slate-700"
               >
                 <div className="flex justify-between items-start mb-3">
                   <button
@@ -421,7 +421,7 @@ interface SummaryCardProps {
 
 function SummaryCard({ icon, label, value, color, bg }: SummaryCardProps) {
   return (
-    <div className={`${bg} rounded-xl p-4 flex items-center gap-3`}>
+    <div className={`${bg} rounded-xl p-4 flex items-center gap-3 border border-transparent dark:border-slate-700/50`}>
       <div className="shrink-0">{icon}</div>
       <div className="flex-1 flex justify-between items-center">
         <p className="text-sm text-gray-600 dark:text-gray-300">{label}</p>
