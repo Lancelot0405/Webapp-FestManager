@@ -25,7 +25,7 @@ import type {
   RegistrationRequest,
 } from '../types';
 
-import { supabase } from '../lib/supabase';
+import { supabase, supabaseAdmin } from '../lib/supabase';
 import {
   fetchStaff,
   fetchEvents,
@@ -694,9 +694,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }).then();
   }, []);
 
-  const deleteStaff = useCallback((staffId: number) => {
+  const deleteStaff = useCallback(async (staffId: number) => {
+    // Tìm userId trước khi xóa để xóa cả auth user
+    const member = (await supabase.from('staff_members').select('user_id').eq('id', staffId).single()).data;
     dispatch({ type: 'DELETE_STAFF', payload: staffId });
-    supabase.from('staff_members').delete().eq('id', staffId).then();
+    await supabase.from('staff_members').delete().eq('id', staffId);
+    if (member?.user_id) {
+      await supabaseAdmin.auth.admin.deleteUser(member.user_id);
+    }
   }, []);
 
   const updateStaff = useCallback((staff: StaffMember) => {
@@ -802,7 +807,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const rejectRegistration = useCallback(async (userId: string) => {
-    await supabase.from('users').update({ status: 'rejected' }).eq('id', userId);
+    // Xóa hẳn auth user để họ có thể đăng ký lại nếu muốn
+    await supabaseAdmin.auth.admin.deleteUser(userId);
+    await supabase.from('users').delete().eq('id', userId);
     dispatch({ type: 'REMOVE_PENDING_REGISTRATION', payload: userId });
   }, []);
 
