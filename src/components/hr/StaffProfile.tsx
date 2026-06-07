@@ -3,7 +3,7 @@ import { ArrowLeft, FileText, Plus, Upload, Image, X, Loader, Pencil, Check, Cre
 import { useApp } from '../../context/AppContext';
 import { ExpenseStatusBadge } from '../shared/StatusBadge';
 import DocThumbnail from '../shared/DocThumbnail';
-import { supabase } from '../../lib/supabase';
+import { supabase, supabaseAdmin } from '../../lib/supabase';
 import type { ExpenseCategory, Expense, StaffDocument } from '../../types';
 
 interface StaffProfileProps {
@@ -123,7 +123,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
     setPwLoading(true);
     setPwMsg('');
     try {
-      const { error } = await supabase.auth.admin.updateUserById(member.userId, {
+      const { error } = await supabaseAdmin.auth.admin.updateUserById(member.userId, {
         password: newPassword.trim(),
       });
       if (error) throw error;

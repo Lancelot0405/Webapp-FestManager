@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { supabase } from '../../lib/supabase';
+import { supabase, supabaseAdmin } from '../../lib/supabase';
 import { useToast } from '../../context/ToastContext';
 import type { StaffMember, StaffType } from '../../types';
 
@@ -35,7 +35,7 @@ export default function AddStaffForm({ onClose }: Props) {
     if (username.trim()) {
       const email = username.trim().toLowerCase() + DOMAIN;
       const tempPassword = 'FestManager123!';
-      const { data, error } = await supabase.auth.admin.createUser({
+      const { data, error } = await supabaseAdmin.auth.admin.createUser({
         email,
         password: tempPassword,
         email_confirm: true,
