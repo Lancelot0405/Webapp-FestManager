@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import { useApp } from './context/AppContext';
 import type { ActiveTab } from './types';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 // Layout
 import LoginScreen from './components/layout/LoginScreen';
@@ -81,6 +82,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex justify-center font-sans">
+      <SpeedInsights />
       <div className="w-full max-w-md bg-slate-50 dark:bg-slate-900 min-h-screen shadow-xl flex flex-col">
 
         <Header onLogoClick={handleLogoClick} onLogout={handleLogout} />
