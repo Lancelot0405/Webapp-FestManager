@@ -14,6 +14,7 @@ interface Props {
 export default function EventStaffTab({ event }: Props) {
   const { state, addStaffToEvent, removeStaffFromEvent } = useApp();
   const isAdmin = state.currentUser?.role === 'admin';
+  // manager chỉ xem, không thêm/xóa nhân sự khỏi event
   const [showAdd, setShowAdd] = useState(false);
   const [selected, setSelected] = useState<Set<number>>(new Set());
 

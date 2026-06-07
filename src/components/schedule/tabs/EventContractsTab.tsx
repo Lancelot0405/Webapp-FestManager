@@ -14,7 +14,9 @@ const MAX_FILE_MB = 10;
 export default function EventContractsTab({ event }: Props) {
   const { state, addContract } = useApp();
   const { currentUser, staff } = state;
-  const isAdmin = currentUser?.role === 'admin';
+  const isAdmin    = currentUser?.role === 'admin';
+  const isManager  = currentUser?.role === 'manager';
+  const canViewAll = isAdmin || isManager;
 
   const myStaffMember = currentUser
     ? (staff.find(s => s.userId === currentUser.id)
@@ -89,12 +91,12 @@ export default function EventContractsTab({ event }: Props) {
       </p>
 
       {staffWithContracts.map(({ ref, eventContracts }) => {
-        const isMe   = !isAdmin && ref.id === myNumericStaffId;
+        const isMe   = !canViewAll && ref.id === myNumericStaffId;
         const isOpen = expandedStaff === ref.id;
         const isBusy = uploading && uploadingFor === ref.id;
 
         // Staff chỉ thấy section của mình; admin thấy tất cả
-        if (!isAdmin && !isMe) return null;
+        if (!canViewAll && !isMe) return null;
 
         return (
           <div key={ref.id} className="bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 shadow-sm overflow-hidden">
@@ -122,7 +124,7 @@ export default function EventContractsTab({ event }: Props) {
             {isOpen && (
               <div className="border-t border-gray-100 dark:border-slate-700">
                 {/* Upload button — nhân viên tự upload, hoặc admin upload hộ */}
-                {(isMe || isAdmin) && (
+                {(isMe || isAdmin) && !isManager && (
                   <div className="px-4 py-3 bg-gray-50 dark:bg-slate-700/50 border-b border-gray-100 dark:border-slate-700">
                     <label className={`flex items-center gap-2 cursor-pointer w-fit ${isBusy ? 'opacity-60 pointer-events-none' : ''}`}>
                       {isBusy

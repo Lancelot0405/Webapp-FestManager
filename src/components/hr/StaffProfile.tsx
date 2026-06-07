@@ -4,7 +4,7 @@ import { useApp } from '../../context/AppContext';
 import { ExpenseStatusBadge } from '../shared/StatusBadge';
 import DocThumbnail from '../shared/DocThumbnail';
 import { supabase, supabaseAdmin } from '../../lib/supabase';
-import type { ExpenseCategory, Expense, StaffDocument } from '../../types';
+import type { ExpenseCategory, Expense, StaffDocument, UserRole } from '../../types';
 
 interface StaffProfileProps {
   staffId: string;
@@ -32,6 +32,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
   const [editDob,           setEditDob]           = useState('');
   const [editCity,          setEditCity]          = useState('');
   const [editStaffType,     setEditStaffType]     = useState<'permanent' | 'part-time'>('permanent');
+  const [editRole,          setEditRole]          = useState<UserRole>('staff');
   const [editUsername,      setEditUsername]      = useState('');
   const [editPhone,         setEditPhone]         = useState('');
   const [editCarteNum,      setEditCarteNum]      = useState('');
@@ -44,14 +45,17 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
   const [pwLoading,   setPwLoading]   = useState(false);
   const [pwMsg,       setPwMsg]       = useState('');
 
-  // ── Username hiện tại (fetch từ Supabase Auth) ───────────────────────────
-  const [currentUsername, setCurrentUsername] = useState<string | null>(null);
+  // ── Username + role hiện tại (fetch từ Supabase) ────────────────────────
+  const [currentUsername,   setCurrentUsername]   = useState<string | null>(null);
+  const [memberCurrentRole, setMemberCurrentRole] = useState<UserRole | null>(null);
   useEffect(() => {
     if (!isAdmin || !member?.userId) return;
     supabaseAdmin.auth.admin.getUserById(member.userId).then(({ data }) => {
       const email = data?.user?.email ?? '';
-      const username = email.replace('@festmanager.com', '');
-      setCurrentUsername(username || null);
+      setCurrentUsername(email.replace('@festmanager.com', '') || null);
+    });
+    supabaseAdmin.from('users').select('role').eq('id', member.userId).single().then(({ data }) => {
+      if (data?.role) setMemberCurrentRole(data.role as UserRole);
     });
   }, [isAdmin, member?.userId]);
 
@@ -110,6 +114,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
     setEditDob(member.dob);
     setEditCity(member.city);
     setEditStaffType(member.staffType ?? 'permanent');
+    setEditRole(memberCurrentRole ?? 'staff');
     setEditUsername('');
     setEditCarteNum(member.carteVitaleNumber ?? '');
     setEditPhone(member.phone ?? '');
@@ -128,8 +133,18 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
       carteVitaleNumber: editCarteNum.trim() || undefined,
       titreSejeurNumber: editTitreNum.trim() || undefined,
     });
-    if (isAdmin && member.userId && editUsername.trim()) {
-      await supabase.from('users').update({ name: editUsername.trim() }).eq('id', member.userId);
+    if (isAdmin && member.userId) {
+      const updates: Record<string, string> = {};
+      if (editUsername.trim()) updates.name = editUsername.trim();
+      if (editRole !== memberCurrentRole) {
+        updates.role   = editRole;
+        updates.status = 'active';
+      }
+      if (Object.keys(updates).length > 0) {
+        await supabaseAdmin.from('users').update(updates).eq('id', member.userId);
+        if (editRole !== memberCurrentRole) setMemberCurrentRole(editRole);
+        if (editUsername.trim()) setCurrentUsername(editUsername.trim());
+      }
     }
     setEditing(false);
   };
@@ -256,27 +271,52 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                 value={editTitreNum} onChange={e => setEditTitreNum(e.target.value)} />
             </div>
             {isAdmin && (
-              <div>
-                <label className="text-xs text-gray-500 dark:text-gray-400 font-medium">Loại nhân viên</label>
-                <div className="mt-1 grid grid-cols-2 gap-2">
-                  <button type="button" onClick={() => setEditStaffType('permanent')}
-                    className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
-                      editStaffType === 'permanent'
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600 hover:border-blue-300'
-                    }`}>
-                    Nhân viên cứng
-                  </button>
-                  <button type="button" onClick={() => setEditStaffType('part-time')}
-                    className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
-                      editStaffType === 'part-time'
-                        ? 'bg-purple-600 text-white border-purple-600'
-                        : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600 hover:border-purple-300'
-                    }`}>
-                    Part-time
-                  </button>
+              <>
+                <div>
+                  <label className="text-xs text-gray-500 dark:text-gray-400 font-medium">Loại nhân viên</label>
+                  <div className="mt-1 grid grid-cols-2 gap-2">
+                    <button type="button" onClick={() => setEditStaffType('permanent')}
+                      className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
+                        editStaffType === 'permanent'
+                          ? 'bg-blue-600 text-white border-blue-600'
+                          : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600 hover:border-blue-300'
+                      }`}>
+                      Nhân viên cứng
+                    </button>
+                    <button type="button" onClick={() => setEditStaffType('part-time')}
+                      className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
+                        editStaffType === 'part-time'
+                          ? 'bg-purple-600 text-white border-purple-600'
+                          : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600 hover:border-purple-300'
+                      }`}>
+                      Part-time
+                    </button>
+                  </div>
                 </div>
-              </div>
+                {member.userId && (
+                  <div>
+                    <label className="text-xs text-gray-500 dark:text-gray-400 font-medium">Quyền tài khoản</label>
+                    <div className="mt-1 grid grid-cols-2 gap-2">
+                      <button type="button" onClick={() => setEditRole('staff')}
+                        className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
+                          editRole === 'staff'
+                            ? 'bg-emerald-600 text-white border-emerald-600'
+                            : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600 hover:border-emerald-300'
+                        }`}>
+                        Nhân viên
+                      </button>
+                      <button type="button" onClick={() => setEditRole('manager')}
+                        className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
+                          editRole === 'manager'
+                            ? 'bg-indigo-600 text-white border-indigo-600'
+                            : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600 hover:border-indigo-300'
+                        }`}>
+                        Quản lý
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
             <div className="flex gap-2 pt-1">
               <button onClick={saveEdit}
@@ -297,10 +337,12 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
             <Row label="Điện thoại"    value={member.phone || '—'} />
             <Row label="Sự kiện"       value={`${myEvents.length} sự kiện`} />
             {isAdmin && (
-              <Row
-                label="Loại"
-                value={member.staffType === 'part-time' ? 'Part-time' : 'Nhân viên cứng'}
-              />
+              <>
+                <Row label="Loại" value={member.staffType === 'part-time' ? 'Part-time' : 'Nhân viên cứng'} />
+                {memberCurrentRole && (
+                  <Row label="Quyền" value={memberCurrentRole === 'manager' ? 'Quản lý' : 'Nhân viên'} />
+                )}
+              </>
             )}
           </div>
         )}

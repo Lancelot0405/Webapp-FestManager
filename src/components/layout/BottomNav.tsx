@@ -32,9 +32,7 @@ import {
     { tab: 'dashboard', icon: <LayoutDashboard size={20} />, label: 'Tổng quan' },
     { tab: 'schedule',  icon: <Calendar       size={20} />, label: 'Lịch trình' },
     { tab: 'inventory', icon: <Package        size={20} />, label: 'Kho hàng'   },
-    { tab: 'finance',   icon: <DollarSign     size={20} />, label: 'Tài chính'  },
     { tab: 'hr',        icon: <Users          size={20} />, label: 'Nhân sự'    },
-    { tab: 'clients',   icon: <Building2      size={20} />, label: 'Khách hàng' },
     { tab: 'profile',   icon: <User           size={20} />, label: 'Hồ sơ'      },
   ];
 
@@ -51,7 +49,7 @@ import {
 
     if (!currentUser) return null;
 
-    const tabs = currentUser.role === 'admin' ? ADMIN_TABS
+    const tabs = currentUser.role === 'admin'   ? ADMIN_TABS
                : currentUser.role === 'manager' ? MANAGER_TABS
                : STAFF_TABS;
 

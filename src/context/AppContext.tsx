@@ -25,7 +25,7 @@ import type {
   RegistrationRequest,
 } from '../types';
 
-import { supabase } from '../lib/supabase';
+import { supabase, supabaseAdmin } from '../lib/supabase';
 import {
   fetchStaff,
   fetchEvents,
@@ -450,10 +450,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const { data: profile } = await supabase
           .from('users').select('id, name, role, status').eq('id', session.user.id).single();
         if (profile) {
+          // Chặn tài khoản pending/rejected tự động đăng nhập
+          if (profile.status === 'pending' || profile.status === 'rejected') {
+            await supabase.auth.signOut();
+            return;
+          }
           dispatch({ type: 'LOGIN', payload: { id: profile.id, name: profile.name, role: profile.role } });
           loadData(profile.role);
         } else {
-          loadData();
+          // Không tìm thấy profile (race condition khi đăng ký) — không cho login
+          await supabase.auth.signOut();
         }
       } else {
         dispatch({ type: 'LOGOUT' });
@@ -462,6 +468,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
     return () => subscription.unsubscribe();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ---------------------------------------------------------------------------
+  // Refresh khi user quay lại tab (bắt thay đổi từ Supabase dashboard)
+  // ---------------------------------------------------------------------------
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible' && state.currentUser) {
+        loadData(state.currentUser.role);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [state.currentUser]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---------------------------------------------------------------------------
   // Supabase Realtime — tự động refresh khi dữ liệu thay đổi từ bất kỳ client
@@ -675,9 +694,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }).then();
   }, []);
 
-  const deleteStaff = useCallback((staffId: number) => {
+  const deleteStaff = useCallback(async (staffId: number) => {
+    // Tìm userId trước khi xóa để xóa cả auth user
+    const member = (await supabase.from('staff_members').select('user_id').eq('id', staffId).single()).data;
     dispatch({ type: 'DELETE_STAFF', payload: staffId });
-    supabase.from('staff_members').delete().eq('id', staffId).then();
+    await supabase.from('staff_members').delete().eq('id', staffId);
+    if (member?.user_id) {
+      await supabaseAdmin.auth.admin.deleteUser(member.user_id);
+    }
   }, []);
 
   const updateStaff = useCallback((staff: StaffMember) => {
@@ -783,7 +807,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const rejectRegistration = useCallback(async (userId: string) => {
-    await supabase.from('users').update({ status: 'rejected' }).eq('id', userId);
+    // Xóa hẳn auth user để họ có thể đăng ký lại nếu muốn
+    await supabaseAdmin.auth.admin.deleteUser(userId);
+    await supabase.from('users').delete().eq('id', userId);
     dispatch({ type: 'REMOVE_PENDING_REGISTRATION', payload: userId });
   }, []);
 

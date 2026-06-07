@@ -78,10 +78,9 @@ export default function App() {
   }
 
   // ── Đã đăng nhập → hiện App shell ─────────────────────────────────────────
-  const isAdmin   = currentUser.role === 'admin';
-  const isManager = currentUser.role === 'manager';
+  const isAdmin    = currentUser.role === 'admin';
+  const isManager  = currentUser.role === 'manager';
   const canViewAll = isAdmin || isManager;
-
   const isInDetail = selectedEventId !== null || selectedStaffId !== null;
 
   return (

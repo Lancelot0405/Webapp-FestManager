@@ -91,21 +91,21 @@ export default function LoginScreen() {
 
     if (data.user) {
       const name = displayName.trim() || username.trim();
-      const status = registerRole === 'manager' ? 'pending' : 'active';
 
+      // Dùng supabaseAdmin để bypass RLS khi insert vào bảng users
       await supabaseAdmin.from('users').upsert({
         id: data.user.id,
         name,
         role: registerRole,
-        status,
+        status: registerRole === 'manager' ? 'pending' : 'active',
       });
 
       if (registerRole === 'staff') {
-        await supabase.from('staff_members').update({ name }).eq('user_id', data.user.id);
+        await supabaseAdmin.from('staff_members').update({ name }).eq('user_id', data.user.id);
         setSuccess('Đăng ký thành công! Bạn có thể đăng nhập ngay.');
         setTimeout(() => reset('login'), 2000);
       } else {
-        // Manager: create a staff_members profile row so the profile tab works after approval
+        // Manager: tạo staff_members row để tab Hồ sơ hoạt động sau khi được duyệt
         await supabaseAdmin.from('staff_members').insert({
           name,
           user_id: data.user.id,

@@ -27,7 +27,19 @@ RETURNS boolean LANGUAGE sql SECURITY DEFINER STABLE AS $$
   );
 $$;
 
--- 4. RLS policies for manager (read-only access to all data)
+-- 4. Allow users to insert their own row on registration (needed for signUp flow)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'users' AND policyname = 'users: insert own'
+  ) THEN
+    CREATE POLICY "users: insert own"
+      ON public.users FOR INSERT
+      WITH CHECK (id = auth.uid());
+  END IF;
+END $$;
+
+-- 5. RLS policies for manager (read-only access to all data)
 DO $$
 BEGIN
   -- users
