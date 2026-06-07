@@ -60,7 +60,6 @@ export default function LoginScreen() {
     setLoading(true);
     const email = username.trim().toLowerCase() + DOMAIN;
 
-    // Tạo tài khoản Supabase Auth
     const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
 
     if (signUpError) {
@@ -74,8 +73,6 @@ export default function LoginScreen() {
 
     if (data.user) {
       const name = displayName.trim() || username.trim();
-      // Trigger on_auth_user_created tự tạo users + staff_members với username
-      // Nếu user nhập tên hiển thị riêng thì update lại
       await supabase.from('users').update({ name }).eq('id', data.user.id);
       await supabase.from('staff_members').update({ name }).eq('user_id', data.user.id);
     }
@@ -86,100 +83,103 @@ export default function LoginScreen() {
   };
 
   return (
-    <div className="w-full max-w-md bg-white min-h-screen shadow-2xl flex flex-col items-center justify-center p-8">
-      {/* Logo */}
-      <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-[1.5rem] flex items-center justify-center mb-6 shadow-inner">
-        <Lock size={40} strokeWidth={1.5} />
-      </div>
-      <h1 className="text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-1">
-        FestManager
-      </h1>
-      <p className="text-gray-400 mb-8 text-sm">Hệ thống quản lý F&amp;B lưu động</p>
+    <div className="w-full max-w-md flex flex-col items-center justify-center min-h-screen px-4 py-8">
+      {/* Card */}
+      <div className="w-full bg-white rounded-3xl p-8 shadow-2xl">
+        {/* Logo */}
+        <div className="flex flex-col items-center mb-7">
+          <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-3 shadow-lg">
+            <span className="text-white font-black text-xl tracking-tight">FM</span>
+          </div>
+          <h1 className="text-2xl font-black text-gray-900">FestManager</h1>
+          <p className="text-gray-400 text-sm mt-0.5">Hệ thống quản lý F&amp;B lưu động</p>
+        </div>
 
-      {/* Tab login / register */}
-      <div className="flex w-full bg-gray-100 rounded-xl p-1 mb-6">
-        <button
-          className={`flex-1 py-2 text-sm font-semibold rounded-lg transition ${mode === 'login' ? 'bg-white shadow text-blue-600' : 'text-gray-500'}`}
-          onClick={() => reset('login')}
-        >Đăng nhập</button>
-        <button
-          className={`flex-1 py-2 text-sm font-semibold rounded-lg transition ${mode === 'register' ? 'bg-white shadow text-blue-600' : 'text-gray-500'}`}
-          onClick={() => reset('register')}
-        >Đăng ký</button>
-      </div>
+        {/* Tab login / register */}
+        <div className="flex w-full bg-gray-100 rounded-xl p-1 mb-6">
+          <button
+            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition ${mode === 'login' ? 'bg-white shadow text-blue-600' : 'text-gray-500'}`}
+            onClick={() => reset('login')}
+          >Đăng nhập</button>
+          <button
+            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition ${mode === 'register' ? 'bg-white shadow text-blue-600' : 'text-gray-500'}`}
+            onClick={() => reset('register')}
+          >Đăng ký</button>
+        </div>
 
-      {/* ── FORM ĐĂNG NHẬP ── */}
-      {mode === 'login' && (
-        <form onSubmit={handleLogin} className="w-full space-y-4">
-          <Field label="Tên đăng nhập" icon={<User size={16} />}>
-            <input type="text" required autoComplete="username" placeholder="Nhập tên đăng nhập"
-              value={username} onChange={e => setUsername(e.target.value)}
-              className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
-          </Field>
+        {/* ── FORM ĐĂNG NHẬP ── */}
+        {mode === 'login' && (
+          <form onSubmit={handleLogin} className="w-full space-y-4">
+            <Field label="Tên đăng nhập" icon={<User size={16} />}>
+              <input type="text" required autoComplete="username" placeholder="Nhập tên đăng nhập"
+                value={username} onChange={e => setUsername(e.target.value)}
+                className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
+            </Field>
 
-          <Field label="Mật khẩu" icon={<Lock size={16} />}>
-            <input type={showPw ? 'text' : 'password'} required autoComplete="current-password" placeholder="Nhập mật khẩu"
-              value={password} onChange={e => setPassword(e.target.value)}
-              className="w-full pl-9 pr-10 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
-            <button type="button" onClick={() => setShowPw(v => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
-              {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+            <Field label="Mật khẩu" icon={<Lock size={16} />}>
+              <input type={showPw ? 'text' : 'password'} required autoComplete="current-password" placeholder="Nhập mật khẩu"
+                value={password} onChange={e => setPassword(e.target.value)}
+                className="w-full pl-9 pr-10 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
+              <button type="button" onClick={() => setShowPw(v => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </Field>
+
+            {error && <ErrorMsg msg={error} />}
+
+            <button type="submit" disabled={loading}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-md disabled:opacity-60 transition-colors">
+              {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
             </button>
-          </Field>
+          </form>
+        )}
 
-          {error && <ErrorMsg msg={error} />}
+        {/* ── FORM ĐĂNG KÝ ── */}
+        {mode === 'register' && (
+          <form onSubmit={handleRegister} className="w-full space-y-4">
+            <Field label="Tên đăng nhập" icon={<User size={16} />}>
+              <input type="text" required placeholder="Không dấu, không khoảng trắng"
+                value={username} onChange={e => setUsername(e.target.value.replace(/\s/g, ''))}
+                className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
+            </Field>
 
-          <button type="submit" disabled={loading}
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-3.5 rounded-xl shadow-lg hover:opacity-90 disabled:opacity-60 transition">
-            {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-          </button>
-        </form>
-      )}
+            <Field label="Tên hiển thị" icon={<User size={16} />}>
+              <input type="text" placeholder="Tên đầy đủ của bạn"
+                value={displayName} onChange={e => setDisplayName(e.target.value)}
+                className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
+            </Field>
 
-      {/* ── FORM ĐĂNG KÝ ── */}
-      {mode === 'register' && (
-        <form onSubmit={handleRegister} className="w-full space-y-4">
-          <Field label="Tên đăng nhập" icon={<User size={16} />}>
-            <input type="text" required placeholder="Không dấu, không khoảng trắng"
-              value={username} onChange={e => setUsername(e.target.value.replace(/\s/g, ''))}
-              className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
-          </Field>
+            <Field label="Mật khẩu" icon={<Lock size={16} />}>
+              <input type={showPw ? 'text' : 'password'} required placeholder="Tối thiểu 6 ký tự"
+                value={password} onChange={e => setPassword(e.target.value)}
+                className="w-full pl-9 pr-10 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
+              <button type="button" onClick={() => setShowPw(v => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </Field>
 
-          <Field label="Tên hiển thị" icon={<User size={16} />}>
-            <input type="text" placeholder="Tên đầy đủ của bạn"
-              value={displayName} onChange={e => setDisplayName(e.target.value)}
-              className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
-          </Field>
+            <Field label="Xác nhận mật khẩu" icon={<Lock size={16} />}>
+              <input type="password" required placeholder="Nhập lại mật khẩu"
+                value={password2} onChange={e => setPassword2(e.target.value)}
+                className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
+            </Field>
 
-          <Field label="Mật khẩu" icon={<Lock size={16} />}>
-            <input type={showPw ? 'text' : 'password'} required placeholder="Tối thiểu 6 ký tự"
-              value={password} onChange={e => setPassword(e.target.value)}
-              className="w-full pl-9 pr-10 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
-            <button type="button" onClick={() => setShowPw(v => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
-              {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+            {error   && <ErrorMsg msg={error} />}
+            {success && (
+              <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-xl px-3 py-2.5 text-sm">
+                <CheckCircle size={15} className="shrink-0" /> {success}
+              </div>
+            )}
+
+            <button type="submit" disabled={loading}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl shadow-md disabled:opacity-60 transition-colors">
+              {loading ? 'Đang tạo tài khoản...' : 'Tạo tài khoản'}
             </button>
-          </Field>
-
-          <Field label="Xác nhận mật khẩu" icon={<Lock size={16} />}>
-            <input type="password" required placeholder="Nhập lại mật khẩu"
-              value={password2} onChange={e => setPassword2(e.target.value)}
-              className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
-          </Field>
-
-          {error   && <ErrorMsg msg={error} />}
-          {success && (
-            <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-xl px-3 py-2.5 text-sm">
-              <CheckCircle size={15} className="shrink-0" /> {success}
-            </div>
-          )}
-
-          <button type="submit" disabled={loading}
-            className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold py-3.5 rounded-xl shadow-lg hover:opacity-90 disabled:opacity-60 transition">
-            {loading ? 'Đang tạo tài khoản...' : 'Tạo tài khoản'}
-          </button>
-        </form>
-      )}
+          </form>
+        )}
+      </div>
     </div>
   );
 }

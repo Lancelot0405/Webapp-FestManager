@@ -54,13 +54,13 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
     : [...myEvents].sort((a, b) => parse(a.date) - parse(b.date));
 
   return (
-    <div className="space-y-6 pb-20">
-      {/* Welcome */}
-      <div>
-        <h1 className="text-xl font-bold text-gray-800">
+    <div className="space-y-5">
+      {/* Welcome banner */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-500 rounded-2xl p-5 text-white">
+        <h1 className="text-lg font-bold leading-tight">
           Xin chào, {currentUser.name} 👋
         </h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-blue-100 text-sm mt-0.5">
           {isAdmin ? 'Bảng điều khiển quản trị' : 'Bảng thông tin cá nhân'}
         </p>
       </div>
@@ -121,18 +121,18 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
 
       {/* Upcoming events */}
       <div>
-        <h2 className="text-base font-semibold text-gray-700 mb-3">
+        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
           {isAdmin ? 'Sự kiện sắp tới' : 'Sự kiện của tôi'}
         </h2>
         {displayEvents.length === 0 ? (
           <p className="text-sm text-gray-400 text-center py-6">Không có sự kiện nào</p>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {displayEvents.map(event => (
               <button
                 key={event.id}
                 onClick={() => onSelectEvent(event.id)}
-                className="w-full text-left bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:border-blue-200 transition-colors"
+                className="w-full text-left bg-white rounded-2xl p-4 border border-gray-100 hover:shadow-md hover:border-blue-100 transition-all duration-150"
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1 min-w-0">
@@ -151,10 +151,10 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
       {/* Staff: pending expenses */}
       {!isAdmin && myPendingExpenses.length > 0 && (
         <div>
-          <h2 className="text-base font-semibold text-gray-700 mb-3">Chi phí chờ duyệt</h2>
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Chi phí chờ duyệt</h2>
           <div className="space-y-2">
             {myPendingExpenses.map(exp => (
-              <div key={exp.id} className="bg-yellow-50 rounded-lg p-3 flex justify-between items-center">
+              <div key={exp.id} className="bg-yellow-50 rounded-2xl p-3 flex justify-between items-center border border-yellow-100">
                 <div>
                   <p className="text-sm font-medium text-gray-800">{exp.type}</p>
                   <p className="text-xs text-gray-500">{exp.date}</p>
@@ -183,7 +183,7 @@ function StatCard({ icon, label, value, bg, alert, onClick }: StatCardProps) {
   return (
     <button
       onClick={onClick}
-      className={`${bg} rounded-xl p-4 flex items-center gap-3 w-full text-left transition-opacity active:opacity-70 ${onClick ? 'hover:brightness-95 cursor-pointer' : ''}`}
+      className={`${bg} rounded-2xl p-4 flex items-center gap-3 w-full text-left transition-all duration-150 active:opacity-70 ${onClick ? 'hover:brightness-95 cursor-pointer' : ''}`}
     >
       <div className="shrink-0">{icon}</div>
       <div>

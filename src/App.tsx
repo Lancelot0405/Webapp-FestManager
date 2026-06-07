@@ -54,7 +54,7 @@ export default function App() {
   // ── Chưa đăng nhập → hiện màn hình Login ──────────────────────────────────
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-gray-100 flex justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 flex justify-center">
         <LoginScreen />
       </div>
     );
@@ -64,12 +64,12 @@ export default function App() {
   const isInDetail = selectedEventId !== null || selectedStaffId !== null;
 
   return (
-    <div className="min-h-screen bg-gray-100 flex justify-center font-sans">
-      <div className="w-full max-w-md bg-gray-50 min-h-screen relative shadow-2xl flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex justify-center font-sans">
+      <div className="w-full max-w-md bg-slate-50 min-h-screen shadow-xl flex flex-col">
 
         <Header onLogoClick={handleLogoClick} onLogout={handleLogout} />
 
-        <main className="flex-1 overflow-y-auto p-6 scroll-smooth">
+        <main className="flex-1 overflow-y-auto px-4 py-5 pb-24 scroll-smooth-ios">
 
           {/* ── Màn hình chi tiết Event ──────────────────────────────────── */}
           {selectedEventId && (
