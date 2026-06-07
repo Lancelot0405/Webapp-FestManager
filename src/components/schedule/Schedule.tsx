@@ -59,7 +59,7 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
   return (
     <div className="space-y-4 pb-20">
       <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold text-gray-800">Lịch sự kiện</h1>
+        <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">Lịch sự kiện</h1>
         {isAdmin && (
           <button
             onClick={() => setShowAddForm(true)}
@@ -79,7 +79,7 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
           placeholder="Tìm theo tên hoặc địa điểm..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-400"
+          className="w-full pl-9 pr-3 py-2 border border-gray-200 dark:border-slate-600 dark:bg-slate-800 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-blue-400"
         />
       </div>
 
@@ -92,7 +92,7 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
             className={`px-3 py-1 rounded-full text-xs font-medium transition ${
               statusFilter === s
                 ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
             }`}
           >
             {s}
@@ -111,7 +111,7 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
           {sorted.map(event => (
             <div
               key={event.id}
-              className="bg-white rounded-xl shadow-sm border border-gray-100 hover:border-blue-200 transition-colors flex items-stretch"
+              className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700 hover:border-blue-200 transition-colors flex items-stretch"
             >
               <button
                 onClick={() => onSelectEvent(event.id)}
@@ -119,10 +119,10 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
               >
                 <div className="flex justify-between items-start gap-2">
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-800 truncate">{event.name}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{event.date}</p>
-                    <p className="text-xs text-gray-400 truncate mt-0.5">{event.location}</p>
-                    <p className="text-xs text-gray-400 mt-1">{event.staff.length} nhân viên</p>
+                    <p className="font-semibold text-gray-800 dark:text-gray-100 truncate">{event.name}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{event.date}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 truncate mt-0.5">{event.location}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{event.staff.length} nhân viên</p>
                   </div>
                   <StatusBadge status={event.status} />
                 </div>
@@ -134,7 +134,7 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
                       deleteEvent(event.id);
                     }
                   }}
-                  className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-gray-100 transition-colors rounded-r-xl"
+                  className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-gray-100 dark:border-slate-700 transition-colors rounded-r-xl"
                 >
                   <Trash2 size={16} />
                 </button>

@@ -19,6 +19,7 @@ import Inventory    from './components/inventory/Inventory';
 import Finance      from './components/finance/Finance';
 import HRGlobal     from './components/hr/HRGlobal';
 import StaffProfile from './components/hr/StaffProfile';
+import Clients      from './components/clients/Clients';
 
 export default function App() {
   const { state, logout: contextLogout } = useApp();
@@ -51,10 +52,25 @@ export default function App() {
     setSelectedStaffId(null);
   };
 
+  // ── Đang khởi tạo (chờ onAuthStateChange) → hiện splash screen ──────────
+  const { loading } = state;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center shadow-lg">
+            <span className="text-white font-black text-xl tracking-tight">FM</span>
+          </div>
+          <div className="w-8 h-8 border-3 border-white/30 border-t-white rounded-full animate-spin" style={{ borderWidth: '3px' }} />
+        </div>
+      </div>
+    );
+  }
+
   // ── Chưa đăng nhập → hiện màn hình Login ──────────────────────────────────
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-gray-100 flex justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 flex justify-center">
         <LoginScreen />
       </div>
     );
@@ -64,12 +80,12 @@ export default function App() {
   const isInDetail = selectedEventId !== null || selectedStaffId !== null;
 
   return (
-    <div className="min-h-screen bg-gray-100 flex justify-center font-sans">
-      <div className="w-full max-w-md bg-gray-50 min-h-screen relative shadow-2xl flex flex-col">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex justify-center font-sans">
+      <div className="w-full max-w-md bg-slate-50 dark:bg-slate-900 min-h-screen shadow-xl flex flex-col">
 
         <Header onLogoClick={handleLogoClick} onLogout={handleLogout} />
 
-        <main className="flex-1 overflow-y-auto p-6 scroll-smooth">
+        <main className="flex-1 overflow-y-auto px-4 py-5 pb-24 scroll-smooth-ios">
 
           {/* ── Màn hình chi tiết Event ──────────────────────────────────── */}
           {selectedEventId && (
@@ -110,6 +126,9 @@ export default function App() {
               )}
               {activeTab === 'profile' && currentUser.role === 'staff' && !myStaffId && (
                 <p className="text-center text-gray-400 py-20 text-sm">Đang tải hồ sơ...</p>
+              )}
+              {activeTab === 'clients' && currentUser.role === 'admin' && (
+                <Clients />
               )}
             </>
           )}

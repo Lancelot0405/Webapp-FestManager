@@ -3,9 +3,11 @@
 // =============================================================================
 
 import { useState } from 'react';
-import { ArrowLeft, Trash2, Download } from 'lucide-react';
+import { ArrowLeft, Trash2, Download, Copy } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { useApp } from '../../context/AppContext';
+import { useToast } from '../../context/ToastContext';
+import EventPDFExport     from './EventPDFExport';
 import EventInfoTab       from './tabs/EventInfoTab';
 import EventStaffTab      from './tabs/EventStaffTab';
 import EventExpensesTab   from './tabs/EventExpensesTab';
@@ -28,10 +30,18 @@ const TABS: { id: Tab; label: string }[] = [
 ];
 
 export default function EventDetail({ eventId, onBack }: EventDetailProps) {
-  const { state, deleteEvent } = useApp();
+  const { state, deleteEvent, cloneEvent } = useApp();
+  const showToast = useToast();
   const event = state.events.find(e => e.id === eventId);
   const [activeTab, setActiveTab] = useState<Tab>('info');
   const isAdmin = state.currentUser?.role === 'admin';
+
+  const handleClone = () => {
+    if (!event) return;
+    cloneEvent(event);
+    showToast(`Đã nhân bản "${event.name}"`, 'success');
+    onBack();
+  };
 
   const handleDelete = () => {
     if (!event) return;
@@ -88,12 +98,12 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
     <div className="pb-6">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
-        <button onClick={onBack} className="p-1 text-gray-500 hover:text-gray-700">
+        <button onClick={onBack} className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
           <ArrowLeft size={22} />
         </button>
         <div className="min-w-0 flex-1">
-          <h1 className="font-bold text-gray-800 text-lg truncate">{event.name}</h1>
-          <p className="text-xs text-gray-500">{event.date} · {event.location}</p>
+          <h1 className="font-bold text-gray-800 dark:text-gray-100 text-lg truncate">{event.name}</h1>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{event.date} · {event.location}</p>
         </div>
         {isAdmin && (
           <div className="flex items-center gap-1 shrink-0">
@@ -103,6 +113,14 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
               title="Xuất Excel"
             >
               <Download size={18} />
+            </button>
+            <EventPDFExport event={event} />
+            <button
+              onClick={handleClone}
+              className="p-2 text-green-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+              title="Nhân bản sự kiện"
+            >
+              <Copy size={18} />
             </button>
             <button
               onClick={handleDelete}
@@ -116,7 +134,7 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-gray-200 mb-4 overflow-x-auto">
+      <div className="flex border-b border-gray-200 dark:border-slate-700 mb-4 overflow-x-auto">
         {TABS.map(tab => (
           <button
             key={tab.id}
@@ -124,7 +142,7 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
             className={`px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
               activeTab === tab.id
                 ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
             }`}
           >
             {tab.label}

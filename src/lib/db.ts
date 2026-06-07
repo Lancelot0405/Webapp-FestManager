@@ -13,9 +13,11 @@ import type {
   StaffRef,
   EventStatus,
   InventoryUnit,
+  InventoryCategory,
   InventoryLogAction,
   ExpenseStatus,
   ExpenseCategory,
+  Client,
 } from '../types';
 
 // -----------------------------------------------------------------------------
@@ -38,6 +40,7 @@ export async function fetchStaff(): Promise<StaffMember[]> {
     name: row.name ?? '',
     dob: row.dob ?? '',
     city: row.city ?? '',
+    phone: row.phone ?? undefined,
     staffType: row.staff_type === 'part-time' ? 'part-time' : 'permanent',
     contracts: (row.contracts ?? []).map((c: any) => ({
       id: c.id,
@@ -183,6 +186,7 @@ export async function fetchInventory(): Promise<InventoryItem[]> {
     current: row.current ?? 0,
     threshold: row.threshold ?? 0,
     unit: (row.unit ?? 'cái') as InventoryUnit,
+    category: (row.category ?? 'food') as InventoryCategory,
   }));
 }
 
@@ -212,5 +216,24 @@ export async function fetchInventoryLogs(): Promise<InventoryLogEntry[]> {
     festivalName: row.festival_name ?? '',
     timestamp: row.timestamp ?? '',
     submittedBy: row.submitted_by ?? '',
+  }));
+}
+
+// -----------------------------------------------------------------------------
+// CLIENTS
+// -----------------------------------------------------------------------------
+
+export async function fetchClients(): Promise<Client[]> {
+  const { data, error } = await supabase.from('clients').select('*');
+  if (error || !data) return [];
+  return data.map((row: any): Client => ({
+    id: row.id,
+    name: row.name ?? '',
+    contactName: row.contact_name ?? '',
+    phone: row.phone ?? '',
+    email: row.email ?? '',
+    city: row.city ?? '',
+    notes: row.notes ?? '',
+    eventIds: row.event_ids ?? [],
   }));
 }

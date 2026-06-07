@@ -44,6 +44,7 @@ export interface StaffMember {
   name: string;
   dob: string;
   city: string;
+  phone?: string;
   staffType: StaffType;
   contracts: Contract[];
   carteVitale?: StaffDocument;
@@ -122,7 +123,14 @@ export type InventoryUnit =
   | 'xiên'
   | 'thùng'
   | 'phần'
-  | 'túi';
+  | 'túi'
+  | 'đôi'
+  | 'bộ'
+  | 'chai'
+  | 'cuộn'
+  | 'chiếc';
+
+export type InventoryCategory = 'food' | 'equipment';
 
 export interface InventoryItem {
   id: number;
@@ -131,6 +139,7 @@ export interface InventoryItem {
   /** Alert triggers when current <= threshold */
   threshold: number;
   unit: InventoryUnit;
+  category?: InventoryCategory;
 }
 
 export type InventoryLogAction = 'set' | 'created';
@@ -195,7 +204,24 @@ export type ActiveTab =
   | 'inventory'
   | 'finance'
   | 'hr'
-  | 'profile';
+  | 'profile'
+  | 'clients';
+
+// -----------------------------------------------------------------------------
+// CLIENTS
+// -----------------------------------------------------------------------------
+
+export interface Client {
+  id: number;
+  name: string;
+  contactName: string;
+  phone: string;
+  email: string;
+  city: string;
+  notes: string;
+  /** IDs of events associated with this client */
+  eventIds: number[];
+}
 
 /** Result of parsing one line from the Smart Inventory Input */
 export interface ParsedInventoryResult {

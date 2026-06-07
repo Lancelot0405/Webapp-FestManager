@@ -143,7 +143,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
     <div className="space-y-6 pb-20">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-gray-800">Tài chính</h1>
+        <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">Tài chính</h1>
         <button
           onClick={handleExport}
           className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-3 py-2 rounded-lg transition"
@@ -161,7 +161,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
             className={`shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition ${
               selectedMonth === 'all'
                 ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
             }`}
           >
             Tất cả
@@ -173,7 +173,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
               className={`shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition ${
                 selectedMonth === m
                   ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
               }`}
             >
               {m}
@@ -189,28 +189,28 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
           label="Tổng doanh thu"
           value={totalIncome}
           color="text-green-600"
-          bg="bg-green-50"
+          bg="bg-green-50 dark:bg-green-900/20"
         />
         <SummaryCard
           icon={<TrendingDown size={20} className="text-red-500" />}
           label="Tổng chi phí"
           value={totalExpense}
           color="text-red-600"
-          bg="bg-red-50"
+          bg="bg-red-50 dark:bg-red-900/20"
         />
         <SummaryCard
           icon={<DollarSign size={20} className={netProfit >= 0 ? 'text-blue-500' : 'text-orange-500'} />}
           label="Lợi nhuận ròng"
           value={netProfit}
           color={netProfit >= 0 ? 'text-blue-600' : 'text-orange-600'}
-          bg={netProfit >= 0 ? 'bg-blue-50' : 'bg-orange-50'}
+          bg={netProfit >= 0 ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-orange-50 dark:bg-orange-900/20'}
         />
       </div>
 
       {/* Cost breakdown chart */}
       {totalExpense > 0 && (
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          <h2 className="text-base font-semibold text-gray-700 mb-3">Phân bổ chi phí (tất cả sự kiện)</h2>
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-slate-700">
+          <h2 className="text-base font-semibold text-gray-700 dark:text-gray-200 mb-3">Phân bổ chi phí (tất cả sự kiện)</h2>
           <div className="space-y-2">
             {breakdownRent > 0 && (
               <BarRow label="Booth/Thuê" value={breakdownRent} maxVal={totalExpense} color="bg-purple-400" showPct totalVal={totalExpense} />
@@ -235,17 +235,17 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
       )}
 
       {/* Pending staff expenses */}
-      <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-        <h2 className="text-base font-semibold text-gray-700 mb-3">Chi phí nhân viên chờ duyệt</h2>
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-slate-700">
+        <h2 className="text-base font-semibold text-gray-700 dark:text-gray-200 mb-3">Chi phí nhân viên chờ duyệt</h2>
         {pendingReceipts.length === 0 ? (
           <p className="text-sm text-green-600">Không có chi phí chờ duyệt ✓</p>
         ) : (
           <div className="space-y-2">
             {pendingReceipts.map(r => (
-              <div key={`${r.eventId}-${r.id}`} className="flex items-center justify-between gap-2 py-2 border-b border-gray-50 last:border-0">
+              <div key={`${r.eventId}-${r.id}`} className="flex items-center justify-between gap-2 py-2 border-b border-gray-50 dark:border-slate-700 last:border-0">
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-gray-800">{r.staffName}</p>
-                  <p className="text-xs text-gray-500">{r.type} · {r.amount.toLocaleString('fr-FR')}€ · {r.date}</p>
+                  <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{r.staffName}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{r.type} · {r.amount.toLocaleString('fr-FR')}€ · {r.date}</p>
                   <p className="text-xs text-blue-500">{r.eventName}</p>
                 </div>
                 <div className="flex gap-1.5 shrink-0">
@@ -270,7 +270,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
 
       {/* Per-event breakdown */}
       <div>
-        <h2 className="text-base font-semibold text-gray-700 mb-3">Theo sự kiện</h2>
+        <h2 className="text-base font-semibold text-gray-700 dark:text-gray-200 mb-3">Theo sự kiện</h2>
         <div className="space-y-3">
           {filteredEvents.map(event => {
             const fixedExp = Object.values(event.financials.expenses).reduce<number>(
@@ -287,21 +287,21 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
             return (
               <div
                 key={event.id}
-                className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+                className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-slate-700"
               >
                 <div className="flex justify-between items-start mb-3">
                   <button
                     onClick={() => onSelectEvent(event.id)}
                     className="min-w-0 flex-1 text-left hover:opacity-75 transition-opacity"
                   >
-                    <p className="font-semibold text-gray-800 truncate">{event.name}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{event.date}</p>
+                    <p className="font-semibold text-gray-800 dark:text-gray-100 truncate">{event.name}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{event.date}</p>
                   </button>
                   <div className="flex items-center gap-2 shrink-0 ml-2">
                     <StatusBadge status={event.status} />
                     <button
                       onClick={() => isEditing ? setEditingEventId(null) : startEditing(event)}
-                      className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-blue-500 transition"
+                      className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-400 hover:text-blue-500 transition"
                     >
                       <Pencil size={14} />
                     </button>
@@ -312,48 +312,48 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
                   <div className="space-y-2 mt-2">
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="text-xs text-gray-500">Doanh thu (€)</label>
+                        <label className="text-xs text-gray-500 dark:text-gray-400">Doanh thu (€)</label>
                         <input
                           type="number"
                           value={editIncome}
                           onChange={e => setEditIncome(Number(e.target.value))}
-                          className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm mt-0.5"
+                          className="w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-2 py-1.5 text-sm mt-0.5"
                         />
                       </div>
                       <div>
-                        <label className="text-xs text-gray-500">Chi phí - Booth (€)</label>
+                        <label className="text-xs text-gray-500 dark:text-gray-400">Chi phí - Booth (€)</label>
                         <input
                           type="number"
                           value={editRent}
                           onChange={e => setEditRent(Number(e.target.value))}
-                          className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm mt-0.5"
+                          className="w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-2 py-1.5 text-sm mt-0.5"
                         />
                       </div>
                       <div>
-                        <label className="text-xs text-gray-500">Chi phí - Nguyên liệu (€)</label>
+                        <label className="text-xs text-gray-500 dark:text-gray-400">Chi phí - Nguyên liệu (€)</label>
                         <input
                           type="number"
                           value={editIngredients}
                           onChange={e => setEditIngredients(Number(e.target.value))}
-                          className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm mt-0.5"
+                          className="w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-2 py-1.5 text-sm mt-0.5"
                         />
                       </div>
                       <div>
-                        <label className="text-xs text-gray-500">Chi phí - Vận chuyển (€)</label>
+                        <label className="text-xs text-gray-500 dark:text-gray-400">Chi phí - Vận chuyển (€)</label>
                         <input
                           type="number"
                           value={editTransport}
                           onChange={e => setEditTransport(Number(e.target.value))}
-                          className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm mt-0.5"
+                          className="w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-2 py-1.5 text-sm mt-0.5"
                         />
                       </div>
                       <div>
-                        <label className="text-xs text-gray-500">Chi phí - Lương (€)</label>
+                        <label className="text-xs text-gray-500 dark:text-gray-400">Chi phí - Lương (€)</label>
                         <input
                           type="number"
                           value={editStaff}
                           onChange={e => setEditStaff(Number(e.target.value))}
-                          className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm mt-0.5"
+                          className="w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-2 py-1.5 text-sm mt-0.5"
                         />
                       </div>
                     </div>
@@ -366,7 +366,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
                       </button>
                       <button
                         onClick={() => setEditingEventId(null)}
-                        className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium py-1.5 rounded-lg transition"
+                        className="flex-1 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-200 text-sm font-medium py-1.5 rounded-lg transition"
                       >
                         Hủy
                       </button>
@@ -394,7 +394,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
                       </p>
                     )}
                     <div className="mt-3 flex justify-between text-xs font-semibold">
-                      <span className="text-gray-500">Lợi nhuận</span>
+                      <span className="text-gray-500 dark:text-gray-400">Lợi nhuận</span>
                       <span className={profit >= 0 ? 'text-green-600' : 'text-red-600'}>
                         {profit >= 0 ? '+' : ''}{profit.toLocaleString('fr-FR')}€
                       </span>
@@ -421,10 +421,10 @@ interface SummaryCardProps {
 
 function SummaryCard({ icon, label, value, color, bg }: SummaryCardProps) {
   return (
-    <div className={`${bg} rounded-xl p-4 flex items-center gap-3`}>
+    <div className={`${bg} rounded-xl p-4 flex items-center gap-3 border border-transparent dark:border-slate-700/50`}>
       <div className="shrink-0">{icon}</div>
       <div className="flex-1 flex justify-between items-center">
-        <p className="text-sm text-gray-600">{label}</p>
+        <p className="text-sm text-gray-600 dark:text-gray-300">{label}</p>
         <p className={`text-xl font-bold ${color}`}>{value.toLocaleString('fr-FR')}€</p>
       </div>
     </div>
@@ -445,18 +445,18 @@ function BarRow({ label, value, maxVal, color, showPct, totalVal }: BarRowProps)
   const pctOfTotal = totalVal && totalVal > 0 ? Math.round((value / totalVal) * 100) : null;
   return (
     <div className="flex items-center gap-2">
-      <span className="text-xs text-gray-500 w-20 shrink-0">{label}</span>
-      <div className="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
+      <span className="text-xs text-gray-500 dark:text-gray-400 w-20 shrink-0">{label}</span>
+      <div className="flex-1 bg-gray-100 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
         <div
           className={`h-full rounded-full ${color} transition-all`}
           style={{ width: `${pct}%` }}
         />
       </div>
-      <span className="text-xs font-medium text-gray-700 w-14 text-right shrink-0">
+      <span className="text-xs font-medium text-gray-700 dark:text-gray-200 w-14 text-right shrink-0">
         {value.toLocaleString('fr-FR')}€
       </span>
       {showPct && pctOfTotal !== null && (
-        <span className="text-xs text-gray-400 w-8 text-right shrink-0">{pctOfTotal}%</span>
+        <span className="text-xs text-gray-400 dark:text-gray-500 w-8 text-right shrink-0">{pctOfTotal}%</span>
       )}
     </div>
   );

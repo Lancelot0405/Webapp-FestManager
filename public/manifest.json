@@ -1,0 +1,16 @@
+{
+  "name": "FestManager",
+  "short_name": "FestManager",
+  "description": "Quản lý sự kiện F&B chuyên nghiệp",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icons/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ],
+  "apple_touch_icon": "/icons/apple-touch-icon.svg",
+  "categories": ["business", "productivity"]
+}
