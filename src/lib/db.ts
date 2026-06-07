@@ -16,6 +16,7 @@ import type {
   InventoryLogAction,
   ExpenseStatus,
   ExpenseCategory,
+  Client,
 } from '../types';
 
 // -----------------------------------------------------------------------------
@@ -212,5 +213,24 @@ export async function fetchInventoryLogs(): Promise<InventoryLogEntry[]> {
     festivalName: row.festival_name ?? '',
     timestamp: row.timestamp ?? '',
     submittedBy: row.submitted_by ?? '',
+  }));
+}
+
+// -----------------------------------------------------------------------------
+// CLIENTS
+// -----------------------------------------------------------------------------
+
+export async function fetchClients(): Promise<Client[]> {
+  const { data, error } = await supabase.from('clients').select('*');
+  if (error || !data) return [];
+  return data.map((row: any): Client => ({
+    id: row.id,
+    name: row.name ?? '',
+    contactName: row.contact_name ?? '',
+    phone: row.phone ?? '',
+    email: row.email ?? '',
+    city: row.city ?? '',
+    notes: row.notes ?? '',
+    eventIds: row.event_ids ?? [],
   }));
 }

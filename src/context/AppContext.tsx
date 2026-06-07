@@ -21,6 +21,7 @@ import type {
   Expense,
   ExpenseStatus,
   InventoryUnit,
+  Client,
 } from '../types';
 
 import { supabase } from '../lib/supabase';
@@ -29,6 +30,7 @@ import {
   fetchEvents,
   fetchInventory,
   fetchInventoryLogs,
+  fetchClients,
   toISODate,
 } from '../lib/db';
 
@@ -42,6 +44,7 @@ interface AppState {
   inventory:      InventoryItem[];
   inventoryLogs:  InventoryLogEntry[];
   staff:          StaffMember[];
+  clients:        Client[];
   loading:        boolean;
 }
 
@@ -51,6 +54,7 @@ const initialState: AppState = {
   inventory:     [],
   inventoryLogs: [],
   staff:         [],
+  clients:       [],
   loading:       true,
 };
 
@@ -103,7 +107,12 @@ type Action =
   | { type: 'UPDATE_STAFF';         payload: StaffMember }
   | { type: 'DELETE_STAFF';         payload: number }
   | { type: 'ADD_CONTRACT';
-      payload: { staffId: number; contract: StaffMember['contracts'][0] } };
+      payload: { staffId: number; contract: StaffMember['contracts'][0] } }
+
+  // --- Clients ---
+  | { type: 'ADD_CLIENT';    payload: Client }
+  | { type: 'UPDATE_CLIENT'; payload: Client }
+  | { type: 'DELETE_CLIENT'; payload: number };
 
 // =============================================================================
 // 3. REDUCER
@@ -299,6 +308,26 @@ function appReducer(state: AppState, action: Action): AppState {
         }),
       };
 
+    // -------------------------------------------------------------------------
+    // CLIENTS
+    // -------------------------------------------------------------------------
+    case 'ADD_CLIENT':
+      return { ...state, clients: [...state.clients, action.payload] };
+
+    case 'UPDATE_CLIENT':
+      return {
+        ...state,
+        clients: state.clients.map(c =>
+          c.id === action.payload.id ? action.payload : c
+        ),
+      };
+
+    case 'DELETE_CLIENT':
+      return {
+        ...state,
+        clients: state.clients.filter(c => c.id !== action.payload),
+      };
+
     default:
       return state;
   }
@@ -336,10 +365,18 @@ interface AppContextValue {
   addInventoryLog:      (log: InventoryLogEntry)                         => void;
 
   // --- HR ---
-  addStaff:     (staff: StaffMember)                                     => void;
+  addStaff:     (staff: StaffMember, userId?: string)                    => void;
   updateStaff:  (staff: StaffMember)                                     => void;
   deleteStaff:  (staffId: number)                                        => void;
   addContract:  (staffId: number, contract: StaffMember['contracts'][0]) => void;
+
+  // --- Events (clone) ---
+  cloneEvent: (event: FestivalEvent) => void;
+
+  // --- Clients ---
+  addClient:    (client: Client) => void;
+  updateClient: (client: Client) => void;
+  deleteClient: (clientId: number) => void;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -355,11 +392,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Load real data from Supabase
   // ---------------------------------------------------------------------------
   async function loadData() {
-    const [staff, events, inventory, inventoryLogs] = await Promise.all([
+    const [staff, events, inventory, inventoryLogs, clients] = await Promise.all([
       fetchStaff(),
       fetchEvents(),
       fetchInventory(),
       fetchInventoryLogs(),
+      fetchClients(),
     ]);
 
     const payload: Partial<AppState> = {
@@ -367,6 +405,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       events,
       inventory,
       inventoryLogs,
+      clients,
     };
 
     dispatch({ type: 'INIT_DATA', payload });
@@ -545,13 +584,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 
   // --- HR ---
-  const addStaff = useCallback((staff: StaffMember) => {
+  const addStaff = useCallback((staff: StaffMember, userId?: string) => {
     dispatch({ type: 'ADD_STAFF', payload: staff });
     supabase.from('staff_members').insert({
       name: staff.name,
       dob: staff.dob,
       city: staff.city,
       staff_type: staff.staffType,
+      user_id: userId ?? null,
     }).then();
   }, []);
 
@@ -592,6 +632,68 @@ export function AppProvider({ children }: { children: ReactNode }) {
     []
   );
 
+  // --- Clone Event ---
+  const cloneEvent = useCallback((event: FestivalEvent) => {
+    const cloned: FestivalEvent = {
+      ...event,
+      id: Date.now(),
+      name: `${event.name} (bản sao)`,
+      status: 'Lên kế hoạch',
+      receipts: [],
+      inventoryReported: [],
+      financials: { ...event.financials, income: 0 },
+    };
+    dispatch({ type: 'ADD_EVENT', payload: cloned });
+    supabase.from('events').insert({
+      name: cloned.name,
+      date: toISODate(cloned.date),
+      location: cloned.location,
+      status: cloned.status,
+      income: 0,
+      expenses: cloned.financials.expenses,
+      inventory_reported: [],
+      booth: cloned.extra.booth,
+      hygiene_permit: cloned.extra.hygienePermit,
+      organizer_contact: cloned.extra.organizerContact,
+    }).select('id').single().then(({ data }) => {
+      if (data?.id && data.id !== cloned.id) {
+        dispatch({ type: 'UPDATE_EVENT_ID', payload: { localId: cloned.id, dbId: data.id } });
+      }
+    });
+  }, []);
+
+  // --- Clients ---
+  const addClient = useCallback((client: Client) => {
+    dispatch({ type: 'ADD_CLIENT', payload: client });
+    supabase.from('clients').insert({
+      name: client.name,
+      contact_name: client.contactName,
+      phone: client.phone,
+      email: client.email,
+      city: client.city,
+      notes: client.notes,
+      event_ids: client.eventIds,
+    }).then();
+  }, []);
+
+  const updateClient = useCallback((client: Client) => {
+    dispatch({ type: 'UPDATE_CLIENT', payload: client });
+    supabase.from('clients').update({
+      name: client.name,
+      contact_name: client.contactName,
+      phone: client.phone,
+      email: client.email,
+      city: client.city,
+      notes: client.notes,
+      event_ids: client.eventIds,
+    }).eq('id', client.id).then();
+  }, []);
+
+  const deleteClient = useCallback((clientId: number) => {
+    dispatch({ type: 'DELETE_CLIENT', payload: clientId });
+    supabase.from('clients').delete().eq('id', clientId).then();
+  }, []);
+
   const value: AppContextValue = {
     state,
     login, logout,
@@ -600,6 +702,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addExpense, updateExpenseStatus,
     setInventoryItem, createInventoryItem, deleteInventoryItem, updateInventoryUnit, addInventoryLog,
     addStaff, updateStaff, deleteStaff, addContract,
+    cloneEvent,
+    addClient, updateClient, deleteClient,
   };
 
   return (

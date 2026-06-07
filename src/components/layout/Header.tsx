@@ -3,9 +3,10 @@
 // =============================================================================
 
 import { useState, useRef, useEffect } from 'react';
-import { LogOut, Bell, X } from 'lucide-react';
+import { LogOut, Bell, X, BellPlus } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
+import { usePushNotifications } from '../../hooks/usePushNotifications';
 
 interface HeaderProps {
   onLogoClick: () => void;
@@ -18,6 +19,7 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
   const isAdmin = currentUser?.role === 'admin';
 
   const { notifications, clearAll, clearOne } = useRealtimeNotifications(isAdmin);
+  const { subscribed, loading: pushLoading, subscribe } = usePushNotifications();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -114,6 +116,18 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
                 </div>
               )}
             </div>
+          )}
+
+          {/* Push notification subscribe button */}
+          {'serviceWorker' in navigator && 'PushManager' in window && !subscribed && (
+            <button
+              onClick={subscribe}
+              disabled={pushLoading}
+              className="w-9 h-9 bg-gray-100 hover:bg-blue-50 hover:text-blue-600 text-gray-500 rounded-full flex items-center justify-center transition-colors disabled:opacity-60"
+              title="Bật thông báo đẩy"
+            >
+              <BellPlus size={16} />
+            </button>
           )}
 
           <button

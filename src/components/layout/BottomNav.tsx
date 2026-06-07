@@ -9,6 +9,7 @@ import {
     DollarSign,
     Users,
     User,
+    Building2,
   } from 'lucide-react';
   import { useApp } from '../../context/AppContext';
   import type { ActiveTab } from '../../types';
@@ -24,6 +25,7 @@ import {
     { tab: 'inventory', icon: <Package        size={20} />, label: 'Kho hàng'   },
     { tab: 'finance',   icon: <DollarSign     size={20} />, label: 'Tài chính'  },
     { tab: 'hr',        icon: <Users          size={20} />, label: 'Nhân sự'    },
+    { tab: 'clients',   icon: <Building2      size={20} />, label: 'Khách hàng' },
   ];
 
   const STAFF_TABS: { tab: ActiveTab; icon: React.ReactNode; label: string }[] = [

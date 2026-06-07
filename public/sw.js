@@ -24,3 +24,20 @@ self.addEventListener('fetch', e => {
     caches.match(e.request).then(cached => cached || fetch(e.request))
   );
 });
+
+self.addEventListener('push', e => {
+  const data = e.data?.json() ?? {};
+  e.waitUntil(
+    self.registration.showNotification(data.title ?? 'FestManager', {
+      body: data.body ?? '',
+      icon: '/icons/icon.svg',
+      badge: '/icons/icon.svg',
+      data: data.url ?? '/',
+    })
+  );
+});
+
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(clients.openWindow(e.notification.data));
+});

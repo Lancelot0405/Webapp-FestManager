@@ -19,6 +19,7 @@ import Inventory    from './components/inventory/Inventory';
 import Finance      from './components/finance/Finance';
 import HRGlobal     from './components/hr/HRGlobal';
 import StaffProfile from './components/hr/StaffProfile';
+import Clients      from './components/clients/Clients';
 
 export default function App() {
   const { state, logout: contextLogout } = useApp();
@@ -110,6 +111,9 @@ export default function App() {
               )}
               {activeTab === 'profile' && currentUser.role === 'staff' && !myStaffId && (
                 <p className="text-center text-gray-400 py-20 text-sm">Đang tải hồ sơ...</p>
+              )}
+              {activeTab === 'clients' && currentUser.role === 'admin' && (
+                <Clients />
               )}
             </>
           )}

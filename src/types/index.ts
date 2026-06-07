@@ -195,7 +195,24 @@ export type ActiveTab =
   | 'inventory'
   | 'finance'
   | 'hr'
-  | 'profile';
+  | 'profile'
+  | 'clients';
+
+// -----------------------------------------------------------------------------
+// CLIENTS
+// -----------------------------------------------------------------------------
+
+export interface Client {
+  id: number;
+  name: string;
+  contactName: string;
+  phone: string;
+  email: string;
+  city: string;
+  notes: string;
+  /** IDs of events associated with this client */
+  eventIds: number[];
+}
 
 /** Result of parsing one line from the Smart Inventory Input */
 export interface ParsedInventoryResult {
