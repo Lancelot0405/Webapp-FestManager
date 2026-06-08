@@ -9,7 +9,8 @@ function parseDDMMYYYY(d: string): Date {
 /**
  * Compute the effective status of an event based on its start/end dates.
  * - > 14 days until start → "Lên kế hoạch"
- * - ≤ 14 days and > 0 days until start → "Sắp tới"
+ * - ≤ 7 days until start → "Sắp tới"
+ * - 8–14 days until start → "Lên kế hoạch"
  * - During event (start ≤ today ≤ end) → "Đang diễn ra"
  * - After end → "Đã hoàn thành"
  */
@@ -30,6 +31,6 @@ export function computeEventStatus(startDate: string, endDate?: string): EventSt
   if (todayTime >= startTime) return 'Đang diễn ra';
 
   const daysUntilStart = Math.ceil((startTime - todayTime) / (1000 * 60 * 60 * 24));
-  if (daysUntilStart <= 14) return 'Sắp tới';
+  if (daysUntilStart <= 7) return 'Sắp tới';
   return 'Lên kế hoạch';
 }
