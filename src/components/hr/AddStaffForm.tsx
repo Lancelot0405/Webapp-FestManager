@@ -74,7 +74,7 @@ export default function AddStaffForm({ onClose }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm px-0">
       <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-t-2xl shadow-2xl overflow-hidden animate-slide-up">
-      <div className="px-5 pt-5 pb-[calc(env(safe-area-inset-bottom,0px)+80px)] max-h-[90vh] overflow-y-auto">
+      <div className="px-5 pt-5 pb-[calc(env(safe-area-inset-bottom,0px)+80px)] max-h-[90vh] overflow-y-auto overflow-x-hidden">
         <div className="flex justify-between items-center mb-5">
           <p className="text-base font-bold text-gray-800 dark:text-gray-100">Thêm nhân viên mới</p>
           <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">
@@ -117,7 +117,7 @@ export default function AddStaffForm({ onClose }: Props) {
             <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1 block">Ngày sinh</label>
             <input
               type="date"
-              className="w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 transition-all"
+              className="w-full max-w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 transition-all"
               value={dob}
               onChange={e => setDob(e.target.value)}
             />
