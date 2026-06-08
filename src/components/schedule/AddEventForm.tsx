@@ -51,7 +51,7 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm px-0">
-      <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-t-2xl shadow-2xl p-5 pb-8 animate-slide-up">
+      <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-t-2xl shadow-2xl p-5 pb-[calc(env(safe-area-inset-bottom,0px)+80px)] animate-slide-up">
         <div className="flex justify-between items-center mb-5">
           <h2 className="text-base font-bold text-gray-800 dark:text-gray-100">Thêm sự kiện mới</h2>
           <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">
