@@ -28,14 +28,16 @@ import type {
 export async function fetchStaff(): Promise<StaffMember[]> {
   const { data, error } = await supabase
     .from('staff_members')
-    .select('*, contracts(*)');
+    .select('*, contracts(*), users!left(role)');
 
   if (error || !data || data.length === 0) {
     if (error) console.error('[db] fetchStaff error:', error.message);
     return [];
   }
 
-  return data.map((row: any): StaffMember => ({
+  return data
+    .filter((row: any) => row.users?.role !== 'admin')
+    .map((row: any): StaffMember => ({
     id: row.id,
     userId: row.user_id ?? undefined,
     name: row.name ?? '',

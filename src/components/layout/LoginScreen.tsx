@@ -61,7 +61,9 @@ export default function LoginScreen() {
       }
       login({ id: profile.id, name: profile.name, role: profile.role });
     } else {
-      login({ id: data.user.id, name: username.trim(), role: 'staff' });
+      await supabase.auth.signOut();
+      setError('Không tìm thấy thông tin tài khoản. Vui lòng liên hệ admin.');
+      setLoading(false); return;
     }
     setLoading(false);
   };
@@ -77,44 +79,50 @@ export default function LoginScreen() {
 
     setLoading(true);
     const email = username.trim().toLowerCase() + DOMAIN;
+    const name  = displayName.trim() || username.trim();
 
-    const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
+    // Dùng Admin API để tạo user mà không tạo session phía client
+    // (tránh onAuthStateChange kích hoạt đăng nhập sớm)
+    const { data, error: createError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { name },
+    });
 
-    if (signUpError) {
+    if (createError) {
       setError(
-        signUpError.message.includes('already registered')
+        createError.message.toLowerCase().includes('already been registered') ||
+        createError.message.toLowerCase().includes('already exists')
           ? 'Tên đăng nhập này đã được dùng'
-          : signUpError.message
+          : createError.message
       );
       setLoading(false); return;
     }
 
     if (data.user) {
-      const name = displayName.trim() || username.trim();
-
-      // Dùng supabaseAdmin để bypass RLS khi insert vào bảng users
+      // Ghi đè users row do trigger tạo (trigger dùng on conflict do nothing,
+      // nên ta upsert để đặt đúng role/status)
       await supabaseAdmin.from('users').upsert({
         id: data.user.id,
         name,
         role: registerRole,
         status: registerRole === 'manager' ? 'pending' : 'active',
+      }, { onConflict: 'id' });
+
+      // Tạo staff_members profile (trigger đã không tự tạo nữa)
+      await supabaseAdmin.from('staff_members').insert({
+        name,
+        user_id: data.user.id,
+        dob: '',
+        city: '',
+        staff_type: 'permanent',
       });
 
       if (registerRole === 'staff') {
-        await supabaseAdmin.from('staff_members').update({ name }).eq('user_id', data.user.id);
         setSuccess('Đăng ký thành công! Bạn có thể đăng nhập ngay.');
         setTimeout(() => reset('login'), 2000);
       } else {
-        // Manager: tạo staff_members row để tab Hồ sơ hoạt động sau khi được duyệt
-        await supabaseAdmin.from('staff_members').insert({
-          name,
-          user_id: data.user.id,
-          dob: '',
-          city: '',
-          staff_type: 'permanent',
-        });
-        // Sign out immediately, wait for admin approval
-        await supabase.auth.signOut();
         setSuccess('Yêu cầu đăng ký quản lý đã được gửi! Admin sẽ duyệt tài khoản của bạn.');
         setTimeout(() => reset('login'), 3000);
       }
