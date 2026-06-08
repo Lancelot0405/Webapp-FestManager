@@ -73,8 +73,7 @@ textarea {
   font-size: 16px !important;
 }
 
-/* Force date inputs to respect container width and custom styling on iOS Safari.
-   -webkit-appearance: none removes the native gray bg and centered text. */
+/* iOS Safari date input: remove native gray bg, enforce consistent sizing */
 input[type="date"] {
   -webkit-appearance: none;
   appearance: none;
@@ -83,6 +82,15 @@ input[type="date"] {
   box-sizing: border-box !important;
   display: block;
   text-align: left;
+  line-height: 1.5;
+  /* keep height consistent whether empty or filled */
+  min-height: 44px;
+  background-color: #ffffff;
+  color: #111827;
+}
+.dark input[type="date"] {
+  background-color: #334155;
+  color: #f1f5f9;
 }
 
 @keyframes fade-in {

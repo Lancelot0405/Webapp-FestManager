@@ -76,7 +76,7 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
                 <div className="overflow-hidden rounded-xl">
                   <input
                     type="date"
-                    className="border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl px-2 py-2.5 text-sm focus:outline-none focus:border-blue-400 transition-all"
+                    className="border border-gray-200 dark:border-slate-600 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 transition-all"
                     value={startDate}
                     onChange={e => {
                       setStartDate(e.target.value);
@@ -91,7 +91,7 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
                 <div className="overflow-hidden rounded-xl">
                   <input
                     type="date"
-                    className="border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl px-2 py-2.5 text-sm focus:outline-none focus:border-blue-400 transition-all"
+                    className="border border-gray-200 dark:border-slate-600 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 transition-all"
                     value={endDate}
                     min={startDate}
                     onChange={e => setEndDate(e.target.value)}
