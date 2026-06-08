@@ -115,12 +115,14 @@ export default function AddStaffForm({ onClose }: Props) {
 
           <div>
             <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1 block">Ngày sinh</label>
-            <input
-              type="date"
-              className="w-full max-w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 transition-all"
-              value={dob}
-              onChange={e => setDob(e.target.value)}
-            />
+            <div className="overflow-hidden rounded-xl">
+              <input
+                type="date"
+                className="border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:[color-scheme:dark] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 transition-all"
+                value={dob}
+                onChange={e => setDob(e.target.value)}
+              />
+            </div>
           </div>
 
           <div>

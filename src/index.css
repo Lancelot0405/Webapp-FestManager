@@ -73,6 +73,15 @@ textarea {
   font-size: 16px !important;
 }
 
+/* Force date inputs to respect container width on iOS Safari.
+   Native date picker has intrinsic min-width that overrides w-full. */
+input[type="date"] {
+  min-width: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  display: block;
+}
+
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(-8px); }
   to   { opacity: 1; transform: translateY(0); }
