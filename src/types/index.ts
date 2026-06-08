@@ -142,7 +142,13 @@ export type InventoryUnit =
   | 'cuộn'
   | 'chiếc';
 
-export type InventoryCategory = 'food' | 'equipment';
+export type InventoryCategory =
+  | 'food'               // legacy → maps to restaurant-food
+  | 'equipment'          // legacy → maps to restaurant-equipment
+  | 'restaurant-food'
+  | 'restaurant-equipment'
+  | 'festival-food'
+  | 'festival-equipment';
 
 export interface InventoryItem {
   id: number;
