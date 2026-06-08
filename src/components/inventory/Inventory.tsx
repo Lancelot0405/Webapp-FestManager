@@ -9,7 +9,7 @@ const FOOD_UNITS: InventoryUnit[]  = ['kg', 'g', 'lít', 'ml', 'cái', 'lon', 'h
 const EQUIP_UNITS: InventoryUnit[] = ['cái', 'chiếc', 'đôi', 'bộ', 'chai', 'cuộn', 'hộp', 'thùng'];
 
 type MainTab = 'restaurant' | 'festival';
-type SubTab  = 'food' | 'equipment';
+type SubTab  = 'food' | 'equipment' | 'history';
 
 // Resolve which InventoryCategory to save given current selection
 function getCategory(main: MainTab, sub: SubTab): InventoryCategory {
@@ -41,7 +41,6 @@ export default function Inventory() {
   const [editThreshold, setEditThreshold] = useState('');
   const [editUnit,      setEditUnit]      = useState<InventoryUnit>('kg');
   const [showAddForm,   setShowAddForm]   = useState(false);
-  const [showHistory,   setShowHistory]   = useState(false);
   const [newName,       setNewName]       = useState('');
   const [newCurrent,    setNewCurrent]    = useState('');
   const [newThreshold,  setNewThreshold]  = useState('');
@@ -52,10 +51,20 @@ export default function Inventory() {
   const unitOptions  = subTab === 'equipment' ? EQUIP_UNITS : FOOD_UNITS;
   const defaultUnit: InventoryUnit = subTab === 'equipment' ? 'cái' : 'kg';
 
-  const filteredItems = inventory.filter(item => matchCategory(item, mainTab, subTab));
+  const filteredItems = subTab !== 'history' ? inventory.filter(item => matchCategory(item, mainTab, subTab as 'food' | 'equipment')) : [];
 
-  const countFor = (m: MainTab, s: SubTab) =>
+  const countFor = (m: MainTab, s: 'food' | 'equipment') =>
     inventory.filter(item => matchCategory(item, m, s)).length;
+
+  const sectionLogs = inventoryLogs.filter(log => {
+    if (mainTab === 'restaurant') {
+      return log.festivalName === 'Nhà hàng' || log.festivalName === 'Kiểm kho tổng' ||
+        inventory.find(i => i.id === log.itemId && (!i.category || i.category === 'food' || i.category === 'restaurant-food' || i.category === 'restaurant-equipment' || i.category === 'equipment'));
+    }
+    return log.festivalName === 'Festival' ||
+      inventory.find(i => i.id === log.itemId && (i.category === 'festival-food' || i.category === 'festival-equipment'));
+  });
+  const sectionLogsCount = sectionLogs.length;
 
   const openEdit = (item: InventoryItem) => {
     setExpandedId(item.id);
@@ -143,7 +152,6 @@ export default function Inventory() {
     setSubTab('food');
     setShowAddForm(false);
     setExpandedId(null);
-    setShowHistory(false);
     setNewUnit('kg');
   };
 
@@ -151,30 +159,32 @@ export default function Inventory() {
     setSubTab(tab);
     setShowAddForm(false);
     setExpandedId(null);
-    setNewUnit(tab === 'equipment' ? 'cái' : 'kg');
+    if (tab !== 'history') setNewUnit(tab === 'equipment' ? 'cái' : 'kg');
   };
 
   const sectionLabel = mainTab === 'restaurant' ? 'Nhà hàng' : 'Festival';
-  const itemLabel    = subTab === 'food' ? 'thực phẩm' : 'trang thiết bị';
+  const itemLabel    = subTab === 'equipment' ? 'trang thiết bị' : 'thực phẩm';
 
   return (
     <div className="space-y-4 pb-20">
       {/* Header */}
       <div className="flex justify-between items-center gap-2">
         <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">Kho hàng</h1>
-        <div className="flex gap-2">
-          <label className={`flex items-center gap-1 bg-green-600 text-white text-sm font-medium px-3 py-2 rounded-lg cursor-pointer ${importing ? 'opacity-60 pointer-events-none' : ''}`}>
-            <FileSpreadsheet size={15} />
-            {importing ? 'Đang import...' : 'Import'}
-            <input ref={importRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleImport} />
-          </label>
-          <button
-            onClick={() => { setShowAddForm(true); setExpandedId(null); }}
-            className="flex items-center gap-1 bg-blue-600 text-white text-sm font-medium px-3 py-2 rounded-lg"
-          >
-            <Plus size={15} /> Thêm
-          </button>
-        </div>
+        {subTab !== 'history' && (
+          <div className="flex gap-2">
+            <label className={`flex items-center gap-1 bg-green-600 text-white text-sm font-medium px-3 py-2 rounded-lg cursor-pointer ${importing ? 'opacity-60 pointer-events-none' : ''}`}>
+              <FileSpreadsheet size={15} />
+              {importing ? 'Đang import...' : 'Import'}
+              <input ref={importRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleImport} />
+            </label>
+            <button
+              onClick={() => { setShowAddForm(true); setExpandedId(null); }}
+              className="flex items-center gap-1 bg-blue-600 text-white text-sm font-medium px-3 py-2 rounded-lg"
+            >
+              <Plus size={15} /> Thêm
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ── Main tabs: Nhà hàng | Festival ── */}
@@ -223,15 +233,18 @@ export default function Inventory() {
             </span>
           </div>
 
-          {/* Sub-tabs: Kho | Trang thiết bị */}
-          <div className="flex gap-1.5">
+          {/* Sub-tabs: Kho | Trang thiết bị | Lịch sử */}
+          <div className="flex gap-1.5 flex-wrap">
             {([
-              { id: 'food' as SubTab,      label: 'Kho', count: countFor(mainTab, 'food') },
-              { id: 'equipment' as SubTab, label: 'Trang thiết bị', count: countFor(mainTab, 'equipment') },
-            ]).map(({ id, label, count }) => {
-              const activeColor = mainTab === 'restaurant'
-                ? 'bg-blue-600 text-white'
-                : 'bg-purple-600 text-white';
+              { id: 'food' as SubTab,      label: 'Kho',             count: countFor(mainTab, 'food'),      showCount: true },
+              { id: 'equipment' as SubTab, label: 'Trang thiết bị',  count: countFor(mainTab, 'equipment'), showCount: true },
+              { id: 'history' as SubTab,   label: 'Lịch sử',         count: sectionLogsCount,               showCount: true },
+            ]).map(({ id, label, count, showCount }) => {
+              const activeColor = id === 'history'
+                ? 'bg-gray-600 text-white dark:bg-gray-500'
+                : mainTab === 'restaurant'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-purple-600 text-white';
               return (
                 <button
                   key={id}
@@ -242,24 +255,27 @@ export default function Inventory() {
                       : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
                   }`}
                 >
+                  {id === 'history' && <History size={11} />}
                   {label}
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
-                    subTab === id
-                      ? 'bg-white/20 text-white'
-                      : 'bg-white dark:bg-slate-600 text-gray-600 dark:text-gray-300'
-                  }`}>
-                    {count}
-                  </span>
+                  {showCount && (
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                      subTab === id
+                        ? 'bg-white/20 text-white'
+                        : 'bg-white dark:bg-slate-600 text-gray-600 dark:text-gray-300'
+                    }`}>
+                      {count}
+                    </span>
+                  )}
                 </button>
               );
             })}
           </div>
 
           {/* Import hint */}
-          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg px-3 py-2 text-xs text-green-700 dark:text-green-400">
+          {subTab !== 'history' && <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg px-3 py-2 text-xs text-green-700 dark:text-green-400">
             <Upload size={11} className="inline mr-1" />
             File Excel: 2 cột <strong>Tên | Số lượng</strong> — đơn vị chỉnh trong app sau
-          </div>
+          </div>}
 
           {/* Add form */}
           {showAddForm && (
@@ -401,45 +417,8 @@ export default function Inventory() {
             })}
           </div>
 
-          {/* ── Lịch sử (collapsible) ── */}
-          {(() => {
-            const sectionLogs = inventoryLogs.filter(log => {
-              if (mainTab === 'restaurant') {
-                return log.festivalName === 'Nhà hàng' || log.festivalName === 'Kiểm kho tổng' ||
-                  inventory.find(i => i.id === log.itemId && (!i.category || i.category === 'food' || i.category === 'restaurant-food' || i.category === 'restaurant-equipment' || i.category === 'equipment'));
-              }
-              return log.festivalName === 'Festival' ||
-                inventory.find(i => i.id === log.itemId && (i.category === 'festival-food' || i.category === 'festival-equipment'));
-            });
-            const accentColor = mainTab === 'restaurant' ? 'text-blue-600 dark:text-blue-400' : 'text-purple-600 dark:text-purple-400';
-            const borderColor = mainTab === 'restaurant' ? 'border-blue-100 dark:border-blue-800' : 'border-purple-100 dark:border-purple-800';
-            const bgColor = mainTab === 'restaurant' ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-purple-50 dark:bg-purple-900/20';
-            return (
-              <div className={`rounded-xl border ${borderColor} overflow-hidden`}>
-                <button
-                  onClick={() => setShowHistory(h => !h)}
-                  className={`w-full flex items-center justify-between px-4 py-3 ${bgColor}`}
-                >
-                  <div className={`flex items-center gap-2 text-sm font-semibold ${accentColor}`}>
-                    <History size={14} />
-                    Lịch sử
-                    <span className="text-xs px-1.5 py-0.5 rounded-full bg-white/60 dark:bg-slate-700/60 font-bold">
-                      {sectionLogs.length}
-                    </span>
-                  </div>
-                  {showHistory
-                    ? <ChevronUp size={15} className="text-gray-400" />
-                    : <ChevronDown size={15} className="text-gray-400" />
-                  }
-                </button>
-                {showHistory && (
-                  <div className="px-3 pb-3 pt-2">
-                    <InventoryLogList logs={sectionLogs} />
-                  </div>
-                )}
-              </div>
-            );
-          })()}
+          {/* ── Lịch sử tab content ── */}
+          {subTab === 'history' && <InventoryLogList logs={sectionLogs} />}
       </>
     </div>
   );
