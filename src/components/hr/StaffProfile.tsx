@@ -544,7 +544,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
             </div>
             <div>
               <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Ngày</label>
-              <input type="date" required className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm"
+              <input type="date" required className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:[color-scheme:dark] rounded-lg px-3 py-2 text-sm"
                 value={formDate} onChange={e => setFormDate(e.target.value)} />
             </div>
             <div>

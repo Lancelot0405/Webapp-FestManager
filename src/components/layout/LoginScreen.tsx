@@ -5,7 +5,7 @@ import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useInstallPrompt } from '../../hooks/useInstallPrompt';
 
-const DOMAIN = '@festmanager.com';
+const DOMAIN = '@fm.com';
 
 type Mode = 'login' | 'register';
 type RegisterRole = 'staff' | 'manager';

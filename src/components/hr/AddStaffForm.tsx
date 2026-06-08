@@ -5,7 +5,7 @@ import { supabase, supabaseAdmin } from '../../lib/supabase';
 import { useToast } from '../../context/ToastContext';
 import type { StaffMember, StaffType } from '../../types';
 
-const DOMAIN = '@festmanager.com';
+const DOMAIN = '@fm.com';
 
 interface Props {
   onClose: () => void;
@@ -34,7 +34,7 @@ export default function AddStaffForm({ onClose }: Props) {
 
     if (username.trim()) {
       const email = username.trim().toLowerCase() + DOMAIN;
-      const tempPassword = 'FestManager123!';
+      const tempPassword = 'fest1234';
       const { data, error } = await supabaseAdmin.auth.admin.createUser({
         email,
         password: tempPassword,
@@ -101,13 +101,13 @@ export default function AddStaffForm({ onClose }: Props) {
             />
             <span className="px-2 text-xs text-gray-400 bg-gray-50 border-l border-gray-200 py-2 shrink-0">@festmanager.com</span>
           </div>
-          <p className="text-xs text-gray-400 mt-0.5">Mật khẩu mặc định: FestManager123!</p>
+          <p className="text-xs text-gray-400 mt-0.5">Mật khẩu mặc định: <span className="font-medium text-gray-600 dark:text-gray-300">fest1234</span></p>
         </div>
         <div>
           <label className="text-xs font-medium text-gray-600">Ngày sinh</label>
           <input
             type="date"
-            className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
+            className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:[color-scheme:dark] rounded-lg px-3 py-2 text-sm"
             value={dob}
             onChange={e => setDob(e.target.value)}
           />
