@@ -73,7 +73,8 @@ export default function AddStaffForm({ onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm px-0">
-      <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-t-2xl shadow-2xl p-5 pb-[calc(env(safe-area-inset-bottom,0px)+80px)] max-h-[90vh] overflow-y-auto animate-slide-up">
+      <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-t-2xl shadow-2xl overflow-hidden animate-slide-up">
+      <div className="px-5 pt-5 pb-[calc(env(safe-area-inset-bottom,0px)+80px)] max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-5">
           <p className="text-base font-bold text-gray-800 dark:text-gray-100">Thêm nhân viên mới</p>
           <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">
@@ -169,6 +170,7 @@ export default function AddStaffForm({ onClose }: Props) {
             {loading ? 'Đang tạo...' : 'Thêm nhân viên'}
           </button>
         </form>
+      </div>
       </div>
     </div>
   );
