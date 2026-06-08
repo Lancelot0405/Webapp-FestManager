@@ -52,7 +52,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
     if (!isAdmin || !member?.userId) return;
     supabaseAdmin.auth.admin.getUserById(member.userId).then(({ data }) => {
       const email = data?.user?.email ?? '';
-      setCurrentUsername(email.replace('@festmanager.com', '') || null);
+      setCurrentUsername(email.replace('@festmanager.com', '').replace('@fm.com', '') || null);
     });
     supabaseAdmin.from('users').select('role').eq('id', member.userId).single().then(({ data }) => {
       if (data?.role) setMemberCurrentRole(data.role as UserRole);
@@ -364,7 +364,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
               <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-gray-50 dark:bg-slate-700/50 rounded-lg border border-gray-100 dark:border-slate-600">
                 <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">Hiện tại:</span>
                 <span className="text-sm font-mono font-medium text-blue-600 dark:text-blue-400 flex-1 truncate">
-                  {currentUsername}<span className="text-gray-400 dark:text-gray-500">@festmanager.com</span>
+                  {currentUsername}<span className="text-gray-400 dark:text-gray-500">@fm.com</span>
                 </span>
               </div>
             )}
@@ -377,7 +377,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                   value={editUsername}
                   onChange={e => setEditUsername(e.target.value.replace(/\s/g, '').toLowerCase())}
                 />
-                <span className="px-2 text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-slate-600 border-l border-gray-200 dark:border-slate-600 py-2 shrink-0">@festmanager.com</span>
+                <span className="px-2 text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-slate-600 border-l border-gray-200 dark:border-slate-600 py-2 shrink-0">@fm.com</span>
               </div>
               <button
                 onClick={async () => {
