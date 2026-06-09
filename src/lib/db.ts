@@ -4,6 +4,10 @@
 // =============================================================================
 
 import { supabase } from './supabase';
+// Date helpers là hàm thuần (./dateHelpers) — re-export để các import cũ
+// `from '../lib/db'` vẫn hoạt động, đồng thời dùng nội bộ cho mapping ngày.
+import { toISODate, fromISODate } from './dateHelpers';
+export { toISODate, fromISODate };
 
 // Hàng dữ liệu thô từ Supabase: `select('*')` + join động nên shape không cố
 // định ở compile-time. Khoanh vùng `any` tại đúng một nơi (ranh giới DB) thay
@@ -70,24 +74,6 @@ export async function fetchStaff(): Promise<StaffMember[]> {
   }));
 }
 
-// -----------------------------------------------------------------------------
-// Date helpers — DB stores ISO (YYYY-MM-DD), app displays DD-MM-YYYY
-// -----------------------------------------------------------------------------
-
-export function toISODate(ddmmyyyy: string): string {
-  if (!ddmmyyyy) return '';
-  if (/^\d{4}-\d{2}-\d{2}/.test(ddmmyyyy)) return ddmmyyyy.slice(0, 10); // already ISO
-  const [dd, mm, yyyy] = ddmmyyyy.split('-');
-  return `${yyyy}-${mm}-${dd}`;
-}
-
-export function fromISODate(iso: string): string {
-  if (!iso) return '';
-  if (/^\d{2}-\d{2}-\d{4}$/.test(iso)) return iso; // already DD-MM-YYYY
-  const part = iso.slice(0, 10); // strip time if present
-  const [yyyy, mm, dd] = part.split('-');
-  return `${dd}-${mm}-${yyyy}`;
-}
 
 // -----------------------------------------------------------------------------
 // EVENTS

@@ -67,10 +67,13 @@ không dedupe.
 
 ## 🟡 Ưu tiên trung bình — Ổn định & chất lượng
 
-### 6. Testing (hiện 0 test)
-- [ ] Cài Vitest + @testing-library/react + jsdom.
-- [ ] Test `appReducer` (mọi action), helper `toISODate/fromISODate`.
-- [ ] Test luồng auth (pending/rejected bị chặn login) + 1-2 component form.
+### 6. Testing
+- [x] Cài Vitest + script `test` / `test:watch`.
+- [x] Test `appReducer` (18 test phủ mọi nhóm action), `toISODate/fromISODate` (9),
+      `computeEventStatus` (6) — **33 test pass**.
+- [x] Tách reducer ra `src/context/appReducer.ts` (test độc lập, không cần DOM)
+      và date helpers ra `src/lib/dateHelpers.ts` (không kéo theo Supabase client).
+- [ ] Test component (cần @testing-library/react + jsdom) cho 1-2 form.
 - [ ] (Tùy) Playwright cho e2e luồng chính.
 
 ### 7. Dọn nốt lint (còn 17 lỗi)
