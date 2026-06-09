@@ -6,9 +6,11 @@ import { getErrorMessage } from '../../lib/errors';
 import { SkeletonList } from '../shared/ui/Skeleton';
 import type { InventoryUnit, InventoryCategory, InventoryItem } from '../../types';
 import InventoryLogList from './InventoryLogList';
+import NumberPicker from './NumberPicker';
+import FoodNameSelect from './FoodNameSelect';
 
-const FOOD_UNITS: InventoryUnit[]  = ['kg', 'g', 'lít', 'ml', 'cái', 'lon', 'hộp', 'túi', 'xiên', 'thùng', 'phần'];
-const EQUIP_UNITS: InventoryUnit[] = ['cái', 'chiếc', 'đôi', 'bộ', 'chai', 'cuộn', 'hộp', 'thùng'];
+const FOOD_UNITS: InventoryUnit[]  = ['kg', 'g', 'lít', 'ml', 'cái', 'lon', 'hộp', 'túi', 'gói', 'lốc', 'xiên', 'thùng', 'phần', 'con', 'miếng', 'thanh', 'viên', 'lọ', 'bình'];
+const EQUIP_UNITS: InventoryUnit[] = ['cái', 'chiếc', 'đôi', 'bộ', 'chai', 'cuộn', 'hộp', 'thùng', 'tấm', 'ổ', 'gói'];
 
 type MainTab = 'restaurant' | 'festival';
 type SubTab  = 'food' | 'equipment' | 'history';
@@ -299,35 +301,40 @@ export default function Inventory() {
                 </p>
                 <button type="button" aria-label="Đóng" onClick={() => setShowAddForm(false)} className="text-gray-400"><X size={16} /></button>
               </div>
+
+              <FoodNameSelect
+                value={newName}
+                onChange={setNewName}
+                itemType={subTab === 'equipment' ? 'equipment' : 'food'}
+                required
+              />
+
+              <NumberPicker
+                label="Số lượng"
+                value={newCurrent}
+                onChange={setNewCurrent}
+                required
+                min={0}
+                step={0.1}
+              />
+
+              <NumberPicker
+                label="Cảnh báo"
+                value={newThreshold}
+                onChange={setNewThreshold}
+                min={0}
+                step={0.1}
+                placeholder="0"
+              />
+
               <div>
-                <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">
-                  Tên {itemLabel}
-                </label>
-                <input required className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm"
-                  placeholder={subTab === 'food' ? 'VD: Thịt bò' : 'VD: Găng tay'}
-                  value={newName} onChange={e => setNewName(e.target.value)} />
+                <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Đơn vị</label>
+                <select className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-2 py-2 text-sm"
+                  value={newUnit} onChange={e => setNewUnit(e.target.value as InventoryUnit)}>
+                  {unitOptions.map(u => <option key={u} value={u}>{u}</option>)}
+                </select>
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                <div>
-                  <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Số lượng</label>
-                  <input type="number" min="0" step="0.1" required
-                    className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm"
-                    value={newCurrent} onChange={e => setNewCurrent(e.target.value)} />
-                </div>
-                <div>
-                  <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Cảnh báo</label>
-                  <input type="number" min="0" step="0.1"
-                    className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm"
-                    placeholder="0" value={newThreshold} onChange={e => setNewThreshold(e.target.value)} />
-                </div>
-                <div>
-                  <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Đơn vị</label>
-                  <select className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-2 py-2 text-sm"
-                    value={newUnit} onChange={e => setNewUnit(e.target.value as InventoryUnit)}>
-                    {unitOptions.map(u => <option key={u} value={u}>{u}</option>)}
-                  </select>
-                </div>
-              </div>
+
               <button type="submit" className="w-full bg-blue-600 text-white font-medium py-2 rounded-lg text-sm">Thêm</button>
             </form>
           )}
@@ -377,35 +384,36 @@ export default function Inventory() {
 
                   {isExpanded && (
                     <div className="px-4 pb-4 pt-1 border-t border-gray-100 dark:border-slate-700 space-y-3">
+                      <FoodNameSelect
+                        value={editName}
+                        onChange={setEditName}
+                        itemType={(item.category === 'restaurant-equipment' || item.category === 'festival-equipment' || item.category === 'equipment') ? 'equipment' : 'food'}
+                        required
+                      />
+                      <NumberPicker
+                        label="Số lượng"
+                        value={editQty}
+                        onChange={setEditQty}
+                        required
+                        min={0}
+                        step={0.1}
+                      />
+                      <NumberPicker
+                        label="Cảnh báo"
+                        value={editThreshold}
+                        onChange={setEditThreshold}
+                        min={0}
+                        step={0.1}
+                        placeholder="0"
+                      />
                       <div>
-                        <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Tên</label>
-                        <input
-                          className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm"
-                          value={editName} onChange={e => setEditName(e.target.value)} autoFocus
-                        />
-                      </div>
-                      <div className="grid grid-cols-3 gap-2">
-                        <div>
-                          <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Số lượng</label>
-                          <input type="number" min="0" step="0.1"
-                            className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm"
-                            value={editQty} onChange={e => setEditQty(e.target.value)} />
-                        </div>
-                        <div>
-                          <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Cảnh báo</label>
-                          <input type="number" min="0" step="0.1"
-                            className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm"
-                            value={editThreshold} onChange={e => setEditThreshold(e.target.value)} />
-                        </div>
-                        <div>
-                          <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Đơn vị</label>
-                          <select
-                            className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-2 py-2 text-sm"
-                            value={editUnit} onChange={e => setEditUnit(e.target.value as InventoryUnit)}
-                          >
-                            {currentUnitOpts.map(u => <option key={u} value={u}>{u}</option>)}
-                          </select>
-                        </div>
+                        <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Đơn vị</label>
+                        <select
+                          className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-2 py-2 text-sm"
+                          value={editUnit} onChange={e => setEditUnit(e.target.value as InventoryUnit)}
+                        >
+                          {currentUnitOpts.map(u => <option key={u} value={u}>{u}</option>)}
+                        </select>
                       </div>
                       <div className="flex gap-2">
                         <button

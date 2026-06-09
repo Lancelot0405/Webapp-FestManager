@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Moon, Sun, Download, Smartphone, X, ShieldCheck } from 'lucide-react';
+import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Moon, Sun, Download, Smartphone, X, ShieldCheck, Store, Tent } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { adminApi } from '../../lib/adminApi';
 import { useApp } from '../../context/AppContext';
@@ -22,6 +22,7 @@ export default function LoginScreen() {
   const [password,       setPassword]     = useState('');
   const [password2,      setPassword2]    = useState('');
   const [registerRole,   setRegisterRole] = useState<RegisterRole>('staff');
+  const [registerDept,   setRegisterDept] = useState<'restaurant' | 'festival'>('restaurant');
   const [showPw,         setShowPw]       = useState(false);
   const [loading,        setLoading]      = useState(false);
   const [error,          setError]        = useState('');
@@ -31,6 +32,7 @@ export default function LoginScreen() {
     setMode(nextMode); setError(''); setSuccess('');
     setUsername(''); setDisplayName(''); setPassword(''); setPassword2('');
     setRegisterRole('staff');
+    setRegisterDept('restaurant');
   };
 
   // ── ĐĂNG NHẬP ────────────────────────────────────────────────────────────
@@ -86,6 +88,7 @@ export default function LoginScreen() {
     // không tạo session phía client, không lộ service key.
     const { error: createError } = await adminApi.register({
       email, password, name, role: registerRole,
+      ...(registerRole === 'staff' ? { department: registerDept } : {}),
     });
 
     if (createError) {
@@ -216,6 +219,37 @@ export default function LoginScreen() {
                 </p>
               )}
             </div>
+
+            {/* Department selection — chỉ hiện khi chọn Nhân viên */}
+            {registerRole === 'staff' && (
+              <div>
+                <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1.5 block">Bộ phận</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setRegisterDept('restaurant')}
+                    className={`py-2.5 rounded-xl text-sm font-medium border transition-colors flex items-center justify-center gap-1.5 ${
+                      registerDept === 'restaurant'
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600'
+                    }`}
+                  >
+                    <Store size={14} /> Nhà hàng
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRegisterDept('festival')}
+                    className={`py-2.5 rounded-xl text-sm font-medium border transition-colors flex items-center justify-center gap-1.5 ${
+                      registerDept === 'festival'
+                        ? 'bg-purple-600 text-white border-purple-600'
+                        : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600'
+                    }`}
+                  >
+                    <Tent size={14} /> Festival
+                  </button>
+                </div>
+              </div>
+            )}
 
             <Field label="Tên đăng nhập" icon={<User size={16} />}>
               <input type="text" required placeholder="Không dấu, không khoảng trắng"

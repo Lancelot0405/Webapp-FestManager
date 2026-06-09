@@ -143,7 +143,17 @@ export type InventoryUnit =
   | 'bộ'
   | 'chai'
   | 'cuộn'
-  | 'chiếc';
+  | 'chiếc'
+  | 'gói'
+  | 'lốc'
+  | 'tấm'
+  | 'ổ'
+  | 'con'
+  | 'miếng'
+  | 'thanh'
+  | 'viên'
+  | 'lọ'
+  | 'bình';
 
 export type InventoryCategory =
   | 'food'               // legacy → maps to restaurant-food

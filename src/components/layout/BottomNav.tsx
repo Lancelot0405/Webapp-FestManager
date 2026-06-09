@@ -2,6 +2,7 @@
 // src/components/layout/BottomNav.tsx
 // =============================================================================
 
+import { useState, useEffect } from 'react';
 import {
     LayoutDashboard,
     Calendar,
@@ -47,7 +48,26 @@ import {
     const { state } = useApp();
     const { currentUser } = state;
 
-    if (!currentUser) return null;
+    // Ẩn nav khi bàn phím iOS mở — dùng rAF để tránh race condition
+    const [keyboardOpen, setKeyboardOpen] = useState(false);
+    useEffect(() => {
+      const vv = window.visualViewport;
+      if (!vv) return;
+      let rafId = 0;
+      const handler = () => {
+        cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(() => {
+          setKeyboardOpen(window.innerHeight - vv.height > 150);
+        });
+      };
+      vv.addEventListener('resize', handler);
+      return () => {
+        vv.removeEventListener('resize', handler);
+        cancelAnimationFrame(rafId);
+      };
+    }, []);
+
+    if (!currentUser || keyboardOpen) return null;
 
     const tabs = currentUser.role === 'admin'   ? ADMIN_TABS
                : currentUser.role === 'manager' ? MANAGER_TABS
