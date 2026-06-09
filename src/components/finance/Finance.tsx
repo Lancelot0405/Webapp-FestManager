@@ -4,7 +4,6 @@
 
 import { useState } from 'react';
 import { TrendingUp, TrendingDown, DollarSign, FileSpreadsheet, Pencil, Check, X } from 'lucide-react';
-import * as XLSX from 'xlsx';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
 import type { ExpenseStatus, FestivalEvent } from '../../types';
@@ -110,7 +109,9 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
     setEditingEventId(null);
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
+    // Tải xlsx động — thư viện nặng, chỉ nạp khi người dùng thực sự export.
+    const XLSX = await import('xlsx');
     const rows = events.map(event => {
       const expTotal = Object.values(event.financials.expenses).reduce<number>(
         (s, v) => s + (v ?? 0), 0

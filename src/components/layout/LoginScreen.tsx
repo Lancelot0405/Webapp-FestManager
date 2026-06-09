@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Moon, Sun, Download, Smartphone, X, ShieldCheck } from 'lucide-react';
-import { supabase, supabaseAdmin } from '../../lib/supabase';
+import { supabase } from '../../lib/supabase';
+import { adminApi } from '../../lib/adminApi';
 import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useInstallPrompt } from '../../hooks/useInstallPrompt';
 
-const DOMAIN = '@festmanager.com';
+const DOMAIN = '@fm.com';
 
 type Mode = 'login' | 'register';
 type RegisterRole = 'staff' | 'manager';
@@ -46,7 +47,7 @@ export default function LoginScreen() {
     }
 
     const { data: profile } = await supabase
-      .from('users').select('id, name, role, status').eq('id', data.user.id).single();
+      .from('users').select('id, name, role, status, department').eq('id', data.user.id).single();
 
     if (profile) {
       if (profile.status === 'pending') {
@@ -59,9 +60,11 @@ export default function LoginScreen() {
         setError('Yêu cầu đăng ký quản lý của bạn đã bị từ chối. Vui lòng liên hệ admin.');
         setLoading(false); return;
       }
-      login({ id: profile.id, name: profile.name, role: profile.role });
+      login({ id: profile.id, name: profile.name, role: profile.role, department: profile.department ?? null });
     } else {
-      login({ id: data.user.id, name: username.trim(), role: 'staff' });
+      await supabase.auth.signOut();
+      setError('Không tìm thấy thông tin tài khoản. Vui lòng liên hệ admin.');
+      setLoading(false); return;
     }
     setLoading(false);
   };
@@ -77,47 +80,30 @@ export default function LoginScreen() {
 
     setLoading(true);
     const email = username.trim().toLowerCase() + DOMAIN;
+    const name  = displayName.trim() || username.trim();
 
-    const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
+    // Tạo tài khoản qua Edge Function "admin" (service key giữ ở server) —
+    // không tạo session phía client, không lộ service key.
+    const { error: createError } = await adminApi.register({
+      email, password, name, role: registerRole,
+    });
 
-    if (signUpError) {
+    if (createError) {
       setError(
-        signUpError.message.includes('already registered')
+        createError.toLowerCase().includes('already been registered') ||
+        createError.toLowerCase().includes('already exists')
           ? 'Tên đăng nhập này đã được dùng'
-          : signUpError.message
+          : createError
       );
       setLoading(false); return;
     }
 
-    if (data.user) {
-      const name = displayName.trim() || username.trim();
-
-      // Dùng supabaseAdmin để bypass RLS khi insert vào bảng users
-      await supabaseAdmin.from('users').upsert({
-        id: data.user.id,
-        name,
-        role: registerRole,
-        status: registerRole === 'manager' ? 'pending' : 'active',
-      });
-
-      if (registerRole === 'staff') {
-        await supabaseAdmin.from('staff_members').update({ name }).eq('user_id', data.user.id);
-        setSuccess('Đăng ký thành công! Bạn có thể đăng nhập ngay.');
-        setTimeout(() => reset('login'), 2000);
-      } else {
-        // Manager: tạo staff_members row để tab Hồ sơ hoạt động sau khi được duyệt
-        await supabaseAdmin.from('staff_members').insert({
-          name,
-          user_id: data.user.id,
-          dob: '',
-          city: '',
-          staff_type: 'permanent',
-        });
-        // Sign out immediately, wait for admin approval
-        await supabase.auth.signOut();
-        setSuccess('Yêu cầu đăng ký quản lý đã được gửi! Admin sẽ duyệt tài khoản của bạn.');
-        setTimeout(() => reset('login'), 3000);
-      }
+    if (registerRole === 'staff') {
+      setSuccess('Đăng ký thành công! Bạn có thể đăng nhập ngay.');
+      setTimeout(() => reset('login'), 2000);
+    } else {
+      setSuccess('Yêu cầu đăng ký quản lý đã được gửi! Admin sẽ duyệt tài khoản của bạn.');
+      setTimeout(() => reset('login'), 3000);
     }
 
     setLoading(false);
@@ -159,6 +145,7 @@ export default function LoginScreen() {
           <form onSubmit={handleLogin} className="w-full space-y-4">
             <Field label="Tên đăng nhập" icon={<User size={16} />}>
               <input type="text" required autoComplete="username" placeholder="Nhập tên đăng nhập"
+                autoCapitalize="none" autoCorrect="off" spellCheck={false}
                 value={username} onChange={e => setUsername(e.target.value)}
                 className="w-full pl-9 pr-4 py-3 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
             </Field>
@@ -225,6 +212,7 @@ export default function LoginScreen() {
 
             <Field label="Tên đăng nhập" icon={<User size={16} />}>
               <input type="text" required placeholder="Không dấu, không khoảng trắng"
+                autoCapitalize="none" autoCorrect="off" spellCheck={false}
                 value={username} onChange={e => setUsername(e.target.value.replace(/\s/g, ''))}
                 className="w-full pl-9 pr-4 py-3 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
             </Field>

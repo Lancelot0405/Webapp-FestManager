@@ -1,41 +1,78 @@
 import { useState, useRef } from 'react';
-import { Plus, X, Trash2, FileSpreadsheet, Upload, Check, ChevronDown, ChevronUp, History } from 'lucide-react';
-import * as XLSX from 'xlsx';
+import { Plus, X, Trash2, FileSpreadsheet, Upload, Check, ChevronDown, ChevronUp, History, Store, Tent } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { useToast } from '../../context/ToastContext';
+import { getErrorMessage } from '../../lib/errors';
 import type { InventoryUnit, InventoryCategory, InventoryItem } from '../../types';
 import InventoryLogList from './InventoryLogList';
 
 const FOOD_UNITS: InventoryUnit[]  = ['kg', 'g', 'lít', 'ml', 'cái', 'lon', 'hộp', 'túi', 'xiên', 'thùng', 'phần'];
 const EQUIP_UNITS: InventoryUnit[] = ['cái', 'chiếc', 'đôi', 'bộ', 'chai', 'cuộn', 'hộp', 'thùng'];
 
-type InventoryTab = 'food' | 'equipment' | 'history';
+type MainTab = 'restaurant' | 'festival';
+type SubTab  = 'food' | 'equipment' | 'history';
+
+// Resolve which InventoryCategory to save given current selection
+function getCategory(main: MainTab, sub: SubTab): InventoryCategory {
+  if (main === 'restaurant') return sub === 'food' ? 'restaurant-food' : 'restaurant-equipment';
+  return sub === 'food' ? 'festival-food' : 'festival-equipment';
+}
+
+// Filter predicate: includes legacy 'food'/'equipment' in restaurant section
+function matchCategory(item: InventoryItem, main: MainTab, sub: SubTab): boolean {
+  const c = item.category;
+  if (main === 'restaurant' && sub === 'food')
+    return !c || c === 'food' || c === 'restaurant-food';
+  if (main === 'restaurant' && sub === 'equipment')
+    return c === 'equipment' || c === 'restaurant-equipment';
+  if (main === 'festival' && sub === 'food')
+    return c === 'festival-food';
+  return c === 'festival-equipment';
+}
 
 export default function Inventory() {
   const { state, createInventoryItem, deleteInventoryItem, updateInventoryItem, addInventoryLog } = useApp();
+  const showToast = useToast();
   const { inventory, inventoryLogs, currentUser } = state;
 
-  const [activeTab,    setActiveTab]    = useState<InventoryTab>('food');
-  const [expandedId,   setExpandedId]   = useState<number | null>(null);
-  const [editName,     setEditName]     = useState('');
-  const [editQty,      setEditQty]      = useState('');
-  const [editThreshold,setEditThreshold]= useState('');
-  const [editUnit,     setEditUnit]     = useState<InventoryUnit>('kg');
-  const [showAddForm,  setShowAddForm]  = useState(false);
-  const [newName,      setNewName]      = useState('');
-  const [newCurrent,   setNewCurrent]   = useState('');
-  const [newThreshold, setNewThreshold] = useState('');
-  const [newUnit,      setNewUnit]      = useState<InventoryUnit>('kg');
-  const [importing,    setImporting]    = useState(false);
+  // Determine which main tabs this user can access
+  const dept = currentUser?.role === 'admin' ? 'both' : (currentUser?.department ?? 'both');
+  const canSeeRestaurant = dept === 'restaurant' || dept === 'both';
+  const canSeeFestival   = dept === 'festival'   || dept === 'both';
+  const defaultTab: MainTab = canSeeRestaurant ? 'restaurant' : 'festival';
+
+  const [mainTab,       setMainTab]       = useState<MainTab>(defaultTab);
+  const [subTab,        setSubTab]        = useState<SubTab>('food');
+  const [expandedId,    setExpandedId]    = useState<number | null>(null);
+  const [editName,      setEditName]      = useState('');
+  const [editQty,       setEditQty]       = useState('');
+  const [editThreshold, setEditThreshold] = useState('');
+  const [editUnit,      setEditUnit]      = useState<InventoryUnit>('kg');
+  const [showAddForm,   setShowAddForm]   = useState(false);
+  const [newName,       setNewName]       = useState('');
+  const [newCurrent,    setNewCurrent]    = useState('');
+  const [newThreshold,  setNewThreshold]  = useState('');
+  const [newUnit,       setNewUnit]       = useState<InventoryUnit>('kg');
+  const [importing,     setImporting]     = useState(false);
   const importRef = useRef<HTMLInputElement>(null);
 
-  const unitOptions = activeTab === 'equipment' ? EQUIP_UNITS : FOOD_UNITS;
-  const defaultUnit: InventoryUnit = activeTab === 'equipment' ? 'cái' : 'kg';
+  const unitOptions  = subTab === 'equipment' ? EQUIP_UNITS : FOOD_UNITS;
+  const defaultUnit: InventoryUnit = subTab === 'equipment' ? 'cái' : 'kg';
 
-  const filteredItems = inventory.filter(item =>
-    activeTab === 'food'
-      ? (!item.category || item.category === 'food')
-      : item.category === 'equipment'
-  );
+  const filteredItems = subTab !== 'history' ? inventory.filter(item => matchCategory(item, mainTab, subTab as 'food' | 'equipment')) : [];
+
+  const countFor = (m: MainTab, s: 'food' | 'equipment') =>
+    inventory.filter(item => matchCategory(item, m, s)).length;
+
+  const sectionLogs = inventoryLogs.filter(log => {
+    if (mainTab === 'restaurant') {
+      return log.festivalName === 'Nhà hàng' || log.festivalName === 'Kiểm kho tổng' ||
+        inventory.find(i => i.id === log.itemId && (!i.category || i.category === 'food' || i.category === 'restaurant-food' || i.category === 'restaurant-equipment' || i.category === 'equipment'));
+    }
+    return log.festivalName === 'Festival' ||
+      inventory.find(i => i.id === log.itemId && (i.category === 'festival-food' || i.category === 'festival-equipment'));
+  });
+  const sectionLogsCount = sectionLogs.length;
 
   const openEdit = (item: InventoryItem) => {
     setExpandedId(item.id);
@@ -44,7 +81,6 @@ export default function Inventory() {
     setEditThreshold(String(item.threshold));
     setEditUnit(item.unit);
   };
-
   const closeEdit = () => setExpandedId(null);
 
   const handleSaveEdit = (item: InventoryItem) => {
@@ -66,13 +102,13 @@ export default function Inventory() {
   const handleAddItem = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim() || !newCurrent) return;
-    const category: InventoryCategory = activeTab === 'equipment' ? 'equipment' : 'food';
+    const category = getCategory(mainTab, subTab);
     createInventoryItem({ name: newName.trim(), current: parseFloat(newCurrent), threshold: parseFloat(newThreshold) || 0, unit: newUnit, category });
     if (currentUser) {
       addInventoryLog({
         id: Date.now(), itemId: Date.now() + 1, itemName: newName.trim(),
         qty: parseFloat(newCurrent), unit: newUnit, action: 'created',
-        festivalId: null, festivalName: 'Kho',
+        festivalId: null, festivalName: mainTab === 'restaurant' ? 'Nhà hàng' : 'Festival',
         timestamp: new Date().toLocaleString('vi-VN', { hour12: false }),
         submittedBy: currentUser.name,
       });
@@ -93,13 +129,15 @@ export default function Inventory() {
     if (!file) return;
     setImporting(true);
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = async (ev) => {
       try {
+        // Tải xlsx động — chỉ nạp khi người dùng thực sự import file.
+        const XLSX = await import('xlsx');
         const wb = XLSX.read(ev.target?.result, { type: 'binary' });
         const ws = wb.Sheets[wb.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json<any[]>(ws, { header: 1 });
+        const rows = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1 });
         let imported = 0;
-        const category: InventoryCategory = activeTab === 'equipment' ? 'equipment' : 'food';
+        const category = getCategory(mainTab, subTab);
         rows.forEach((row, i) => {
           const nameRaw = String(row[0] ?? '').trim();
           if (!nameRaw || (i === 0 && isNaN(Number(row[1])))) return;
@@ -107,34 +145,42 @@ export default function Inventory() {
           createInventoryItem({ name: nameRaw, current, threshold: 0, unit: 'cái', category });
           imported++;
         });
-        alert(`Đã import ${imported} mặt hàng thành công.`);
-      } catch (err: any) {
-        alert(`Lỗi đọc file: ${err?.message ?? 'Không thể đọc file này.'}`);
+        showToast(`Đã import ${imported} mặt hàng thành công.`, 'success');
+      } catch (err) {
+        showToast(`Lỗi đọc file: ${getErrorMessage(err, 'Không thể đọc file này.')}`, 'error');
       } finally {
         setImporting(false);
         if (importRef.current) importRef.current.value = '';
       }
     };
-    reader.onerror = () => { alert('Không thể đọc file.'); setImporting(false); };
+    reader.onerror = () => { showToast('Không thể đọc file.', 'error'); setImporting(false); };
     reader.readAsBinaryString(file);
   };
 
-  const handleTabChange = (tab: InventoryTab) => {
-    setActiveTab(tab);
+  const handleMainTabChange = (tab: MainTab) => {
+    setMainTab(tab);
+    setSubTab('food');
     setShowAddForm(false);
     setExpandedId(null);
-    setNewUnit(tab === 'equipment' ? 'cái' : 'kg');
+    setNewUnit('kg');
   };
 
-  const countFor = (tab: 'food' | 'equipment') =>
-    inventory.filter(i => tab === 'food' ? (!i.category || i.category === 'food') : i.category === 'equipment').length;
+  const handleSubTabChange = (tab: SubTab) => {
+    setSubTab(tab);
+    setShowAddForm(false);
+    setExpandedId(null);
+    if (tab !== 'history') setNewUnit(tab === 'equipment' ? 'cái' : 'kg');
+  };
+
+  const sectionLabel = mainTab === 'restaurant' ? 'Nhà hàng' : 'Festival';
+  const itemLabel    = subTab === 'equipment' ? 'trang thiết bị' : 'thực phẩm';
 
   return (
     <div className="space-y-4 pb-20">
       {/* Header */}
       <div className="flex justify-between items-center gap-2">
         <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">Kho hàng</h1>
-        {activeTab !== 'history' && (
+        {subTab !== 'history' && (
           <div className="flex gap-2">
             <label className={`flex items-center gap-1 bg-green-600 text-white text-sm font-medium px-3 py-2 rounded-lg cursor-pointer ${importing ? 'opacity-60 pointer-events-none' : ''}`}>
               <FileSpreadsheet size={15} />
@@ -151,60 +197,113 @@ export default function Inventory() {
         )}
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-gray-200 dark:border-slate-700">
-        {([
-          { id: 'food' as InventoryTab,      label: 'Thực phẩm',      count: countFor('food') },
-          { id: 'equipment' as InventoryTab, label: 'Trang thiết bị', count: countFor('equipment') },
-          { id: 'history' as InventoryTab,   label: 'Lịch sử',        count: inventoryLogs.length, icon: <History size={13} /> },
-        ]).map(({ id, label, count, icon }) => (
+      {/* ── Main tabs: Nhà hàng | Festival ── */}
+      {(canSeeRestaurant && canSeeFestival) && (
+        <div className="flex border-b border-gray-200 dark:border-slate-700">
           <button
-            key={id}
-            onClick={() => handleTabChange(id)}
-            className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === id
+            onClick={() => handleMainTabChange('restaurant')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold border-b-2 transition-colors ${
+              mainTab === 'restaurant'
                 ? 'border-blue-600 text-blue-600'
                 : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
             }`}
           >
-            {icon}
-            {label}
-            <span className="text-xs px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400">
-              {count}
-            </span>
+            <Store size={14} /> Nhà hàng
           </button>
-        ))}
-      </div>
-
-      {/* History tab */}
-      {activeTab === 'history' && (
-        <InventoryLogList logs={inventoryLogs} />
+          <button
+            onClick={() => handleMainTabChange('festival')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold border-b-2 transition-colors ${
+              mainTab === 'festival'
+                ? 'border-purple-600 text-purple-600'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+            }`}
+          >
+            <Tent size={14} /> Festival
+          </button>
+        </div>
       )}
 
-      {/* Food / Equipment tabs */}
-      {activeTab !== 'history' && (
-        <>
+      {/* ── Nhà hàng / Festival ── */}
+      <>
+
+          {/* Section header chip */}
+          <div className={`flex items-center gap-2 px-3 py-2 rounded-xl ${
+            mainTab === 'restaurant'
+              ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800'
+              : 'bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800'
+          }`}>
+            {mainTab === 'restaurant'
+              ? <Store size={14} className="text-blue-600 dark:text-blue-400" />
+              : <Tent size={14} className="text-purple-600 dark:text-purple-400" />
+            }
+            <span className={`text-xs font-semibold ${
+              mainTab === 'restaurant'
+                ? 'text-blue-700 dark:text-blue-300'
+                : 'text-purple-700 dark:text-purple-300'
+            }`}>
+              {sectionLabel}
+            </span>
+          </div>
+
+          {/* Sub-tabs: Kho | Trang thiết bị | Lịch sử */}
+          <div className="flex gap-1.5 flex-wrap">
+            {([
+              { id: 'food' as SubTab,      label: 'Kho',             count: countFor(mainTab, 'food'),      showCount: true },
+              { id: 'equipment' as SubTab, label: 'Trang thiết bị',  count: countFor(mainTab, 'equipment'), showCount: true },
+              { id: 'history' as SubTab,   label: 'Lịch sử',         count: sectionLogsCount,               showCount: true },
+            ]).map(({ id, label, count, showCount }) => {
+              const activeColor = id === 'history'
+                ? 'bg-gray-600 text-white dark:bg-gray-500'
+                : mainTab === 'restaurant'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-purple-600 text-white';
+              return (
+                <button
+                  key={id}
+                  onClick={() => handleSubTabChange(id)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                    subTab === id
+                      ? activeColor
+                      : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+                  }`}
+                >
+                  {id === 'history' && <History size={11} />}
+                  {label}
+                  {showCount && (
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                      subTab === id
+                        ? 'bg-white/20 text-white'
+                        : 'bg-white dark:bg-slate-600 text-gray-600 dark:text-gray-300'
+                    }`}>
+                      {count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
           {/* Import hint */}
-          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg px-3 py-2 text-xs text-green-700 dark:text-green-400">
+          {subTab !== 'history' && <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg px-3 py-2 text-xs text-green-700 dark:text-green-400">
             <Upload size={11} className="inline mr-1" />
             File Excel: 2 cột <strong>Tên | Số lượng</strong> — đơn vị chỉnh trong app sau
-          </div>
+          </div>}
 
           {/* Add form */}
           {showAddForm && (
             <form onSubmit={handleAddItem} className="bg-white dark:bg-slate-800 rounded-xl border border-blue-200 dark:border-blue-800 p-4 shadow-sm space-y-3">
               <div className="flex justify-between items-center">
                 <p className="font-semibold text-gray-800 dark:text-gray-100 text-sm">
-                  {activeTab === 'food' ? 'Thêm thực phẩm mới' : 'Thêm trang thiết bị mới'}
+                  Thêm {itemLabel} — {sectionLabel}
                 </p>
                 <button type="button" onClick={() => setShowAddForm(false)} className="text-gray-400"><X size={16} /></button>
               </div>
               <div>
                 <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">
-                  {activeTab === 'food' ? 'Tên thực phẩm' : 'Tên trang thiết bị'}
+                  Tên {itemLabel}
                 </label>
                 <input required className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm"
-                  placeholder={activeTab === 'food' ? 'VD: Thịt bò' : 'VD: Găng tay'}
+                  placeholder={subTab === 'food' ? 'VD: Thịt bò' : 'VD: Găng tay'}
                   value={newName} onChange={e => setNewName(e.target.value)} />
               </div>
               <div className="grid grid-cols-3 gap-2">
@@ -236,14 +335,15 @@ export default function Inventory() {
           <div className="space-y-2">
             {filteredItems.length === 0 && (
               <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-8">
-                {activeTab === 'food' ? 'Chưa có thực phẩm nào' : 'Chưa có trang thiết bị nào'}
+                Chưa có {itemLabel} nào trong kho {sectionLabel}
               </p>
             )}
-            {filteredItems.map(item => {
+            {filteredItems.map((item: InventoryItem) => {
               const isLow  = item.current < item.threshold;
               const isWarn = !isLow && item.threshold > 0 && item.current < item.threshold * 1.5;
               const isExpanded = expandedId === item.id;
-              const currentUnitOpts = item.category === 'equipment' ? EQUIP_UNITS : FOOD_UNITS;
+              const currentUnitOpts = (item.category === 'equipment' || item.category === 'restaurant-equipment' || item.category === 'festival-equipment')
+                ? EQUIP_UNITS : FOOD_UNITS;
               const bg = isLow
                 ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
                 : isWarn
@@ -252,7 +352,6 @@ export default function Inventory() {
 
               return (
                 <div key={item.id} className={`rounded-xl shadow-sm border ${bg} overflow-hidden transition-all`}>
-                  {/* Row — bấm để mở/đóng edit */}
                   <button
                     className="w-full flex items-center justify-between px-4 py-3 text-left"
                     onClick={() => isExpanded ? closeEdit() : openEdit(item)}
@@ -267,14 +366,10 @@ export default function Inventory() {
                       <span className={`text-sm font-bold ${isLow ? 'text-red-600' : isWarn ? 'text-yellow-600' : 'text-gray-700 dark:text-gray-200'}`}>
                         {item.current} <span className="font-normal text-gray-500 dark:text-gray-300 text-xs">{item.unit}</span>
                       </span>
-                      {isExpanded
-                        ? <ChevronUp size={15} className="text-gray-400" />
-                        : <ChevronDown size={15} className="text-gray-400" />
-                      }
+                      {isExpanded ? <ChevronUp size={15} className="text-gray-400" /> : <ChevronDown size={15} className="text-gray-400" />}
                     </div>
                   </button>
 
-                  {/* Inline edit form */}
                   {isExpanded && (
                     <div className="px-4 pb-4 pt-1 border-t border-gray-100 dark:border-slate-700 space-y-3">
                       <div>
@@ -333,8 +428,10 @@ export default function Inventory() {
               );
             })}
           </div>
-        </>
-      )}
+
+          {/* ── Lịch sử tab content ── */}
+          {subTab === 'history' && <InventoryLogList logs={sectionLogs} />}
+      </>
     </div>
   );
 }
