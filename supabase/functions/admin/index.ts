@@ -64,6 +64,10 @@ Deno.serve(async (req) => {
       case 'register': {
         const { email, password, name } = payload;
         const role = payload.role === 'manager' ? 'manager' : 'staff';
+        // department chỉ áp dụng cho staff; manager mặc định 'both'
+        const department = role === 'staff'
+          ? (payload.department === 'festival' ? 'festival' : 'restaurant')
+          : 'both';
         if (!email || !password || !name) return json({ error: 'Thiếu thông tin đăng ký.' }, 400);
 
         const { data, error } = await admin.auth.admin.createUser({
@@ -74,7 +78,7 @@ Deno.serve(async (req) => {
         if (!userId) return json({ error: 'Không tạo được tài khoản.' }, 400);
 
         await admin.from('users').upsert(
-          { id: userId, name, role, status: role === 'manager' ? 'pending' : 'active' },
+          { id: userId, name, role, department, status: role === 'manager' ? 'pending' : 'active' },
           { onConflict: 'id' },
         );
         await admin.from('staff_members').insert({

@@ -44,7 +44,7 @@ async function invokeAdmin<T>(
 }
 
 export const adminApi = {
-  register: (p: { email: string; password: string; name: string; role: 'staff' | 'manager' }) =>
+  register: (p: { email: string; password: string; name: string; role: 'staff' | 'manager'; department?: 'restaurant' | 'festival' }) =>
     invokeAdmin<{ userId: string }>('register', p),
 
   createStaff: (p: { email: string; password: string; name: string; role: string; department: string }) =>
