@@ -33,7 +33,13 @@ export default function Inventory() {
   const { state, createInventoryItem, deleteInventoryItem, updateInventoryItem, addInventoryLog } = useApp();
   const { inventory, inventoryLogs, currentUser } = state;
 
-  const [mainTab,       setMainTab]       = useState<MainTab>('restaurant');
+  // Determine which main tabs this user can access
+  const dept = currentUser?.role === 'admin' ? 'both' : (currentUser?.department ?? 'both');
+  const canSeeRestaurant = dept === 'restaurant' || dept === 'both';
+  const canSeeFestival   = dept === 'festival'   || dept === 'both';
+  const defaultTab: MainTab = canSeeRestaurant ? 'restaurant' : 'festival';
+
+  const [mainTab,       setMainTab]       = useState<MainTab>(defaultTab);
   const [subTab,        setSubTab]        = useState<SubTab>('food');
   const [expandedId,    setExpandedId]    = useState<number | null>(null);
   const [editName,      setEditName]      = useState('');
@@ -188,28 +194,30 @@ export default function Inventory() {
       </div>
 
       {/* ── Main tabs: Nhà hàng | Festival ── */}
-      <div className="flex border-b border-gray-200 dark:border-slate-700">
-        <button
-          onClick={() => handleMainTabChange('restaurant')}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold border-b-2 transition-colors ${
-            mainTab === 'restaurant'
-              ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-          }`}
-        >
-          <Store size={14} /> Nhà hàng
-        </button>
-        <button
-          onClick={() => handleMainTabChange('festival')}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold border-b-2 transition-colors ${
-            mainTab === 'festival'
-              ? 'border-purple-600 text-purple-600'
-              : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-          }`}
-        >
-          <Tent size={14} /> Festival
-        </button>
-      </div>
+      {(canSeeRestaurant && canSeeFestival) && (
+        <div className="flex border-b border-gray-200 dark:border-slate-700">
+          <button
+            onClick={() => handleMainTabChange('restaurant')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold border-b-2 transition-colors ${
+              mainTab === 'restaurant'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+            }`}
+          >
+            <Store size={14} /> Nhà hàng
+          </button>
+          <button
+            onClick={() => handleMainTabChange('festival')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold border-b-2 transition-colors ${
+              mainTab === 'festival'
+                ? 'border-purple-600 text-purple-600'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+            }`}
+          >
+            <Tent size={14} /> Festival
+          </button>
+        </div>
+      )}
 
       {/* ── Nhà hàng / Festival ── */}
       <>

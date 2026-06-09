@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { X, ShieldCheck } from 'lucide-react';
+import { X, ShieldCheck, Building2 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { supabase, supabaseAdmin } from '../../lib/supabase';
 import { useToast } from '../../context/ToastContext';
-import type { StaffMember, StaffType, UserRole } from '../../types';
+import type { StaffMember, StaffType, UserRole, UserDepartment } from '../../types';
 
 const DOMAIN = '@fm.com';
 
@@ -14,13 +14,14 @@ interface Props {
 export default function AddStaffForm({ onClose }: Props) {
   const { addStaff, state: { currentUser } } = useApp();
   const showToast = useToast();
-  const [name,      setName]      = useState('');
-  const [dob,       setDob]       = useState('');
-  const [city,      setCity]      = useState('');
-  const [staffType, setStaffType] = useState<StaffType>('permanent');
-  const [username,  setUsername]  = useState('');
-  const [role,      setRole]      = useState<UserRole>('staff');
-  const [loading,   setLoading]   = useState(false);
+  const [name,       setName]       = useState('');
+  const [dob,        setDob]        = useState('');
+  const [city,       setCity]       = useState('');
+  const [staffType,  setStaffType]  = useState<StaffType>('permanent');
+  const [username,   setUsername]   = useState('');
+  const [role,       setRole]       = useState<UserRole>('staff');
+  const [department, setDepartment] = useState<UserDepartment>('restaurant');
+  const [loading,    setLoading]    = useState(false);
 
   const isAdmin = currentUser?.role === 'admin';
 
@@ -55,6 +56,7 @@ export default function AddStaffForm({ onClose }: Props) {
           id: userId,
           name: name.trim(),
           role: isAdmin ? role : 'staff',
+          department: isAdmin ? department : 'restaurant',
         });
       }
     }
@@ -117,31 +119,64 @@ export default function AddStaffForm({ onClose }: Props) {
           </div>
 
           {isAdmin && username.trim() && (
-            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-3 space-y-2">
-              <div className="flex items-center gap-1.5">
-                <ShieldCheck size={13} className="text-amber-600 dark:text-amber-400" />
-                <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">Quyền tài khoản</span>
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-3 space-y-3">
+              {/* Role */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-1.5">
+                  <ShieldCheck size={13} className="text-amber-600 dark:text-amber-400" />
+                  <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">Quyền tài khoản</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {(['staff', 'manager', 'admin'] as UserRole[]).map(r => (
+                    <button
+                      key={r}
+                      type="button"
+                      onClick={() => setRole(r)}
+                      className={`py-2 rounded-xl text-xs font-semibold border transition-colors ${
+                        role === r
+                          ? r === 'admin'
+                            ? 'bg-red-600 text-white border-red-600'
+                            : r === 'manager'
+                              ? 'bg-amber-500 text-white border-amber-500'
+                              : 'bg-blue-600 text-white border-blue-600'
+                          : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600'
+                      }`}
+                    >
+                      {r === 'staff' ? 'Nhân viên' : r === 'manager' ? 'Quản lý' : 'Admin'}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                {(['staff', 'manager', 'admin'] as UserRole[]).map(r => (
-                  <button
-                    key={r}
-                    type="button"
-                    onClick={() => setRole(r)}
-                    className={`py-2 rounded-xl text-xs font-semibold border transition-colors capitalize ${
-                      role === r
-                        ? r === 'admin'
-                          ? 'bg-red-600 text-white border-red-600'
-                          : r === 'manager'
-                            ? 'bg-amber-500 text-white border-amber-500'
-                            : 'bg-blue-600 text-white border-blue-600'
-                        : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600'
-                    }`}
-                  >
-                    {r === 'staff' ? 'Nhân viên' : r === 'manager' ? 'Quản lý' : 'Admin'}
-                  </button>
-                ))}
-              </div>
+
+              {/* Department — not shown for admin role since admin sees all */}
+              {role !== 'admin' && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1.5">
+                    <Building2 size={13} className="text-amber-600 dark:text-amber-400" />
+                    <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">Bộ phận kho hàng</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {([
+                      { id: 'restaurant' as UserDepartment, label: 'Nhà hàng' },
+                      { id: 'festival'   as UserDepartment, label: 'Festival' },
+                      { id: 'both'       as UserDepartment, label: 'Cả hai'  },
+                    ]).map(({ id, label }) => (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => setDepartment(id)}
+                        className={`py-2 rounded-xl text-xs font-semibold border transition-colors ${
+                          department === id
+                            ? 'bg-teal-600 text-white border-teal-600'
+                            : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600'
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

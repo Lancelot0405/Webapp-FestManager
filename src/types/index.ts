@@ -9,10 +9,13 @@
 
 export type UserRole = 'admin' | 'manager' | 'staff';
 
+export type UserDepartment = 'restaurant' | 'festival' | 'both';
+
 export interface CurrentUser {
   id: string;
   name: string;
   role: UserRole;
+  department?: UserDepartment | null;
 }
 
 export type RegistrationStatus = 'pending' | 'approved' | 'rejected';

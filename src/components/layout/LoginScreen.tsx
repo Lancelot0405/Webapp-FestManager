@@ -46,7 +46,7 @@ export default function LoginScreen() {
     }
 
     const { data: profile } = await supabase
-      .from('users').select('id, name, role, status').eq('id', data.user.id).single();
+      .from('users').select('id, name, role, status, department').eq('id', data.user.id).single();
 
     if (profile) {
       if (profile.status === 'pending') {
@@ -59,7 +59,7 @@ export default function LoginScreen() {
         setError('Yêu cầu đăng ký quản lý của bạn đã bị từ chối. Vui lòng liên hệ admin.');
         setLoading(false); return;
       }
-      login({ id: profile.id, name: profile.name, role: profile.role });
+      login({ id: profile.id, name: profile.name, role: profile.role, department: profile.department ?? null });
     } else {
       await supabase.auth.signOut();
       setError('Không tìm thấy thông tin tài khoản. Vui lòng liên hệ admin.');

@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, FileText, Plus, Upload, Image, X, Loader, Pencil, Check, CreditCard, ShieldCheck, KeyRound, Copy, CheckCheck } from 'lucide-react';
+import { ArrowLeft, FileText, Plus, Upload, Image, X, Loader, Pencil, Check, CreditCard, ShieldCheck, KeyRound, Copy, CheckCheck, Building2 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { ExpenseStatusBadge } from '../shared/StatusBadge';
 import DocThumbnail from '../shared/DocThumbnail';
 import { supabase, supabaseAdmin } from '../../lib/supabase';
-import type { ExpenseCategory, Expense, StaffDocument, UserRole } from '../../types';
+import type { ExpenseCategory, Expense, StaffDocument, UserRole, UserDepartment } from '../../types';
 
 interface StaffProfileProps {
   staffId: string;
@@ -33,6 +33,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
   const [editCity,          setEditCity]          = useState('');
   const [editStaffType,     setEditStaffType]     = useState<'permanent' | 'part-time'>('permanent');
   const [editRole,          setEditRole]          = useState<UserRole>('staff');
+  const [editDepartment,    setEditDepartment]    = useState<UserDepartment>('restaurant');
   const [editUsername,      setEditUsername]      = useState('');
   const [editPhone,         setEditPhone]         = useState('');
   const [editCarteNum,      setEditCarteNum]      = useState('');
@@ -48,14 +49,16 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
   // ── Username + role hiện tại (fetch từ Supabase) ────────────────────────
   const [currentUsername,   setCurrentUsername]   = useState<string | null>(null);
   const [memberCurrentRole, setMemberCurrentRole] = useState<UserRole | null>(null);
+  const [memberDepartment,  setMemberDepartment]  = useState<UserDepartment | null>(null);
   useEffect(() => {
     if (!isAdmin || !member?.userId) return;
     supabaseAdmin.auth.admin.getUserById(member.userId).then(({ data }) => {
       const email = data?.user?.email ?? '';
       setCurrentUsername(email.replace('@festmanager.com', '').replace('@fm.com', '') || null);
     });
-    supabaseAdmin.from('users').select('role').eq('id', member.userId).single().then(({ data }) => {
+    supabaseAdmin.from('users').select('role, department').eq('id', member.userId).single().then(({ data }) => {
       if (data?.role) setMemberCurrentRole(data.role as UserRole);
+      if (data?.department) setMemberDepartment(data.department as UserDepartment);
     });
   }, [isAdmin, member?.userId]);
 
@@ -115,6 +118,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
     setEditCity(member.city);
     setEditStaffType(member.staffType ?? 'permanent');
     setEditRole(memberCurrentRole ?? 'staff');
+    setEditDepartment(memberDepartment ?? 'restaurant');
     setEditUsername('');
     setEditCarteNum(member.carteVitaleNumber ?? '');
     setEditPhone(member.phone ?? '');
@@ -140,9 +144,13 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
         updates.role   = editRole;
         updates.status = 'active';
       }
+      if (editRole !== 'admin' && editDepartment !== memberDepartment) {
+        updates.department = editDepartment;
+      }
       if (Object.keys(updates).length > 0) {
         await supabaseAdmin.from('users').update(updates).eq('id', member.userId);
         if (editRole !== memberCurrentRole) setMemberCurrentRole(editRole);
+        if (editRole !== 'admin' && editDepartment !== memberDepartment) setMemberDepartment(editDepartment);
         if (editUsername.trim()) setCurrentUsername(editUsername.trim());
       }
     }
@@ -294,25 +302,52 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                   </div>
                 </div>
                 {member.userId && (
-                  <div>
-                    <label className="text-xs text-gray-500 dark:text-gray-400 font-medium">Quyền tài khoản</label>
-                    <div className="mt-1 grid grid-cols-2 gap-2">
-                      <button type="button" onClick={() => setEditRole('staff')}
-                        className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
-                          editRole === 'staff'
-                            ? 'bg-emerald-600 text-white border-emerald-600'
-                            : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600 hover:border-emerald-300'
-                        }`}>
-                        Nhân viên
-                      </button>
-                      <button type="button" onClick={() => setEditRole('manager')}
-                        className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
-                          editRole === 'manager'
-                            ? 'bg-indigo-600 text-white border-indigo-600'
-                            : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600 hover:border-indigo-300'
-                        }`}>
-                        Quản lý
-                      </button>
+                  <div className="space-y-3">
+                    {/* Role */}
+                    <div>
+                      <label className="text-xs text-gray-500 dark:text-gray-400 font-medium flex items-center gap-1">
+                        <ShieldCheck size={12} /> Quyền tài khoản
+                      </label>
+                      <div className="mt-1 grid grid-cols-2 gap-2">
+                        <button type="button" onClick={() => setEditRole('staff')}
+                          className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
+                            editRole === 'staff'
+                              ? 'bg-emerald-600 text-white border-emerald-600'
+                              : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600 hover:border-emerald-300'
+                          }`}>
+                          Nhân viên
+                        </button>
+                        <button type="button" onClick={() => setEditRole('manager')}
+                          className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
+                            editRole === 'manager'
+                              ? 'bg-indigo-600 text-white border-indigo-600'
+                              : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600 hover:border-indigo-300'
+                          }`}>
+                          Quản lý
+                        </button>
+                      </div>
+                    </div>
+                    {/* Department */}
+                    <div>
+                      <label className="text-xs text-gray-500 dark:text-gray-400 font-medium flex items-center gap-1">
+                        <Building2 size={12} /> Bộ phận kho hàng
+                      </label>
+                      <div className="mt-1 grid grid-cols-3 gap-2">
+                        {([
+                          { id: 'restaurant' as UserDepartment, label: 'Nhà hàng' },
+                          { id: 'festival'   as UserDepartment, label: 'Festival' },
+                          { id: 'both'       as UserDepartment, label: 'Cả hai'  },
+                        ]).map(({ id, label }) => (
+                          <button key={id} type="button" onClick={() => setEditDepartment(id)}
+                            className={`py-2 rounded-lg text-xs font-medium border transition-colors ${
+                              editDepartment === id
+                                ? 'bg-teal-600 text-white border-teal-600'
+                                : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600'
+                            }`}>
+                            {label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -341,6 +376,9 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                 <Row label="Loại" value={member.staffType === 'part-time' ? 'Part-time' : 'Nhân viên cứng'} />
                 {memberCurrentRole && (
                   <Row label="Quyền" value={memberCurrentRole === 'manager' ? 'Quản lý' : 'Nhân viên'} />
+                )}
+                {memberDepartment && (
+                  <Row label="Bộ phận" value={memberDepartment === 'restaurant' ? 'Nhà hàng' : memberDepartment === 'festival' ? 'Festival' : 'Cả hai'} />
                 )}
               </>
             )}
