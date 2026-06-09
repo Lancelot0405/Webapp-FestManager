@@ -7,6 +7,7 @@ import { Plus, Trash2, Search } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
 import AddEventForm from './AddEventForm';
+import { SkeletonList } from '../shared/ui/Skeleton';
 import { computeEventStatus } from '../../lib/eventStatus';
 import type { EventStatus, FestivalEvent } from '../../types';
 
@@ -114,7 +115,9 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
         <AddEventForm onClose={() => setShowAddForm(false)} />
       )}
 
-      {sorted.length === 0 ? (
+      {state.loading ? (
+        <SkeletonList count={3} variant="card" />
+      ) : sorted.length === 0 ? (
         <p className="text-sm text-gray-400 text-center py-10">Chưa có sự kiện nào</p>
       ) : (
         <div className="space-y-3">

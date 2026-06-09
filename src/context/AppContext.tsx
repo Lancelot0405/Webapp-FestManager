@@ -9,7 +9,9 @@ import {
   useReducer,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
+  useRef,
   type ReactNode,
 } from 'react';
 
@@ -105,18 +107,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
   const showToast = useToast();
 
+  // Ref luôn giữ state mới nhất — dùng trong useCallback mà không thêm vào deps.
+  // useLayoutEffect (synchronous) đảm bảo ref được cập nhật trước khi bất kỳ
+  // event handler nào chạy sau render.
+  const stateRef = useRef(state);
+  useLayoutEffect(() => { stateRef.current = state; });
+
   // ---------------------------------------------------------------------------
   // Helper xử lý lỗi mutation tập trung.
-  // Thay cho các lệnh `.then()` fire-and-forget không bắt lỗi: nếu DB trả lỗi,
-  // ghi log + hiện toast cho người dùng thay vì im lặng để state lệch DB.
+  // Nếu DB trả lỗi: hiện toast + gọi rollback (nếu có) để hoàn tác optimistic
+  // dispatch đã thực hiện trước đó.
   // ---------------------------------------------------------------------------
   const runWrite = useCallback(
-    async (context: string, builder: WriteResult): Promise<boolean> => {
+    async (context: string, builder: WriteResult, rollback?: () => void): Promise<boolean> => {
       try {
         const { error } = await builder;
         if (error) {
           console.error(`[${context}] Supabase error:`, error.message);
           showToast(`Lỗi khi lưu (${context}): ${error.message}`, 'error');
+          rollback?.();
           return false;
         }
         return true;
@@ -124,6 +133,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const message = e instanceof Error ? e.message : String(e);
         console.error(`[${context}] Unexpected error:`, message);
         showToast(`Lỗi kết nối (${context})`, 'error');
+        rollback?.();
         return false;
       }
     },
@@ -260,41 +270,61 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [showToast]);
 
   const deleteEvent = useCallback((eventId: number) => {
+    const prev = stateRef.current.events.find(e => e.id === eventId);
     dispatch({ type: 'DELETE_EVENT', payload: eventId });
-    runWrite('deleteEvent', supabase.from('events').delete().eq('id', eventId));
+    runWrite(
+      'deleteEvent',
+      supabase.from('events').delete().eq('id', eventId),
+      prev ? () => dispatch({ type: 'ADD_EVENT', payload: prev }) : undefined
+    );
     runWrite('deleteEvent.staff', supabase.from('event_staff').delete().eq('event_id', eventId));
   }, [runWrite]);
 
   const updateEvent = useCallback((event: FestivalEvent) => {
+    const prev = stateRef.current.events.find(e => e.id === event.id);
     dispatch({ type: 'UPDATE_EVENT', payload: event });
-    runWrite('updateEvent', supabase.from('events').update({
-      name: event.name,
-      date: toISODate(event.date),
-      end_date: event.endDate ? toISODate(event.endDate) : null,
-      location: event.location,
-      status: event.status,
-      income: event.financials.income,
-      expenses: event.financials.expenses,
-      inventory_reported: event.inventoryReported,
-      booth: event.extra.booth,
-      hygiene_permit: event.extra.hygienePermit,
-      organizer_contact: event.extra.organizerContact,
-    }).eq('id', event.id));
+    runWrite(
+      'updateEvent',
+      supabase.from('events').update({
+        name: event.name,
+        date: toISODate(event.date),
+        end_date: event.endDate ? toISODate(event.endDate) : null,
+        location: event.location,
+        status: event.status,
+        income: event.financials.income,
+        expenses: event.financials.expenses,
+        inventory_reported: event.inventoryReported,
+        booth: event.extra.booth,
+        hygiene_permit: event.extra.hygienePermit,
+        organizer_contact: event.extra.organizerContact,
+      }).eq('id', event.id),
+      prev ? () => dispatch({ type: 'UPDATE_EVENT', payload: prev }) : undefined
+    );
   }, [runWrite]);
 
   // --- Staff in event ---
   const addStaffToEvent = useCallback(
     (eventId: number, staffRef: FestivalEvent['staff'][0]) => {
       dispatch({ type: 'ADD_STAFF_TO_EVENT', payload: { eventId, staffRef } });
-      runWrite('addStaffToEvent', supabase.from('event_staff').insert({ event_id: eventId, staff_id: staffRef.id }));
+      runWrite(
+        'addStaffToEvent',
+        supabase.from('event_staff').insert({ event_id: eventId, staff_id: staffRef.id }),
+        () => dispatch({ type: 'REMOVE_STAFF_FROM_EVENT', payload: { eventId, staffId: staffRef.id } })
+      );
     },
     [runWrite]
   );
 
   const removeStaffFromEvent = useCallback(
     (eventId: number, staffId: number) => {
+      const staffRef = stateRef.current.events
+        .find(e => e.id === eventId)?.staff.find(s => s.id === staffId);
       dispatch({ type: 'REMOVE_STAFF_FROM_EVENT', payload: { eventId, staffId } });
-      runWrite('removeStaffFromEvent', supabase.from('event_staff').delete().eq('event_id', eventId).eq('staff_id', staffId));
+      runWrite(
+        'removeStaffFromEvent',
+        supabase.from('event_staff').delete().eq('event_id', eventId).eq('staff_id', staffId),
+        staffRef ? () => dispatch({ type: 'ADD_STAFF_TO_EVENT', payload: { eventId, staffRef } }) : undefined
+      );
     },
     [runWrite]
   );
@@ -327,8 +357,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateExpenseStatus = useCallback(
     (eventId: number, expenseId: number, status: ExpenseStatus) => {
+      const prevStatus = stateRef.current.events
+        .find(e => e.id === eventId)?.receipts.find(r => r.id === expenseId)?.status;
       dispatch({ type: 'UPDATE_EXPENSE_STATUS', payload: { eventId, expenseId, status } });
-      runWrite('updateExpenseStatus', supabase.from('expenses').update({ status }).eq('id', expenseId));
+      runWrite(
+        'updateExpenseStatus',
+        supabase.from('expenses').update({ status }).eq('id', expenseId),
+        prevStatus !== undefined
+          ? () => dispatch({ type: 'UPDATE_EXPENSE_STATUS', payload: { eventId, expenseId, status: prevStatus } })
+          : undefined
+      );
     },
     [runWrite]
   );
@@ -336,8 +374,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // --- Inventory ---
   const setInventoryItem = useCallback(
     (itemId: number, qty: number) => {
+      const prevQty = stateRef.current.inventory.find(i => i.id === itemId)?.current;
       dispatch({ type: 'SET_INVENTORY_ITEM', payload: { itemId, qty } });
-      runWrite('setInventoryItem', supabase.from('inventory_items').update({ current: qty }).eq('id', itemId));
+      runWrite(
+        'setInventoryItem',
+        supabase.from('inventory_items').update({ current: qty }).eq('id', itemId),
+        prevQty !== undefined
+          ? () => dispatch({ type: 'SET_INVENTORY_ITEM', payload: { itemId, qty: prevQty } })
+          : undefined
+      );
     },
     [runWrite]
   );
@@ -357,22 +402,45 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 
   const deleteInventoryItem = useCallback((itemId: number) => {
+    const prev = stateRef.current.inventory.find(i => i.id === itemId);
     dispatch({ type: 'DELETE_INVENTORY_ITEM', payload: itemId });
-    runWrite('deleteInventoryItem', supabase.from('inventory_items').delete().eq('id', itemId));
+    runWrite(
+      'deleteInventoryItem',
+      supabase.from('inventory_items').delete().eq('id', itemId),
+      prev
+        ? () => dispatch({ type: 'INIT_DATA', payload: { inventory: [...stateRef.current.inventory, prev] } })
+        : undefined
+    );
   }, [runWrite]);
 
   const updateInventoryUnit = useCallback(
     (itemId: number, unit: InventoryUnit) => {
+      const prevUnit = stateRef.current.inventory.find(i => i.id === itemId)?.unit;
       dispatch({ type: 'UPDATE_INVENTORY_UNIT', payload: { itemId, unit } });
-      runWrite('updateInventoryUnit', supabase.from('inventory_items').update({ unit }).eq('id', itemId));
+      runWrite(
+        'updateInventoryUnit',
+        supabase.from('inventory_items').update({ unit }).eq('id', itemId),
+        prevUnit !== undefined
+          ? () => dispatch({ type: 'UPDATE_INVENTORY_UNIT', payload: { itemId, unit: prevUnit } })
+          : undefined
+      );
     },
     [runWrite]
   );
 
   const updateInventoryItem = useCallback(
     (itemId: number, name: string, current: number, threshold: number, unit: InventoryUnit) => {
+      const prev = stateRef.current.inventory.find(i => i.id === itemId);
       dispatch({ type: 'UPDATE_INVENTORY_ITEM', payload: { itemId, name, current, threshold, unit } });
-      runWrite('updateInventoryItem', supabase.from('inventory_items').update({ name, current, threshold, unit }).eq('id', itemId));
+      runWrite(
+        'updateInventoryItem',
+        supabase.from('inventory_items').update({ name, current, threshold, unit }).eq('id', itemId),
+        prev
+          ? () => dispatch({ type: 'UPDATE_INVENTORY_ITEM', payload: {
+              itemId, name: prev.name, current: prev.current, threshold: prev.threshold, unit: prev.unit
+            } })
+          : undefined
+      );
     },
     [runWrite]
   );
@@ -419,22 +487,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [showToast]);
 
   const updateStaff = useCallback((staff: StaffMember) => {
+    const prev = stateRef.current.staff.find(s => s.id === staff.id);
     dispatch({ type: 'UPDATE_STAFF', payload: staff });
-    runWrite('updateStaff', supabase.from('staff_members').update({
-      name:                    staff.name,
-      dob:                     staff.dob,
-      city:                    staff.city,
-      phone:                   staff.phone ?? null,
-      staff_type:              staff.staffType,
-      carte_vitale_url:        staff.carteVitale?.url        ?? null,
-      carte_vitale_name:       staff.carteVitale?.fileName   ?? null,
-      carte_vitale_uploaded_at:staff.carteVitale?.uploadedAt ?? null,
-      carte_vitale_number:     staff.carteVitaleNumber       ?? null,
-      titre_sejour_url:        staff.titreSejour?.url        ?? null,
-      titre_sejour_name:       staff.titreSejour?.fileName   ?? null,
-      titre_sejour_uploaded_at:staff.titreSejour?.uploadedAt ?? null,
-      titre_sejour_number:     staff.titreSejeurNumber       ?? null,
-    }).eq('id', staff.id));
+    runWrite(
+      'updateStaff',
+      supabase.from('staff_members').update({
+        name:                    staff.name,
+        dob:                     staff.dob,
+        city:                    staff.city,
+        phone:                   staff.phone ?? null,
+        staff_type:              staff.staffType,
+        carte_vitale_url:        staff.carteVitale?.url        ?? null,
+        carte_vitale_name:       staff.carteVitale?.fileName   ?? null,
+        carte_vitale_uploaded_at:staff.carteVitale?.uploadedAt ?? null,
+        carte_vitale_number:     staff.carteVitaleNumber       ?? null,
+        titre_sejour_url:        staff.titreSejour?.url        ?? null,
+        titre_sejour_name:       staff.titreSejour?.fileName   ?? null,
+        titre_sejour_uploaded_at:staff.titreSejour?.uploadedAt ?? null,
+        titre_sejour_number:     staff.titreSejeurNumber       ?? null,
+      }).eq('id', staff.id),
+      prev ? () => dispatch({ type: 'UPDATE_STAFF', payload: prev }) : undefined
+    );
   }, [runWrite]);
 
   const addContract = useCallback(
@@ -502,21 +575,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [runWrite]);
 
   const updateClient = useCallback((client: Client) => {
+    const prev = stateRef.current.clients.find(c => c.id === client.id);
     dispatch({ type: 'UPDATE_CLIENT', payload: client });
-    runWrite('updateClient', supabase.from('clients').update({
-      name: client.name,
-      contact_name: client.contactName,
-      phone: client.phone,
-      email: client.email,
-      city: client.city,
-      notes: client.notes,
-      event_ids: client.eventIds,
-    }).eq('id', client.id));
+    runWrite(
+      'updateClient',
+      supabase.from('clients').update({
+        name: client.name,
+        contact_name: client.contactName,
+        phone: client.phone,
+        email: client.email,
+        city: client.city,
+        notes: client.notes,
+        event_ids: client.eventIds,
+      }).eq('id', client.id),
+      prev ? () => dispatch({ type: 'UPDATE_CLIENT', payload: prev }) : undefined
+    );
   }, [runWrite]);
 
   const deleteClient = useCallback((clientId: number) => {
+    const prev = stateRef.current.clients.find(c => c.id === clientId);
     dispatch({ type: 'DELETE_CLIENT', payload: clientId });
-    runWrite('deleteClient', supabase.from('clients').delete().eq('id', clientId));
+    runWrite(
+      'deleteClient',
+      supabase.from('clients').delete().eq('id', clientId),
+      prev ? () => dispatch({ type: 'ADD_CLIENT', payload: prev }) : undefined
+    );
   }, [runWrite]);
 
   // --- Registration Requests ---

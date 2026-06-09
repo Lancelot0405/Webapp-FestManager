@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Moon, Sun, Download, Smartphone, X, ShieldCheck } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { adminApi } from '../../lib/adminApi';
@@ -109,6 +109,13 @@ export default function LoginScreen() {
     setLoading(false);
   };
 
+  useEffect(() => {
+    if (!showInstallModal) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowInstallModal(false); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [showInstallModal]);
+
   const handleInstallClick = async () => {
     const result = await triggerInstall();
     if (result === 'guide' || result === 'already') setShowInstallModal(v => !v);
@@ -154,7 +161,7 @@ export default function LoginScreen() {
               <input type={showPw ? 'text' : 'password'} required autoComplete="current-password" placeholder="Nhập mật khẩu"
                 value={password} onChange={e => setPassword(e.target.value)}
                 className="w-full pl-9 pr-10 py-3 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
-              <button type="button" onClick={() => setShowPw(v => !v)}
+              <button type="button" aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'} onClick={() => setShowPw(v => !v)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -227,7 +234,7 @@ export default function LoginScreen() {
               <input type={showPw ? 'text' : 'password'} required placeholder="Tối thiểu 6 ký tự"
                 value={password} onChange={e => setPassword(e.target.value)}
                 className="w-full pl-9 pr-10 py-3 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
-              <button type="button" onClick={() => setShowPw(v => !v)}
+              <button type="button" aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'} onClick={() => setShowPw(v => !v)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>

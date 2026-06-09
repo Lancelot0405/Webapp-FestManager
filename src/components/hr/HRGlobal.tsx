@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, User, Trash2, Search, ShieldCheck, Check, X } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import AddStaffForm from './AddStaffForm';
+import { SkeletonList } from '../shared/ui/Skeleton';
 import type { StaffMember } from '../../types';
 
 interface HRGlobalProps {
@@ -204,7 +205,9 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
         <AddStaffForm onClose={() => setShowForm(false)} />
       )}
 
-      {filtered.length === 0 ? (
+      {state.loading ? (
+        <SkeletonList count={4} variant="row" />
+      ) : filtered.length === 0 ? (
         <p className="text-sm text-gray-400 text-center py-10">Chưa có nhân viên</p>
       ) : typeFilter === 'Tất cả' && canViewAll ? (
         // Grouped view

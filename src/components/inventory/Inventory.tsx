@@ -3,6 +3,7 @@ import { Plus, X, Trash2, FileSpreadsheet, Upload, Check, ChevronDown, ChevronUp
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import { getErrorMessage } from '../../lib/errors';
+import { SkeletonList } from '../shared/ui/Skeleton';
 import type { InventoryUnit, InventoryCategory, InventoryItem } from '../../types';
 import InventoryLogList from './InventoryLogList';
 
@@ -296,7 +297,7 @@ export default function Inventory() {
                 <p className="font-semibold text-gray-800 dark:text-gray-100 text-sm">
                   Thêm {itemLabel} — {sectionLabel}
                 </p>
-                <button type="button" onClick={() => setShowAddForm(false)} className="text-gray-400"><X size={16} /></button>
+                <button type="button" aria-label="Đóng" onClick={() => setShowAddForm(false)} className="text-gray-400"><X size={16} /></button>
               </div>
               <div>
                 <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">
@@ -333,11 +334,13 @@ export default function Inventory() {
 
           {/* Item list */}
           <div className="space-y-2">
-            {filteredItems.length === 0 && (
+            {state.loading ? (
+              <SkeletonList count={3} variant="row" />
+            ) : filteredItems.length === 0 ? (
               <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-8">
                 Chưa có {itemLabel} nào trong kho {sectionLabel}
               </p>
-            )}
+            ) : null}
             {filteredItems.map((item: InventoryItem) => {
               const isLow  = item.current < item.threshold;
               const isWarn = !isLow && item.threshold > 0 && item.current < item.threshold * 1.5;
@@ -353,6 +356,8 @@ export default function Inventory() {
               return (
                 <div key={item.id} className={`rounded-xl shadow-sm border ${bg} overflow-hidden transition-all`}>
                   <button
+                    aria-label={isExpanded ? `Đóng chỉnh sửa ${item.name}` : `Chỉnh sửa ${item.name}`}
+                    aria-expanded={isExpanded}
                     className="w-full flex items-center justify-between px-4 py-3 text-left"
                     onClick={() => isExpanded ? closeEdit() : openEdit(item)}
                   >
@@ -416,6 +421,7 @@ export default function Inventory() {
                           Hủy
                         </button>
                         <button
+                          aria-label={`Xóa ${item.name}`}
                           onClick={() => handleDelete(item)}
                           className="px-3 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-500 rounded-lg transition"
                         >

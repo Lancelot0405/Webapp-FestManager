@@ -6,6 +6,8 @@ import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { computeEventStatus } from '../../lib/eventStatus';
+import Modal from '../shared/ui/Modal';
+import Button from '../shared/ui/Button';
 import type { FestivalEvent } from '../../types';
 
 interface AddEventFormProps {
@@ -50,12 +52,11 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm">
-      <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-t-2xl shadow-2xl overflow-hidden animate-slide-up">
+    <Modal onClose={onClose} className="w-full max-w-md bg-white dark:bg-slate-800 rounded-t-2xl shadow-2xl overflow-hidden animate-slide-up">
         <div className="px-5 pt-5 pb-[calc(env(safe-area-inset-bottom,0px)+80px)] overflow-y-auto overflow-x-hidden max-h-[85vh]">
           <div className="flex justify-between items-center mb-5">
             <h2 className="text-base font-bold text-gray-800 dark:text-gray-100">Thêm sự kiện mới</h2>
-            <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">
+            <button onClick={onClose} aria-label="Đóng" className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">
               <X size={16} />
             </button>
           </div>
@@ -109,15 +110,9 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
                 required
               />
             </div>
-            <button
-              type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl text-sm transition-colors shadow-md"
-            >
-              Tạo sự kiện
-            </button>
+            <Button type="submit" fullWidth>Tạo sự kiện</Button>
           </form>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }
