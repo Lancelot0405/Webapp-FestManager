@@ -35,7 +35,7 @@ export default function EventInventoryTab({ event }: Props) {
     if (editUnit !== prevUnit) updateInventoryUnit(itemId, editUnit);
     if (currentUser) {
       addInventoryLog({
-        id: Date.now(), itemId, itemName, qty, unit: editUnit,
+        id: new Date().getTime(), itemId, itemName, qty, unit: editUnit,
         action: 'set', festivalId: event.id, festivalName: event.name,
         timestamp: new Date().toLocaleString('vi-VN', { hour12: false }),
         submittedBy: currentUser.name,

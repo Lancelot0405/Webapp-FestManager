@@ -1,25 +1,31 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, ShieldCheck, Building2 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { supabase, supabaseAdmin } from '../../lib/supabase';
+import { adminApi } from '../../lib/adminApi';
 import { useToast } from '../../context/ToastContext';
-import type { StaffMember, StaffType } from '../../types';
+import Button from '../shared/ui/Button';
+import type { StaffMember, StaffType, UserRole, UserDepartment } from '../../types';
 
-const DOMAIN = '@festmanager.com';
+const DOMAIN = '@fm.com';
 
 interface Props {
   onClose: () => void;
 }
 
 export default function AddStaffForm({ onClose }: Props) {
-  const { addStaff } = useApp();
+  const { addStaff, state: { currentUser } } = useApp();
   const showToast = useToast();
-  const [name,      setName]      = useState('');
-  const [dob,       setDob]       = useState('');
-  const [city,      setCity]      = useState('');
-  const [staffType, setStaffType] = useState<StaffType>('permanent');
-  const [username,  setUsername]  = useState('');
-  const [loading,   setLoading]   = useState(false);
+  const [name,       setName]       = useState('');
+  const [dob,        setDob]        = useState('');
+  const [city,       setCity]       = useState('');
+  const [staffType,  setStaffType]  = useState<StaffType>('permanent');
+  const [username,   setUsername]   = useState('');
+  const [role,       setRole]       = useState<UserRole>('staff');
+  const [department, setDepartment] = useState<UserDepartment>('restaurant');
+  const [loading,    setLoading]    = useState(false);
+
+  const isAdmin   = currentUser?.role === 'admin';
+  const isManager = currentUser?.role === 'manager';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,26 +40,21 @@ export default function AddStaffForm({ onClose }: Props) {
 
     if (username.trim()) {
       const email = username.trim().toLowerCase() + DOMAIN;
-      const tempPassword = 'FestManager123!';
-      const { data, error } = await supabaseAdmin.auth.admin.createUser({
+      const tempPassword = 'fest1234';
+      // Tạo qua Edge Function "admin" (createUser + ghi users row ở server).
+      const { data, error } = await adminApi.createStaff({
         email,
         password: tempPassword,
-        email_confirm: true,
-        user_metadata: { name: name.trim() },
+        name: name.trim(),
+        role: isAdmin ? role : 'staff',
+        department,
       });
       if (error) {
-        showToast(`Lỗi tạo tài khoản: ${error.message}`, 'error');
+        showToast(`Lỗi tạo tài khoản: ${error}`, 'error');
         setLoading(false);
         return;
       }
-      userId = data.user?.id;
-      if (userId) {
-        await supabase.from('users').upsert({
-          id: userId,
-          name: name.trim(),
-          role: 'staff',
-        });
-      }
+      userId = data?.userId;
     }
 
     const newStaff: StaffMember = {
@@ -72,91 +73,171 @@ export default function AddStaffForm({ onClose }: Props) {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-blue-200 p-4 shadow-sm">
-      <div className="flex justify-between items-center mb-4">
-        <p className="font-semibold text-gray-800">Thêm nhân viên mới</p>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-          <X size={16} />
-        </button>
-      </div>
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <div>
-          <label className="text-xs font-medium text-gray-600">Tên *</label>
-          <input
-            required
-            className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
-            placeholder="Nguyễn Văn A"
-            value={name}
-            onChange={e => setName(e.target.value)}
-          />
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm px-0">
+      <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-t-2xl shadow-2xl overflow-hidden animate-slide-up">
+      <div className="px-5 pt-5 pb-[calc(env(safe-area-inset-bottom,0px)+80px)] max-h-[90vh] overflow-y-auto overflow-x-hidden">
+        <div className="flex justify-between items-center mb-5">
+          <p className="text-base font-bold text-gray-800 dark:text-gray-100">Thêm nhân viên mới</p>
+          <button onClick={onClose} aria-label="Đóng" className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">
+            <X size={16} />
+          </button>
         </div>
-        <div>
-          <label className="text-xs font-medium text-gray-600">Tên đăng nhập <span className="text-gray-400 font-normal">(để tạo tài khoản)</span></label>
-          <div className="mt-1 flex items-center border border-gray-200 rounded-lg overflow-hidden">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1 block">Tên *</label>
             <input
-              className="flex-1 px-3 py-2 text-sm focus:outline-none"
-              placeholder="nguyenvana"
-              value={username}
-              onChange={e => setUsername(e.target.value.replace(/\s/g, '').toLowerCase())}
+              required
+              className="w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 transition-all"
+              placeholder="Nguyễn Văn A"
+              value={name}
+              onChange={e => setName(e.target.value)}
             />
-            <span className="px-2 text-xs text-gray-400 bg-gray-50 border-l border-gray-200 py-2 shrink-0">@festmanager.com</span>
           </div>
-          <p className="text-xs text-gray-400 mt-0.5">Mật khẩu mặc định: FestManager123!</p>
-        </div>
-        <div>
-          <label className="text-xs font-medium text-gray-600">Ngày sinh</label>
-          <input
-            type="date"
-            className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
-            value={dob}
-            onChange={e => setDob(e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="text-xs font-medium text-gray-600">Thành phố *</label>
-          <input
-            required
-            className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
-            placeholder="Paris"
-            value={city}
-            onChange={e => setCity(e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="text-xs font-medium text-gray-600">Loại nhân viên</label>
-          <div className="mt-1 grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => setStaffType('permanent')}
-              className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
-                staffType === 'permanent'
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300'
-              }`}
-            >
-              Nhân viên cứng
-            </button>
-            <button
-              type="button"
-              onClick={() => setStaffType('part-time')}
-              className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
-                staffType === 'part-time'
-                  ? 'bg-purple-600 text-white border-purple-600'
-                  : 'bg-white text-gray-600 border-gray-200 hover:border-purple-300'
-              }`}
-            >
-              Part-time
-            </button>
+
+          <div>
+            <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1 block">
+              Tên đăng nhập <span className="font-normal text-gray-400 dark:text-gray-500">(để tạo tài khoản)</span>
+            </label>
+            <div className="flex items-stretch border border-gray-200 dark:border-slate-600 rounded-xl overflow-hidden focus-within:border-blue-400 transition-all">
+              <input
+                className="flex-1 px-3 py-2.5 text-sm bg-white dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 focus:outline-none"
+                placeholder="nguyenvana"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                value={username}
+                onChange={e => setUsername(e.target.value.replace(/\s/g, '').toLowerCase())}
+              />
+              <span className="px-2.5 text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-slate-600 border-l border-gray-200 dark:border-slate-500 flex items-center shrink-0 font-mono">
+                @fm.com
+              </span>
+            </div>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+              Mật khẩu mặc định: <span className="font-semibold text-gray-700 dark:text-gray-300">fest1234</span>
+            </p>
           </div>
-        </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white font-medium py-2 rounded-lg text-sm disabled:opacity-60"
-        >
-          {loading ? 'Đang tạo...' : 'Thêm nhân viên'}
-        </button>
-      </form>
+
+          {(isAdmin || isManager) && (
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-3 space-y-3">
+              {/* Role — admin only */}
+              {isAdmin && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1.5">
+                    <ShieldCheck size={13} className="text-amber-600 dark:text-amber-400" />
+                    <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">Quyền tài khoản</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {(['staff', 'manager', 'admin'] as UserRole[]).map(r => (
+                      <button
+                        key={r}
+                        type="button"
+                        onClick={() => setRole(r)}
+                        className={`py-2 rounded-xl text-xs font-semibold border transition-colors ${
+                          role === r
+                            ? r === 'admin'
+                              ? 'bg-red-600 text-white border-red-600'
+                              : r === 'manager'
+                                ? 'bg-amber-500 text-white border-amber-500'
+                                : 'bg-blue-600 text-white border-blue-600'
+                            : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600'
+                        }`}
+                      >
+                        {r === 'staff' ? 'Nhân viên' : r === 'manager' ? 'Quản lý' : 'Admin'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Department — not shown when assigning admin role */}
+              {(!isAdmin || role !== 'admin') && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1.5">
+                    <Building2 size={13} className="text-amber-600 dark:text-amber-400" />
+                    <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">Bộ phận kho hàng</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {([
+                      { id: 'restaurant' as UserDepartment, label: 'Nhà hàng' },
+                      { id: 'festival'   as UserDepartment, label: 'Festival' },
+                      { id: 'both'       as UserDepartment, label: 'Cả hai'  },
+                    ]).map(({ id, label }) => (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => setDepartment(id)}
+                        className={`py-2 rounded-xl text-xs font-semibold border transition-colors ${
+                          department === id
+                            ? 'bg-teal-600 text-white border-teal-600'
+                            : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600'
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div>
+            <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1 block">Ngày sinh</label>
+            <div className="overflow-hidden rounded-xl">
+              <input
+                type="date"
+                className="border border-gray-200 dark:border-slate-600 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 transition-all"
+                value={dob}
+                onChange={e => setDob(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1 block">Thành phố *</label>
+            <input
+              required
+              className="w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 transition-all"
+              placeholder="Paris"
+              value={city}
+              onChange={e => setCity(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1 block">Loại nhân viên</label>
+            <div className="grid grid-cols-2 gap-2 mt-1">
+              <button
+                type="button"
+                onClick={() => setStaffType('permanent')}
+                className={`py-2.5 rounded-xl text-sm font-semibold border transition-colors ${
+                  staffType === 'permanent'
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600 hover:border-blue-300'
+                }`}
+              >
+                Nhân viên cứng
+              </button>
+              <button
+                type="button"
+                onClick={() => setStaffType('part-time')}
+                className={`py-2.5 rounded-xl text-sm font-semibold border transition-colors ${
+                  staffType === 'part-time'
+                    ? 'bg-purple-600 text-white border-purple-600'
+                    : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600 hover:border-purple-300'
+                }`}
+              >
+                Part-time
+              </button>
+            </div>
+          </div>
+
+          <Button type="submit" fullWidth loading={loading} className="font-semibold shadow-md">
+            {loading ? 'Đang tạo...' : 'Thêm nhân viên'}
+          </Button>
+        </form>
+      </div>
+      </div>
     </div>
   );
 }

@@ -35,4 +35,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Hook co-located với context (chủ đích) — disable rule HMR-only của react-refresh.
+// eslint-disable-next-line react-refresh/only-export-components
 export const useTheme = () => useContext(ThemeContext);

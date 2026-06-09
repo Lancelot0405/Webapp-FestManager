@@ -9,10 +9,13 @@
 
 export type UserRole = 'admin' | 'manager' | 'staff';
 
+export type UserDepartment = 'restaurant' | 'festival' | 'both';
+
 export interface CurrentUser {
   id: string;
   name: string;
   role: UserRole;
+  department?: UserDepartment | null;
 }
 
 export type RegistrationStatus = 'pending' | 'approved' | 'rejected';
@@ -142,7 +145,13 @@ export type InventoryUnit =
   | 'cuộn'
   | 'chiếc';
 
-export type InventoryCategory = 'food' | 'equipment';
+export type InventoryCategory =
+  | 'food'               // legacy → maps to restaurant-food
+  | 'equipment'          // legacy → maps to restaurant-equipment
+  | 'restaurant-food'
+  | 'restaurant-equipment'
+  | 'festival-food'
+  | 'festival-equipment';
 
 export interface InventoryItem {
   id: number;

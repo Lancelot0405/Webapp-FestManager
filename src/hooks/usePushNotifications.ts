@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY ?? '';
@@ -19,11 +19,10 @@ export function usePushNotifications() {
   // Khởi tạo từ localStorage để giữ trạng thái sau reload
   const [subscribed, setSubscribed] = useState(() => localStorage.getItem(STORAGE_KEY) === '1');
   const [loading, setLoading] = useState(false);
-  const [supported, setSupported] = useState(false);
-
-  useEffect(() => {
-    setSupported('serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window);
-  }, []);
+  // Derive ở initializer (API có sẵn lúc mount) — tránh setState trong effect.
+  const [supported] = useState(() =>
+    'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window
+  );
 
   const subscribe = useCallback(async () => {
     if (!supported) return;

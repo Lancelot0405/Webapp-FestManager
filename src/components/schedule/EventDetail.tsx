@@ -2,12 +2,12 @@
 // src/components/schedule/EventDetail.tsx
 // =============================================================================
 
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { ArrowLeft, Trash2, Download, Copy } from 'lucide-react';
-import * as XLSX from 'xlsx';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
-import EventPDFExport     from './EventPDFExport';
+// Lazy-load: @react-pdf/renderer rất nặng, chỉ tải khi mở chi tiết sự kiện.
+const EventPDFExport = lazy(() => import('./EventPDFExport'));
 import EventInfoTab       from './tabs/EventInfoTab';
 import EventStaffTab      from './tabs/EventStaffTab';
 import EventExpensesTab   from './tabs/EventExpensesTab';
@@ -53,8 +53,10 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
     }
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
     if (!event) return;
+    // Tải xlsx động — chỉ nạp khi người dùng thực sự export.
+    const XLSX = await import('xlsx');
     const wb = XLSX.utils.book_new();
 
     // Sheet 1: Event info
@@ -100,7 +102,7 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
     <div className="pb-6">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
-        <button onClick={onBack} className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+        <button onClick={onBack} aria-label="Quay lại" className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
           <ArrowLeft size={22} />
         </button>
         <div className="min-w-0 flex-1">
@@ -112,22 +114,26 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
             <button
               onClick={handleExport}
               className="p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-              title="Xuất Excel"
+              aria-label="Xuất Excel" title="Xuất Excel"
             >
               <Download size={18} />
             </button>
-            <EventPDFExport event={event} />
+            <Suspense fallback={
+              <span className="px-3 py-1.5 text-sm text-gray-400">PDF…</span>
+            }>
+              <EventPDFExport event={event} />
+            </Suspense>
             <button
               onClick={handleClone}
               className="p-2 text-green-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-              title="Nhân bản sự kiện"
+              aria-label="Nhân bản sự kiện" title="Nhân bản sự kiện"
             >
               <Copy size={18} />
             </button>
             <button
               onClick={handleDelete}
               className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-              title="Xóa sự kiện"
+              aria-label="Xóa sự kiện" title="Xóa sự kiện"
             >
               <Trash2 size={18} />
             </button>

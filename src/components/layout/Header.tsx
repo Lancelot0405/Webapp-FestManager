@@ -75,7 +75,7 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
             <button
               onClick={handleInstallClick}
               className="w-9 h-9 bg-gray-100 dark:bg-slate-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 hover:text-indigo-600 text-gray-500 rounded-full flex items-center justify-center transition-colors"
-              title="Cài đặt ứng dụng"
+              aria-label="Cài đặt ứng dụng" title="Cài đặt ứng dụng"
             >
               <Download size={16} />
             </button>
@@ -131,6 +131,7 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
           <button
             onClick={toggleTheme}
             className="w-9 h-9 bg-gray-100 dark:bg-slate-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 hover:text-indigo-600 text-gray-500 dark:text-gray-400 rounded-full flex items-center justify-center transition-colors"
+            aria-label={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
             title={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
           >
             {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
@@ -142,7 +143,7 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
               <button
                 onClick={() => setShowNotifDropdown(v => !v)}
                 className="w-9 h-9 bg-gray-100 dark:bg-slate-700 hover:bg-yellow-50 dark:hover:bg-indigo-900/40 hover:text-yellow-600 text-gray-500 dark:text-gray-400 rounded-full flex items-center justify-center transition-colors relative"
-                title="Thông báo"
+                aria-label="Thông báo" title="Thông báo"
               >
                 <Bell size={16} />
                 {notifications.length > 0 && (
@@ -190,7 +191,7 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
           {/* Push subscribe — staff */}
           {!isAdmin && (
             subscribed ? (
-              <div className="w-9 h-9 bg-green-50 text-green-600 rounded-full flex items-center justify-center" title="Đã bật thông báo">
+              <div className="w-9 h-9 bg-green-50 text-green-600 rounded-full flex items-center justify-center" aria-label="Đã bật thông báo" title="Đã bật thông báo">
                 <Bell size={16} />
               </div>
             ) : (
@@ -198,7 +199,7 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
                 onClick={subscribe}
                 disabled={pushLoading}
                 className="w-9 h-9 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full flex items-center justify-center transition-colors disabled:opacity-60 relative"
-                title="Bật thông báo đẩy"
+                aria-label="Bật thông báo đẩy" title="Bật thông báo đẩy"
               >
                 {pushLoading
                   ? <span className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
@@ -211,7 +212,7 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
           <button
             onClick={onLogout}
             className="w-9 h-9 bg-gray-100 dark:bg-slate-700 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 text-gray-500 dark:text-gray-400 rounded-full flex items-center justify-center transition-colors"
-            title="Đăng xuất"
+            aria-label="Đăng xuất" title="Đăng xuất"
           >
             <LogOut size={16} />
           </button>
