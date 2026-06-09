@@ -172,4 +172,7 @@ access token của user. Sau đó xóa `supabaseAdmin` và biến `VITE_SUPABASE
 
 ---
 
+> 📌 Danh sách **công việc còn lại** (dạng checklist hành động) xem tại
+> [`docs/CONG_VIEC_CON_LAI.md`](./CONG_VIEC_CON_LAI.md).
+
 *Tài liệu này sẽ được cập nhật trạng thái khi từng hạng mục hoàn tất.*
