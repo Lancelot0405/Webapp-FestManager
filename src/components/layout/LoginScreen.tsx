@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Moon, Sun, Download, Smartphone, X, ShieldCheck, Store, Tent } from 'lucide-react';
+import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Moon, Sun, Download, Smartphone, X, ShieldCheck, Store, Tent, UtensilsCrossed } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { adminApi } from '../../lib/adminApi';
 import { useApp } from '../../context/AppContext';
@@ -8,13 +8,14 @@ import { useInstallPrompt } from '../../hooks/useInstallPrompt';
 
 const DOMAIN = '@fm.com';
 
-type Mode = 'login' | 'register';
-type RegisterRole = 'staff' | 'manager';
+type Mode           = 'login' | 'register';
+type RegisterRole   = 'staff' | 'manager';
 
 export default function LoginScreen() {
-  const { login } = useApp();
+  const { login }  = useApp();
   const { theme, toggleTheme } = useTheme();
   const { isIos, isStandalone, triggerInstall } = useInstallPrompt();
+
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [mode,           setMode]         = useState<Mode>('login');
   const [username,       setUsername]     = useState('');
@@ -31,11 +32,9 @@ export default function LoginScreen() {
   const reset = (nextMode: Mode) => {
     setMode(nextMode); setError(''); setSuccess('');
     setUsername(''); setDisplayName(''); setPassword(''); setPassword2('');
-    setRegisterRole('staff');
-    setRegisterDept('restaurant');
+    setRegisterRole('staff'); setRegisterDept('restaurant');
   };
 
-  // ── ĐĂNG NHẬP ────────────────────────────────────────────────────────────
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true); setError('');
@@ -54,38 +53,35 @@ export default function LoginScreen() {
     if (profile) {
       if (profile.status === 'pending') {
         await supabase.auth.signOut();
-        setError('Tài khoản quản lý của bạn đang chờ admin duyệt. Vui lòng liên hệ admin.');
+        setError('Tài khoản quản lý đang chờ admin duyệt. Vui lòng liên hệ admin.');
         setLoading(false); return;
       }
       if (profile.status === 'rejected') {
         await supabase.auth.signOut();
-        setError('Yêu cầu đăng ký quản lý của bạn đã bị từ chối. Vui lòng liên hệ admin.');
+        setError('Yêu cầu đăng ký quản lý đã bị từ chối. Vui lòng liên hệ admin.');
         setLoading(false); return;
       }
       login({ id: profile.id, name: profile.name, role: profile.role, department: profile.department ?? null });
     } else {
       await supabase.auth.signOut();
-      setError('Không tìm thấy thông tin tài khoản. Vui lòng liên hệ admin.');
+      setError('Không tìm thấy tài khoản. Vui lòng liên hệ admin.');
       setLoading(false); return;
     }
     setLoading(false);
   };
 
-  // ── ĐĂNG KÝ ──────────────────────────────────────────────────────────────
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(''); setSuccess('');
 
-    if (password !== password2) { setError('Mật khẩu xác nhận không khớp'); return; }
-    if (password.length < 6)    { setError('Mật khẩu phải có ít nhất 6 ký tự'); return; }
-    if (username.trim().length < 2) { setError('Tên đăng nhập phải có ít nhất 2 ký tự'); return; }
+    if (password !== password2)          { setError('Mật khẩu xác nhận không khớp'); return; }
+    if (password.length < 6)             { setError('Mật khẩu phải có ít nhất 6 ký tự'); return; }
+    if (username.trim().length < 2)      { setError('Tên đăng nhập phải có ít nhất 2 ký tự'); return; }
 
     setLoading(true);
     const email = username.trim().toLowerCase() + DOMAIN;
     const name  = displayName.trim() || username.trim();
 
-    // Tạo tài khoản qua Edge Function "admin" (service key giữ ở server) —
-    // không tạo session phía client, không lộ service key.
     const { error: createError } = await adminApi.register({
       email, password, name, role: registerRole,
       ...(registerRole === 'staff' ? { department: registerDept } : {}),
@@ -105,10 +101,9 @@ export default function LoginScreen() {
       setSuccess('Đăng ký thành công! Bạn có thể đăng nhập ngay.');
       setTimeout(() => reset('login'), 2000);
     } else {
-      setSuccess('Yêu cầu đăng ký quản lý đã được gửi! Admin sẽ duyệt tài khoản của bạn.');
+      setSuccess('Yêu cầu đăng ký quản lý đã được gửi! Admin sẽ duyệt sớm.');
       setTimeout(() => reset('login'), 3000);
     }
-
     setLoading(false);
   };
 
@@ -124,48 +119,62 @@ export default function LoginScreen() {
     if (result === 'guide' || result === 'already') setShowInstallModal(v => !v);
   };
 
+  const fieldBase =
+    'w-full pl-9 pr-4 py-3 border rounded-xl transition-all ' +
+    'bg-white dark:bg-espresso-700 text-espresso-800 dark:text-espresso-50 ' +
+    'placeholder:text-brand-200 dark:placeholder:text-espresso-100/30 ' +
+    'border-brand-200 dark:border-espresso-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900 focus:outline-none';
+
   return (
-    <div className="w-full max-w-md flex flex-col items-center justify-center min-h-screen px-4 py-8">
+    <div className="w-full max-w-md flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-surface-light dark:bg-surface-dark">
 
       {/* Card */}
-      <div className="w-full bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-2xl">
+      <div className="w-full bg-white dark:bg-espresso-700 rounded-3xl p-8 shadow-warm">
+
         {/* Logo */}
         <div className="flex flex-col items-center mb-7">
-          <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-3 shadow-lg">
-            <span className="text-white font-black text-xl tracking-tight">FM</span>
+          <div className="w-16 h-16 rounded-2xl bg-brand-gradient flex items-center justify-center mb-3 shadow-hero">
+            <UtensilsCrossed size={28} className="text-white" />
           </div>
-          <h1 className="text-2xl font-black text-gray-900 dark:text-gray-100">FestManager</h1>
-          <p className="text-gray-400 dark:text-gray-500 text-sm mt-0.5">Hệ thống quản lý F&amp;B lưu động</p>
+          <h1 className="text-2xl font-black text-espresso-800 dark:text-espresso-50 tracking-tight">FestManager</h1>
+          <p className="text-brand-400 dark:text-brand-500 text-sm mt-0.5">Hệ thống quản lý F&amp;B lưu động</p>
         </div>
 
-        {/* Tab login / register */}
-        <div className="flex w-full bg-gray-100 dark:bg-slate-700 rounded-xl p-1 mb-6">
-          <button
-            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition ${mode === 'login' ? 'bg-white dark:bg-slate-600 shadow text-blue-600' : 'text-gray-500 dark:text-gray-400'}`}
-            onClick={() => reset('login')}
-          >Đăng nhập</button>
-          <button
-            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition ${mode === 'register' ? 'bg-white dark:bg-slate-600 shadow text-blue-600' : 'text-gray-500 dark:text-gray-400'}`}
-            onClick={() => reset('register')}
-          >Đăng ký</button>
+        {/* Tab */}
+        <div className="flex w-full bg-brand-50 dark:bg-espresso-800 rounded-xl p-1 mb-6">
+          {(['login', 'register'] as Mode[]).map(m => (
+            <button
+              key={m}
+              onClick={() => reset(m)}
+              className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+                mode === m
+                  ? 'bg-white dark:bg-espresso-700 shadow text-brand-600 dark:text-brand-400'
+                  : 'text-brand-400 dark:text-brand-600'
+              }`}
+            >
+              {m === 'login' ? 'Đăng nhập' : 'Đăng ký'}
+            </button>
+          ))}
         </div>
 
-        {/* ── FORM ĐĂNG NHẬP ── */}
+        {/* ── LOGIN ── */}
         {mode === 'login' && (
           <form onSubmit={handleLogin} className="w-full space-y-4">
             <Field label="Tên đăng nhập" icon={<User size={16} />}>
               <input type="text" required autoComplete="username" placeholder="Nhập tên đăng nhập"
                 autoCapitalize="none" autoCorrect="off" spellCheck={false}
                 value={username} onChange={e => setUsername(e.target.value)}
-                className="w-full pl-9 pr-4 py-3 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
+                className={fieldBase} />
             </Field>
 
             <Field label="Mật khẩu" icon={<Lock size={16} />}>
-              <input type={showPw ? 'text' : 'password'} required autoComplete="current-password" placeholder="Nhập mật khẩu"
+              <input type={showPw ? 'text' : 'password'} required autoComplete="current-password"
+                placeholder="Nhập mật khẩu"
                 value={password} onChange={e => setPassword(e.target.value)}
-                className="w-full pl-9 pr-10 py-3 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
-              <button type="button" aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'} onClick={() => setShowPw(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                className={`${fieldBase} pr-10`} />
+              <button type="button" aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                onClick={() => setShowPw(v => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-300 hover:text-brand-500">
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </Field>
@@ -173,80 +182,64 @@ export default function LoginScreen() {
             {error && <ErrorMsg msg={error} />}
 
             <button type="submit" disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-md disabled:opacity-60 transition-colors">
+              className="w-full bg-brand-gradient hover:opacity-90 text-white font-semibold py-3 rounded-xl shadow-warm active:scale-[0.98] transition-all disabled:opacity-60">
               {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
             </button>
           </form>
         )}
 
-        {/* ── FORM ĐĂNG KÝ ── */}
+        {/* ── REGISTER ── */}
         {mode === 'register' && (
           <form onSubmit={handleRegister} className="w-full space-y-4">
-            <div className="bg-blue-50 border border-blue-100 rounded-xl px-3 py-2.5 text-xs text-blue-700">
-              💡 Nếu admin đã tạo tài khoản cho bạn, hãy dùng thông tin đăng nhập do admin cung cấp thay vì đăng ký mới.
+            <div className="bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800 rounded-xl px-3 py-2.5 text-xs text-brand-600 dark:text-brand-400">
+              💡 Nếu admin đã tạo tài khoản cho bạn, hãy dùng thông tin do admin cung cấp.
             </div>
 
-            {/* Role selection */}
+            {/* Role */}
             <div>
-              <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1.5 block">Đăng ký với vai trò</label>
+              <label className="text-xs font-semibold text-brand-700 dark:text-brand-300 mb-1.5 block">Đăng ký với vai trò</label>
               <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
+                <RoleBtn
+                  active={registerRole === 'staff'}
+                  activeClass="bg-brand-gradient text-white shadow-warm"
                   onClick={() => setRegisterRole('staff')}
-                  className={`py-2.5 rounded-xl text-sm font-medium border transition-colors flex items-center justify-center gap-1.5 ${
-                    registerRole === 'staff'
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600'
-                  }`}
-                >
-                  <User size={14} /> Nhân viên
-                </button>
-                <button
-                  type="button"
+                  icon={<User size={14} />}
+                  label="Nhân viên"
+                />
+                <RoleBtn
+                  active={registerRole === 'manager'}
+                  activeClass="bg-saffron-500 text-espresso-800 shadow-[0_2px_8px_0_rgb(234_179_8/0.35)]"
                   onClick={() => setRegisterRole('manager')}
-                  className={`py-2.5 rounded-xl text-sm font-medium border transition-colors flex items-center justify-center gap-1.5 ${
-                    registerRole === 'manager'
-                      ? 'bg-indigo-600 text-white border-indigo-600'
-                      : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600'
-                  }`}
-                >
-                  <ShieldCheck size={14} /> Quản lý
-                </button>
+                  icon={<ShieldCheck size={14} />}
+                  label="Quản lý"
+                />
               </div>
               {registerRole === 'manager' && (
-                <p className="mt-1.5 text-xs text-indigo-600 dark:text-indigo-400">
+                <p className="mt-1.5 text-xs text-saffron-600 dark:text-saffron-400">
                   ⏳ Tài khoản quản lý cần được admin duyệt trước khi đăng nhập.
                 </p>
               )}
             </div>
 
-            {/* Department selection — chỉ hiện khi chọn Nhân viên */}
+            {/* Department */}
             {registerRole === 'staff' && (
               <div>
-                <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1.5 block">Bộ phận</label>
+                <label className="text-xs font-semibold text-brand-700 dark:text-brand-300 mb-1.5 block">Bộ phận</label>
                 <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
+                  <RoleBtn
+                    active={registerDept === 'restaurant'}
+                    activeClass="bg-brand-gradient text-white shadow-warm"
                     onClick={() => setRegisterDept('restaurant')}
-                    className={`py-2.5 rounded-xl text-sm font-medium border transition-colors flex items-center justify-center gap-1.5 ${
-                      registerDept === 'restaurant'
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600'
-                    }`}
-                  >
-                    <Store size={14} /> Nhà hàng
-                  </button>
-                  <button
-                    type="button"
+                    icon={<Store size={14} />}
+                    label="Nhà hàng"
+                  />
+                  <RoleBtn
+                    active={registerDept === 'festival'}
+                    activeClass="bg-herb-500 text-white shadow-[0_2px_8px_0_rgb(34_197_94/0.35)]"
                     onClick={() => setRegisterDept('festival')}
-                    className={`py-2.5 rounded-xl text-sm font-medium border transition-colors flex items-center justify-center gap-1.5 ${
-                      registerDept === 'festival'
-                        ? 'bg-purple-600 text-white border-purple-600'
-                        : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600'
-                    }`}
-                  >
-                    <Tent size={14} /> Festival
-                  </button>
+                    icon={<Tent size={14} />}
+                    label="Festival"
+                  />
                 </div>
               </div>
             )}
@@ -255,21 +248,22 @@ export default function LoginScreen() {
               <input type="text" required placeholder="Không dấu, không khoảng trắng"
                 autoCapitalize="none" autoCorrect="off" spellCheck={false}
                 value={username} onChange={e => setUsername(e.target.value.replace(/\s/g, ''))}
-                className="w-full pl-9 pr-4 py-3 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
+                className={fieldBase} />
             </Field>
 
             <Field label="Tên hiển thị" icon={<User size={16} />}>
               <input type="text" placeholder="Tên đầy đủ của bạn"
                 value={displayName} onChange={e => setDisplayName(e.target.value)}
-                className="w-full pl-9 pr-4 py-3 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
+                className={fieldBase} />
             </Field>
 
             <Field label="Mật khẩu" icon={<Lock size={16} />}>
               <input type={showPw ? 'text' : 'password'} required placeholder="Tối thiểu 6 ký tự"
                 value={password} onChange={e => setPassword(e.target.value)}
-                className="w-full pl-9 pr-10 py-3 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
-              <button type="button" aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'} onClick={() => setShowPw(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                className={`${fieldBase} pr-10`} />
+              <button type="button" aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                onClick={() => setShowPw(v => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-300 hover:text-brand-500">
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </Field>
@@ -277,69 +271,55 @@ export default function LoginScreen() {
             <Field label="Xác nhận mật khẩu" icon={<Lock size={16} />}>
               <input type="password" required placeholder="Nhập lại mật khẩu"
                 value={password2} onChange={e => setPassword2(e.target.value)}
-                className="w-full pl-9 pr-4 py-3 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
+                className={fieldBase} />
             </Field>
 
             {error   && <ErrorMsg msg={error} />}
             {success && (
-              <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-xl px-3 py-2.5 text-sm">
+              <div className="flex items-center gap-2 text-herb-600 bg-herb-500/10 border border-herb-500/30 rounded-xl px-3 py-2.5 text-sm">
                 <CheckCircle size={15} className="shrink-0" /> {success}
               </div>
             )}
 
             <button type="submit" disabled={loading}
-              className={`w-full text-white font-semibold py-3 rounded-xl shadow-md disabled:opacity-60 transition-colors ${
-                registerRole === 'manager'
-                  ? 'bg-indigo-600 hover:bg-indigo-700'
-                  : 'bg-emerald-600 hover:bg-emerald-700'
+              className={`w-full text-white font-semibold py-3 rounded-xl shadow-warm active:scale-[0.98] transition-all disabled:opacity-60 ${
+                registerRole === 'manager' ? 'bg-saffron-500 hover:bg-saffron-600 text-espresso-800' : 'bg-brand-gradient hover:opacity-90'
               }`}>
               {loading ? 'Đang xử lý...' : registerRole === 'manager' ? 'Gửi yêu cầu đăng ký' : 'Tạo tài khoản'}
             </button>
           </form>
         )}
 
-        {/* Divider */}
-        <div className="border-t border-gray-100 dark:border-slate-700 mt-6 pt-4 flex items-center justify-center gap-3">
-          {/* Dark mode toggle */}
+        {/* Footer */}
+        <div className="border-t border-brand-100 dark:border-espresso-700 mt-6 pt-4 flex items-center justify-center gap-3">
           <button
             onClick={toggleTheme}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-600 dark:text-gray-300 text-xs font-medium transition-colors"
-            title={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-brand-50 dark:bg-espresso-800 hover:bg-brand-100 dark:hover:bg-espresso-700 text-brand-600 dark:text-brand-400 text-xs font-medium transition-colors"
           >
             {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
             {theme === 'dark' ? 'Giao diện sáng' : 'Giao diện tối'}
           </button>
 
-          {/* Install app */}
           <div className="relative">
             <button
               onClick={handleInstallClick}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-600 dark:text-gray-300 text-xs font-medium transition-colors"
-              title="Cài đặt ứng dụng"
+              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-brand-50 dark:bg-espresso-800 hover:bg-brand-100 dark:hover:bg-espresso-700 text-brand-600 dark:text-brand-400 text-xs font-medium transition-colors"
             >
-              <Download size={14} />
-              Cài đặt app
+              <Download size={14} /> Cài đặt app
             </button>
             {showInstallModal && (
-              <div className="absolute bottom-11 right-0 w-72 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 z-50 p-4">
+              <div className="absolute bottom-11 right-0 w-72 bg-white dark:bg-espresso-700 rounded-2xl shadow-warm border border-brand-100 dark:border-espresso-700 z-50 p-4 animate-fade-in">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <Smartphone size={16} className="text-indigo-600" />
-                    <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
-                      {isStandalone ? 'Đã cài đặt' : 'Cài đặt FestManager'}
+                    <Smartphone size={16} className="text-brand-500" />
+                    <p className="text-sm font-semibold text-espresso-800 dark:text-espresso-50">
+                      {isStandalone ? 'Đã cài đặt' : 'Cài FestManager'}
                     </p>
                   </div>
-                  <button onClick={() => setShowInstallModal(false)} className="text-gray-400"><X size={15} /></button>
+                  <button onClick={() => setShowInstallModal(false)} className="text-brand-300 hover:text-brand-500"><X size={15} /></button>
                 </div>
                 {isStandalone ? (
-                  <div className="space-y-2">
-                    <p className="text-sm text-gray-600 dark:text-gray-300">FestManager đã được cài trên thiết bị của bạn. 🎉</p>
-                    <div className="pt-1 space-y-2">
-                      <InstallStep n={1} text='Bấm nút Chia sẻ ↑ ở thanh dưới Safari' />
-                      <InstallStep n={2} text='Cuộn xuống → chọn "Thêm vào màn hình chính"' />
-                      <InstallStep n={3} text='Bấm "Thêm" góc trên phải' />
-                    </div>
-                  </div>
+                  <p className="text-sm text-brand-500">FestManager đã được cài 🎉</p>
                 ) : isIos ? (
                   <div className="space-y-2.5">
                     <InstallStep n={1} text='Bấm nút Chia sẻ ↑ ở thanh dưới Safari' />
@@ -347,36 +327,54 @@ export default function LoginScreen() {
                     <InstallStep n={3} text='Bấm "Thêm" góc trên phải' />
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Trình duyệt của bạn không hỗ trợ cài đặt tự động. Dùng menu trình duyệt → "Cài đặt ứng dụng".
-                  </p>
+                  <p className="text-sm text-brand-400">Dùng menu trình duyệt → "Cài đặt ứng dụng".</p>
                 )}
-                <p className="text-xs text-gray-400 mt-3">Yêu cầu Safari iOS 16.4+ hoặc Chrome Android</p>
+                <p className="text-xs text-brand-300 mt-3">Yêu cầu Safari iOS 16.4+ hoặc Chrome Android</p>
               </div>
             )}
           </div>
         </div>
-
       </div>
     </div>
   );
 }
 
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
 function Field({ label, icon, children }: { label: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
     <div>
-      <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1 block">{label}</label>
+      <label className="text-xs font-semibold text-brand-700 dark:text-brand-300 mb-1 block">{label}</label>
       <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">{icon}</span>
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-400">{icon}</span>
         {children}
       </div>
     </div>
   );
 }
 
+function RoleBtn({ active, activeClass, onClick, icon, label }: {
+  active: boolean; activeClass: string; onClick: () => void;
+  icon: React.ReactNode; label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`py-2.5 rounded-xl text-sm font-semibold border transition-all flex items-center justify-center gap-1.5 active:scale-[0.97] ${
+        active
+          ? `${activeClass} border-transparent`
+          : 'bg-white dark:bg-espresso-700 text-brand-500 dark:text-brand-400 border-brand-200 dark:border-espresso-700 hover:border-brand-400'
+      }`}
+    >
+      {icon} {label}
+    </button>
+  );
+}
+
 function ErrorMsg({ msg }: { msg: string }) {
   return (
-    <div className="flex items-center gap-2 text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2.5 text-sm">
+    <div className="flex items-center gap-2 text-red-500 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl px-3 py-2.5 text-sm">
       <AlertCircle size={15} className="shrink-0" /> {msg}
     </div>
   );
@@ -385,8 +383,8 @@ function ErrorMsg({ msg }: { msg: string }) {
 function InstallStep({ n, text }: { n: number; text: string }) {
   return (
     <div className="flex gap-2.5 items-start">
-      <span className="w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">{n}</span>
-      <p className="text-xs text-gray-700 dark:text-gray-300 leading-snug">{text}</p>
+      <span className="w-5 h-5 rounded-full bg-brand-gradient text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">{n}</span>
+      <p className="text-xs text-espresso-800 dark:text-espresso-50 leading-snug">{text}</p>
     </div>
   );
 }

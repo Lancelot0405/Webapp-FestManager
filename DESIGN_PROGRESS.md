@@ -28,7 +28,7 @@
 |---|---|---|---|
 | 1 | **Design Tokens** — tailwind config, CSS variables, font | ✅ Hoàn thành | `tailwind.config.js`, `src/index.css` |
 | 2 | **UI Primitives** — Button, Input, Badge, Card, Modal | ✅ Hoàn thành | `src/components/shared/ui/` |
-| 3 | **Layout** — Header, BottomNav, LoginScreen | ⏳ Chờ | `src/components/layout/` |
+| 3 | **Layout** — Header, BottomNav, LoginScreen | ✅ Hoàn thành | `src/components/layout/` |
 | 4 | **Dashboard** — Hero banner, stat cards, event list | ⏳ Chờ | `src/components/dashboard/` |
 | 5 | **Inventory** — Tab bar, item cards, form | ⏳ Chờ | `src/components/inventory/` |
 | 6 | **Các màn hình còn lại** — Staff, Expense, EventDetail | ⏳ Chờ | `src/components/*/` |
