@@ -4,6 +4,7 @@ import { useApp } from '../../context/AppContext';
 import { adminApi } from '../../lib/adminApi';
 import { useToast } from '../../context/ToastContext';
 import Button from '../shared/ui/Button';
+import Modal from '../shared/ui/Modal';
 import type { StaffMember, StaffType, UserRole, UserDepartment } from '../../types';
 
 const DOMAIN = '@fm.com';
@@ -73,8 +74,7 @@ export default function AddStaffForm({ onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm px-0">
-      <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-t-2xl shadow-2xl overflow-hidden animate-slide-up">
+    <Modal onClose={onClose} className="w-full max-w-md bg-white dark:bg-slate-800 rounded-t-2xl shadow-2xl overflow-hidden animate-slide-up">
       <div className="px-5 pt-5 pb-[calc(env(safe-area-inset-bottom,0px)+80px)] max-h-[90vh] overflow-y-auto overflow-x-hidden">
         <div className="flex justify-between items-center mb-5">
           <p className="text-base font-bold text-gray-800 dark:text-gray-100">Thêm nhân viên mới</p>
@@ -237,7 +237,6 @@ export default function AddStaffForm({ onClose }: Props) {
           </Button>
         </form>
       </div>
-      </div>
-    </div>
+    </Modal>
   );
 }
