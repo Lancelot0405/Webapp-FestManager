@@ -2,12 +2,12 @@
 // src/components/schedule/EventDetail.tsx
 // =============================================================================
 
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { ArrowLeft, Trash2, Download, Copy } from 'lucide-react';
-import * as XLSX from 'xlsx';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
-import EventPDFExport     from './EventPDFExport';
+// Lazy-load: @react-pdf/renderer rất nặng, chỉ tải khi mở chi tiết sự kiện.
+const EventPDFExport = lazy(() => import('./EventPDFExport'));
 import EventInfoTab       from './tabs/EventInfoTab';
 import EventStaffTab      from './tabs/EventStaffTab';
 import EventExpensesTab   from './tabs/EventExpensesTab';
@@ -53,8 +53,10 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
     }
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
     if (!event) return;
+    // Tải xlsx động — chỉ nạp khi người dùng thực sự export.
+    const XLSX = await import('xlsx');
     const wb = XLSX.utils.book_new();
 
     // Sheet 1: Event info
@@ -116,7 +118,11 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
             >
               <Download size={18} />
             </button>
-            <EventPDFExport event={event} />
+            <Suspense fallback={
+              <span className="px-3 py-1.5 text-sm text-gray-400">PDF…</span>
+            }>
+              <EventPDFExport event={event} />
+            </Suspense>
             <button
               onClick={handleClone}
               className="p-2 text-green-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"

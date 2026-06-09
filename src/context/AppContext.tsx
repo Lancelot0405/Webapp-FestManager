@@ -9,8 +9,11 @@ import {
   useReducer,
   useCallback,
   useEffect,
+  useMemo,
   type ReactNode,
 } from 'react';
+
+import { useToast } from './ToastContext';
 
 import type {
   CurrentUser,
@@ -419,8 +422,37 @@ const AppContext = createContext<AppContextValue | null>(null);
 // 5. PROVIDER
 // =============================================================================
 
+// Kết quả tối thiểu mà mọi truy vấn ghi của Supabase trả về.
+type WriteResult = PromiseLike<{ error: { message: string } | null }>;
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
+  const showToast = useToast();
+
+  // ---------------------------------------------------------------------------
+  // Helper xử lý lỗi mutation tập trung.
+  // Thay cho các lệnh `.then()` fire-and-forget không bắt lỗi: nếu DB trả lỗi,
+  // ghi log + hiện toast cho người dùng thay vì im lặng để state lệch DB.
+  // ---------------------------------------------------------------------------
+  const runWrite = useCallback(
+    async (context: string, builder: WriteResult): Promise<boolean> => {
+      try {
+        const { error } = await builder;
+        if (error) {
+          console.error(`[${context}] Supabase error:`, error.message);
+          showToast(`Lỗi khi lưu (${context}): ${error.message}`, 'error');
+          return false;
+        }
+        return true;
+      } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
+        console.error(`[${context}] Unexpected error:`, message);
+        showToast(`Lỗi kết nối (${context})`, 'error');
+        return false;
+      }
+    },
+    [showToast]
+  );
 
   // ---------------------------------------------------------------------------
   // Load real data from Supabase
@@ -543,23 +575,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }).select('id').single();
     if (error) {
       console.error('[addEvent] Supabase insert error:', error.message, error.code, error.details);
-      alert(`Lỗi lưu sự kiện: ${error.message}`);
+      showToast(`Lỗi lưu sự kiện: ${error.message}`, 'error');
       return;
     }
     if (data?.id && data.id !== event.id) {
       dispatch({ type: 'UPDATE_EVENT_ID', payload: { localId: event.id, dbId: data.id } });
     }
-  }, []);
+  }, [showToast]);
 
   const deleteEvent = useCallback((eventId: number) => {
     dispatch({ type: 'DELETE_EVENT', payload: eventId });
-    supabase.from('events').delete().eq('id', eventId).then();
-    supabase.from('event_staff').delete().eq('event_id', eventId).then();
-  }, []);
+    runWrite('deleteEvent', supabase.from('events').delete().eq('id', eventId));
+    runWrite('deleteEvent.staff', supabase.from('event_staff').delete().eq('event_id', eventId));
+  }, [runWrite]);
 
   const updateEvent = useCallback((event: FestivalEvent) => {
     dispatch({ type: 'UPDATE_EVENT', payload: event });
-    supabase.from('events').update({
+    runWrite('updateEvent', supabase.from('events').update({
       name: event.name,
       date: toISODate(event.date),
       end_date: event.endDate ? toISODate(event.endDate) : null,
@@ -571,31 +603,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
       booth: event.extra.booth,
       hygiene_permit: event.extra.hygienePermit,
       organizer_contact: event.extra.organizerContact,
-    }).eq('id', event.id).then();
-  }, []);
+    }).eq('id', event.id));
+  }, [runWrite]);
 
   // --- Staff in event ---
   const addStaffToEvent = useCallback(
     (eventId: number, staffRef: FestivalEvent['staff'][0]) => {
       dispatch({ type: 'ADD_STAFF_TO_EVENT', payload: { eventId, staffRef } });
-      supabase.from('event_staff').insert({ event_id: eventId, staff_id: staffRef.id }).then();
+      runWrite('addStaffToEvent', supabase.from('event_staff').insert({ event_id: eventId, staff_id: staffRef.id }));
     },
-    []
+    [runWrite]
   );
 
   const removeStaffFromEvent = useCallback(
     (eventId: number, staffId: number) => {
       dispatch({ type: 'REMOVE_STAFF_FROM_EVENT', payload: { eventId, staffId } });
-      supabase.from('event_staff').delete().eq('event_id', eventId).eq('staff_id', staffId).then();
+      runWrite('removeStaffFromEvent', supabase.from('event_staff').delete().eq('event_id', eventId).eq('staff_id', staffId));
     },
-    []
+    [runWrite]
   );
 
   // --- Expenses ---
   const addExpense = useCallback(
     async (eventId: number, expense: Expense) => {
       dispatch({ type: 'ADD_EXPENSE', payload: { eventId, expense } });
-      const { data } = await supabase.from('expenses').insert({
+      const { data, error } = await supabase.from('expenses').insert({
         staff_id: parseInt(String(expense.staffId), 10) || null,
         staff_name: expense.staffName,
         festival_id: expense.festivalId,
@@ -605,69 +637,74 @@ export function AppProvider({ children }: { children: ReactNode }) {
         image_url: expense.imageUrl,
         status: expense.status,
       }).select('id').single();
+      if (error) {
+        console.error('[addExpense] Supabase insert error:', error.message);
+        showToast(`Lỗi khi lưu chi phí: ${error.message}`, 'error');
+        return;
+      }
       if (data?.id && data.id !== expense.id) {
         dispatch({ type: 'UPDATE_EXPENSE_ID', payload: { eventId, localId: expense.id, dbId: data.id } });
       }
     },
-    []
+    [showToast]
   );
 
   const updateExpenseStatus = useCallback(
     (eventId: number, expenseId: number, status: ExpenseStatus) => {
       dispatch({ type: 'UPDATE_EXPENSE_STATUS', payload: { eventId, expenseId, status } });
-      supabase.from('expenses').update({ status }).eq('id', expenseId).then();
+      runWrite('updateExpenseStatus', supabase.from('expenses').update({ status }).eq('id', expenseId));
     },
-    []
+    [runWrite]
   );
 
   // --- Inventory ---
   const setInventoryItem = useCallback(
     (itemId: number, qty: number) => {
       dispatch({ type: 'SET_INVENTORY_ITEM', payload: { itemId, qty } });
-      supabase.from('inventory_items').update({ current: qty }).eq('id', itemId).then();
+      runWrite('setInventoryItem', supabase.from('inventory_items').update({ current: qty }).eq('id', itemId));
     },
-    []
+    [runWrite]
   );
 
   const createInventoryItem = useCallback(
     (item: Omit<InventoryItem, 'id'>) => {
       dispatch({ type: 'CREATE_INVENTORY_ITEM', payload: item });
-      supabase.from('inventory_items').insert({
+      runWrite('createInventoryItem', supabase.from('inventory_items').insert({
         name: item.name,
         current: item.current,
         threshold: item.threshold,
         unit: item.unit,
         category: item.category ?? 'food',
-      }).then();
+      }));
     },
-    []
+    [runWrite]
   );
 
   const deleteInventoryItem = useCallback((itemId: number) => {
     dispatch({ type: 'DELETE_INVENTORY_ITEM', payload: itemId });
-    supabase.from('inventory_items').delete().eq('id', itemId).then();
-  }, []);
+    runWrite('deleteInventoryItem', supabase.from('inventory_items').delete().eq('id', itemId));
+  }, [runWrite]);
 
   const updateInventoryUnit = useCallback(
     (itemId: number, unit: InventoryUnit) => {
       dispatch({ type: 'UPDATE_INVENTORY_UNIT', payload: { itemId, unit } });
-      supabase.from('inventory_items').update({ unit }).eq('id', itemId).then();
+      runWrite('updateInventoryUnit', supabase.from('inventory_items').update({ unit }).eq('id', itemId));
     },
-    []
+    [runWrite]
   );
 
   const updateInventoryItem = useCallback(
     (itemId: number, name: string, current: number, threshold: number, unit: InventoryUnit) => {
       dispatch({ type: 'UPDATE_INVENTORY_ITEM', payload: { itemId, name, current, threshold, unit } });
-      supabase.from('inventory_items').update({ name, current, threshold, unit }).eq('id', itemId).then();
+      runWrite('updateInventoryItem', supabase.from('inventory_items').update({ name, current, threshold, unit }).eq('id', itemId));
     },
-    []
+    [runWrite]
   );
 
   const addInventoryLog = useCallback(
     (log: InventoryLogEntry) => {
       dispatch({ type: 'ADD_INVENTORY_LOG', payload: log });
-      supabase.from('inventory_logs').insert({
+      runWrite('addInventoryLog', supabase.from('inventory_logs').insert({
         item_id: log.itemId,
         item_name: log.itemName,
         qty: log.qty,
@@ -677,22 +714,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
         festival_name: log.festivalName,
         timestamp: log.timestamp,
         submitted_by: log.submittedBy,
-      }).then();
+      }));
     },
-    []
+    [runWrite]
   );
 
   // --- HR ---
   const addStaff = useCallback((staff: StaffMember, userId?: string) => {
     dispatch({ type: 'ADD_STAFF', payload: staff });
-    supabase.from('staff_members').insert({
+    runWrite('addStaff', supabase.from('staff_members').insert({
       name: staff.name,
       dob: staff.dob,
       city: staff.city,
       staff_type: staff.staffType,
       user_id: userId ?? null,
-    }).then();
-  }, []);
+    }));
+  }, [runWrite]);
 
   const deleteStaff = useCallback(async (staffId: number) => {
     // Tìm userId trước khi xóa để xóa cả auth user
@@ -706,7 +743,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateStaff = useCallback((staff: StaffMember) => {
     dispatch({ type: 'UPDATE_STAFF', payload: staff });
-    supabase.from('staff_members').update({
+    runWrite('updateStaff', supabase.from('staff_members').update({
       name:                    staff.name,
       dob:                     staff.dob,
       city:                    staff.city,
@@ -720,21 +757,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
       titre_sejour_name:       staff.titreSejour?.fileName   ?? null,
       titre_sejour_uploaded_at:staff.titreSejour?.uploadedAt ?? null,
       titre_sejour_number:     staff.titreSejeurNumber       ?? null,
-    }).eq('id', staff.id).then();
-  }, []);
+    }).eq('id', staff.id));
+  }, [runWrite]);
 
   const addContract = useCallback(
     (staffId: number, contract: StaffMember['contracts'][0]) => {
       dispatch({ type: 'ADD_CONTRACT', payload: { staffId, contract } });
-      supabase.from('contracts').insert({
+      runWrite('addContract', supabase.from('contracts').insert({
         staff_id: staffId,
         date: toISODate(contract.date),
         url: contract.url,
         file_name: contract.fileName,
         festival_id: contract.festivalId ?? null,
-      }).then();
+      }));
     },
-    []
+    [runWrite]
   );
 
   // --- Clone Event ---
@@ -761,17 +798,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
       booth: cloned.extra.booth,
       hygiene_permit: cloned.extra.hygienePermit,
       organizer_contact: cloned.extra.organizerContact,
-    }).select('id').single().then(({ data }) => {
+    }).select('id').single().then(({ data, error }) => {
+      if (error) {
+        console.error('[cloneEvent] Supabase insert error:', error.message);
+        showToast(`Lỗi khi nhân bản sự kiện: ${error.message}`, 'error');
+        return;
+      }
       if (data?.id && data.id !== cloned.id) {
         dispatch({ type: 'UPDATE_EVENT_ID', payload: { localId: cloned.id, dbId: data.id } });
       }
     });
-  }, []);
+  }, [showToast]);
 
   // --- Clients ---
   const addClient = useCallback((client: Client) => {
     dispatch({ type: 'ADD_CLIENT', payload: client });
-    supabase.from('clients').insert({
+    runWrite('addClient', supabase.from('clients').insert({
       name: client.name,
       contact_name: client.contactName,
       phone: client.phone,
@@ -779,12 +821,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       city: client.city,
       notes: client.notes,
       event_ids: client.eventIds,
-    }).then();
-  }, []);
+    }));
+  }, [runWrite]);
 
   const updateClient = useCallback((client: Client) => {
     dispatch({ type: 'UPDATE_CLIENT', payload: client });
-    supabase.from('clients').update({
+    runWrite('updateClient', supabase.from('clients').update({
       name: client.name,
       contact_name: client.contactName,
       phone: client.phone,
@@ -792,13 +834,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       city: client.city,
       notes: client.notes,
       event_ids: client.eventIds,
-    }).eq('id', client.id).then();
-  }, []);
+    }).eq('id', client.id));
+  }, [runWrite]);
 
   const deleteClient = useCallback((clientId: number) => {
     dispatch({ type: 'DELETE_CLIENT', payload: clientId });
-    supabase.from('clients').delete().eq('id', clientId).then();
-  }, []);
+    runWrite('deleteClient', supabase.from('clients').delete().eq('id', clientId));
+  }, [runWrite]);
 
   // --- Registration Requests ---
   const approveRegistration = useCallback(async (userId: string) => {
@@ -813,7 +855,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'REMOVE_PENDING_REGISTRATION', payload: userId });
   }, []);
 
-  const value: AppContextValue = {
+  // Memo hóa context value: chỉ tạo object mới khi `state` (hoặc một callback) đổi,
+  // tránh re-render thừa ở mọi consumer khi component cha render lại vì lý do khác.
+  const value: AppContextValue = useMemo(() => ({
     state,
     login, logout,
     addEvent, updateEvent, deleteEvent,
@@ -824,7 +868,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     cloneEvent,
     addClient, updateClient, deleteClient,
     approveRegistration, rejectRegistration,
-  };
+  }), [
+    state,
+    login, logout,
+    addEvent, updateEvent, deleteEvent,
+    addStaffToEvent, removeStaffFromEvent,
+    addExpense, updateExpenseStatus,
+    setInventoryItem, createInventoryItem, deleteInventoryItem, updateInventoryUnit, updateInventoryItem, addInventoryLog,
+    addStaff, updateStaff, deleteStaff, addContract,
+    cloneEvent,
+    addClient, updateClient, deleteClient,
+    approveRegistration, rejectRegistration,
+  ]);
 
   return (
     <AppContext.Provider value={value}>

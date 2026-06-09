@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react';
 import { Plus, X, Trash2, FileSpreadsheet, Upload, Check, ChevronDown, ChevronUp, History, Store, Tent } from 'lucide-react';
-import * as XLSX from 'xlsx';
 import { useApp } from '../../context/AppContext';
 import type { InventoryUnit, InventoryCategory, InventoryItem } from '../../types';
 import InventoryLogList from './InventoryLogList';
@@ -127,8 +126,10 @@ export default function Inventory() {
     if (!file) return;
     setImporting(true);
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = async (ev) => {
       try {
+        // Tải xlsx động — chỉ nạp khi người dùng thực sự import file.
+        const XLSX = await import('xlsx');
         const wb = XLSX.read(ev.target?.result, { type: 'binary' });
         const ws = wb.Sheets[wb.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json<any[]>(ws, { header: 1 });
