@@ -567,6 +567,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
 // 6. CUSTOM HOOK
 // =============================================================================
 
+// Hook đặt cùng file với context là chủ đích; chỉ ảnh hưởng HMR (dev), không
+// ảnh hưởng production. Tách ra file riêng sẽ kéo theo sửa import ở rất nhiều nơi.
+// eslint-disable-next-line react-refresh/only-export-components
 export function useApp(): AppContextValue {
   const ctx = useContext(AppContext);
   if (!ctx) {

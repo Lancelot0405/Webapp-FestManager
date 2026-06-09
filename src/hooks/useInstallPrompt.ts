@@ -1,20 +1,23 @@
 import { useState, useEffect } from 'react';
 
+// Event chuẩn beforeinstallprompt chưa có trong lib DOM mặc định của TS.
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+}
+
 export function useInstallPrompt() {
-  const [installPrompt, setInstallPrompt] = useState<any>(null);
-  const [isIos, setIsIos]                 = useState(false);
-  const [isStandalone, setIsStandalone]   = useState(false);
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  // Derive ngay ở initializer (giá trị có sẵn lúc mount) — tránh setState trong effect.
+  const [isIos] = useState(() => /iphone|ipad|ipod/i.test(navigator.userAgent));
+  const [isStandalone] = useState(() =>
+    (window.navigator as Navigator & { standalone?: boolean }).standalone === true
+    || window.matchMedia('(display-mode: standalone)').matches
+  );
 
   useEffect(() => {
-    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    const standalone = (window.navigator as any).standalone === true
-      || window.matchMedia('(display-mode: standalone)').matches;
-    setIsIos(ios);
-    setIsStandalone(standalone);
-
     const handler = (e: Event) => {
       e.preventDefault();
-      setInstallPrompt(e);
+      setInstallPrompt(e as BeforeInstallPromptEvent);
     };
     window.addEventListener('beforeinstallprompt', handler);
     return () => window.removeEventListener('beforeinstallprompt', handler);

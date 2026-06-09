@@ -4,6 +4,7 @@ import { useApp } from '../../context/AppContext';
 import { ExpenseStatusBadge } from '../shared/StatusBadge';
 import DocThumbnail from '../shared/DocThumbnail';
 import { supabase, supabaseAdmin } from '../../lib/supabase';
+import { getErrorMessage } from '../../lib/errors';
 import type { ExpenseCategory, Expense, StaffDocument, UserRole, UserDepartment } from '../../types';
 
 interface StaffProfileProps {
@@ -170,8 +171,8 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
       setPwMsg('Đổi mật khẩu thành công!');
       setNewPassword('');
       setShowPwForm(false);
-    } catch (err: any) {
-      setPwMsg(`Lỗi: ${err?.message ?? 'Không thể đổi mật khẩu.'}`);
+    } catch (err) {
+      setPwMsg(`Lỗi: ${getErrorMessage(err, 'Không thể đổi mật khẩu.')}`);
     } finally {
       setPwLoading(false);
     }
@@ -183,7 +184,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
     try {
       const url = await uploadFile(file, 'contracts', `staff-${member.id}`);
       addContract(member.id, { id: Date.now(), date: nowStr(), url, fileName: file.name });
-    } catch (err: any) { alert(err?.message ?? 'Upload thất bại.'); }
+    } catch (err) { alert(getErrorMessage(err, 'Upload thất bại.')); }
     finally { setUploadingContract(false); if (contractFileRef.current) contractFileRef.current.value = ''; }
   };
 
@@ -199,7 +200,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
       const url = await uploadFile(file, 'documents', `staff-${member.id}/${docType}`);
       const doc: StaffDocument = { url, fileName: file.name, uploadedAt: nowStr() };
       updateStaff({ ...member, [docType]: doc });
-    } catch (err: any) { alert(err?.message ?? 'Upload thất bại.'); }
+    } catch (err) { alert(getErrorMessage(err, 'Upload thất bại.')); }
     finally { setUploading(false); if (ref.current) ref.current.value = ''; }
   };
 
@@ -218,7 +219,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
       });
       setShowExpenseForm(false);
       setFormAmount(''); setFormDate(''); setFormEventId(''); setExpenseFile(null);
-    } catch (err: any) { alert(err?.message ?? 'Upload thất bại.'); }
+    } catch (err) { alert(getErrorMessage(err, 'Upload thất bại.')); }
     finally { setUploadingExp(false); }
   };
 

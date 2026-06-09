@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { Plus, X, Trash2, FileSpreadsheet, Upload, Check, ChevronDown, ChevronUp, History, Store, Tent } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { getErrorMessage } from '../../lib/errors';
 import type { InventoryUnit, InventoryCategory, InventoryItem } from '../../types';
 import InventoryLogList from './InventoryLogList';
 
@@ -132,7 +133,7 @@ export default function Inventory() {
         const XLSX = await import('xlsx');
         const wb = XLSX.read(ev.target?.result, { type: 'binary' });
         const ws = wb.Sheets[wb.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json<any[]>(ws, { header: 1 });
+        const rows = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1 });
         let imported = 0;
         const category = getCategory(mainTab, subTab);
         rows.forEach((row, i) => {
@@ -143,8 +144,8 @@ export default function Inventory() {
           imported++;
         });
         alert(`Đã import ${imported} mặt hàng thành công.`);
-      } catch (err: any) {
-        alert(`Lỗi đọc file: ${err?.message ?? 'Không thể đọc file này.'}`);
+      } catch (err) {
+        alert(`Lỗi đọc file: ${getErrorMessage(err, 'Không thể đọc file này.')}`);
       } finally {
         setImporting(false);
         if (importRef.current) importRef.current.value = '';

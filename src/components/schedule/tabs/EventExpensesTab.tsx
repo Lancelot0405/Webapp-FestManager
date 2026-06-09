@@ -4,6 +4,7 @@ import DocThumbnail from '../../shared/DocThumbnail';
 import { useApp } from '../../../context/AppContext';
 import { ExpenseStatusBadge } from '../../shared/StatusBadge';
 import { supabase } from '../../../lib/supabase';
+import { getErrorMessage } from '../../../lib/errors';
 import type { FestivalEvent, ExpenseCategory, Expense } from '../../../types';
 
 interface Props {
@@ -80,8 +81,8 @@ export default function EventExpensesTab({ event }: Props) {
       setShowFormForStaff(null);
       // Giữ panel mở để thấy chi phí vừa nộp
       setExpandedStaff(myNumericStaffId);
-    } catch (err: any) {
-      alert(err?.message ?? 'Upload thất bại. Vui lòng thử lại.');
+    } catch (err) {
+      alert(getErrorMessage(err, 'Upload thất bại. Vui lòng thử lại.'));
     } finally {
       setUploading(false);
     }

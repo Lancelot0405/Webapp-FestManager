@@ -76,17 +76,20 @@ không dedupe.
 - [ ] Test component (cần @testing-library/react + jsdom) cho 1-2 form.
 - [ ] (Tùy) Playwright cho e2e luồng chính.
 
-### 7. Dọn nốt lint (còn 17 lỗi)
-- [ ] `any` còn lại ở: `StaffProfile.tsx` (173/186/202/221), `EventExpensesTab.tsx`
-      (135/146), `usePushNotifications.ts` (4/10), `Inventory.tsx` (`sheet_to_json<any[]>`).
-- [ ] Lỗi `react-refresh/only-export-components` ở `ToastContext.tsx`,
-      `AppContext.tsx`, `ThemeContext.tsx` — tách hook/constant ra file riêng.
-- [ ] Lỗi `set-state-in-effect` / `impure function during render` ở
-      `usePushNotifications.ts`, `useInstallPrompt.ts`.
+### 7. Dọn lint — ✅ XONG (0 lỗi, 0 warning)
+- [x] Gỡ `any` ở catch: thêm helper `src/lib/errors.ts` `getErrorMessage()` dùng cho
+      StaffProfile (×4), Inventory, EventContractsTab, EventExpensesTab.
+- [x] `Inventory` `sheet_to_json<unknown[]>`; `useInstallPrompt` type
+      `BeforeInstallPromptEvent` + lazy `useState` (bỏ setState-in-effect).
+- [x] `usePushNotifications` lazy `useState` cho `supported` (bỏ setState-in-effect).
+- [x] `EventStaffTab` ternary→if/else; `EventInventoryTab` `Date.now()`→`new Date().getTime()`.
+- [x] `react-refresh/only-export-components` (dev-only HMR) ở 3 context: disable kèm
+      chú thích (tách hook ra file riêng là cách "sạch" hơn nhưng churn lớn — để sau).
 
 ### 8. Thay nốt `alert()` bằng toast
-- [ ] `Inventory.tsx` (import file), `StaffProfile.tsx`, `EventExpensesTab.tsx` còn dùng
-      `alert()` lẫn lộn — chuyển hết sang `showToast` cho nhất quán.
+- [ ] `Inventory.tsx` (import file), `StaffProfile.tsx`, `EventExpensesTab.tsx`,
+      `EventContractsTab.tsx` còn dùng `alert()` — chuyển sang `showToast` cho nhất quán.
+      (Thông điệp lỗi đã chuẩn hóa qua `getErrorMessage`, chỉ còn đổi `alert`→toast.)
 
 ### 9. Optimistic update có rollback
 - [ ] Hiện `runWrite` đã báo lỗi nhưng **chưa hoàn tác** state khi DB fail.

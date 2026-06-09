@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp, Upload, Loader, FileText } from 'lucide-react';
 import DocThumbnail from '../../shared/DocThumbnail';
 import { useApp } from '../../../context/AppContext';
 import { supabase } from '../../../lib/supabase';
+import { getErrorMessage } from '../../../lib/errors';
 import type { FestivalEvent } from '../../../types';
 
 interface Props {
@@ -58,8 +59,8 @@ export default function EventContractsTab({ event }: Props) {
       });
 
       setExpandedStaff(staffId);
-    } catch (err: any) {
-      alert(err?.message ?? 'Upload thất bại. Vui lòng thử lại.');
+    } catch (err) {
+      alert(getErrorMessage(err, 'Upload thất bại. Vui lòng thử lại.'));
     } finally {
       setUploading(false);
       setUploadingFor(null);
