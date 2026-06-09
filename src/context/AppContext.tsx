@@ -499,7 +499,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
     });
     return () => subscription.unsubscribe();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   // ---------------------------------------------------------------------------
   // Refresh khi user quay lại tab (bắt thay đổi từ Supabase dashboard)
@@ -512,7 +512,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
     document.addEventListener('visibilitychange', handleVisibility);
     return () => document.removeEventListener('visibilitychange', handleVisibility);
-  }, [state.currentUser]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [state.currentUser]);
 
   // ---------------------------------------------------------------------------
   // Supabase Realtime — tự động refresh khi dữ liệu thay đổi từ bất kỳ client
@@ -547,7 +547,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   // --- Auth ---
   const login  = useCallback((user: CurrentUser) =>

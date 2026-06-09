@@ -4,6 +4,13 @@
 // =============================================================================
 
 import { supabase } from './supabase';
+
+// Hàng dữ liệu thô từ Supabase: `select('*')` + join động nên shape không cố
+// định ở compile-time. Khoanh vùng `any` tại đúng một nơi (ranh giới DB) thay
+// vì rải khắp file — runtime không đổi, chỉ gom type lại cho rõ chủ đích.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DbRow = Record<string, any>;
+
 import type {
   StaffMember,
   FestivalEvent,
@@ -36,8 +43,8 @@ export async function fetchStaff(): Promise<StaffMember[]> {
   }
 
   return data
-    .filter((row: any) => row.users?.role !== 'admin')
-    .map((row: any): StaffMember => ({
+    .filter((row: DbRow) => row.users?.role !== 'admin')
+    .map((row: DbRow): StaffMember => ({
     id: row.id,
     userId: row.user_id ?? undefined,
     name: row.name ?? '',
@@ -45,7 +52,7 @@ export async function fetchStaff(): Promise<StaffMember[]> {
     city: row.city ?? '',
     phone: row.phone ?? undefined,
     staffType: row.staff_type === 'part-time' ? 'part-time' : 'permanent',
-    contracts: (row.contracts ?? []).map((c: any) => ({
+    contracts: (row.contracts ?? []).map((c: DbRow) => ({
       id: c.id,
       date: fromISODate(c.date ?? ''),
       url: c.url ?? '',
@@ -99,21 +106,21 @@ export async function fetchEvents(): Promise<FestivalEvent[]> {
   if (!data || data.length === 0) return [];
 
   // Fetch expenses separately (FK was dropped to allow flexible inserts)
-  const eventIds = data.map((e: any) => e.id);
+  const eventIds = data.map((e: DbRow) => e.id);
   const { data: expensesData } = await supabase
     .from('expenses')
     .select('*')
     .in('festival_id', eventIds);
 
-  const expensesByEvent: Record<number, any[]> = {};
+  const expensesByEvent: Record<number, DbRow[]> = {};
   for (const r of expensesData ?? []) {
     if (r.festival_id == null) continue;
     if (!expensesByEvent[r.festival_id]) expensesByEvent[r.festival_id] = [];
     expensesByEvent[r.festival_id].push(r);
   }
 
-  return data.map((row: any): FestivalEvent => {
-    const staff: StaffRef[] = (row.event_staff ?? []).map((es: any) => {
+  return data.map((row: DbRow): FestivalEvent => {
+    const staff: StaffRef[] = (row.event_staff ?? []).map((es: DbRow) => {
       const sm = es.staff_members;
       return {
         id: sm?.id ?? es.staff_id,
@@ -125,7 +132,7 @@ export async function fetchEvents(): Promise<FestivalEvent[]> {
     // expenses jsonb column = financial breakdown
     const breakdown = row.expenses ?? {};
 
-    const receipts: Expense[] = (expensesByEvent[row.id] ?? []).map((r: any): Expense => ({
+    const receipts: Expense[] = (expensesByEvent[row.id] ?? []).map((r: DbRow): Expense => ({
       id: r.id,
       staffId: String(r.staff_id ?? ''),
       staffName: r.staff_name ?? '',
@@ -155,7 +162,7 @@ export async function fetchEvents(): Promise<FestivalEvent[]> {
           ...breakdown,
         },
       },
-      inventoryReported: (row.inventory_reported ?? []).map((item: any) => ({
+      inventoryReported: (row.inventory_reported ?? []).map((item: DbRow) => ({
         name: item.name ?? '',
         current: item.current ?? 0,
         unit: (item.unit ?? 'cái') as InventoryUnit,
@@ -184,7 +191,7 @@ export async function fetchInventory(): Promise<InventoryItem[]> {
     return [];
   }
 
-  return data.map((row: any): InventoryItem => ({
+  return data.map((row: DbRow): InventoryItem => ({
     id: row.id,
     name: row.name ?? '',
     current: row.current ?? 0,
@@ -209,7 +216,7 @@ export async function fetchInventoryLogs(): Promise<InventoryLogEntry[]> {
     return [];
   }
 
-  return data.map((row: any): InventoryLogEntry => ({
+  return data.map((row: DbRow): InventoryLogEntry => ({
     id: row.id,
     itemId: row.item_id,
     itemName: row.item_name ?? '',
@@ -236,7 +243,7 @@ export async function fetchPendingRegistrations(): Promise<RegistrationRequest[]
 
   if (error || !data) return [];
 
-  return data.map((row: any): RegistrationRequest => ({
+  return data.map((row: DbRow): RegistrationRequest => ({
     id: row.id,
     userId: row.id,
     username: '',
@@ -254,7 +261,7 @@ export async function fetchPendingRegistrations(): Promise<RegistrationRequest[]
 export async function fetchClients(): Promise<Client[]> {
   const { data, error } = await supabase.from('clients').select('*');
   if (error || !data) return [];
-  return data.map((row: any): Client => ({
+  return data.map((row: DbRow): Client => ({
     id: row.id,
     name: row.name ?? '',
     contactName: row.contact_name ?? '',

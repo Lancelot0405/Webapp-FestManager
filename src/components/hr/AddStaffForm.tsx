@@ -3,6 +3,7 @@ import { X, ShieldCheck, Building2 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { supabase, supabaseAdmin } from '../../lib/supabase';
 import { useToast } from '../../context/ToastContext';
+import Button from '../shared/ui/Button';
 import type { StaffMember, StaffType, UserRole, UserDepartment } from '../../types';
 
 const DOMAIN = '@fm.com';
@@ -83,7 +84,7 @@ export default function AddStaffForm({ onClose }: Props) {
       <div className="px-5 pt-5 pb-[calc(env(safe-area-inset-bottom,0px)+80px)] max-h-[90vh] overflow-y-auto overflow-x-hidden">
         <div className="flex justify-between items-center mb-5">
           <p className="text-base font-bold text-gray-800 dark:text-gray-100">Thêm nhân viên mới</p>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">
+          <button onClick={onClose} aria-label="Đóng" className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">
             <X size={16} />
           </button>
         </div>
@@ -237,13 +238,9 @@ export default function AddStaffForm({ onClose }: Props) {
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl text-sm disabled:opacity-60 transition-colors shadow-md"
-          >
+          <Button type="submit" fullWidth loading={loading} className="font-semibold shadow-md">
             {loading ? 'Đang tạo...' : 'Thêm nhân viên'}
-          </button>
+          </Button>
         </form>
       </div>
       </div>
