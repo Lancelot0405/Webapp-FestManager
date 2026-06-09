@@ -167,6 +167,7 @@ export default function LoginScreen() {
           <form onSubmit={handleLogin} className="w-full space-y-4">
             <Field label="Tên đăng nhập" icon={<User size={16} />}>
               <input type="text" required autoComplete="username" placeholder="Nhập tên đăng nhập"
+                autoCapitalize="none" autoCorrect="off" spellCheck={false}
                 value={username} onChange={e => setUsername(e.target.value)}
                 className="w-full pl-9 pr-4 py-3 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
             </Field>
@@ -233,6 +234,7 @@ export default function LoginScreen() {
 
             <Field label="Tên đăng nhập" icon={<User size={16} />}>
               <input type="text" required placeholder="Không dấu, không khoảng trắng"
+                autoCapitalize="none" autoCorrect="off" spellCheck={false}
                 value={username} onChange={e => setUsername(e.target.value.replace(/\s/g, ''))}
                 className="w-full pl-9 pr-4 py-3 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition-all" />
             </Field>
