@@ -52,19 +52,19 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
   };
 
   return (
-    <Modal onClose={onClose} className="w-full max-w-md bg-white dark:bg-slate-800 rounded-t-2xl shadow-2xl overflow-hidden animate-slide-up">
+    <Modal onClose={onClose} className="w-full max-w-md bg-white dark:bg-espresso-800 rounded-t-2xl shadow-2xl overflow-hidden animate-slide-up">
         <div className="px-5 pt-5 pb-[calc(env(safe-area-inset-bottom,0px)+80px)] overflow-y-auto overflow-x-hidden max-h-[85vh]">
           <div className="flex justify-between items-center mb-5">
-            <h2 className="text-base font-bold text-gray-800 dark:text-gray-100">Thêm sự kiện mới</h2>
-            <button onClick={onClose} aria-label="Đóng" className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">
+            <h2 className="text-base font-bold text-espresso-800 dark:text-gray-100">Thêm sự kiện mới</h2>
+            <button onClick={onClose} aria-label="Đóng" className="w-8 h-8 flex items-center justify-center rounded-full bg-brand-50 dark:bg-espresso-700 text-espresso-500 dark:text-gray-400 hover:bg-brand-100 dark:hover:bg-espresso-600 transition-colors">
               <X size={16} />
             </button>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1 block">Tên sự kiện *</label>
+              <label className="text-xs font-semibold text-espresso-600 dark:text-gray-300 mb-1 block">Tên sự kiện *</label>
               <input
-                className="w-full max-w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 transition-all"
+                className="w-full max-w-full border border-brand-200 dark:border-espresso-600 dark:bg-espresso-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-400 transition-all"
                 placeholder="Nhập tên sự kiện..."
                 value={name}
                 onChange={e => setName(e.target.value)}
@@ -73,11 +73,11 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="min-w-0 flex flex-col">
-                <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1 block">Ngày bắt đầu *</label>
+                <label className="text-xs font-semibold text-espresso-600 dark:text-gray-300 mb-1 block">Ngày bắt đầu *</label>
                 <div className="overflow-hidden rounded-xl">
                   <input
                     type="date"
-                    className="border border-gray-200 dark:border-slate-600 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 transition-all"
+                    className="border border-brand-200 dark:border-espresso-600 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-400 transition-all"
                     value={startDate}
                     onChange={e => {
                       setStartDate(e.target.value);
@@ -88,11 +88,11 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
                 </div>
               </div>
               <div className="min-w-0 flex flex-col">
-                <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1 block">Ngày kết thúc</label>
+                <label className="text-xs font-semibold text-espresso-600 dark:text-gray-300 mb-1 block">Ngày kết thúc</label>
                 <div className="overflow-hidden rounded-xl">
                   <input
                     type="date"
-                    className="border border-gray-200 dark:border-slate-600 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 transition-all"
+                    className="border border-brand-200 dark:border-espresso-600 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-400 transition-all"
                     value={endDate}
                     min={startDate}
                     onChange={e => setEndDate(e.target.value)}
@@ -101,9 +101,9 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
               </div>
             </div>
             <div>
-              <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1 block">Địa điểm *</label>
+              <label className="text-xs font-semibold text-espresso-600 dark:text-gray-300 mb-1 block">Địa điểm *</label>
               <input
-                className="w-full max-w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 transition-all"
+                className="w-full max-w-full border border-brand-200 dark:border-espresso-600 dark:bg-espresso-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-400 transition-all"
                 placeholder="Nhập địa điểm..."
                 value={location}
                 onChange={e => setLocation(e.target.value)}

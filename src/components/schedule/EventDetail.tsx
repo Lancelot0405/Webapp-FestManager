@@ -91,9 +91,9 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
 
   if (!event) {
     return (
-      <div className="text-center py-20 text-gray-400">
+      <div className="text-center py-20 text-espresso-400">
         <p>Không tìm thấy sự kiện</p>
-        <button onClick={onBack} className="mt-4 text-blue-600 text-sm">Quay lại</button>
+        <button onClick={onBack} className="mt-4 text-brand-600 text-sm">Quay lại</button>
       </div>
     );
   }
@@ -102,30 +102,30 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
     <div className="pb-6">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
-        <button onClick={onBack} aria-label="Quay lại" className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+        <button onClick={onBack} aria-label="Quay lại" className="p-1 text-espresso-500 hover:text-espresso-700 dark:text-brand-300 dark:hover:text-gray-200">
           <ArrowLeft size={22} />
         </button>
         <div className="min-w-0 flex-1">
-          <h1 className="font-bold text-gray-800 dark:text-gray-100 text-lg truncate">{event.name}</h1>
-          <p className="text-xs text-gray-500 dark:text-gray-400">{event.date} · {event.location}</p>
+          <h1 className="font-bold text-espresso-800 dark:text-espresso-50 text-lg truncate">{event.name}</h1>
+          <p className="text-xs text-espresso-500 dark:text-brand-300">{event.date} · {event.location}</p>
         </div>
         {isAdmin && (
           <div className="flex items-center gap-1 shrink-0">
             <button
               onClick={handleExport}
-              className="p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+              className="p-2 text-brand-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
               aria-label="Xuất Excel" title="Xuất Excel"
             >
               <Download size={18} />
             </button>
             <Suspense fallback={
-              <span className="px-3 py-1.5 text-sm text-gray-400">PDF…</span>
+              <span className="px-3 py-1.5 text-sm text-espresso-400">PDF…</span>
             }>
               <EventPDFExport event={event} />
             </Suspense>
             <button
               onClick={handleClone}
-              className="p-2 text-green-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+              className="p-2 text-herb-500 hover:text-herb-600 hover:bg-herb-50 rounded-lg transition-colors"
               aria-label="Nhân bản sự kiện" title="Nhân bản sự kiện"
             >
               <Copy size={18} />
@@ -142,15 +142,15 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-gray-200 dark:border-slate-700 mb-4 overflow-x-auto">
+      <div className="flex border-b border-brand-200 dark:border-espresso-700 mb-4 overflow-x-auto">
         {TABS.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+            className={`px-4 py-2 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors ${
               activeTab === tab.id
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                ? 'border-brand-500 text-brand-600'
+                : 'border-transparent text-espresso-500 dark:text-brand-300 hover:text-espresso-700 dark:hover:text-gray-200'
             }`}
           >
             {tab.label}

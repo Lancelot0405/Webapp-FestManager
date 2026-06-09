@@ -81,7 +81,7 @@ export default function EventContractsTab({ event }: Props) {
 
   if (staffWithContracts.length === 0) {
     return (
-      <p className="text-sm text-gray-400 text-center py-8">
+      <p className="text-sm text-brand-300 text-center py-8">
         Chưa có nhân viên được phân công cho sự kiện này
       </p>
     );
@@ -89,7 +89,7 @@ export default function EventContractsTab({ event }: Props) {
 
   return (
     <div className="space-y-2">
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+      <p className="text-sm text-brand-400 dark:text-brand-300 mb-3">
         Hợp đồng đã ký cho sự kiện này
       </p>
 
@@ -102,38 +102,38 @@ export default function EventContractsTab({ event }: Props) {
         if (!canViewAll && !isMe) return null;
 
         return (
-          <div key={ref.id} className="bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div key={ref.id} className="bg-white dark:bg-espresso-800 rounded-xl border border-brand-100 dark:border-espresso-700 shadow-card overflow-hidden">
             {/* Header */}
             <button
               className="w-full flex justify-between items-center px-4 py-3 text-left"
               onClick={() => toggle(ref.id)}
             >
               <div>
-                <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                <p className="text-sm font-semibold text-espresso-800 dark:text-espresso-50">
                   {ref.name}
-                  {isMe && <span className="ml-2 text-xs text-blue-500 font-normal">(bạn)</span>}
+                  {isMe && <span className="ml-2 text-xs text-brand-500 font-normal">(bạn)</span>}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-brand-400 dark:text-brand-300">
                   {eventContracts.length > 0
                     ? `${eventContracts.length} hợp đồng`
                     : 'Chưa có hợp đồng'}
                 </p>
               </div>
               {isOpen
-                ? <ChevronUp size={16} className="text-gray-400 dark:text-gray-500" />
-                : <ChevronDown size={16} className="text-gray-400 dark:text-gray-500" />}
+                ? <ChevronUp size={16} className="text-brand-300 dark:text-brand-400" />
+                : <ChevronDown size={16} className="text-brand-300 dark:text-brand-400" />}
             </button>
 
             {isOpen && (
-              <div className="border-t border-gray-100 dark:border-slate-700">
+              <div className="border-t border-brand-100 dark:border-espresso-700">
                 {/* Upload button — nhân viên tự upload, hoặc admin upload hộ */}
                 {(isMe || isAdmin) && !isManager && (
-                  <div className="px-4 py-3 bg-gray-50 dark:bg-slate-700/50 border-b border-gray-100 dark:border-slate-700">
+                  <div className="px-4 py-3 bg-brand-50 dark:bg-espresso-700/50 border-b border-brand-100 dark:border-espresso-700">
                     <label className={`flex items-center gap-2 cursor-pointer w-fit ${isBusy ? 'opacity-60 pointer-events-none' : ''}`}>
                       {isBusy
-                        ? <Loader size={14} className="animate-spin text-blue-500" />
-                        : <Upload size={14} className="text-blue-500" />}
-                      <span className="text-sm text-blue-600 font-medium">
+                        ? <Loader size={14} className="animate-spin text-brand-500" />
+                        : <Upload size={14} className="text-brand-500" />}
+                      <span className="text-sm text-brand-600 font-medium">
                         {isBusy ? 'Đang tải lên...' : 'Upload hợp đồng đã ký'}
                       </span>
                       <input
@@ -147,24 +147,24 @@ export default function EventContractsTab({ event }: Props) {
                         }}
                       />
                     </label>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Ảnh hoặc PDF, tối đa {MAX_FILE_MB}MB</p>
+                    <p className="text-xs text-brand-300 dark:text-brand-400 mt-0.5">Ảnh hoặc PDF, tối đa {MAX_FILE_MB}MB</p>
                   </div>
                 )}
 
                 {/* Danh sách hợp đồng */}
                 <div className="divide-y divide-gray-50 dark:divide-slate-700">
                   {eventContracts.length === 0 ? (
-                    <p className="px-4 py-3 text-xs text-gray-400 dark:text-gray-500">Chưa có hợp đồng nào được tải lên</p>
+                    <p className="px-4 py-3 text-xs text-brand-300 dark:text-brand-400">Chưa có hợp đồng nào được tải lên</p>
                   ) : (
                     eventContracts.map(c => (
                       <div key={c.id} className="px-4 py-3 space-y-2">
                         <div className="flex items-center gap-2">
-                          <FileText size={14} className="text-blue-400 shrink-0" />
+                          <FileText size={14} className="text-brand-400 shrink-0" />
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">
+                            <p className="text-sm font-medium text-espresso-800 dark:text-espresso-50 truncate">
                               {c.fileName ?? 'Hợp đồng'}
                             </p>
-                            <p className="text-xs text-gray-400 dark:text-gray-500">{c.date}</p>
+                            <p className="text-xs text-brand-300 dark:text-brand-400">{c.date}</p>
                           </div>
                         </div>
                         <DocThumbnail url={c.url} fileName={c.fileName ?? 'Hợp đồng'} />

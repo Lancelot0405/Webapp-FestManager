@@ -40,11 +40,11 @@ export default function EventStaffTab({ event }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <p className="text-sm text-gray-500 dark:text-gray-400">{event.staff.length} nhân viên được phân công</p>
+        <p className="text-sm text-brand-400 dark:text-brand-300">{event.staff.length} nhân viên được phân công</p>
         {isAdmin && (
           <button
             onClick={() => { setShowAdd(!showAdd); setSelected(new Set()); }}
-            className="flex items-center gap-1 text-blue-600 text-sm font-medium"
+            className="flex items-center gap-1 text-brand-600 text-sm font-medium"
           >
             <UserPlus size={16} />
             Thêm
@@ -54,10 +54,10 @@ export default function EventStaffTab({ event }: Props) {
 
       {/* Multi-select staff panel */}
       {showAdd && isAdmin && (
-        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 space-y-2">
-          <p className="text-xs font-medium text-blue-700 dark:text-blue-400">Chọn nhân viên để thêm</p>
+        <div className="bg-brand-50 dark:bg-brand-900/20 rounded-xl p-3 space-y-2">
+          <p className="text-xs font-medium text-brand-700 dark:text-brand-400">Chọn nhân viên để thêm</p>
           {availableStaff.length === 0 ? (
-            <p className="text-xs text-gray-400 dark:text-gray-500 py-2 text-center">Tất cả nhân viên đã được phân công</p>
+            <p className="text-xs text-brand-300 dark:text-brand-400 py-2 text-center">Tất cả nhân viên đã được phân công</p>
           ) : (
             <>
               {availableStaff.map(s => (
@@ -66,8 +66,8 @@ export default function EventStaffTab({ event }: Props) {
                   onClick={() => toggleSelect(s.id)}
                   className={`w-full flex items-center justify-between text-left rounded-lg px-3 py-2 text-sm transition-colors border ${
                     selected.has(s.id)
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 border-gray-100 dark:border-slate-600 hover:bg-blue-100 dark:hover:bg-slate-700'
+                      ? 'bg-brand-500 text-white border-brand-200'
+                      : 'bg-white dark:bg-espresso-800 text-espresso-700 dark:text-espresso-50 border-brand-100 dark:border-espresso-700 hover:bg-brand-100 dark:hover:bg-espresso-700'
                   }`}
                 >
                   <span>{s.name}{s.city ? ` — ${s.city}` : ''}</span>
@@ -77,7 +77,7 @@ export default function EventStaffTab({ event }: Props) {
               <button
                 onClick={handleConfirmAdd}
                 disabled={selected.size === 0}
-                className="w-full mt-1 bg-blue-600 disabled:opacity-40 text-white text-sm font-medium py-2 rounded-lg"
+                className="w-full mt-1 bg-brand-500 disabled:opacity-40 text-white text-sm font-medium py-2 rounded-lg"
               >
                 Thêm {selected.size > 0 ? `${selected.size} nhân viên` : ''}
               </button>
@@ -87,17 +87,17 @@ export default function EventStaffTab({ event }: Props) {
       )}
 
       {event.staff.length === 0 ? (
-        <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-8">Chưa có nhân viên được phân công</p>
+        <p className="text-sm text-brand-300 dark:text-brand-400 text-center py-8">Chưa có nhân viên được phân công</p>
       ) : (
         <div className="space-y-2">
           {event.staff.map(s => (
             <div
               key={s.id}
-              className="bg-white dark:bg-slate-800 rounded-xl p-3 flex justify-between items-center shadow-sm border border-gray-100 dark:border-slate-700"
+              className="bg-white dark:bg-espresso-800 rounded-xl p-3 flex justify-between items-center shadow-card border border-brand-100 dark:border-espresso-700"
             >
               <div>
-                <p className="font-medium text-gray-800 dark:text-gray-100 text-sm">{s.name}</p>
-                <p className="text-xs text-gray-400 dark:text-gray-500">{s.city}</p>
+                <p className="font-medium text-espresso-800 dark:text-espresso-50 text-sm">{s.name}</p>
+                <p className="text-xs text-brand-300 dark:text-brand-400">{s.city}</p>
               </div>
               {isAdmin && (
                 <button

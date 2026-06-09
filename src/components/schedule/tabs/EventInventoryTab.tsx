@@ -71,10 +71,10 @@ export default function EventInventoryTab({ event }: Props) {
     <div className="space-y-4" onClick={() => setUnitMenuId(null)}>
       {/* Header */}
       <div className="flex justify-between items-center">
-        <p className="text-sm text-gray-500 dark:text-gray-400">Tồn kho — bấm số lượng để chỉnh sửa</p>
+        <p className="text-sm text-brand-400 dark:text-brand-300">Tồn kho — bấm số lượng để chỉnh sửa</p>
         <button
           onClick={e => { e.stopPropagation(); setShowAdd(true); }}
-          className="flex items-center gap-1 text-blue-600 text-sm font-medium"
+          className="flex items-center gap-1 text-brand-600 text-sm font-medium"
         >
           <Plus size={15} /> Thêm
         </button>
@@ -82,58 +82,58 @@ export default function EventInventoryTab({ event }: Props) {
 
       {/* Form thêm */}
       {showAdd && (
-        <form onSubmit={handleAddItem} className="bg-white dark:bg-slate-800 rounded-xl border border-blue-200 p-4 shadow-sm space-y-3" onClick={e => e.stopPropagation()}>
+        <form onSubmit={handleAddItem} className="bg-white dark:bg-espresso-800 rounded-xl border border-brand-200 p-4 shadow-card space-y-3" onClick={e => e.stopPropagation()}>
           <div className="flex justify-between items-center">
-            <p className="font-semibold text-gray-800 dark:text-gray-100 text-sm">Thêm mặt hàng mới</p>
-            <button type="button" onClick={() => setShowAdd(false)} className="text-gray-400 dark:text-gray-500"><X size={16} /></button>
+            <p className="font-semibold text-espresso-800 dark:text-espresso-50 text-sm">Thêm mặt hàng mới</p>
+            <button type="button" onClick={() => setShowAdd(false)} className="text-brand-300 dark:text-brand-400"><X size={16} /></button>
           </div>
           <div>
-            <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Tên mặt hàng</label>
-            <input required className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm"
+            <label className="text-xs text-brand-600 dark:text-brand-300 font-medium">Tên mặt hàng</label>
+            <input required className="mt-1 w-full border border-brand-200 dark:border-espresso-700 dark:bg-espresso-700 dark:text-espresso-50 rounded-lg px-3 py-2 text-sm"
               placeholder="VD: Thịt bò" value={newName} onChange={e => setNewName(e.target.value)} />
           </div>
           <div className="grid grid-cols-3 gap-2">
             <div>
-              <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Số lượng</label>
+              <label className="text-xs text-brand-600 dark:text-brand-300 font-medium">Số lượng</label>
               <input type="number" min="0" step="0.1" required
-                className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm"
+                className="mt-1 w-full border border-brand-200 dark:border-espresso-700 dark:bg-espresso-700 dark:text-espresso-50 rounded-lg px-3 py-2 text-sm"
                 value={newCurrent} onChange={e => setNewCurrent(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Cảnh báo</label>
+              <label className="text-xs text-brand-600 dark:text-brand-300 font-medium">Cảnh báo</label>
               <input type="number" min="0" step="0.1"
-                className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm"
+                className="mt-1 w-full border border-brand-200 dark:border-espresso-700 dark:bg-espresso-700 dark:text-espresso-50 rounded-lg px-3 py-2 text-sm"
                 placeholder="0"
                 value={newThreshold} onChange={e => setNewThreshold(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Đơn vị</label>
-              <select className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-2 py-2 text-sm"
+              <label className="text-xs text-brand-600 dark:text-brand-300 font-medium">Đơn vị</label>
+              <select className="mt-1 w-full border border-brand-200 dark:border-espresso-700 dark:bg-espresso-700 dark:text-espresso-50 rounded-lg px-2 py-2 text-sm"
                 value={newUnit} onChange={e => setNewUnit(e.target.value as InventoryUnit)}>
                 {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
               </select>
             </div>
           </div>
-          <button type="submit" className="w-full bg-blue-600 text-white font-medium py-2 rounded-lg text-sm">Thêm</button>
+          <button type="submit" className="w-full bg-brand-500 text-white font-medium py-2 rounded-lg text-sm">Thêm</button>
         </form>
       )}
 
       {/* Danh sách */}
       {inventory.length === 0 ? (
-        <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-8">Chưa có dữ liệu kho</p>
+        <p className="text-sm text-brand-300 dark:text-brand-400 text-center py-8">Chưa có dữ liệu kho</p>
       ) : (
         <div className="space-y-2">
           {inventory.map(item => {
             const isLow  = item.current < item.threshold;
             const isWarn = !isLow && item.current < item.threshold * 1.5;
-            const bg     = isLow ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' : isWarn ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800' : 'bg-white dark:bg-slate-800 border-gray-100 dark:border-slate-700';
+            const bg     = isLow ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' : isWarn ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800' : 'bg-white dark:bg-espresso-800 border-brand-100 dark:border-espresso-700';
 
             return (
-              <div key={item.id} className={`rounded-xl shadow-sm border ${bg} flex items-stretch`} onClick={e => e.stopPropagation()}>
+              <div key={item.id} className={`rounded-xl shadow-card border ${bg} flex items-stretch`} onClick={e => e.stopPropagation()}>
                 <div className="flex-1 p-3">
                   <div className="flex justify-between items-center gap-2">
                     <div className="flex-1 min-w-0">
-                      <p className={`text-sm font-medium ${isLow ? 'text-red-700 dark:text-red-400' : 'text-gray-800 dark:text-gray-100'} truncate`}>{item.name}</p>
+                      <p className={`text-sm font-medium ${isLow ? 'text-red-700 dark:text-red-400' : 'text-espresso-800 dark:text-espresso-50'} truncate`}>{item.name}</p>
                       {isLow && <p className="text-xs text-red-500">Sắp hết hàng!</p>}
                     </div>
 
@@ -141,39 +141,39 @@ export default function EventInventoryTab({ event }: Props) {
                       {editingId === item.id ? (
                         <>
                           <input type="number" min="0" step="0.1" autoFocus
-                            className="w-16 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-2 py-1 text-sm text-right"
+                            className="w-16 border border-gray-300 dark:border-espresso-700 dark:bg-espresso-700 dark:text-espresso-50 rounded-lg px-2 py-1 text-sm text-right"
                             value={editQty} onChange={e => setEditQty(e.target.value)} />
-                          <select className="border border-gray-300 dark:border-slate-600 rounded-lg px-1 py-1 text-sm bg-white dark:bg-slate-700 dark:text-gray-100"
+                          <select className="border border-gray-300 dark:border-espresso-700 rounded-lg px-1 py-1 text-sm bg-white dark:bg-espresso-700 dark:text-espresso-50"
                             value={editUnit} onChange={e => setEditUnit(e.target.value as InventoryUnit)}>
                             {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
                           </select>
                           <button onClick={() => handleSave(item.id, item.name)} className="p-1 text-green-600 hover:bg-green-50 rounded">
                             <Check size={15} />
                           </button>
-                          <button onClick={() => setEditingId(null)} className="p-1 text-gray-400 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-slate-700 rounded">
+                          <button onClick={() => setEditingId(null)} className="p-1 text-brand-300 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-espresso-700 rounded">
                             <X size={15} />
                           </button>
                         </>
                       ) : (
                         <>
                           <button
-                            className={`text-sm font-bold ${isLow ? 'text-red-600' : isWarn ? 'text-yellow-600' : 'text-gray-700 dark:text-gray-200'}`}
+                            className={`text-sm font-bold ${isLow ? 'text-red-600' : isWarn ? 'text-yellow-600' : 'text-espresso-700 dark:text-espresso-50'}`}
                             onClick={() => startEdit(item.id, item.current, item.unit)}
                           >
                             {item.current}
                           </button>
                           <div className="relative">
                             <button
-                              className="flex items-center gap-0.5 text-sm text-gray-500 hover:text-blue-600 hover:bg-blue-50 px-1 py-0.5 rounded transition"
+                              className="flex items-center gap-0.5 text-sm text-brand-400 hover:text-brand-600 hover:bg-brand-50 px-1 py-0.5 rounded transition"
                               onClick={e => { e.stopPropagation(); setUnitMenuId(unitMenuId === item.id ? null : item.id); }}
                             >
                               {item.unit}<ChevronDown size={11} />
                             </button>
                             {unitMenuId === item.id && (
-                              <div className="absolute right-0 top-7 z-20 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl shadow-lg py-1 min-w-[80px]">
+                              <div className="absolute right-0 top-7 z-20 bg-white dark:bg-espresso-800 border border-brand-200 dark:border-espresso-700 rounded-xl shadow-lg py-1 min-w-[80px]">
                                 {UNITS.map(u => (
                                   <button key={u}
-                                    className={`w-full text-left px-3 py-1.5 text-sm hover:bg-blue-50 dark:hover:bg-blue-900/30 ${u === item.unit ? 'text-blue-600 font-semibold' : 'text-gray-700 dark:text-gray-200'}`}
+                                    className={`w-full text-left px-3 py-1.5 text-sm hover:bg-brand-50 dark:hover:bg-brand-100/30 ${u === item.unit ? 'text-brand-600 font-semibold' : 'text-espresso-700 dark:text-espresso-50'}`}
                                     onClick={() => { updateInventoryUnit(item.id, u); setUnitMenuId(null); }}>
                                     {u}
                                   </button>
@@ -190,7 +190,7 @@ export default function EventInventoryTab({ event }: Props) {
                 {editingId !== item.id && (
                   <button
                     onClick={() => handleDelete(item.id, item.name)}
-                    className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 border-l border-gray-100 dark:border-slate-700 transition-colors rounded-r-xl"
+                    className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 border-l border-brand-100 dark:border-espresso-700 transition-colors rounded-r-xl"
                   >
                     <Trash2 size={15} />
                   </button>
@@ -204,12 +204,12 @@ export default function EventInventoryTab({ event }: Props) {
       {/* Báo cáo cuối sự kiện */}
       {event.inventoryReported.length > 0 && (
         <div>
-          <p className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">Báo cáo cuối sự kiện</p>
+          <p className="text-sm font-semibold text-espresso-700 dark:text-espresso-50 mb-2">Báo cáo cuối sự kiện</p>
           <div className="space-y-2">
             {event.inventoryReported.map((item, i) => (
-              <div key={i} className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-3 flex justify-between items-center">
-                <p className="text-sm text-gray-700 dark:text-gray-200">{item.name}</p>
-                <span className="text-sm text-gray-500 dark:text-gray-400">{item.current} {item.unit}</span>
+              <div key={i} className="bg-brand-50 dark:bg-espresso-700/50 rounded-lg p-3 flex justify-between items-center">
+                <p className="text-sm text-espresso-700 dark:text-espresso-50">{item.name}</p>
+                <span className="text-sm text-brand-400 dark:text-brand-300">{item.current} {item.unit}</span>
               </div>
             ))}
           </div>

@@ -86,9 +86,9 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
   const [uploadingExp, setUploadingExp] = useState(false);
 
   if (!member) return (
-    <div className="text-center py-20 text-gray-400">
+    <div className="text-center py-20 text-brand-300">
       <p>Không tìm thấy nhân viên</p>
-      {onBack && <button onClick={onBack} className="mt-4 text-blue-600 text-sm">Quay lại</button>}
+      {onBack && <button onClick={onBack} className="mt-4 text-brand-600 text-sm">Quay lại</button>}
     </div>
   );
 
@@ -230,18 +230,18 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
     <div className="space-y-5 pb-20">
       {onBack && (
         <div className="flex items-center gap-2">
-          <button onClick={onBack} className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"><ArrowLeft size={22} /></button>
-          <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100">Hồ sơ nhân viên</h1>
+          <button onClick={onBack} className="p-1 text-brand-400 hover:text-espresso-700 dark:text-brand-300 dark:hover:text-gray-200"><ArrowLeft size={22} /></button>
+          <h1 className="text-lg font-bold text-espresso-800 dark:text-espresso-50">Hồ sơ nhân viên</h1>
         </div>
       )}
 
       {/* ── THÔNG TIN CÁ NHÂN ──────────────────────────────────────────── */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-slate-700">
+      <div className="bg-white dark:bg-espresso-800 rounded-xl p-4 shadow-card border border-brand-100 dark:border-espresso-700">
         <div className="flex justify-between items-center mb-3">
-          <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">Thông tin cá nhân</p>
+          <p className="text-sm font-semibold text-espresso-700 dark:text-espresso-50">Thông tin cá nhân</p>
           {canEdit && !editing && (
             <button onClick={startEdit}
-              className="flex items-center gap-1 text-xs text-blue-600 bg-blue-50 px-2.5 py-1.5 rounded-lg hover:bg-blue-100">
+              className="flex items-center gap-1 text-xs text-brand-600 bg-brand-50 px-2.5 py-1.5 rounded-lg hover:bg-brand-100">
               <Pencil size={12} /> Chỉnh sửa
             </button>
           )}
@@ -250,48 +250,48 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
         {editing ? (
           <div className="space-y-3">
             <div>
-              <label className="text-xs text-gray-500 dark:text-gray-400 font-medium">Họ tên</label>
-              <input className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm"
+              <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Họ tên</label>
+              <input className="mt-1 w-full border border-brand-200 dark:border-espresso-700 dark:bg-espresso-700 dark:text-espresso-50 rounded-lg px-3 py-2 text-sm"
                 value={editName} onChange={e => setEditName(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs text-gray-500 dark:text-gray-400 font-medium">Ngày sinh (DD-MM-YYYY)</label>
-              <input className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm"
+              <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Ngày sinh (DD-MM-YYYY)</label>
+              <input className="mt-1 w-full border border-brand-200 dark:border-espresso-700 dark:bg-espresso-700 dark:text-espresso-50 rounded-lg px-3 py-2 text-sm"
                 placeholder="01-01-2000" value={editDob} onChange={e => setEditDob(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs text-gray-500 dark:text-gray-400 font-medium">Nơi ở</label>
-              <input className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm"
+              <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Nơi ở</label>
+              <input className="mt-1 w-full border border-brand-200 dark:border-espresso-700 dark:bg-espresso-700 dark:text-espresso-50 rounded-lg px-3 py-2 text-sm"
                 placeholder="Paris, Lyon..." value={editCity} onChange={e => setEditCity(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs text-gray-500 dark:text-gray-400 font-medium">Số điện thoại</label>
-              <input className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm"
+              <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Số điện thoại</label>
+              <input className="mt-1 w-full border border-brand-200 dark:border-espresso-700 dark:bg-espresso-700 dark:text-espresso-50 rounded-lg px-3 py-2 text-sm"
                 type="tel" placeholder="+33 6 XX XX XX XX"
                 value={editPhone} onChange={e => setEditPhone(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs text-gray-500 dark:text-gray-400 font-medium">Số Carte Vitale</label>
-              <input className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm font-mono"
+              <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Số Carte Vitale</label>
+              <input className="mt-1 w-full border border-brand-200 dark:border-espresso-700 dark:bg-espresso-700 dark:text-espresso-50 rounded-lg px-3 py-2 text-sm font-mono"
                 placeholder="1 85 01 75 XXX XXX XX"
                 value={editCarteNum} onChange={e => setEditCarteNum(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs text-gray-500 dark:text-gray-400 font-medium">Số Titre de Séjour</label>
-              <input className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm font-mono"
+              <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Số Titre de Séjour</label>
+              <input className="mt-1 w-full border border-brand-200 dark:border-espresso-700 dark:bg-espresso-700 dark:text-espresso-50 rounded-lg px-3 py-2 text-sm font-mono"
                 placeholder="XXXXXXXXX"
                 value={editTitreNum} onChange={e => setEditTitreNum(e.target.value)} />
             </div>
             {isAdmin && (
               <>
                 <div>
-                  <label className="text-xs text-gray-500 dark:text-gray-400 font-medium">Loại nhân viên</label>
+                  <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Loại nhân viên</label>
                   <div className="mt-1 grid grid-cols-2 gap-2">
                     <button type="button" onClick={() => setEditStaffType('permanent')}
                       className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
                         editStaffType === 'permanent'
-                          ? 'bg-blue-600 text-white border-blue-600'
-                          : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600 hover:border-blue-300'
+                          ? 'bg-brand-500 text-white border-brand-200'
+                          : 'bg-white dark:bg-espresso-700 text-brand-600 dark:text-brand-300 border-brand-200 dark:border-espresso-700 hover:border-brand-200'
                       }`}>
                       Nhân viên cứng
                     </button>
@@ -299,7 +299,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                       className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
                         editStaffType === 'part-time'
                           ? 'bg-purple-600 text-white border-purple-600'
-                          : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600 hover:border-purple-300'
+                          : 'bg-white dark:bg-espresso-700 text-brand-600 dark:text-brand-300 border-brand-200 dark:border-espresso-700 hover:border-purple-300'
                       }`}>
                       Part-time
                     </button>
@@ -309,23 +309,23 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                   <div className="space-y-3">
                     {/* Role */}
                     <div>
-                      <label className="text-xs text-gray-500 dark:text-gray-400 font-medium flex items-center gap-1">
+                      <label className="text-xs text-brand-400 dark:text-brand-300 font-medium flex items-center gap-1">
                         <ShieldCheck size={12} /> Quyền tài khoản
                       </label>
                       <div className="mt-1 grid grid-cols-2 gap-2">
                         <button type="button" onClick={() => setEditRole('staff')}
                           className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
                             editRole === 'staff'
-                              ? 'bg-emerald-600 text-white border-emerald-600'
-                              : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600 hover:border-emerald-300'
+                              ? 'bg-herb-500/10 text-white border-herb-500/30'
+                              : 'bg-white dark:bg-espresso-700 text-brand-600 dark:text-brand-300 border-brand-200 dark:border-espresso-700 hover:border-herb-500/30'
                           }`}>
                           Nhân viên
                         </button>
                         <button type="button" onClick={() => setEditRole('manager')}
                           className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
                             editRole === 'manager'
-                              ? 'bg-indigo-600 text-white border-indigo-600'
-                              : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600 hover:border-indigo-300'
+                              ? 'bg-saffron-500 text-white border-saffron-300'
+                              : 'bg-white dark:bg-espresso-700 text-brand-600 dark:text-brand-300 border-brand-200 dark:border-espresso-700 hover:border-saffron-300'
                           }`}>
                           Quản lý
                         </button>
@@ -333,7 +333,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                     </div>
                     {/* Department */}
                     <div>
-                      <label className="text-xs text-gray-500 dark:text-gray-400 font-medium flex items-center gap-1">
+                      <label className="text-xs text-brand-400 dark:text-brand-300 font-medium flex items-center gap-1">
                         <Building2 size={12} /> Bộ phận kho hàng
                       </label>
                       <div className="mt-1 grid grid-cols-3 gap-2">
@@ -346,7 +346,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                             className={`py-2 rounded-lg text-xs font-medium border transition-colors ${
                               editDepartment === id
                                 ? 'bg-teal-600 text-white border-teal-600'
-                                : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600'
+                                : 'bg-white dark:bg-espresso-700 text-brand-600 dark:text-brand-300 border-brand-200 dark:border-espresso-700'
                             }`}>
                             {label}
                           </button>
@@ -359,11 +359,11 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
             )}
             <div className="flex gap-2 pt-1">
               <button onClick={saveEdit}
-                className="flex-1 flex items-center justify-center gap-1 bg-blue-600 text-white text-sm font-medium py-2 rounded-lg">
+                className="flex-1 flex items-center justify-center gap-1 bg-brand-500 text-white text-sm font-medium py-2 rounded-lg">
                 <Check size={14} /> Lưu
               </button>
               <button onClick={() => setEditing(false)}
-                className="flex-1 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 text-sm text-gray-600 dark:text-gray-300 py-2 rounded-lg">
+                className="flex-1 bg-white dark:bg-espresso-700 border border-brand-200 dark:border-espresso-700 text-sm text-brand-600 dark:text-brand-300 py-2 rounded-lg">
                 Huỷ
               </button>
             </div>
@@ -392,34 +392,34 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
 
       {/* ── QUẢN LÝ TÀI KHOẢN (chỉ admin) ─────────────────────────────── */}
       {isAdmin && member.userId && (
-        <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-slate-700 space-y-4">
-          <p className="text-sm font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+        <div className="bg-white dark:bg-espresso-800 rounded-xl p-4 shadow-card border border-brand-100 dark:border-espresso-700 space-y-4">
+          <p className="text-sm font-semibold text-espresso-700 dark:text-espresso-50 flex items-center gap-2">
             <KeyRound size={15} className="text-orange-500" /> Quản lý tài khoản
           </p>
 
           {/* Đổi tên tài khoản */}
           <div>
-            <label className="text-xs text-gray-500 dark:text-gray-400 font-medium block mb-1">Tên đăng nhập</label>
+            <label className="text-xs text-brand-400 dark:text-brand-300 font-medium block mb-1">Tên đăng nhập</label>
 
             {/* Hiển thị username hiện tại */}
             {currentUsername && (
-              <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-gray-50 dark:bg-slate-700/50 rounded-lg border border-gray-100 dark:border-slate-600">
-                <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">Hiện tại:</span>
-                <span className="text-sm font-mono font-medium text-blue-600 dark:text-blue-400 flex-1 truncate">
-                  {currentUsername}<span className="text-gray-400 dark:text-gray-500">@fm.com</span>
+              <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-brand-50 dark:bg-espresso-700/50 rounded-lg border border-brand-100 dark:border-espresso-700">
+                <span className="text-xs text-brand-400 dark:text-brand-300 shrink-0">Hiện tại:</span>
+                <span className="text-sm font-mono font-medium text-brand-600 dark:text-brand-400 flex-1 truncate">
+                  {currentUsername}<span className="text-brand-300 dark:text-brand-400">@fm.com</span>
                 </span>
               </div>
             )}
 
             <div className="flex gap-2">
-              <div className="flex-1 flex items-center border border-gray-200 dark:border-slate-600 rounded-lg overflow-hidden">
+              <div className="flex-1 flex items-center border border-brand-200 dark:border-espresso-700 rounded-lg overflow-hidden">
                 <input
-                  className="flex-1 px-3 py-2 text-sm bg-white dark:bg-slate-700 dark:text-gray-100"
+                  className="flex-1 px-3 py-2 text-sm bg-white dark:bg-espresso-700 dark:text-espresso-50"
                   placeholder="username mới"
                   value={editUsername}
                   onChange={e => setEditUsername(e.target.value.replace(/\s/g, '').toLowerCase())}
                 />
-                <span className="px-2 text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-slate-600 border-l border-gray-200 dark:border-slate-600 py-2 shrink-0">@fm.com</span>
+                <span className="px-2 text-xs text-brand-300 dark:text-brand-400 bg-brand-50 dark:bg-espresso-700 border-l border-brand-200 dark:border-espresso-700 py-2 shrink-0">@fm.com</span>
               </div>
               <button
                 onClick={async () => {
@@ -430,7 +430,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                   setPwMsg('Đã cập nhật tên tài khoản!');
                   setTimeout(() => setPwMsg(''), 3000);
                 }}
-                className="flex items-center gap-1 bg-blue-600 text-white text-sm font-medium px-3 py-2 rounded-lg"
+                className="flex items-center gap-1 bg-brand-500 text-white text-sm font-medium px-3 py-2 rounded-lg"
               >
                 <Check size={13} /> Lưu
               </button>
@@ -440,7 +440,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
           {/* Đổi mật khẩu */}
           <div>
             <div className="flex justify-between items-center mb-1">
-              <label className="text-xs text-gray-500 dark:text-gray-400 font-medium">Mật khẩu</label>
+              <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Mật khẩu</label>
               <button
                 onClick={() => { setShowPwForm(!showPwForm); setPwMsg(''); setNewPassword(''); }}
                 className="text-xs text-orange-600 bg-orange-50 px-2.5 py-1 rounded-lg"
@@ -453,7 +453,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                 <input
                   required type="password" minLength={6}
                   placeholder="Mật khẩu mới (tối thiểu 6 ký tự)"
-                  className="flex-1 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm"
+                  className="flex-1 border border-brand-200 dark:border-espresso-700 dark:bg-espresso-700 dark:text-espresso-50 rounded-lg px-3 py-2 text-sm"
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
                 />
@@ -477,11 +477,11 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
       {/* ── TÀI LIỆU CÁ NHÂN ───────────────────────────────────────────── */}
       {canEdit && (
         <div className="space-y-3">
-          <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">Tài liệu cá nhân</p>
+          <p className="text-sm font-semibold text-espresso-700 dark:text-espresso-50">Tài liệu cá nhân</p>
 
           {/* Carte Vitale */}
           <DocCard
-            icon={<CreditCard size={18} className="text-emerald-500" />}
+            icon={<CreditCard size={18} className="text-herb-600" />}
             label="Carte Vitale"
             cardNumber={member.carteVitaleNumber}
             doc={member.carteVitale}
@@ -512,10 +512,10 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
       {/* ── HỢP ĐỒNG ────────────────────────────────────────────────────── */}
       <div>
         <div className="flex justify-between items-center mb-2">
-          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">Hợp đồng ({member.contracts.length})</h2>
+          <h2 className="text-sm font-semibold text-espresso-700 dark:text-espresso-50">Hợp đồng ({member.contracts.length})</h2>
           {canEdit && (
             <label className={`flex items-center gap-1 text-sm font-medium cursor-pointer px-3 py-1.5 rounded-lg transition
-              ${uploadingContract ? 'bg-gray-100 text-gray-400' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'}`}>
+              ${uploadingContract ? 'bg-brand-50 text-brand-300' : 'bg-brand-50 text-brand-600 hover:bg-brand-100'}`}>
               {uploadingContract ? <Loader size={14} className="animate-spin" /> : <Upload size={14} />}
               {uploadingContract ? 'Đang upload...' : 'Upload hợp đồng'}
               <input ref={contractFileRef} type="file" accept=".pdf,.jpg,.jpeg,.png,.webp"
@@ -524,18 +524,18 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
           )}
         </div>
         {member.contracts.length === 0 ? (
-          <p className="text-xs text-gray-400 dark:text-gray-500 py-4 text-center bg-white dark:bg-slate-800 rounded-xl border border-dashed border-gray-200 dark:border-slate-600">
+          <p className="text-xs text-brand-300 dark:text-brand-400 py-4 text-center bg-white dark:bg-espresso-800 rounded-xl border border-dashed border-brand-200 dark:border-espresso-700">
             Chưa có hợp đồng
           </p>
         ) : (
           <div className="space-y-2">
             {member.contracts.map(c => (
               <a key={c.id} href={c.url} target="_blank" rel="noreferrer"
-                className="flex items-center gap-3 bg-white dark:bg-slate-800 rounded-xl p-3 border border-gray-100 dark:border-slate-700 shadow-sm hover:border-blue-200 dark:hover:border-blue-700">
-                <FileText size={18} className="text-blue-500 shrink-0" />
+                className="flex items-center gap-3 bg-white dark:bg-espresso-800 rounded-xl p-3 border border-brand-100 dark:border-espresso-700 shadow-card hover:border-brand-200 dark:hover:border-brand-200">
+                <FileText size={18} className="text-brand-500 shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-800 dark:text-gray-100 truncate">{c.fileName ?? 'Hợp đồng'}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{c.date}</p>
+                  <p className="text-sm text-espresso-800 dark:text-espresso-50 truncate">{c.fileName ?? 'Hợp đồng'}</p>
+                  <p className="text-xs text-brand-400 dark:text-brand-300">{c.date}</p>
                 </div>
               </a>
             ))}
@@ -546,24 +546,24 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
       {/* ── CHI PHÍ ─────────────────────────────────────────────────────── */}
       <div>
         <div className="flex justify-between items-center mb-2">
-          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">Chi phí ({allExpenses.length})</h2>
+          <h2 className="text-sm font-semibold text-espresso-700 dark:text-espresso-50">Chi phí ({allExpenses.length})</h2>
           {canEdit && (
             <button onClick={() => setShowExpenseForm(!showExpenseForm)}
-              className="flex items-center gap-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-sm font-medium px-3 py-1.5 rounded-lg transition">
+              className="flex items-center gap-1 bg-herb-500/10 text-herb-600 hover:bg-herb-500/10 text-sm font-medium px-3 py-1.5 rounded-lg transition">
               <Plus size={14} /> Nộp chi phí
             </button>
           )}
         </div>
 
         {showExpenseForm && (
-          <form onSubmit={handleSubmitExpense} className="bg-emerald-50 rounded-xl p-4 space-y-3 border border-emerald-100 mb-3">
+          <form onSubmit={handleSubmitExpense} className="bg-herb-500/10 rounded-xl p-4 space-y-3 border border-herb-500/30 mb-3">
             <div className="flex justify-between items-center">
-              <p className="text-sm font-semibold text-emerald-700">Nộp chi phí mới</p>
-              <button type="button" onClick={() => setShowExpenseForm(false)}><X size={15} className="text-gray-400" /></button>
+              <p className="text-sm font-semibold text-herb-600">Nộp chi phí mới</p>
+              <button type="button" onClick={() => setShowExpenseForm(false)}><X size={15} className="text-brand-300" /></button>
             </div>
             <div>
-              <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Sự kiện</label>
-              <select required className="mt-1 w-full border border-gray-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-700 dark:text-gray-100"
+              <label className="text-xs text-brand-600 dark:text-brand-300 font-medium">Sự kiện</label>
+              <select required className="mt-1 w-full border border-brand-200 dark:border-espresso-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-espresso-700 dark:text-espresso-50"
                 value={formEventId} onChange={e => setFormEventId(Number(e.target.value))}>
                 <option value="">Chọn sự kiện</option>
                 {myEvents.map(ev => <option key={ev.id} value={ev.id}>{ev.name}</option>)}
@@ -571,36 +571,36 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Loại chi phí</label>
-                <select className="mt-1 w-full border border-gray-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-700 dark:text-gray-100"
+                <label className="text-xs text-brand-600 dark:text-brand-300 font-medium">Loại chi phí</label>
+                <select className="mt-1 w-full border border-brand-200 dark:border-espresso-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-espresso-700 dark:text-espresso-50"
                   value={formCategory} onChange={e => setFormCategory(e.target.value as ExpenseCategory)}>
                   {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Số tiền (€)</label>
+                <label className="text-xs text-brand-600 dark:text-brand-300 font-medium">Số tiền (€)</label>
                 <input type="number" min="0" step="0.01" required
-                  className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm"
+                  className="mt-1 w-full border border-brand-200 dark:border-espresso-700 dark:bg-espresso-700 dark:text-espresso-50 rounded-lg px-3 py-2 text-sm"
                   value={formAmount} onChange={e => setFormAmount(e.target.value)} />
               </div>
             </div>
             <div>
-              <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Ngày</label>
-              <input type="date" required className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:[color-scheme:dark] rounded-lg px-3 py-2 text-sm"
+              <label className="text-xs text-brand-600 dark:text-brand-300 font-medium">Ngày</label>
+              <input type="date" required className="mt-1 w-full border border-brand-200 dark:border-espresso-700 dark:bg-espresso-700 dark:text-espresso-50 dark:[color-scheme:dark] rounded-lg px-3 py-2 text-sm"
                 value={formDate} onChange={e => setFormDate(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Ảnh hóa đơn (không bắt buộc, tối đa 5MB)</label>
+              <label className="text-xs text-brand-600 dark:text-brand-300 font-medium">Ảnh hóa đơn (không bắt buộc, tối đa 5MB)</label>
               {expenseFile ? (
-                <div className="mt-1 flex items-center gap-2 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg px-3 py-2">
-                  <Image size={15} className="text-emerald-500 shrink-0" />
-                  <span className="text-xs text-gray-700 dark:text-gray-200 truncate flex-1">{expenseFile.name}</span>
-                  <button type="button" onClick={() => setExpenseFile(null)}><X size={14} className="text-gray-400 hover:text-red-500" /></button>
+                <div className="mt-1 flex items-center gap-2 bg-white dark:bg-espresso-700 border border-brand-200 dark:border-espresso-700 rounded-lg px-3 py-2">
+                  <Image size={15} className="text-herb-600 shrink-0" />
+                  <span className="text-xs text-espresso-700 dark:text-espresso-50 truncate flex-1">{expenseFile.name}</span>
+                  <button type="button" onClick={() => setExpenseFile(null)}><X size={14} className="text-brand-300 hover:text-red-500" /></button>
                 </div>
               ) : (
-                <label className="mt-1 flex items-center gap-2 border border-dashed border-gray-300 dark:border-slate-600 rounded-lg px-3 py-2.5 cursor-pointer hover:border-emerald-400 dark:hover:border-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition">
-                  <Upload size={15} className="text-gray-400 dark:text-gray-500" />
-                  <span className="text-xs text-gray-500 dark:text-gray-400">Chọn ảnh hoặc PDF</span>
+                <label className="mt-1 flex items-center gap-2 border border-dashed border-gray-300 dark:border-espresso-700 rounded-lg px-3 py-2.5 cursor-pointer hover:border-herb-500/30 dark:hover:border-herb-500/30 hover:bg-herb-500/10 dark:hover:bg-herb-500/10/20 transition">
+                  <Upload size={15} className="text-brand-300 dark:text-brand-400" />
+                  <span className="text-xs text-brand-400 dark:text-brand-300">Chọn ảnh hoặc PDF</span>
                   <input type="file" accept="image/*,.pdf" className="hidden"
                     onChange={e => setExpenseFile(e.target.files?.[0] ?? null)} />
                 </label>
@@ -608,29 +608,29 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
             </div>
             <div className="flex gap-2 pt-1">
               <button type="submit" disabled={uploadingExp}
-                className="flex-1 flex items-center justify-center gap-2 bg-emerald-600 text-white text-sm font-medium py-2 rounded-lg disabled:opacity-60">
+                className="flex-1 flex items-center justify-center gap-2 bg-herb-500/10 text-white text-sm font-medium py-2 rounded-lg disabled:opacity-60">
                 {uploadingExp && <Loader size={14} className="animate-spin" />}
                 {uploadingExp ? 'Đang gửi...' : 'Gửi'}
               </button>
               <button type="button" onClick={() => setShowExpenseForm(false)}
-                className="flex-1 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 text-sm text-gray-600 dark:text-gray-300 py-2 rounded-lg">Huỷ</button>
+                className="flex-1 bg-white dark:bg-espresso-700 border border-brand-200 dark:border-espresso-700 text-sm text-brand-600 dark:text-brand-300 py-2 rounded-lg">Huỷ</button>
             </div>
           </form>
         )}
 
         {allExpenses.length === 0 ? (
-          <p className="text-xs text-gray-400 dark:text-gray-500 text-center py-6 bg-white dark:bg-slate-800 rounded-xl border border-dashed border-gray-200 dark:border-slate-600">Chưa có chi phí nào</p>
+          <p className="text-xs text-brand-300 dark:text-brand-400 text-center py-6 bg-white dark:bg-espresso-800 rounded-xl border border-dashed border-brand-200 dark:border-espresso-700">Chưa có chi phí nào</p>
         ) : (
           <div className="space-y-2">
             {allExpenses.map(exp => (
-              <div key={exp.id} className="bg-white dark:bg-slate-800 rounded-xl p-3 border border-gray-100 dark:border-slate-700 shadow-sm">
+              <div key={exp.id} className="bg-white dark:bg-espresso-800 rounded-xl p-3 border border-brand-100 dark:border-espresso-700 shadow-card">
                 <div className="flex justify-between items-start">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{exp.type}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{exp.eventName} · {exp.date}</p>
+                    <p className="text-sm font-medium text-espresso-800 dark:text-espresso-50">{exp.type}</p>
+                    <p className="text-xs text-brand-400 dark:text-brand-300">{exp.eventName} · {exp.date}</p>
                   </div>
                   <div className="flex flex-col items-end gap-1 ml-2">
-                    <span className="text-sm font-bold text-gray-700 dark:text-gray-200">{exp.amount}€</span>
+                    <span className="text-sm font-bold text-espresso-700 dark:text-espresso-50">{exp.amount}€</span>
                     <ExpenseStatusBadge status={exp.status} />
                   </div>
                 </div>
@@ -653,8 +653,8 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between text-sm">
-      <span className="text-gray-500 dark:text-gray-400">{label}</span>
-      <span className="text-gray-800 dark:text-gray-100 font-medium">{value}</span>
+      <span className="text-brand-400 dark:text-brand-300">{label}</span>
+      <span className="text-espresso-800 dark:text-espresso-50 font-medium">{value}</span>
     </div>
   );
 }
@@ -675,14 +675,14 @@ function DocCard({
 }) {
   const copied = copiedField === copyKey;
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 shadow-sm p-3 space-y-2">
+    <div className="bg-white dark:bg-espresso-800 rounded-xl border border-brand-100 dark:border-espresso-700 shadow-card p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {icon}
-          <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{label}</p>
+          <p className="text-sm font-medium text-espresso-800 dark:text-espresso-50">{label}</p>
         </div>
         <label className={`flex items-center gap-1 text-xs font-medium cursor-pointer px-2.5 py-1.5 rounded-lg transition
-          ${uploading ? 'bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-gray-500' : 'bg-gray-50 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-600'}`}>
+          ${uploading ? 'bg-brand-50 dark:bg-espresso-700 text-brand-300 dark:text-brand-400' : 'bg-brand-50 dark:bg-espresso-700 text-brand-600 dark:text-brand-300 hover:bg-brand-50 dark:hover:bg-espresso-700'}`}>
           {uploading ? <Loader size={12} className="animate-spin" /> : <Upload size={12} />}
           {uploading ? 'Uploading...' : doc ? 'Cập nhật' : 'Upload'}
           <input ref={fileRef} type="file" accept="image/*,.pdf" className="hidden"
@@ -692,28 +692,28 @@ function DocCard({
 
       {/* Số thẻ */}
       {cardNumber ? (
-        <div className="flex items-center justify-between bg-gray-50 dark:bg-slate-700 rounded-lg px-3 py-2">
-          <span className="text-sm font-mono text-gray-800 dark:text-gray-100 tracking-wide">{cardNumber}</span>
+        <div className="flex items-center justify-between bg-brand-50 dark:bg-espresso-700 rounded-lg px-3 py-2">
+          <span className="text-sm font-mono text-espresso-800 dark:text-espresso-50 tracking-wide">{cardNumber}</span>
           <button
             onClick={() => onCopy(cardNumber)}
-            className="ml-2 p-1 text-gray-400 hover:text-blue-600 transition-colors shrink-0"
+            className="ml-2 p-1 text-brand-300 hover:text-brand-600 transition-colors shrink-0"
             title="Sao chép"
           >
             {copied ? <CheckCheck size={14} className="text-green-500" /> : <Copy size={14} />}
           </button>
         </div>
       ) : (
-        <p className="text-xs text-gray-400 dark:text-gray-500 italic">Chưa có số thẻ — chỉnh sửa thông tin để thêm</p>
+        <p className="text-xs text-brand-300 dark:text-brand-400 italic">Chưa có số thẻ — chỉnh sửa thông tin để thêm</p>
       )}
 
       {/* File */}
       {doc ? (
         <div className="space-y-1.5">
           <DocThumbnail url={doc.url} fileName={doc.fileName} />
-          <p className="text-xs text-gray-400 dark:text-gray-500">Cập nhật: {doc.uploadedAt}</p>
+          <p className="text-xs text-brand-300 dark:text-brand-400">Cập nhật: {doc.uploadedAt}</p>
         </div>
       ) : (
-        <p className="text-xs text-gray-400 dark:text-gray-500">Chưa có tài liệu</p>
+        <p className="text-xs text-brand-300 dark:text-brand-400">Chưa có tài liệu</p>
       )}
     </div>
   );

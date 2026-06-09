@@ -74,20 +74,20 @@ export default function AddStaffForm({ onClose }: Props) {
   };
 
   return (
-    <Modal onClose={onClose} className="w-full max-w-md bg-white dark:bg-slate-800 rounded-t-2xl shadow-2xl overflow-hidden animate-slide-up">
+    <Modal onClose={onClose} className="w-full max-w-md bg-white dark:bg-espresso-800 rounded-t-2xl shadow-warm overflow-hidden animate-slide-up">
       <div className="px-5 pt-5 pb-[calc(env(safe-area-inset-bottom,0px)+80px)] max-h-[90vh] overflow-y-auto overflow-x-hidden">
         <div className="flex justify-between items-center mb-5">
-          <p className="text-base font-bold text-gray-800 dark:text-gray-100">Thêm nhân viên mới</p>
-          <button onClick={onClose} aria-label="Đóng" className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">
+          <p className="text-base font-bold text-espresso-800 dark:text-espresso-50">Thêm nhân viên mới</p>
+          <button onClick={onClose} aria-label="Đóng" className="w-8 h-8 flex items-center justify-center rounded-full bg-brand-50 dark:bg-espresso-700 text-espresso-500 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-espresso-600 transition-colors">
             <X size={16} />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1 block">Tên *</label>
+            <label className="text-xs font-semibold text-espresso-600 dark:text-brand-300 mb-1 block">Tên *</label>
             <input
               required
-              className="w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 transition-all"
+              className="w-full border border-brand-200 dark:border-espresso-600 dark:bg-espresso-700 dark:text-espresso-50 dark:placeholder-gray-500 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-400 transition-all"
               placeholder="Nguyễn Văn A"
               value={name}
               onChange={e => setName(e.target.value)}
@@ -95,12 +95,12 @@ export default function AddStaffForm({ onClose }: Props) {
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1 block">
-              Tên đăng nhập <span className="font-normal text-gray-400 dark:text-gray-500">(để tạo tài khoản)</span>
+            <label className="text-xs font-semibold text-espresso-600 dark:text-brand-300 mb-1 block">
+              Tên đăng nhập <span className="font-normal text-espresso-400 dark:text-brand-400">(để tạo tài khoản)</span>
             </label>
-            <div className="flex items-stretch border border-gray-200 dark:border-slate-600 rounded-xl overflow-hidden focus-within:border-blue-400 transition-all">
+            <div className="flex items-stretch border border-brand-200 dark:border-espresso-600 rounded-xl overflow-hidden focus-within:border-brand-400 transition-all">
               <input
-                className="flex-1 px-3 py-2.5 text-sm bg-white dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 focus:outline-none"
+                className="flex-1 px-3 py-2.5 text-sm bg-white dark:bg-espresso-700 dark:text-espresso-50 dark:placeholder-gray-500 focus:outline-none"
                 placeholder="nguyenvana"
                 autoCapitalize="none"
                 autoCorrect="off"
@@ -108,23 +108,23 @@ export default function AddStaffForm({ onClose }: Props) {
                 value={username}
                 onChange={e => setUsername(e.target.value.replace(/\s/g, '').toLowerCase())}
               />
-              <span className="px-2.5 text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-slate-600 border-l border-gray-200 dark:border-slate-500 flex items-center shrink-0 font-mono">
+              <span className="px-2.5 text-xs text-espresso-400 dark:text-brand-400 bg-brand-50 dark:bg-espresso-600 border-l border-brand-200 dark:border-espresso-500 flex items-center shrink-0 font-mono">
                 @fm.com
               </span>
             </div>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-              Mật khẩu mặc định: <span className="font-semibold text-gray-700 dark:text-gray-300">fest1234</span>
+            <p className="text-xs text-espresso-400 dark:text-brand-400 mt-1">
+              Mật khẩu mặc định: <span className="font-semibold text-espresso-700 dark:text-brand-300">fest1234</span>
             </p>
           </div>
 
           {(isAdmin || isManager) && (
-            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-3 space-y-3">
+            <div className="bg-saffron-50 dark:bg-saffron-900/20 border border-saffron-200 dark:border-saffron-700 rounded-xl p-3 space-y-3">
               {/* Role — admin only */}
               {isAdmin && (
                 <div className="space-y-2">
                   <div className="flex items-center gap-1.5">
-                    <ShieldCheck size={13} className="text-amber-600 dark:text-amber-400" />
-                    <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">Quyền tài khoản</span>
+                    <ShieldCheck size={13} className="text-saffron-600 dark:text-saffron-400" />
+                    <span className="text-xs font-semibold text-saffron-700 dark:text-saffron-400">Quyền tài khoản</span>
                   </div>
                   <div className="grid grid-cols-3 gap-2">
                     {(['staff', 'manager', 'admin'] as UserRole[]).map(r => (
@@ -137,9 +137,9 @@ export default function AddStaffForm({ onClose }: Props) {
                             ? r === 'admin'
                               ? 'bg-red-600 text-white border-red-600'
                               : r === 'manager'
-                                ? 'bg-amber-500 text-white border-amber-500'
-                                : 'bg-blue-600 text-white border-blue-600'
-                            : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600'
+                                ? 'bg-saffron-500 text-white border-saffron-500'
+                                : 'bg-brand-600 text-white border-brand-600'
+                            : 'bg-white dark:bg-espresso-700 text-espresso-600 dark:text-brand-300 border-brand-200 dark:border-espresso-600'
                         }`}
                       >
                         {r === 'staff' ? 'Nhân viên' : r === 'manager' ? 'Quản lý' : 'Admin'}
@@ -153,8 +153,8 @@ export default function AddStaffForm({ onClose }: Props) {
               {(!isAdmin || role !== 'admin') && (
                 <div className="space-y-2">
                   <div className="flex items-center gap-1.5">
-                    <Building2 size={13} className="text-amber-600 dark:text-amber-400" />
-                    <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">Bộ phận kho hàng</span>
+                    <Building2 size={13} className="text-saffron-600 dark:text-saffron-400" />
+                    <span className="text-xs font-semibold text-saffron-700 dark:text-saffron-400">Bộ phận kho hàng</span>
                   </div>
                   <div className="grid grid-cols-3 gap-2">
                     {([
@@ -168,8 +168,8 @@ export default function AddStaffForm({ onClose }: Props) {
                         onClick={() => setDepartment(id)}
                         className={`py-2 rounded-xl text-xs font-semibold border transition-colors ${
                           department === id
-                            ? 'bg-teal-600 text-white border-teal-600'
-                            : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600'
+                            ? 'bg-herb-600 text-white border-herb-600'
+                            : 'bg-white dark:bg-espresso-700 text-espresso-600 dark:text-brand-300 border-brand-200 dark:border-espresso-600'
                         }`}
                       >
                         {label}
@@ -182,11 +182,11 @@ export default function AddStaffForm({ onClose }: Props) {
           )}
 
           <div>
-            <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1 block">Ngày sinh</label>
+            <label className="text-xs font-semibold text-espresso-600 dark:text-brand-300 mb-1 block">Ngày sinh</label>
             <div className="overflow-hidden rounded-xl">
               <input
                 type="date"
-                className="border border-gray-200 dark:border-slate-600 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 transition-all"
+                className="border border-brand-200 dark:border-espresso-600 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-400 transition-all"
                 value={dob}
                 onChange={e => setDob(e.target.value)}
               />
@@ -194,10 +194,10 @@ export default function AddStaffForm({ onClose }: Props) {
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1 block">Thành phố *</label>
+            <label className="text-xs font-semibold text-espresso-600 dark:text-brand-300 mb-1 block">Thành phố *</label>
             <input
               required
-              className="w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 transition-all"
+              className="w-full border border-brand-200 dark:border-espresso-600 dark:bg-espresso-700 dark:text-espresso-50 dark:placeholder-gray-500 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-400 transition-all"
               placeholder="Paris"
               value={city}
               onChange={e => setCity(e.target.value)}
@@ -205,15 +205,15 @@ export default function AddStaffForm({ onClose }: Props) {
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1 block">Loại nhân viên</label>
+            <label className="text-xs font-semibold text-espresso-600 dark:text-brand-300 mb-1 block">Loại nhân viên</label>
             <div className="grid grid-cols-2 gap-2 mt-1">
               <button
                 type="button"
                 onClick={() => setStaffType('permanent')}
                 className={`py-2.5 rounded-xl text-sm font-semibold border transition-colors ${
                   staffType === 'permanent'
-                    ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600 hover:border-blue-300'
+                    ? 'bg-brand-600 text-white border-brand-600'
+                    : 'bg-white dark:bg-espresso-700 text-espresso-600 dark:text-brand-300 border-brand-200 dark:border-espresso-600 hover:border-brand-300'
                 }`}
               >
                 Nhân viên cứng
@@ -223,8 +223,8 @@ export default function AddStaffForm({ onClose }: Props) {
                 onClick={() => setStaffType('part-time')}
                 className={`py-2.5 rounded-xl text-sm font-semibold border transition-colors ${
                   staffType === 'part-time'
-                    ? 'bg-purple-600 text-white border-purple-600'
-                    : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600 hover:border-purple-300'
+                    ? 'bg-saffron-600 text-white border-saffron-600'
+                    : 'bg-white dark:bg-espresso-700 text-espresso-600 dark:text-brand-300 border-brand-200 dark:border-espresso-600 hover:border-saffron-300'
                 }`}
               >
                 Part-time
@@ -232,7 +232,7 @@ export default function AddStaffForm({ onClose }: Props) {
             </div>
           </div>
 
-          <Button type="submit" fullWidth loading={loading} className="font-semibold shadow-md">
+          <Button type="submit" fullWidth loading={loading} className="font-semibold shadow-warm">
             {loading ? 'Đang tạo...' : 'Thêm nhân viên'}
           </Button>
         </form>
