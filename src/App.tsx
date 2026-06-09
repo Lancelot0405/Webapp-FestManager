@@ -11,6 +11,7 @@ import { SpeedInsights } from '@vercel/speed-insights/react';
 import LoginScreen from './components/layout/LoginScreen';
 import Header      from './components/layout/Header';
 import BottomNav   from './components/layout/BottomNav';
+import Sidebar     from './components/layout/Sidebar';
 
 // Screens
 import Dashboard    from './components/dashboard/Dashboard';
@@ -57,9 +58,9 @@ export default function App() {
   const { loading } = state;
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 flex items-center justify-center">
+      <div className="min-h-screen bg-brand-gradient flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center shadow-lg">
+          <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center shadow-warm">
             <span className="text-white font-black text-xl tracking-tight">FM</span>
           </div>
           <div className="w-8 h-8 border-3 border-white/30 border-t-white rounded-full animate-spin" style={{ borderWidth: '3px' }} />
@@ -71,7 +72,7 @@ export default function App() {
   // ── Chưa đăng nhập → hiện màn hình Login ──────────────────────────────────
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 flex justify-center">
+      <div className="min-h-screen bg-brand-gradient flex justify-center">
         <LoginScreen />
       </div>
     );
@@ -84,70 +85,86 @@ export default function App() {
   const isInDetail = selectedEventId !== null || selectedStaffId !== null;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex justify-center font-sans">
+    <div className="min-h-screen bg-[#FFFBF5] dark:bg-espresso-900 font-sans">
       <SpeedInsights />
-      <div className="w-full max-w-md bg-slate-50 dark:bg-slate-900 min-h-screen shadow-xl flex flex-col">
 
-        <Header onLogoClick={handleLogoClick} onLogout={handleLogout} />
+      {/* ── Desktop/Tablet: sidebar + content side-by-side ─────────────────── */}
+      <div className="flex min-h-screen">
 
-        <main className="flex-1 overflow-y-auto px-4 py-5 pb-24 scroll-smooth-ios">
-
-          {/* ── Màn hình chi tiết Event ──────────────────────────────────── */}
-          {selectedEventId && (
-            <EventDetail
-              eventId={selectedEventId}
-              onBack={() => setSelectedEventId(null)}
-            />
-          )}
-
-          {/* ── Màn hình chi tiết Staff (admin xem profile nhân viên) ─────── */}
-          {!selectedEventId && selectedStaffId && (
-            <StaffProfile
-              staffId={selectedStaffId}
-              onBack={() => setSelectedStaffId(null)}
-            />
-          )}
-
-          {/* ── Các tab chính ─────────────────────────────────────────────── */}
-          {!selectedEventId && !selectedStaffId && (
-            <>
-              {activeTab === 'dashboard' && (
-                <Dashboard onSelectEvent={setSelectedEventId} onNavigate={setActiveTab} />
-              )}
-              {activeTab === 'schedule' && (
-                <Schedule onSelectEvent={setSelectedEventId} />
-              )}
-              {activeTab === 'inventory' && (
-                <Inventory />
-              )}
-              {activeTab === 'finance' && canViewAll && (
-                <Finance onSelectEvent={setSelectedEventId} />
-              )}
-              {activeTab === 'hr' && canViewAll && (
-                <HRGlobal onSelectStaff={setSelectedStaffId} />
-              )}
-              {activeTab === 'profile' && (currentUser.role === 'staff' || isManager) && myStaffId && (
-                <StaffProfile staffId={myStaffId} />
-              )}
-              {activeTab === 'profile' && (currentUser.role === 'staff' || isManager) && !myStaffId && (
-                <p className="text-center text-gray-400 py-20 text-sm">Đang tải hồ sơ...</p>
-              )}
-              {activeTab === 'clients' && canViewAll && (
-                <Clients />
-              )}
-            </>
-          )}
-
-        </main>
-
-        {/* BottomNav ẩn khi đang xem chi tiết */}
+        {/* Sidebar — visible md+ */}
         {!isInDetail && (
-          <BottomNav
+          <Sidebar
             activeTab={activeTab}
             onTabChange={setActiveTab}
+            onLogoClick={handleLogoClick}
           />
         )}
 
+        {/* Main column */}
+        <div className="flex-1 flex flex-col min-h-screen md:max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto w-full">
+
+          {/* Header — full-width on mobile, hidden logo on md+ (sidebar has it) */}
+          <Header onLogoClick={handleLogoClick} onLogout={handleLogout} />
+
+          <main className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 py-5 pb-24 md:pb-8 scroll-smooth-ios animate-fade-up">
+
+            {/* ── Màn hình chi tiết Event ──────────────────────────────────── */}
+            {selectedEventId && (
+              <EventDetail
+                eventId={selectedEventId}
+                onBack={() => setSelectedEventId(null)}
+              />
+            )}
+
+            {/* ── Màn hình chi tiết Staff (admin xem profile nhân viên) ─────── */}
+            {!selectedEventId && selectedStaffId && (
+              <StaffProfile
+                staffId={selectedStaffId}
+                onBack={() => setSelectedStaffId(null)}
+              />
+            )}
+
+            {/* ── Các tab chính ─────────────────────────────────────────────── */}
+            {!selectedEventId && !selectedStaffId && (
+              <>
+                {activeTab === 'dashboard' && (
+                  <Dashboard onSelectEvent={setSelectedEventId} onNavigate={setActiveTab} />
+                )}
+                {activeTab === 'schedule' && (
+                  <Schedule onSelectEvent={setSelectedEventId} />
+                )}
+                {activeTab === 'inventory' && (
+                  <Inventory />
+                )}
+                {activeTab === 'finance' && canViewAll && (
+                  <Finance onSelectEvent={setSelectedEventId} />
+                )}
+                {activeTab === 'hr' && canViewAll && (
+                  <HRGlobal onSelectStaff={setSelectedStaffId} />
+                )}
+                {activeTab === 'profile' && (currentUser.role === 'staff' || isManager) && myStaffId && (
+                  <StaffProfile staffId={myStaffId} />
+                )}
+                {activeTab === 'profile' && (currentUser.role === 'staff' || isManager) && !myStaffId && (
+                  <p className="text-center text-brand-300 py-20 text-sm">Đang tải hồ sơ...</p>
+                )}
+                {activeTab === 'clients' && canViewAll && (
+                  <Clients />
+                )}
+              </>
+            )}
+
+          </main>
+
+          {/* BottomNav — mobile only, ẩn khi đang xem chi tiết */}
+          {!isInDetail && (
+            <BottomNav
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+            />
+          )}
+
+        </div>
       </div>
     </div>
   );
