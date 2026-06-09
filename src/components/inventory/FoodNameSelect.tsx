@@ -5,36 +5,36 @@ import { useApp } from '../../context/AppContext';
 import FoodTemplateManager from './FoodTemplateManager';
 
 interface FoodTemplate {
-  id: number;
-  name: string;
+  id:         number;
+  name:       string;
   group_name: string;
-  item_type: string;
+  item_type:  string;
   sort_order: number;
 }
 
 interface FoodNameSelectProps {
-  value: string;
-  onChange: (v: string) => void;
-  itemType?: 'food' | 'equipment';
+  value:        string;
+  onChange:     (v: string) => void;
+  itemType?:    'food' | 'equipment';
   placeholder?: string;
-  required?: boolean;
+  required?:    boolean;
 }
 
 export default function FoodNameSelect({
   value,
   onChange,
-  itemType = 'food',
+  itemType    = 'food',
   placeholder,
   required,
 }: FoodNameSelectProps) {
-  const { state } = useApp();
-  const canManage = state.currentUser?.role === 'admin' || state.currentUser?.role === 'manager';
+  const { state }  = useApp();
+  const canManage  = state.currentUser?.role === 'admin' || state.currentUser?.role === 'manager';
 
-  const [templates, setTemplates] = useState<FoodTemplate[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [custom, setCustom] = useState(false);
-  const [openGroup, setOpenGroup] = useState<string | null>(null);
-  const [showManager, setShowManager] = useState(false);
+  const [templates,    setTemplates]    = useState<FoodTemplate[]>([]);
+  const [loading,      setLoading]      = useState(true);
+  const [custom,       setCustom]       = useState(false);
+  const [openGroup,    setOpenGroup]    = useState<string | null>(null);
+  const [showManager,  setShowManager]  = useState(false);
 
   const load = useCallback(() => {
     supabase
@@ -43,10 +43,7 @@ export default function FoodNameSelect({
       .eq('item_type', itemType)
       .order('group_name')
       .order('sort_order')
-      .then(({ data }) => {
-        setTemplates(data ?? []);
-        setLoading(false);
-      });
+      .then(({ data }) => { setTemplates(data ?? []); setLoading(false); });
   }, [itemType]);
 
   useEffect(() => { load(); }, [load]);
@@ -57,47 +54,35 @@ export default function FoodNameSelect({
     return acc;
   }, {});
 
-  const handleSelect = (name: string) => {
-    onChange(name);
-    setCustom(false);
-    setOpenGroup(null);
-  };
-
-  const handleCustomMode = () => {
-    setCustom(true);
-    setOpenGroup(null);
-    onChange('');
-  };
-
   const isFromTemplate = value && templates.some(t => t.name === value);
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-1">
-        <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">
+      <div className="flex items-center justify-between mb-1.5">
+        <label className="text-xs font-semibold text-brand-700 dark:text-brand-300">
           Tên {itemType === 'food' ? 'thực phẩm' : 'thiết bị'}
         </label>
         {canManage && (
           <button
             type="button"
             onClick={() => setShowManager(true)}
-            className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            className="flex items-center gap-1 text-[11px] text-brand-400 hover:text-brand-600 dark:hover:text-brand-300 transition-colors font-medium"
           >
             <Settings size={11} /> Quản lý mẫu
           </button>
         )}
       </div>
 
-      {/* Selected chip + change button */}
+      {/* Selected chip */}
       {!custom && value && (
         <div className="flex items-center gap-2">
-          <span className="flex-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 text-blue-800 dark:text-blue-200 rounded-lg px-3 py-2 text-sm font-medium truncate">
+          <span className="flex-1 bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-700 text-brand-700 dark:text-brand-300 rounded-xl px-3 py-2 text-sm font-semibold truncate">
             {value}
           </span>
           <button
             type="button"
             onClick={() => { onChange(''); setOpenGroup(null); }}
-            className="text-xs text-gray-500 hover:text-red-500 px-2 py-2 rounded-lg border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700"
+            className="text-xs text-brand-400 hover:text-red-500 px-3 py-2 rounded-xl border border-brand-200 dark:border-espresso-700 bg-white dark:bg-espresso-700 font-medium transition-colors"
           >
             Đổi
           </button>
@@ -106,32 +91,32 @@ export default function FoodNameSelect({
 
       {/* Template picker */}
       {!custom && !value && (
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           {loading ? (
-            <div className="h-8 bg-gray-100 dark:bg-slate-700 rounded-lg animate-pulse" />
+            <div className="h-9 bg-brand-50 dark:bg-espresso-700 rounded-xl shimmer" />
           ) : (
             <>
               {Object.entries(groups).map(([group, items]) => (
-                <div key={group} className="border border-gray-200 dark:border-slate-600 rounded-lg overflow-hidden">
+                <div key={group} className="border border-brand-100 dark:border-espresso-700 rounded-xl overflow-hidden">
                   <button
                     type="button"
                     onClick={() => setOpenGroup(openGroup === group ? null : group)}
-                    className="w-full flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-slate-700 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors"
+                    className="w-full flex items-center justify-between px-3 py-2.5 bg-brand-50 dark:bg-espresso-700 text-xs font-bold text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-espresso-700/80 transition-colors"
                   >
                     {group}
                     <ChevronDown
                       size={13}
-                      className={`transition-transform ${openGroup === group ? 'rotate-180' : ''}`}
+                      className={`text-brand-400 transition-transform ${openGroup === group ? 'rotate-180' : ''}`}
                     />
                   </button>
                   {openGroup === group && (
-                    <div className="flex flex-wrap gap-1.5 p-2 bg-white dark:bg-slate-800">
+                    <div className="flex flex-wrap gap-1.5 p-2.5 bg-white dark:bg-espresso-800">
                       {items.map(t => (
                         <button
                           key={t.id}
                           type="button"
-                          onClick={() => handleSelect(t.name)}
-                          className="px-2.5 py-1 rounded-full text-xs font-medium border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 hover:text-blue-700 transition-colors"
+                          onClick={() => { onChange(t.name); setCustom(false); setOpenGroup(null); }}
+                          className="px-2.5 py-1 rounded-lg text-xs font-medium border border-brand-200 dark:border-espresso-700 bg-brand-50 dark:bg-espresso-700 text-brand-700 dark:text-brand-300 hover:bg-brand-500 hover:text-white hover:border-brand-500 active:scale-95 transition-all"
                         >
                           {t.name}
                         </button>
@@ -142,8 +127,8 @@ export default function FoodNameSelect({
               ))}
               <button
                 type="button"
-                onClick={handleCustomMode}
-                className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-dashed border-gray-300 dark:border-slate-500 text-xs text-gray-500 dark:text-gray-400 hover:border-blue-400 hover:text-blue-600 transition-colors"
+                onClick={() => { setCustom(true); setOpenGroup(null); onChange(''); }}
+                className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-dashed border-brand-300 dark:border-brand-700 text-xs text-brand-500 dark:text-brand-400 hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors font-medium"
               >
                 <Pencil size={11} /> Nhập tên tùy chỉnh
               </button>
@@ -152,13 +137,13 @@ export default function FoodNameSelect({
         </div>
       )}
 
-      {/* Custom text input */}
+      {/* Custom input */}
       {custom && (
         <div className="flex gap-2">
           <input
             autoFocus
             required={required}
-            className="flex-1 border border-blue-300 dark:border-blue-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 border border-brand-300 dark:border-brand-700 bg-white dark:bg-espresso-700 text-espresso-800 dark:text-espresso-50 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-200 dark:focus:ring-brand-800 focus:border-brand-500 transition-all placeholder:text-brand-200 dark:placeholder:text-espresso-100/30"
             placeholder={placeholder ?? (itemType === 'food' ? 'VD: Thịt bò' : 'VD: Găng tay')}
             value={value}
             onChange={e => onChange(e.target.value)}
@@ -166,23 +151,20 @@ export default function FoodNameSelect({
           <button
             type="button"
             onClick={() => { setCustom(false); onChange(''); }}
-            className="px-3 py-2 rounded-lg border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-xs text-gray-500 hover:text-red-500"
+            className="px-3 py-2 rounded-xl border border-brand-200 dark:border-espresso-700 bg-white dark:bg-espresso-700 text-xs text-brand-400 hover:text-red-500 font-medium transition-colors"
           >
             Hủy
           </button>
         </div>
       )}
 
-      {/* Hidden required guard */}
       {required && !value && !custom && (
         <input type="text" required value="" onChange={() => {}} className="sr-only" aria-hidden />
       )}
-
       {!isFromTemplate && value && !custom && (
-        <p className="mt-1 text-[10px] text-gray-400 dark:text-gray-500">Tên tùy chỉnh</p>
+        <p className="mt-1 text-[10px] text-brand-400 dark:text-brand-500">Tên tùy chỉnh</p>
       )}
 
-      {/* Template manager modal */}
       {showManager && (
         <FoodTemplateManager
           itemType={itemType}

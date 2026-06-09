@@ -4,38 +4,35 @@ import { X, Plus, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface FoodTemplate {
-  id: number;
-  name: string;
+  id:         number;
+  name:       string;
   group_name: string;
-  item_type: string;
+  item_type:  string;
   sort_order: number;
 }
 
 interface Props {
-  itemType: 'food' | 'equipment';
-  onClose: () => void;
-  onChanged: () => void; // callback để reload templates ở FoodNameSelect
+  itemType:  'food' | 'equipment';
+  onClose:   () => void;
+  onChanged: () => void;
 }
 
 export default function FoodTemplateManager({ itemType, onClose, onChanged }: Props) {
-  const [templates, setTemplates]   = useState<FoodTemplate[]>([]);
-  const [loading, setLoading]       = useState(true);
-  const [openGroup, setOpenGroup]   = useState<string | null>(null);
-  const [newItemName, setNewItemName] = useState('');
+  const [templates,    setTemplates]    = useState<FoodTemplate[]>([]);
+  const [loading,      setLoading]      = useState(true);
+  const [openGroup,    setOpenGroup]    = useState<string | null>(null);
+  const [newItemName,  setNewItemName]  = useState('');
   const [newItemGroup, setNewItemGroup] = useState('');
   const [newGroupName, setNewGroupName] = useState('');
   const [showAddGroup, setShowAddGroup] = useState(false);
-  const [saving, setSaving]         = useState(false);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [saving,       setSaving]       = useState(false);
+  const [deletingId,   setDeletingId]   = useState<number | null>(null);
 
   const load = async () => {
     setLoading(true);
     const { data } = await supabase
-      .from('food_templates')
-      .select('*')
-      .eq('item_type', itemType)
-      .order('group_name')
-      .order('sort_order');
+      .from('food_templates').select('*').eq('item_type', itemType)
+      .order('group_name').order('sort_order');
     setTemplates(data ?? []);
     setLoading(false);
   };
@@ -64,47 +61,47 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
     const { data } = await supabase
       .from('food_templates')
       .insert({ name, group_name: group, item_type: itemType, sort_order: maxOrder + 10 })
-      .select()
-      .single();
+      .select().single();
     if (data) setTemplates(prev => [...prev, data]);
-    setNewItemName('');
-    setNewItemGroup('');
-    setSaving(false);
-    onChanged();
+    setNewItemName(''); setNewItemGroup('');
+    setSaving(false); onChanged();
   };
 
   const handleAddGroup = async () => {
-    const name = newItemName.trim();
+    const name  = newItemName.trim();
     const group = newGroupName.trim();
     if (!name || !group) return;
     setSaving(true);
     const { data } = await supabase
       .from('food_templates')
       .insert({ name, group_name: group, item_type: itemType, sort_order: 10 })
-      .select()
-      .single();
-    if (data) {
-      setTemplates(prev => [...prev, data]);
-      setOpenGroup(group);
-    }
-    setNewItemName('');
-    setNewGroupName('');
-    setShowAddGroup(false);
-    setSaving(false);
-    onChanged();
+      .select().single();
+    if (data) { setTemplates(prev => [...prev, data]); setOpenGroup(group); }
+    setNewItemName(''); setNewGroupName(''); setShowAddGroup(false);
+    setSaving(false); onChanged();
   };
 
+  const inputCls =
+    'w-full border border-brand-200 dark:border-espresso-700 bg-white dark:bg-espresso-700 ' +
+    'text-espresso-800 dark:text-espresso-50 rounded-xl px-3 py-2 text-xs ' +
+    'focus:outline-none focus:ring-2 focus:ring-brand-200 dark:focus:ring-brand-800 focus:border-brand-500 transition-all ' +
+    'placeholder:text-brand-200 dark:placeholder:text-espresso-100/30';
+
   const modal = (
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 px-0 sm:px-4">
-      <div className="w-full sm:max-w-md bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[85dvh] sm:max-h-[85vh]">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-espresso-800/60 dark:bg-black/70 backdrop-blur-sm px-0 sm:px-4">
+      <div className="w-full sm:max-w-md bg-white dark:bg-espresso-700 rounded-t-2xl sm:rounded-2xl shadow-warm flex flex-col max-h-[85dvh] sm:max-h-[85vh]">
 
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-slate-700 shrink-0">
-          <h2 className="font-bold text-gray-800 dark:text-gray-100 text-sm">
-            Quản lý mẫu tên — {itemType === 'food' ? 'Thực phẩm' : 'Thiết bị'}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-brand-100 dark:border-espresso-700 shrink-0">
+          <h2 className="font-bold text-espresso-800 dark:text-espresso-50 text-sm">
+            Quản lý mẫu — {itemType === 'food' ? 'Thực phẩm' : 'Thiết bị'}
           </h2>
-          <button onClick={onClose} aria-label="Đóng" className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-            <X size={18} />
+          <button
+            onClick={onClose}
+            aria-label="Đóng"
+            className="w-7 h-7 rounded-full flex items-center justify-center text-brand-400 hover:text-brand-600 hover:bg-brand-50 transition-colors"
+          >
+            <X size={16} />
           </button>
         </div>
 
@@ -112,35 +109,36 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
         <div className="overflow-y-auto flex-1 p-4 space-y-2">
           {loading ? (
             <div className="flex justify-center py-8">
-              <Loader2 size={20} className="animate-spin text-blue-500" />
+              <Loader2 size={20} className="animate-spin text-brand-500" />
             </div>
           ) : (
             <>
               {Object.entries(groups).map(([group, items]) => (
-                <div key={group} className="border border-gray-200 dark:border-slate-600 rounded-xl overflow-hidden">
-                  {/* Group header */}
+                <div key={group} className="border border-brand-100 dark:border-espresso-700 rounded-xl overflow-hidden">
                   <button
                     type="button"
                     onClick={() => setOpenGroup(openGroup === group ? null : group)}
-                    className="w-full flex items-center justify-between px-3 py-2.5 bg-gray-50 dark:bg-slate-700 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors"
+                    className="w-full flex items-center justify-between px-3 py-2.5 bg-brand-50 dark:bg-espresso-700 text-xs font-bold text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-espresso-700/80 transition-colors"
                   >
-                    <span>{group} <span className="font-normal text-gray-400">({items.length})</span></span>
-                    {openGroup === group ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                    <span>{group} <span className="font-normal text-brand-400">({items.length})</span></span>
+                    {openGroup === group
+                      ? <ChevronUp size={13} className="text-brand-400" />
+                      : <ChevronDown size={13} className="text-brand-400" />
+                    }
                   </button>
 
                   {openGroup === group && (
-                    <div className="p-3 bg-white dark:bg-slate-800 space-y-2">
-                      {/* Item list with delete */}
+                    <div className="p-3 bg-white dark:bg-espresso-800 space-y-2">
                       <div className="flex flex-wrap gap-1.5">
                         {items.map(t => (
-                          <div key={t.id} className="flex items-center gap-1 pl-2.5 pr-1 py-1 rounded-full border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 text-xs text-gray-700 dark:text-gray-200">
+                          <div key={t.id} className="flex items-center gap-1 pl-2.5 pr-1 py-1 rounded-lg border border-brand-200 dark:border-espresso-700 bg-brand-50 dark:bg-espresso-700 text-xs text-brand-700 dark:text-brand-300 font-medium">
                             {t.name}
                             <button
                               type="button"
                               aria-label={`Xóa ${t.name}`}
                               onClick={() => handleDelete(t.id)}
                               disabled={deletingId === t.id}
-                              className="ml-0.5 text-gray-400 hover:text-red-500 disabled:opacity-40 transition-colors"
+                              className="ml-0.5 text-brand-300 hover:text-red-500 disabled:opacity-40 transition-colors"
                             >
                               {deletingId === t.id
                                 ? <Loader2 size={11} className="animate-spin" />
@@ -151,29 +149,31 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
                         ))}
                       </div>
 
-                      {/* Add item to this group */}
                       {newItemGroup === group ? (
                         <div className="flex gap-2 mt-1">
                           <input
                             autoFocus
-                            className="flex-1 border border-blue-300 dark:border-blue-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className={inputCls}
                             placeholder="Tên sản phẩm mới..."
                             value={newItemName}
                             onChange={e => setNewItemName(e.target.value)}
-                            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddItem(group); } if (e.key === 'Escape') { setNewItemGroup(''); setNewItemName(''); } }}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter') { e.preventDefault(); handleAddItem(group); }
+                              if (e.key === 'Escape') { setNewItemGroup(''); setNewItemName(''); }
+                            }}
                           />
                           <button
                             type="button"
                             onClick={() => handleAddItem(group)}
                             disabled={saving || !newItemName.trim()}
-                            className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium disabled:opacity-50"
+                            className="px-3 py-1.5 bg-brand-gradient text-white rounded-xl text-xs font-semibold disabled:opacity-50 shadow-[0_2px_6px_0_rgb(249_115_22/0.30)]"
                           >
                             {saving ? <Loader2 size={12} className="animate-spin" /> : 'Thêm'}
                           </button>
                           <button
                             type="button"
                             onClick={() => { setNewItemGroup(''); setNewItemName(''); }}
-                            className="px-2 py-1.5 rounded-lg border border-gray-200 dark:border-slate-600 text-xs text-gray-500"
+                            className="px-2 py-1.5 rounded-xl border border-brand-200 dark:border-espresso-700 text-xs text-brand-400 hover:text-red-500"
                           >
                             <X size={12} />
                           </button>
@@ -182,7 +182,7 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
                         <button
                           type="button"
                           onClick={() => { setNewItemGroup(group); setNewItemName(''); setShowAddGroup(false); }}
-                          className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline mt-1"
+                          className="flex items-center gap-1 text-xs text-brand-500 dark:text-brand-400 hover:text-brand-700 font-medium mt-1 transition-colors"
                         >
                           <Plus size={11} /> Thêm vào nhóm này
                         </button>
@@ -194,17 +194,17 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
 
               {/* Add new group */}
               {showAddGroup ? (
-                <div className="border border-dashed border-blue-300 dark:border-blue-600 rounded-xl p-3 space-y-2">
-                  <p className="text-xs font-semibold text-gray-600 dark:text-gray-300">Tạo nhóm mới</p>
+                <div className="border border-dashed border-brand-300 dark:border-brand-700 rounded-xl p-3 space-y-2">
+                  <p className="text-xs font-bold text-brand-700 dark:text-brand-300">Tạo nhóm mới</p>
                   <input
                     autoFocus
-                    className="w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className={inputCls}
                     placeholder="Tên nhóm (VD: Đồ uống)"
                     value={newGroupName}
                     onChange={e => setNewGroupName(e.target.value)}
                   />
                   <input
-                    className="w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className={inputCls}
                     placeholder="Tên sản phẩm đầu tiên"
                     value={newItemName}
                     onChange={e => setNewItemName(e.target.value)}
@@ -215,14 +215,14 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
                       type="button"
                       onClick={handleAddGroup}
                       disabled={saving || !newGroupName.trim() || !newItemName.trim()}
-                      className="flex-1 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium disabled:opacity-50"
+                      className="flex-1 py-2 bg-brand-gradient text-white rounded-xl text-xs font-semibold disabled:opacity-50 shadow-[0_2px_6px_0_rgb(249_115_22/0.30)]"
                     >
                       {saving ? <Loader2 size={12} className="animate-spin mx-auto" /> : 'Tạo nhóm'}
                     </button>
                     <button
                       type="button"
                       onClick={() => { setShowAddGroup(false); setNewGroupName(''); setNewItemName(''); }}
-                      className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-slate-600 text-xs text-gray-500"
+                      className="px-3 py-2 rounded-xl border border-brand-200 dark:border-espresso-700 text-xs text-brand-400 hover:text-red-500"
                     >
                       Hủy
                     </button>
@@ -232,7 +232,7 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
                 <button
                   type="button"
                   onClick={() => { setShowAddGroup(true); setNewItemGroup(''); setNewItemName(''); }}
-                  className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-dashed border-gray-300 dark:border-slate-500 text-xs text-gray-500 dark:text-gray-400 hover:border-blue-400 hover:text-blue-600 transition-colors"
+                  className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-dashed border-brand-300 dark:border-brand-700 text-xs text-brand-500 dark:text-brand-400 hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors font-medium"
                 >
                   <Plus size={12} /> Thêm nhóm mới
                 </button>
@@ -241,11 +241,12 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
           )}
         </div>
 
-        <div className="px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] border-t border-gray-100 dark:border-slate-700 shrink-0">
+        {/* Footer */}
+        <div className="px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] border-t border-brand-100 dark:border-espresso-700 shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="w-full py-2.5 rounded-xl bg-gray-100 dark:bg-slate-700 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
+            className="w-full py-2.5 rounded-xl bg-brand-gradient text-white text-sm font-semibold shadow-warm hover:opacity-90 active:scale-[0.98] transition-all"
           >
             Xong
           </button>

@@ -30,7 +30,7 @@
 | 2 | **UI Primitives** — Button, Input, Badge, Card, Modal | ✅ Hoàn thành | `src/components/shared/ui/` |
 | 3 | **Layout** — Header, BottomNav, LoginScreen | ✅ Hoàn thành | `src/components/layout/` |
 | 4 | **Dashboard** — Hero banner, stat cards, event list | ✅ Hoàn thành | `src/components/dashboard/` |
-| 5 | **Inventory** — Tab bar, item cards, form | ⏳ Chờ | `src/components/inventory/` |
+| 5 | **Inventory** — Tab bar, item cards, form | ✅ Hoàn thành | `src/components/inventory/` |
 | 6 | **Các màn hình còn lại** — Staff, Expense, EventDetail | ⏳ Chờ | `src/components/*/` |
 | 7 | **Polish** — Dark mode, responsive tablet/desktop, animation | ⏳ Chờ | Toàn bộ |
 

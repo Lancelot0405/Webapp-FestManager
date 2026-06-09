@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Plus, X, Trash2, FileSpreadsheet, Upload, Check, ChevronDown, ChevronUp, History, Store, Tent } from 'lucide-react';
+import { Plus, X, Trash2, FileSpreadsheet, Upload, Check, ChevronDown, ChevronUp, History, Store, Tent, Package } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import { getErrorMessage } from '../../lib/errors';
@@ -15,13 +15,11 @@ const EQUIP_UNITS: InventoryUnit[] = ['cái', 'chiếc', 'đôi', 'bộ', 'chai'
 type MainTab = 'restaurant' | 'festival';
 type SubTab  = 'food' | 'equipment' | 'history';
 
-// Resolve which InventoryCategory to save given current selection
 function getCategory(main: MainTab, sub: SubTab): InventoryCategory {
   if (main === 'restaurant') return sub === 'food' ? 'restaurant-food' : 'restaurant-equipment';
   return sub === 'food' ? 'festival-food' : 'festival-equipment';
 }
 
-// Filter predicate: includes legacy 'food'/'equipment' in restaurant section
 function matchCategory(item: InventoryItem, main: MainTab, sub: SubTab): boolean {
   const c = item.category;
   if (main === 'restaurant' && sub === 'food')
@@ -38,8 +36,7 @@ export default function Inventory() {
   const showToast = useToast();
   const { inventory, inventoryLogs, currentUser } = state;
 
-  // Determine which main tabs this user can access
-  const dept = currentUser?.role === 'admin' ? 'both' : (currentUser?.department ?? 'both');
+  const dept             = currentUser?.role === 'admin' ? 'both' : (currentUser?.department ?? 'both');
   const canSeeRestaurant = dept === 'restaurant' || dept === 'both';
   const canSeeFestival   = dept === 'festival'   || dept === 'both';
   const defaultTab: MainTab = canSeeRestaurant ? 'restaurant' : 'festival';
@@ -61,11 +58,8 @@ export default function Inventory() {
 
   const unitOptions  = subTab === 'equipment' ? EQUIP_UNITS : FOOD_UNITS;
   const defaultUnit: InventoryUnit = subTab === 'equipment' ? 'cái' : 'kg';
-
   const filteredItems = subTab !== 'history' ? inventory.filter(item => matchCategory(item, mainTab, subTab as 'food' | 'equipment')) : [];
-
-  const countFor = (m: MainTab, s: 'food' | 'equipment') =>
-    inventory.filter(item => matchCategory(item, m, s)).length;
+  const countFor = (m: MainTab, s: 'food' | 'equipment') => inventory.filter(item => matchCategory(item, m, s)).length;
 
   const sectionLogs = inventoryLogs.filter(log => {
     if (mainTab === 'restaurant') {
@@ -75,16 +69,11 @@ export default function Inventory() {
     return log.festivalName === 'Festival' ||
       inventory.find(i => i.id === log.itemId && (i.category === 'festival-food' || i.category === 'festival-equipment'));
   });
-  const sectionLogsCount = sectionLogs.length;
 
   const openEdit = (item: InventoryItem) => {
-    setExpandedId(item.id);
-    setEditName(item.name);
-    setEditQty(String(item.current));
-    setEditThreshold(String(item.threshold));
-    setEditUnit(item.unit);
+    setExpandedId(item.id); setEditName(item.name);
+    setEditQty(String(item.current)); setEditThreshold(String(item.threshold)); setEditUnit(item.unit);
   };
-  const closeEdit = () => setExpandedId(null);
 
   const handleSaveEdit = (item: InventoryItem) => {
     const qty = parseFloat(editQty);
@@ -134,18 +123,16 @@ export default function Inventory() {
     const reader = new FileReader();
     reader.onload = async (ev) => {
       try {
-        // Tải xlsx động — chỉ nạp khi người dùng thực sự import file.
         const XLSX = await import('xlsx');
-        const wb = XLSX.read(ev.target?.result, { type: 'binary' });
-        const ws = wb.Sheets[wb.SheetNames[0]];
+        const wb   = XLSX.read(ev.target?.result, { type: 'binary' });
+        const ws   = wb.Sheets[wb.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1 });
         let imported = 0;
         const category = getCategory(mainTab, subTab);
         rows.forEach((row, i) => {
           const nameRaw = String(row[0] ?? '').trim();
           if (!nameRaw || (i === 0 && isNaN(Number(row[1])))) return;
-          const current = parseFloat(String(row[1] ?? '0')) || 0;
-          createInventoryItem({ name: nameRaw, current, threshold: 0, unit: 'cái', category });
+          createInventoryItem({ name: nameRaw, current: parseFloat(String(row[1] ?? '0')) || 0, threshold: 0, unit: 'cái', category });
           imported++;
         });
         showToast(`Đã import ${imported} mặt hàng thành công.`, 'success');
@@ -161,291 +148,258 @@ export default function Inventory() {
   };
 
   const handleMainTabChange = (tab: MainTab) => {
-    setMainTab(tab);
-    setSubTab('food');
-    setShowAddForm(false);
-    setExpandedId(null);
-    setNewUnit('kg');
+    setMainTab(tab); setSubTab('food'); setShowAddForm(false); setExpandedId(null); setNewUnit('kg');
   };
-
   const handleSubTabChange = (tab: SubTab) => {
-    setSubTab(tab);
-    setShowAddForm(false);
-    setExpandedId(null);
+    setSubTab(tab); setShowAddForm(false); setExpandedId(null);
     if (tab !== 'history') setNewUnit(tab === 'equipment' ? 'cái' : 'kg');
   };
 
   const sectionLabel = mainTab === 'restaurant' ? 'Nhà hàng' : 'Festival';
   const itemLabel    = subTab === 'equipment' ? 'trang thiết bị' : 'thực phẩm';
 
+  // ── Item status helpers ────────────────────────────────────────────────────
+  const itemBg = (low: boolean, warn: boolean) =>
+    low  ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' :
+    warn ? 'bg-saffron-50 dark:bg-saffron-500/10 border-saffron-200 dark:border-saffron-500/20' :
+           'bg-white dark:bg-espresso-700 border-brand-100 dark:border-espresso-700';
+
+  const selectCls =
+    'mt-1 w-full border border-brand-200 dark:border-espresso-700 bg-white dark:bg-espresso-700 ' +
+    'text-espresso-800 dark:text-espresso-50 rounded-xl px-3 py-2.5 focus:outline-none ' +
+    'focus:ring-2 focus:ring-brand-200 dark:focus:ring-brand-800 focus:border-brand-500 transition-all';
+
   return (
     <div className="space-y-4 pb-20">
-      {/* Header */}
+
+      {/* ── Page header ── */}
       <div className="flex justify-between items-center gap-2">
-        <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">Kho hàng</h1>
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center shadow-[0_2px_8px_0_rgb(249_115_22/0.30)]">
+            <Package size={16} className="text-white" />
+          </div>
+          <h1 className="text-xl font-black text-espresso-800 dark:text-espresso-50">Kho hàng</h1>
+        </div>
         {subTab !== 'history' && (
           <div className="flex gap-2">
-            <label className={`flex items-center gap-1 bg-green-600 text-white text-sm font-medium px-3 py-2 rounded-lg cursor-pointer ${importing ? 'opacity-60 pointer-events-none' : ''}`}>
-              <FileSpreadsheet size={15} />
+            <label className={`flex items-center gap-1.5 bg-herb-500 text-white text-xs font-bold px-3 py-2 rounded-xl cursor-pointer shadow-[0_2px_6px_0_rgb(34_197_94/0.30)] active:scale-95 transition-all ${importing ? 'opacity-60 pointer-events-none' : ''}`}>
+              <FileSpreadsheet size={14} />
               {importing ? 'Đang import...' : 'Import'}
               <input ref={importRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleImport} />
             </label>
             <button
               onClick={() => { setShowAddForm(true); setExpandedId(null); }}
-              className="flex items-center gap-1 bg-blue-600 text-white text-sm font-medium px-3 py-2 rounded-lg"
+              className="flex items-center gap-1.5 bg-brand-gradient text-white text-xs font-bold px-3 py-2 rounded-xl shadow-[0_2px_6px_0_rgb(249_115_22/0.30)] active:scale-95 transition-all"
             >
-              <Plus size={15} /> Thêm
+              <Plus size={14} /> Thêm
             </button>
           </div>
         )}
       </div>
 
-      {/* ── Main tabs: Nhà hàng | Festival ── */}
-      {(canSeeRestaurant && canSeeFestival) && (
-        <div className="flex border-b border-gray-200 dark:border-slate-700">
-          <button
-            onClick={() => handleMainTabChange('restaurant')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold border-b-2 transition-colors ${
-              mainTab === 'restaurant'
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-            }`}
-          >
-            <Store size={14} /> Nhà hàng
-          </button>
-          <button
-            onClick={() => handleMainTabChange('festival')}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold border-b-2 transition-colors ${
-              mainTab === 'festival'
-                ? 'border-purple-600 text-purple-600'
-                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-            }`}
-          >
-            <Tent size={14} /> Festival
-          </button>
+      {/* ── Main tabs ── */}
+      {canSeeRestaurant && canSeeFestival && (
+        <div className="flex border-b border-brand-100 dark:border-espresso-700">
+          {([
+            { id: 'restaurant' as MainTab, icon: <Store size={14} />,  label: 'Nhà hàng', color: 'text-brand-600 border-brand-500' },
+            { id: 'festival'   as MainTab, icon: <Tent size={14} />,   label: 'Festival',  color: 'text-herb-600 border-herb-500' },
+          ]).map(t => (
+            <button
+              key={t.id}
+              onClick={() => handleMainTabChange(t.id)}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold border-b-2 transition-colors ${
+                mainTab === t.id
+                  ? t.color
+                  : 'border-transparent text-brand-300 dark:text-brand-600 hover:text-brand-500'
+              }`}
+            >
+              {t.icon} {t.label}
+            </button>
+          ))}
         </div>
       )}
 
-      {/* ── Nhà hàng / Festival ── */}
-      <>
+      {/* ── Section chip ── */}
+      <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border ${
+        mainTab === 'restaurant'
+          ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-200 dark:border-brand-800'
+          : 'bg-herb-500/10 dark:bg-herb-500/10 border-herb-500/30 dark:border-herb-500/30'
+      }`}>
+        {mainTab === 'restaurant'
+          ? <Store size={13} className="text-brand-500" />
+          : <Tent  size={13} className="text-herb-500" />
+        }
+        <span className={`text-xs font-bold ${mainTab === 'restaurant' ? 'text-brand-700 dark:text-brand-300' : 'text-herb-600 dark:text-herb-400'}`}>
+          {sectionLabel}
+        </span>
+      </div>
 
-          {/* Section header chip */}
-          <div className={`flex items-center gap-2 px-3 py-2 rounded-xl ${
-            mainTab === 'restaurant'
-              ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800'
-              : 'bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800'
-          }`}>
-            {mainTab === 'restaurant'
-              ? <Store size={14} className="text-blue-600 dark:text-blue-400" />
-              : <Tent size={14} className="text-purple-600 dark:text-purple-400" />
-            }
-            <span className={`text-xs font-semibold ${
-              mainTab === 'restaurant'
-                ? 'text-blue-700 dark:text-blue-300'
-                : 'text-purple-700 dark:text-purple-300'
-            }`}>
-              {sectionLabel}
-            </span>
+      {/* ── Sub tabs ── */}
+      <div className="flex gap-1.5 flex-wrap">
+        {([
+          { id: 'food'      as SubTab, label: 'Kho thực phẩm',  count: countFor(mainTab, 'food') },
+          { id: 'equipment' as SubTab, label: 'Trang thiết bị', count: countFor(mainTab, 'equipment') },
+          { id: 'history'   as SubTab, label: 'Lịch sử',        count: sectionLogs.length },
+        ]).map(({ id, label, count }) => {
+          const isActive = subTab === id;
+          return (
+            <button
+              key={id}
+              onClick={() => handleSubTabChange(id)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 ${
+                isActive
+                  ? 'bg-brand-gradient text-white shadow-[0_2px_6px_0_rgb(249_115_22/0.30)] border-transparent'
+                  : 'bg-brand-50 dark:bg-espresso-700 text-brand-500 dark:text-brand-400 border border-brand-200 dark:border-espresso-700 hover:border-brand-400'
+              }`}
+            >
+              {id === 'history' && <History size={11} />}
+              {label}
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                isActive ? 'bg-white/25 text-white' : 'bg-brand-100 dark:bg-espresso-600 text-brand-600 dark:text-brand-400'
+              }`}>
+                {count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Import hint */}
+      {subTab !== 'history' && (
+        <div className="flex items-start gap-2 bg-herb-500/10 dark:bg-herb-500/10 border border-herb-500/30 rounded-xl px-3 py-2 text-xs text-herb-600 dark:text-herb-400">
+          <Upload size={11} className="shrink-0 mt-0.5" />
+          <span>File Excel: 2 cột <strong>Tên | Số lượng</strong> — đơn vị chỉnh trong app sau</span>
+        </div>
+      )}
+
+      {/* ── Add form ── */}
+      {showAddForm && (
+        <form onSubmit={handleAddItem} className="bg-white dark:bg-espresso-700 rounded-2xl border border-brand-200 dark:border-brand-800 p-4 shadow-warm space-y-3 animate-fade-in">
+          <div className="flex justify-between items-center">
+            <p className="font-bold text-espresso-800 dark:text-espresso-50 text-sm">
+              Thêm {itemLabel} — {sectionLabel}
+            </p>
+            <button
+              type="button"
+              aria-label="Đóng"
+              onClick={() => setShowAddForm(false)}
+              className="w-7 h-7 rounded-full flex items-center justify-center text-brand-400 hover:text-brand-600 hover:bg-brand-50 transition-colors"
+            >
+              <X size={15} />
+            </button>
           </div>
 
-          {/* Sub-tabs: Kho | Trang thiết bị | Lịch sử */}
-          <div className="flex gap-1.5 flex-wrap">
-            {([
-              { id: 'food' as SubTab,      label: 'Kho',             count: countFor(mainTab, 'food'),      showCount: true },
-              { id: 'equipment' as SubTab, label: 'Trang thiết bị',  count: countFor(mainTab, 'equipment'), showCount: true },
-              { id: 'history' as SubTab,   label: 'Lịch sử',         count: sectionLogsCount,               showCount: true },
-            ]).map(({ id, label, count, showCount }) => {
-              const activeColor = id === 'history'
-                ? 'bg-gray-600 text-white dark:bg-gray-500'
-                : mainTab === 'restaurant'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-purple-600 text-white';
-              return (
-                <button
-                  key={id}
-                  onClick={() => handleSubTabChange(id)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                    subTab === id
-                      ? activeColor
-                      : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
-                  }`}
-                >
-                  {id === 'history' && <History size={11} />}
-                  {label}
-                  {showCount && (
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
-                      subTab === id
-                        ? 'bg-white/20 text-white'
-                        : 'bg-white dark:bg-slate-600 text-gray-600 dark:text-gray-300'
-                    }`}>
-                      {count}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+          <FoodNameSelect value={newName} onChange={setNewName} itemType={subTab === 'equipment' ? 'equipment' : 'food'} required />
+          <NumberPicker label="Số lượng" value={newCurrent} onChange={setNewCurrent} required min={0} step={0.1} />
+          <NumberPicker label="Cảnh báo" value={newThreshold} onChange={setNewThreshold} min={0} step={0.1} placeholder="0" />
+
+          <div>
+            <label className="text-xs font-semibold text-brand-700 dark:text-brand-300">Đơn vị</label>
+            <select className={selectCls} value={newUnit} onChange={e => setNewUnit(e.target.value as InventoryUnit)}>
+              {unitOptions.map(u => <option key={u} value={u}>{u}</option>)}
+            </select>
           </div>
 
-          {/* Import hint */}
-          {subTab !== 'history' && <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg px-3 py-2 text-xs text-green-700 dark:text-green-400">
-            <Upload size={11} className="inline mr-1" />
-            File Excel: 2 cột <strong>Tên | Số lượng</strong> — đơn vị chỉnh trong app sau
-          </div>}
+          <button type="submit" className="w-full bg-brand-gradient text-white font-bold py-2.5 rounded-xl shadow-warm hover:opacity-90 active:scale-[0.98] transition-all">
+            Thêm vào kho
+          </button>
+        </form>
+      )}
 
-          {/* Add form */}
-          {showAddForm && (
-            <form onSubmit={handleAddItem} className="bg-white dark:bg-slate-800 rounded-xl border border-blue-200 dark:border-blue-800 p-4 shadow-sm space-y-3">
-              <div className="flex justify-between items-center">
-                <p className="font-semibold text-gray-800 dark:text-gray-100 text-sm">
-                  Thêm {itemLabel} — {sectionLabel}
-                </p>
-                <button type="button" aria-label="Đóng" onClick={() => setShowAddForm(false)} className="text-gray-400"><X size={16} /></button>
-              </div>
+      {/* ── Item list ── */}
+      <div className="space-y-2">
+        {state.loading ? (
+          <SkeletonList count={3} variant="row" />
+        ) : filteredItems.length === 0 && subTab !== 'history' ? (
+          <p className="text-sm text-brand-300 dark:text-brand-600 text-center py-10">
+            Chưa có {itemLabel} nào trong kho {sectionLabel}
+          </p>
+        ) : null}
 
-              <FoodNameSelect
-                value={newName}
-                onChange={setNewName}
-                itemType={subTab === 'equipment' ? 'equipment' : 'food'}
-                required
-              />
+        {filteredItems.map((item: InventoryItem) => {
+          const isLow      = item.current < item.threshold;
+          const isWarn     = !isLow && item.threshold > 0 && item.current < item.threshold * 1.5;
+          const isExpanded = expandedId === item.id;
+          const isEquip    = item.category === 'equipment' || item.category === 'restaurant-equipment' || item.category === 'festival-equipment';
+          const currentUnitOpts = isEquip ? EQUIP_UNITS : FOOD_UNITS;
 
-              <NumberPicker
-                label="Số lượng"
-                value={newCurrent}
-                onChange={setNewCurrent}
-                required
-                min={0}
-                step={0.1}
-              />
-
-              <NumberPicker
-                label="Cảnh báo"
-                value={newThreshold}
-                onChange={setNewThreshold}
-                min={0}
-                step={0.1}
-                placeholder="0"
-              />
-
-              <div>
-                <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Đơn vị</label>
-                <select className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-2 py-2 text-sm"
-                  value={newUnit} onChange={e => setNewUnit(e.target.value as InventoryUnit)}>
-                  {unitOptions.map(u => <option key={u} value={u}>{u}</option>)}
-                </select>
-              </div>
-
-              <button type="submit" className="w-full bg-blue-600 text-white font-medium py-2 rounded-lg text-sm">Thêm</button>
-            </form>
-          )}
-
-          {/* Item list */}
-          <div className="space-y-2">
-            {state.loading ? (
-              <SkeletonList count={3} variant="row" />
-            ) : filteredItems.length === 0 ? (
-              <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-8">
-                Chưa có {itemLabel} nào trong kho {sectionLabel}
-              </p>
-            ) : null}
-            {filteredItems.map((item: InventoryItem) => {
-              const isLow  = item.current < item.threshold;
-              const isWarn = !isLow && item.threshold > 0 && item.current < item.threshold * 1.5;
-              const isExpanded = expandedId === item.id;
-              const currentUnitOpts = (item.category === 'equipment' || item.category === 'restaurant-equipment' || item.category === 'festival-equipment')
-                ? EQUIP_UNITS : FOOD_UNITS;
-              const bg = isLow
-                ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-                : isWarn
-                  ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800'
-                  : 'bg-white dark:bg-slate-800 border-gray-100 dark:border-slate-700';
-
-              return (
-                <div key={item.id} className={`rounded-xl shadow-sm border ${bg} overflow-hidden transition-all`}>
-                  <button
-                    aria-label={isExpanded ? `Đóng chỉnh sửa ${item.name}` : `Chỉnh sửa ${item.name}`}
-                    aria-expanded={isExpanded}
-                    className="w-full flex items-center justify-between px-4 py-3 text-left"
-                    onClick={() => isExpanded ? closeEdit() : openEdit(item)}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className={`font-medium text-sm ${isLow ? 'text-red-700 dark:text-red-400' : 'text-gray-800 dark:text-gray-100'}`}>
-                        {item.name}
-                      </p>
-                      {isLow && <p className="text-xs text-red-500">Sắp hết hàng!</p>}
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0 ml-3">
-                      <span className={`text-sm font-bold ${isLow ? 'text-red-600' : isWarn ? 'text-yellow-600' : 'text-gray-700 dark:text-gray-200'}`}>
-                        {item.current} <span className="font-normal text-gray-500 dark:text-gray-300 text-xs">{item.unit}</span>
-                      </span>
-                      {isExpanded ? <ChevronUp size={15} className="text-gray-400" /> : <ChevronDown size={15} className="text-gray-400" />}
-                    </div>
-                  </button>
-
-                  {isExpanded && (
-                    <div className="px-4 pb-4 pt-1 border-t border-gray-100 dark:border-slate-700 space-y-3">
-                      <FoodNameSelect
-                        value={editName}
-                        onChange={setEditName}
-                        itemType={(item.category === 'restaurant-equipment' || item.category === 'festival-equipment' || item.category === 'equipment') ? 'equipment' : 'food'}
-                        required
-                      />
-                      <NumberPicker
-                        label="Số lượng"
-                        value={editQty}
-                        onChange={setEditQty}
-                        required
-                        min={0}
-                        step={0.1}
-                      />
-                      <NumberPicker
-                        label="Cảnh báo"
-                        value={editThreshold}
-                        onChange={setEditThreshold}
-                        min={0}
-                        step={0.1}
-                        placeholder="0"
-                      />
-                      <div>
-                        <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">Đơn vị</label>
-                        <select
-                          className="mt-1 w-full border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg px-2 py-2 text-sm"
-                          value={editUnit} onChange={e => setEditUnit(e.target.value as InventoryUnit)}
-                        >
-                          {currentUnitOpts.map(u => <option key={u} value={u}>{u}</option>)}
-                        </select>
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleSaveEdit(item)}
-                          className="flex-1 flex items-center justify-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 rounded-lg transition"
-                        >
-                          <Check size={14} /> Lưu
-                        </button>
-                        <button
-                          onClick={closeEdit}
-                          className="flex-1 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-200 text-sm font-medium py-2 rounded-lg transition"
-                        >
-                          Hủy
-                        </button>
-                        <button
-                          aria-label={`Xóa ${item.name}`}
-                          onClick={() => handleDelete(item)}
-                          className="px-3 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-500 rounded-lg transition"
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
-                    </div>
-                  )}
+          return (
+            <div key={item.id} className={`rounded-2xl border shadow-card overflow-hidden transition-all ${itemBg(isLow, isWarn)}`}>
+              {/* Row */}
+              <button
+                aria-label={isExpanded ? `Đóng chỉnh sửa ${item.name}` : `Chỉnh sửa ${item.name}`}
+                aria-expanded={isExpanded}
+                className="w-full flex items-center justify-between px-4 py-3 text-left"
+                onClick={() => isExpanded ? setExpandedId(null) : openEdit(item)}
+              >
+                <div className="flex-1 min-w-0">
+                  <p className={`font-semibold text-sm ${isLow ? 'text-red-600 dark:text-red-400' : 'text-espresso-800 dark:text-espresso-50'}`}>
+                    {item.name}
+                  </p>
+                  {isLow  && <p className="text-xs text-red-500 font-medium">⚠ Sắp hết hàng!</p>}
+                  {isWarn && <p className="text-xs text-saffron-600 dark:text-saffron-400 font-medium">Sắp tới mức cảnh báo</p>}
                 </div>
-              );
-            })}
-          </div>
+                <div className="flex items-center gap-2 shrink-0 ml-3">
+                  <span className={`text-sm font-black ${isLow ? 'text-red-500' : isWarn ? 'text-saffron-600' : 'text-brand-600 dark:text-brand-400'}`}>
+                    {item.current}
+                  </span>
+                  <span className="text-xs text-brand-400 dark:text-brand-500">{item.unit}</span>
+                  {isExpanded
+                    ? <ChevronUp size={14} className="text-brand-400" />
+                    : <ChevronDown size={14} className="text-brand-400" />
+                  }
+                </div>
+              </button>
 
-          {/* ── Lịch sử tab content ── */}
-          {subTab === 'history' && <InventoryLogList logs={sectionLogs} />}
-      </>
+              {/* Edit panel */}
+              {isExpanded && (
+                <div className="px-4 pb-4 pt-2 border-t border-brand-100 dark:border-espresso-700 space-y-3 animate-fade-in">
+                  <FoodNameSelect
+                    value={editName}
+                    onChange={setEditName}
+                    itemType={isEquip ? 'equipment' : 'food'}
+                    required
+                  />
+                  <NumberPicker label="Số lượng" value={editQty} onChange={setEditQty} required min={0} step={0.1} />
+                  <NumberPicker label="Cảnh báo" value={editThreshold} onChange={setEditThreshold} min={0} step={0.1} placeholder="0" />
+
+                  <div>
+                    <label className="text-xs font-semibold text-brand-700 dark:text-brand-300">Đơn vị</label>
+                    <select className={selectCls} value={editUnit} onChange={e => setEditUnit(e.target.value as InventoryUnit)}>
+                      {currentUnitOpts.map(u => <option key={u} value={u}>{u}</option>)}
+                    </select>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleSaveEdit(item)}
+                      className="flex-1 flex items-center justify-center gap-1.5 bg-brand-gradient text-white text-sm font-bold py-2.5 rounded-xl shadow-warm hover:opacity-90 active:scale-[0.98] transition-all"
+                    >
+                      <Check size={14} /> Lưu
+                    </button>
+                    <button
+                      onClick={() => setExpandedId(null)}
+                      className="flex-1 bg-brand-50 dark:bg-espresso-800 text-brand-600 dark:text-brand-400 text-sm font-semibold py-2.5 rounded-xl border border-brand-200 dark:border-espresso-700 hover:bg-brand-100 active:scale-[0.98] transition-all"
+                    >
+                      Hủy
+                    </button>
+                    <button
+                      aria-label={`Xóa ${item.name}`}
+                      onClick={() => handleDelete(item)}
+                      className="px-3 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-xl border border-red-200 dark:border-red-800 hover:bg-red-100 active:scale-95 transition-all"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ── History tab ── */}
+      {subTab === 'history' && <InventoryLogList logs={sectionLogs} />}
     </div>
   );
 }
