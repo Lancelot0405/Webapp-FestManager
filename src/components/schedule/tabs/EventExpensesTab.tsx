@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { Plus, ChevronDown, ChevronUp, Upload, X, Loader, Image as ImageIcon } from 'lucide-react';
 import DocThumbnail from '../../shared/DocThumbnail';
 import { useApp } from '../../../context/AppContext';
+import { useToast } from '../../../context/ToastContext';
 import { ExpenseStatusBadge } from '../../shared/StatusBadge';
 import { supabase } from '../../../lib/supabase';
 import { getErrorMessage } from '../../../lib/errors';
@@ -16,6 +17,7 @@ const MAX_FILE_MB = 5;
 
 export default function EventExpensesTab({ event }: Props) {
   const { state, addExpense, updateExpenseStatus } = useApp();
+  const showToast = useToast();
   const { currentUser, staff } = state;
   const isAdmin   = currentUser?.role === 'admin';
   const isManager = currentUser?.role === 'manager';
@@ -55,7 +57,7 @@ export default function EventExpensesTab({ event }: Props) {
       let imageUrl = '';
       if (expenseFile) {
         if (expenseFile.size > MAX_FILE_MB * 1024 * 1024) {
-          alert(`File quá lớn. Vui lòng chọn file dưới ${MAX_FILE_MB}MB.`);
+          showToast(`File quá lớn. Vui lòng chọn file dưới ${MAX_FILE_MB}MB.`, 'warning');
           return;
         }
         const ext  = expenseFile.name.split('.').pop();
@@ -82,7 +84,7 @@ export default function EventExpensesTab({ event }: Props) {
       // Giữ panel mở để thấy chi phí vừa nộp
       setExpandedStaff(myNumericStaffId);
     } catch (err) {
-      alert(getErrorMessage(err, 'Upload thất bại. Vui lòng thử lại.'));
+      showToast(getErrorMessage(err, 'Upload thất bại. Vui lòng thử lại.'), 'error');
     } finally {
       setUploading(false);
     }

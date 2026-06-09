@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { Plus, X, Trash2, FileSpreadsheet, Upload, Check, ChevronDown, ChevronUp, History, Store, Tent } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { useToast } from '../../context/ToastContext';
 import { getErrorMessage } from '../../lib/errors';
 import type { InventoryUnit, InventoryCategory, InventoryItem } from '../../types';
 import InventoryLogList from './InventoryLogList';
@@ -31,6 +32,7 @@ function matchCategory(item: InventoryItem, main: MainTab, sub: SubTab): boolean
 
 export default function Inventory() {
   const { state, createInventoryItem, deleteInventoryItem, updateInventoryItem, addInventoryLog } = useApp();
+  const showToast = useToast();
   const { inventory, inventoryLogs, currentUser } = state;
 
   // Determine which main tabs this user can access
@@ -143,15 +145,15 @@ export default function Inventory() {
           createInventoryItem({ name: nameRaw, current, threshold: 0, unit: 'cái', category });
           imported++;
         });
-        alert(`Đã import ${imported} mặt hàng thành công.`);
+        showToast(`Đã import ${imported} mặt hàng thành công.`, 'success');
       } catch (err) {
-        alert(`Lỗi đọc file: ${getErrorMessage(err, 'Không thể đọc file này.')}`);
+        showToast(`Lỗi đọc file: ${getErrorMessage(err, 'Không thể đọc file này.')}`, 'error');
       } finally {
         setImporting(false);
         if (importRef.current) importRef.current.value = '';
       }
     };
-    reader.onerror = () => { alert('Không thể đọc file.'); setImporting(false); };
+    reader.onerror = () => { showToast('Không thể đọc file.', 'error'); setImporting(false); };
     reader.readAsBinaryString(file);
   };
 

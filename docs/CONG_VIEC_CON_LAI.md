@@ -86,10 +86,10 @@ không dedupe.
 - [x] `react-refresh/only-export-components` (dev-only HMR) ở 3 context: disable kèm
       chú thích (tách hook ra file riêng là cách "sạch" hơn nhưng churn lớn — để sau).
 
-### 8. Thay nốt `alert()` bằng toast
-- [ ] `Inventory.tsx` (import file), `StaffProfile.tsx`, `EventExpensesTab.tsx`,
-      `EventContractsTab.tsx` còn dùng `alert()` — chuyển sang `showToast` cho nhất quán.
-      (Thông điệp lỗi đã chuẩn hóa qua `getErrorMessage`, chỉ còn đổi `alert`→toast.)
+### 8. Thay `alert()` bằng toast — ✅ XONG
+- [x] Đã thay toàn bộ `alert()` còn lại bằng `showToast` (success/error/warning) ở
+      `StaffProfile`, `Inventory`, `EventExpensesTab`, `EventContractsTab`.
+      Không còn `alert()` nào trong `src/`.
 
 ### 9. Optimistic update có rollback
 - [ ] Hiện `runWrite` đã báo lỗi nhưng **chưa hoàn tác** state khi DB fail.

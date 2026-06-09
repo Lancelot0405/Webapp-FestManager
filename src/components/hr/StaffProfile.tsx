@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, FileText, Plus, Upload, Image, X, Loader, Pencil, Check, CreditCard, ShieldCheck, KeyRound, Copy, CheckCheck, Building2 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { useToast } from '../../context/ToastContext';
 import { ExpenseStatusBadge } from '../shared/StatusBadge';
 import DocThumbnail from '../shared/DocThumbnail';
 import { supabase, supabaseAdmin } from '../../lib/supabase';
@@ -17,6 +18,7 @@ const MAX_FILE_MB = 5;
 
 export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
   const { state, addExpense, addContract, updateStaff } = useApp();
+  const showToast = useToast();
   const { staff, events, currentUser } = state;
 
   const member = staff.find(s => String(s.id) === staffId);
@@ -184,7 +186,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
     try {
       const url = await uploadFile(file, 'contracts', `staff-${member.id}`);
       addContract(member.id, { id: Date.now(), date: nowStr(), url, fileName: file.name });
-    } catch (err) { alert(getErrorMessage(err, 'Upload thất bại.')); }
+    } catch (err) { showToast(getErrorMessage(err, 'Upload thất bại.'), 'error'); }
     finally { setUploadingContract(false); if (contractFileRef.current) contractFileRef.current.value = ''; }
   };
 
@@ -200,7 +202,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
       const url = await uploadFile(file, 'documents', `staff-${member.id}/${docType}`);
       const doc: StaffDocument = { url, fileName: file.name, uploadedAt: nowStr() };
       updateStaff({ ...member, [docType]: doc });
-    } catch (err) { alert(getErrorMessage(err, 'Upload thất bại.')); }
+    } catch (err) { showToast(getErrorMessage(err, 'Upload thất bại.'), 'error'); }
     finally { setUploading(false); if (ref.current) ref.current.value = ''; }
   };
 
@@ -219,7 +221,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
       });
       setShowExpenseForm(false);
       setFormAmount(''); setFormDate(''); setFormEventId(''); setExpenseFile(null);
-    } catch (err) { alert(getErrorMessage(err, 'Upload thất bại.')); }
+    } catch (err) { showToast(getErrorMessage(err, 'Upload thất bại.'), 'error'); }
     finally { setUploadingExp(false); }
   };
 

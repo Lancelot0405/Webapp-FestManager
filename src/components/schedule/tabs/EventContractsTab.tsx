@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { ChevronDown, ChevronUp, Upload, Loader, FileText } from 'lucide-react';
 import DocThumbnail from '../../shared/DocThumbnail';
 import { useApp } from '../../../context/AppContext';
+import { useToast } from '../../../context/ToastContext';
 import { supabase } from '../../../lib/supabase';
 import { getErrorMessage } from '../../../lib/errors';
 import type { FestivalEvent } from '../../../types';
@@ -14,6 +15,7 @@ const MAX_FILE_MB = 10;
 
 export default function EventContractsTab({ event }: Props) {
   const { state, addContract } = useApp();
+  const showToast = useToast();
   const { currentUser, staff } = state;
   const isAdmin    = currentUser?.role === 'admin';
   const isManager  = currentUser?.role === 'manager';
@@ -35,7 +37,7 @@ export default function EventContractsTab({ event }: Props) {
 
   const handleUpload = async (staffId: number, file: File) => {
     if (file.size > MAX_FILE_MB * 1024 * 1024) {
-      alert(`File quá lớn. Vui lòng chọn file dưới ${MAX_FILE_MB}MB.`);
+      showToast(`File quá lớn. Vui lòng chọn file dưới ${MAX_FILE_MB}MB.`, 'warning');
       return;
     }
     setUploading(true);
@@ -60,7 +62,7 @@ export default function EventContractsTab({ event }: Props) {
 
       setExpandedStaff(staffId);
     } catch (err) {
-      alert(getErrorMessage(err, 'Upload thất bại. Vui lòng thử lại.'));
+      showToast(getErrorMessage(err, 'Upload thất bại. Vui lòng thử lại.'), 'error');
     } finally {
       setUploading(false);
       setUploadingFor(null);
