@@ -4,7 +4,8 @@ import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import { ExpenseStatusBadge } from '../shared/StatusBadge';
 import DocThumbnail from '../shared/DocThumbnail';
-import { supabase, supabaseAdmin } from '../../lib/supabase';
+import { supabase } from '../../lib/supabase';
+import { adminApi } from '../../lib/adminApi';
 import { getErrorMessage } from '../../lib/errors';
 import type { ExpenseCategory, Expense, StaffDocument, UserRole, UserDepartment } from '../../types';
 
@@ -55,11 +56,13 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
   const [memberDepartment,  setMemberDepartment]  = useState<UserDepartment | null>(null);
   useEffect(() => {
     if (!isAdmin || !member?.userId) return;
-    supabaseAdmin.auth.admin.getUserById(member.userId).then(({ data }) => {
-      const email = data?.user?.email ?? '';
+    // Email lấy qua Edge Function (cần quyền admin của Auth); role/department
+    // đọc trực tiếp bằng client thường (RLS đã cho admin xem toàn bộ users).
+    adminApi.getUserEmail({ userId: member.userId }).then(({ data }) => {
+      const email = data?.email ?? '';
       setCurrentUsername(email.replace('@festmanager.com', '').replace('@fm.com', '') || null);
     });
-    supabaseAdmin.from('users').select('role, department').eq('id', member.userId).single().then(({ data }) => {
+    supabase.from('users').select('role, department').eq('id', member.userId).single().then(({ data }) => {
       if (data?.role) setMemberCurrentRole(data.role as UserRole);
       if (data?.department) setMemberDepartment(data.department as UserDepartment);
     });
@@ -151,7 +154,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
         updates.department = editDepartment;
       }
       if (Object.keys(updates).length > 0) {
-        await supabaseAdmin.from('users').update(updates).eq('id', member.userId);
+        await supabase.from('users').update(updates).eq('id', member.userId);
         if (editRole !== memberCurrentRole) setMemberCurrentRole(editRole);
         if (editRole !== 'admin' && editDepartment !== memberDepartment) setMemberDepartment(editDepartment);
         if (editUsername.trim()) setCurrentUsername(editUsername.trim());
@@ -166,10 +169,8 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
     setPwLoading(true);
     setPwMsg('');
     try {
-      const { error } = await supabaseAdmin.auth.admin.updateUserById(member.userId, {
-        password: newPassword.trim(),
-      });
-      if (error) throw error;
+      const { error } = await adminApi.setPassword({ userId: member.userId, password: newPassword.trim() });
+      if (error) throw new Error(error);
       setPwMsg('Đổi mật khẩu thành công!');
       setNewPassword('');
       setShowPwForm(false);

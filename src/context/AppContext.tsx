@@ -27,7 +27,8 @@ import type {
   Client,
 } from '../types';
 
-import { supabase, supabaseAdmin } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
+import { adminApi } from '../lib/adminApi';
 import {
   fetchStaff,
   fetchEvents,
@@ -412,9 +413,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'DELETE_STAFF', payload: staffId });
     await supabase.from('staff_members').delete().eq('id', staffId);
     if (member?.user_id) {
-      await supabaseAdmin.auth.admin.deleteUser(member.user_id);
+      const { error } = await adminApi.deleteUser({ userId: member.user_id });
+      if (error) showToast(`Lỗi khi xóa tài khoản đăng nhập: ${error}`, 'error');
     }
-  }, []);
+  }, [showToast]);
 
   const updateStaff = useCallback((staff: StaffMember) => {
     dispatch({ type: 'UPDATE_STAFF', payload: staff });
@@ -525,10 +527,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const rejectRegistration = useCallback(async (userId: string) => {
     // Xóa hẳn auth user để họ có thể đăng ký lại nếu muốn
-    await supabaseAdmin.auth.admin.deleteUser(userId);
+    const { error } = await adminApi.deleteUser({ userId });
+    if (error) showToast(`Lỗi khi từ chối đăng ký: ${error}`, 'error');
     await supabase.from('users').delete().eq('id', userId);
     dispatch({ type: 'REMOVE_PENDING_REGISTRATION', payload: userId });
-  }, []);
+  }, [showToast]);
 
   // Memo hóa context value: chỉ tạo object mới khi `state` (hoặc một callback) đổi,
   // tránh re-render thừa ở mọi consumer khi component cha render lại vì lý do khác.

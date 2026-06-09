@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Moon, Sun, Download, Smartphone, X, ShieldCheck } from 'lucide-react';
-import { supabase, supabaseAdmin } from '../../lib/supabase';
+import { supabase } from '../../lib/supabase';
+import { adminApi } from '../../lib/adminApi';
 import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useInstallPrompt } from '../../hooks/useInstallPrompt';
@@ -81,51 +82,28 @@ export default function LoginScreen() {
     const email = username.trim().toLowerCase() + DOMAIN;
     const name  = displayName.trim() || username.trim();
 
-    // Dùng Admin API để tạo user mà không tạo session phía client
-    // (tránh onAuthStateChange kích hoạt đăng nhập sớm)
-    const { data, error: createError } = await supabaseAdmin.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: { name },
+    // Tạo tài khoản qua Edge Function "admin" (service key giữ ở server) —
+    // không tạo session phía client, không lộ service key.
+    const { error: createError } = await adminApi.register({
+      email, password, name, role: registerRole,
     });
 
     if (createError) {
       setError(
-        createError.message.toLowerCase().includes('already been registered') ||
-        createError.message.toLowerCase().includes('already exists')
+        createError.toLowerCase().includes('already been registered') ||
+        createError.toLowerCase().includes('already exists')
           ? 'Tên đăng nhập này đã được dùng'
-          : createError.message
+          : createError
       );
       setLoading(false); return;
     }
 
-    if (data.user) {
-      // Ghi đè users row do trigger tạo (trigger dùng on conflict do nothing,
-      // nên ta upsert để đặt đúng role/status)
-      await supabaseAdmin.from('users').upsert({
-        id: data.user.id,
-        name,
-        role: registerRole,
-        status: registerRole === 'manager' ? 'pending' : 'active',
-      }, { onConflict: 'id' });
-
-      // Tạo staff_members profile (trigger đã không tự tạo nữa)
-      await supabaseAdmin.from('staff_members').insert({
-        name,
-        user_id: data.user.id,
-        dob: '',
-        city: '',
-        staff_type: 'permanent',
-      });
-
-      if (registerRole === 'staff') {
-        setSuccess('Đăng ký thành công! Bạn có thể đăng nhập ngay.');
-        setTimeout(() => reset('login'), 2000);
-      } else {
-        setSuccess('Yêu cầu đăng ký quản lý đã được gửi! Admin sẽ duyệt tài khoản của bạn.');
-        setTimeout(() => reset('login'), 3000);
-      }
+    if (registerRole === 'staff') {
+      setSuccess('Đăng ký thành công! Bạn có thể đăng nhập ngay.');
+      setTimeout(() => reset('login'), 2000);
+    } else {
+      setSuccess('Yêu cầu đăng ký quản lý đã được gửi! Admin sẽ duyệt tài khoản của bạn.');
+      setTimeout(() => reset('login'), 3000);
     }
 
     setLoading(false);

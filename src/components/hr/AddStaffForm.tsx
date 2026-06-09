@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { X, ShieldCheck, Building2 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { supabase, supabaseAdmin } from '../../lib/supabase';
+import { adminApi } from '../../lib/adminApi';
 import { useToast } from '../../context/ToastContext';
 import Button from '../shared/ui/Button';
 import type { StaffMember, StaffType, UserRole, UserDepartment } from '../../types';
@@ -41,26 +41,20 @@ export default function AddStaffForm({ onClose }: Props) {
     if (username.trim()) {
       const email = username.trim().toLowerCase() + DOMAIN;
       const tempPassword = 'fest1234';
-      const { data, error } = await supabaseAdmin.auth.admin.createUser({
+      // Tạo qua Edge Function "admin" (createUser + ghi users row ở server).
+      const { data, error } = await adminApi.createStaff({
         email,
         password: tempPassword,
-        email_confirm: true,
-        user_metadata: { name: name.trim() },
+        name: name.trim(),
+        role: isAdmin ? role : 'staff',
+        department,
       });
       if (error) {
-        showToast(`Lỗi tạo tài khoản: ${error.message}`, 'error');
+        showToast(`Lỗi tạo tài khoản: ${error}`, 'error');
         setLoading(false);
         return;
       }
-      userId = data.user?.id;
-      if (userId) {
-        await supabase.from('users').upsert({
-          id: userId,
-          name: name.trim(),
-          role: isAdmin ? role : 'staff',
-          department,
-        });
-      }
+      userId = data?.userId;
     }
 
     const newStaff: StaffMember = {
