@@ -23,7 +23,8 @@ export default function AddStaffForm({ onClose }: Props) {
   const [department, setDepartment] = useState<UserDepartment>('restaurant');
   const [loading,    setLoading]    = useState(false);
 
-  const isAdmin = currentUser?.role === 'admin';
+  const isAdmin   = currentUser?.role === 'admin';
+  const isManager = currentUser?.role === 'manager';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +57,7 @@ export default function AddStaffForm({ onClose }: Props) {
           id: userId,
           name: name.trim(),
           role: isAdmin ? role : 'staff',
-          department: isAdmin ? department : 'restaurant',
+          department,
         });
       }
     }
@@ -118,38 +119,40 @@ export default function AddStaffForm({ onClose }: Props) {
             </p>
           </div>
 
-          {isAdmin && username.trim() && (
+          {(isAdmin || isManager) && (
             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-3 space-y-3">
-              {/* Role */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-1.5">
-                  <ShieldCheck size={13} className="text-amber-600 dark:text-amber-400" />
-                  <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">Quyền tài khoản</span>
+              {/* Role — admin only */}
+              {isAdmin && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1.5">
+                    <ShieldCheck size={13} className="text-amber-600 dark:text-amber-400" />
+                    <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">Quyền tài khoản</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {(['staff', 'manager', 'admin'] as UserRole[]).map(r => (
+                      <button
+                        key={r}
+                        type="button"
+                        onClick={() => setRole(r)}
+                        className={`py-2 rounded-xl text-xs font-semibold border transition-colors ${
+                          role === r
+                            ? r === 'admin'
+                              ? 'bg-red-600 text-white border-red-600'
+                              : r === 'manager'
+                                ? 'bg-amber-500 text-white border-amber-500'
+                                : 'bg-blue-600 text-white border-blue-600'
+                            : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600'
+                        }`}
+                      >
+                        {r === 'staff' ? 'Nhân viên' : r === 'manager' ? 'Quản lý' : 'Admin'}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  {(['staff', 'manager', 'admin'] as UserRole[]).map(r => (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => setRole(r)}
-                      className={`py-2 rounded-xl text-xs font-semibold border transition-colors ${
-                        role === r
-                          ? r === 'admin'
-                            ? 'bg-red-600 text-white border-red-600'
-                            : r === 'manager'
-                              ? 'bg-amber-500 text-white border-amber-500'
-                              : 'bg-blue-600 text-white border-blue-600'
-                          : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600'
-                      }`}
-                    >
-                      {r === 'staff' ? 'Nhân viên' : r === 'manager' ? 'Quản lý' : 'Admin'}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              )}
 
-              {/* Department — not shown for admin role since admin sees all */}
-              {role !== 'admin' && (
+              {/* Department — not shown when assigning admin role */}
+              {(!isAdmin || role !== 'admin') && (
                 <div className="space-y-2">
                   <div className="flex items-center gap-1.5">
                     <Building2 size={13} className="text-amber-600 dark:text-amber-400" />
