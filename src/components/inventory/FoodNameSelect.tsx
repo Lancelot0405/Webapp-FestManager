@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
-import { Pencil, ChevronDown } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Pencil, ChevronDown, Settings } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useApp } from '../../context/AppContext';
+import FoodTemplateManager from './FoodTemplateManager';
 
 interface FoodTemplate {
   id: number;
@@ -25,12 +27,16 @@ export default function FoodNameSelect({
   placeholder,
   required,
 }: FoodNameSelectProps) {
+  const { state } = useApp();
+  const canManage = state.currentUser?.role === 'admin' || state.currentUser?.role === 'manager';
+
   const [templates, setTemplates] = useState<FoodTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [custom, setCustom] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
+  const [showManager, setShowManager] = useState(false);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     supabase
       .from('food_templates')
       .select('*')
@@ -43,7 +49,8 @@ export default function FoodNameSelect({
       });
   }, [itemType]);
 
-  // Group templates by group_name
+  useEffect(() => { load(); }, [load]);
+
   const groups = templates.reduce<Record<string, FoodTemplate[]>>((acc, t) => {
     if (!acc[t.group_name]) acc[t.group_name] = [];
     acc[t.group_name].push(t);
@@ -66,13 +73,24 @@ export default function FoodNameSelect({
 
   return (
     <div>
-      <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">
-        Tên {itemType === 'food' ? 'thực phẩm' : 'thiết bị'}
-      </label>
+      <div className="flex items-center justify-between mb-1">
+        <label className="text-xs text-gray-600 dark:text-gray-300 font-medium">
+          Tên {itemType === 'food' ? 'thực phẩm' : 'thiết bị'}
+        </label>
+        {canManage && (
+          <button
+            type="button"
+            onClick={() => setShowManager(true)}
+            className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          >
+            <Settings size={11} /> Quản lý mẫu
+          </button>
+        )}
+      </div>
 
       {/* Selected chip + change button */}
       {!custom && value && (
-        <div className="mt-1 flex items-center gap-2">
+        <div className="flex items-center gap-2">
           <span className="flex-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 text-blue-800 dark:text-blue-200 rounded-lg px-3 py-2 text-sm font-medium truncate">
             {value}
           </span>
@@ -88,7 +106,7 @@ export default function FoodNameSelect({
 
       {/* Template picker */}
       {!custom && !value && (
-        <div className="mt-1 space-y-1">
+        <div className="space-y-1">
           {loading ? (
             <div className="h-8 bg-gray-100 dark:bg-slate-700 rounded-lg animate-pulse" />
           ) : (
@@ -136,7 +154,7 @@ export default function FoodNameSelect({
 
       {/* Custom text input */}
       {custom && (
-        <div className="mt-1 flex gap-2">
+        <div className="flex gap-2">
           <input
             autoFocus
             required={required}
@@ -162,6 +180,15 @@ export default function FoodNameSelect({
 
       {!isFromTemplate && value && !custom && (
         <p className="mt-1 text-[10px] text-gray-400 dark:text-gray-500">Tên tùy chỉnh</p>
+      )}
+
+      {/* Template manager modal */}
+      {showManager && (
+        <FoodTemplateManager
+          itemType={itemType}
+          onClose={() => setShowManager(false)}
+          onChanged={load}
+        />
       )}
     </div>
   );
