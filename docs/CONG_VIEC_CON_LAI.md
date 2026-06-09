@@ -106,7 +106,9 @@ không dedupe.
 - [ ] Tạo thêm primitive: `Modal`, `Card`, `Select`, `Badge`.
 
 ### 11. Accessibility toàn diện
-- [ ] Thêm `aria-label` cho **tất cả** nút icon (Header, BottomNav, EventDetail…).
+- [x] `aria-label` cho nút icon ở Header (cài đặt/thông báo/dark mode/đăng xuất),
+      EventDetail (back/excel/PDF/clone/xóa), AddStaffForm (đóng).
+- [ ] Bổ sung nốt nút icon ở các màn còn lại (Inventory, StaffProfile, tabs…).
 - [ ] Focus trap + đóng bằng Esc cho modal/dropdown.
 - [ ] Rà soát contrast màu xám (text-gray-400 trên nền xám) đạt WCAG AA.
 
