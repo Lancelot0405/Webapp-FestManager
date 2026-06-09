@@ -1,31 +1,29 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 
 interface ModalProps {
-  onClose: () => void;
-  children: ReactNode;
-  /** Extra classes for the inner panel (e.g. sizing/padding). */
+  onClose:    () => void;
+  children:   ReactNode;
   className?: string;
+  /** 'bottom' (default) = bottom-sheet · 'center' = centered dialog */
+  position?:  'bottom' | 'center';
 }
 
 const FOCUSABLE =
   'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),' +
   'textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
-/**
- * Full-screen overlay that:
- *  - traps focus inside the panel
- *  - closes on Esc key
- *  - closes when the backdrop is clicked
- *  - moves focus to first focusable child on mount
- */
-export default function Modal({ onClose, children, className = '' }: ModalProps) {
+export default function Modal({
+  onClose,
+  children,
+  className = '',
+  position  = 'bottom',
+}: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const panel = panelRef.current;
     if (!panel) return;
 
-    // Move focus into panel on open
     const first = panel.querySelectorAll<HTMLElement>(FOCUSABLE)[0];
     first?.focus();
 
@@ -36,13 +34,13 @@ export default function Modal({ onClose, children, className = '' }: ModalProps)
       const focusable = Array.from(panel!.querySelectorAll<HTMLElement>(FOCUSABLE));
       if (focusable.length === 0) return;
 
-      const first = focusable[0];
-      const last  = focusable[focusable.length - 1];
+      const f = focusable[0];
+      const l = focusable[focusable.length - 1];
 
       if (e.shiftKey) {
-        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+        if (document.activeElement === f) { e.preventDefault(); l.focus(); }
       } else {
-        if (document.activeElement === last)  { e.preventDefault(); first.focus(); }
+        if (document.activeElement === l) { e.preventDefault(); f.focus(); }
       }
     }
 
@@ -50,9 +48,13 @@ export default function Modal({ onClose, children, className = '' }: ModalProps)
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
+  const posClass = position === 'center'
+    ? 'items-center justify-center'
+    : 'items-end justify-center';
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm"
+      className={`fixed inset-0 z-50 flex ${posClass} bg-espresso-800/60 dark:bg-black/70 backdrop-blur-sm`}
       onClick={onClose}
       role="presentation"
     >
