@@ -107,6 +107,9 @@ export default function AddStaffForm({ onClose }: Props) {
               <input
                 className="flex-1 px-3 py-2.5 text-sm bg-white dark:bg-slate-700 dark:text-gray-100 dark:placeholder-gray-500 focus:outline-none"
                 placeholder="nguyenvana"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 value={username}
                 onChange={e => setUsername(e.target.value.replace(/\s/g, '').toLowerCase())}
               />
