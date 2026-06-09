@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { X, Trash2, Plus, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { X, Plus, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface FoodTemplate {
@@ -93,9 +94,9 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
     onChanged();
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 px-0 sm:px-4">
-      <div className="w-full sm:max-w-md bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[calc(85vh-4rem)] sm:max-h-[85vh] mb-16 sm:mb-0">
+  const modal = (
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 px-0 sm:px-4">
+      <div className="w-full sm:max-w-md bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[85dvh] sm:max-h-[85vh]">
 
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-slate-700 shrink-0">
@@ -240,7 +241,7 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
           )}
         </div>
 
-        <div className="px-4 py-3 border-t border-gray-100 dark:border-slate-700 shrink-0">
+        <div className="px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] border-t border-gray-100 dark:border-slate-700 shrink-0">
           <button
             type="button"
             onClick={onClose}
@@ -252,4 +253,6 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
       </div>
     </div>
   );
+
+  return createPortal(modal, document.body);
 }

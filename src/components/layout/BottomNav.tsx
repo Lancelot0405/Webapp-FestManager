@@ -48,19 +48,22 @@ import {
     const { state } = useApp();
     const { currentUser } = state;
 
-    // Ẩn nav khi bàn phím iOS mở (visual viewport thu nhỏ đáng kể)
+    // Ẩn nav khi bàn phím iOS mở — dùng rAF để tránh race condition
     const [keyboardOpen, setKeyboardOpen] = useState(false);
     useEffect(() => {
       const vv = window.visualViewport;
       if (!vv) return;
+      let rafId = 0;
       const handler = () => {
-        setKeyboardOpen(window.innerHeight - vv.height > 150);
+        cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(() => {
+          setKeyboardOpen(window.innerHeight - vv.height > 150);
+        });
       };
       vv.addEventListener('resize', handler);
-      vv.addEventListener('scroll', handler);
       return () => {
         vv.removeEventListener('resize', handler);
-        vv.removeEventListener('scroll', handler);
+        cancelAnimationFrame(rafId);
       };
     }, []);
 
