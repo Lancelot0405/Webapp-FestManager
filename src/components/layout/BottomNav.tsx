@@ -2,6 +2,7 @@
 // src/components/layout/BottomNav.tsx
 // =============================================================================
 
+import { useState, useEffect } from 'react';
 import {
     LayoutDashboard,
     Calendar,
@@ -47,7 +48,23 @@ import {
     const { state } = useApp();
     const { currentUser } = state;
 
-    if (!currentUser) return null;
+    // Ẩn nav khi bàn phím iOS mở (visual viewport thu nhỏ đáng kể)
+    const [keyboardOpen, setKeyboardOpen] = useState(false);
+    useEffect(() => {
+      const vv = window.visualViewport;
+      if (!vv) return;
+      const handler = () => {
+        setKeyboardOpen(window.innerHeight - vv.height > 150);
+      };
+      vv.addEventListener('resize', handler);
+      vv.addEventListener('scroll', handler);
+      return () => {
+        vv.removeEventListener('resize', handler);
+        vv.removeEventListener('scroll', handler);
+      };
+    }, []);
+
+    if (!currentUser || keyboardOpen) return null;
 
     const tabs = currentUser.role === 'admin'   ? ADMIN_TABS
                : currentUser.role === 'manager' ? MANAGER_TABS
