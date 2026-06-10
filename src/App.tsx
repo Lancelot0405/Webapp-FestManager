@@ -85,7 +85,7 @@ export default function App() {
   const isInDetail = selectedEventId !== null || selectedStaffId !== null;
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans">
+    <div className="min-h-screen font-sans">
       <SpeedInsights />
 
       {/* ── Desktop/Tablet: sidebar + content side-by-side ─────────────────── */}
@@ -146,7 +146,7 @@ export default function App() {
                   <StaffProfile staffId={myStaffId} />
                 )}
                 {activeTab === 'profile' && (currentUser.role === 'staff' || isManager) && !myStaffId && (
-                  <p className="text-center text-slate-400 py-20 text-sm">Đang tải hồ sơ...</p>
+                  <p className="text-center text-[var(--text-muted)] py-20 text-sm">Đang tải hồ sơ...</p>
                 )}
                 {activeTab === 'clients' && canViewAll && (
                   <Clients />
