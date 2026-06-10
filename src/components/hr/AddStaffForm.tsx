@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X, ShieldCheck, Building2 } from 'lucide-react';
+import { Input } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { adminApi } from '../../lib/adminApi';
 import { useToast } from '../../context/ToastContext';
@@ -86,12 +87,17 @@ export default function AddStaffForm({ onClose }: Props) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-xs font-semibold text-espresso-600 dark:text-brand-300 mb-1 block">Tên *</label>
-            <input
-              required
-              className="w-full border border-brand-200 dark:border-espresso-600 dark:bg-espresso-700 dark:text-espresso-50 dark:placeholder-gray-500 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-400 transition-all"
+            <Input
+              isRequired
+              variant="bordered"
+              size="sm"
+              classNames={{
+                inputWrapper: 'border-brand-200 dark:border-espresso-600 dark:bg-espresso-700 rounded-xl',
+                input: 'dark:text-espresso-50 dark:placeholder:text-gray-500 text-sm',
+              }}
               placeholder="Nguyễn Văn A"
               value={name}
-              onChange={e => setName(e.target.value)}
+              onValueChange={setName}
             />
           </div>
 
@@ -196,12 +202,17 @@ export default function AddStaffForm({ onClose }: Props) {
 
           <div>
             <label className="text-xs font-semibold text-espresso-600 dark:text-brand-300 mb-1 block">Thành phố *</label>
-            <input
-              required
-              className="w-full border border-brand-200 dark:border-espresso-600 dark:bg-espresso-700 dark:text-espresso-50 dark:placeholder-gray-500 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-400 transition-all"
+            <Input
+              isRequired
+              variant="bordered"
+              size="sm"
+              classNames={{
+                inputWrapper: 'border-brand-200 dark:border-espresso-600 dark:bg-espresso-700 rounded-xl',
+                input: 'dark:text-espresso-50 dark:placeholder:text-gray-500 text-sm',
+              }}
               placeholder="Paris"
               value={city}
-              onChange={e => setCity(e.target.value)}
+              onValueChange={setCity}
             />
           </div>
 

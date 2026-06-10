@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, FileText, Plus, Upload, Image, X, Loader, Pencil, Check, CreditCard, ShieldCheck, KeyRound, Copy, CheckCheck, Building2 } from 'lucide-react';
+import { Button, Card, Input } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import { ExpenseStatusBadge } from '../shared/StatusBadge';
@@ -88,7 +89,11 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
   if (!member) return (
     <div className="text-center py-20 text-brand-300">
       <p>Không tìm thấy nhân viên</p>
-      {onBack && <button onClick={onBack} className="mt-4 text-brand-600 text-sm">Quay lại</button>}
+      {onBack && (
+        <Button variant="light" size="sm" className="mt-4 text-brand-600 text-sm" onPress={onBack}>
+          Quay lại
+        </Button>
+      )}
     </div>
   );
 
@@ -230,20 +235,21 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
     <div className="space-y-5 pb-20">
       {onBack && (
         <div className="flex items-center gap-2">
-          <button onClick={onBack} className="p-1 text-brand-400 hover:text-espresso-700 dark:text-brand-300 dark:hover:text-gray-200"><ArrowLeft size={22} /></button>
+          <Button isIconOnly variant="light" size="sm" className="text-brand-400 hover:text-espresso-700 dark:text-brand-300 dark:hover:text-gray-200" onPress={onBack}>
+            <ArrowLeft size={22} />
+          </Button>
           <h1 className="text-lg font-bold text-espresso-800 dark:text-espresso-50">Hồ sơ nhân viên</h1>
         </div>
       )}
 
       {/* ── THÔNG TIN CÁ NHÂN ──────────────────────────────────────────── */}
-      <div className="bg-white dark:bg-espresso-800 rounded-xl p-4 shadow-card border border-brand-100 dark:border-espresso-700">
+      <Card shadow="none" className="bg-white dark:bg-espresso-800 rounded-xl p-4 shadow-card border border-brand-100 dark:border-espresso-700">
         <div className="flex justify-between items-center mb-3">
           <p className="text-sm font-semibold text-espresso-700 dark:text-espresso-50">Thông tin cá nhân</p>
           {canEdit && !editing && (
-            <button onClick={startEdit}
-              className="flex items-center gap-1 text-xs text-brand-600 bg-brand-50 px-2.5 py-1.5 rounded-lg hover:bg-brand-100">
+            <Button size="sm" variant="flat" className="text-xs text-brand-600 bg-brand-50 px-2.5 py-1.5 rounded-lg hover:bg-brand-100 h-auto min-w-0" onPress={startEdit}>
               <Pencil size={12} /> Chỉnh sửa
-            </button>
+            </Button>
           )}
         </div>
 
@@ -251,36 +257,69 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
           <div className="space-y-3">
             <div>
               <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Họ tên</label>
-              <input className="mt-1 w-full border border-brand-200 dark:border-espresso-700 dark:bg-espresso-700 dark:text-espresso-50 rounded-lg px-3 py-2 text-sm"
-                value={editName} onChange={e => setEditName(e.target.value)} />
+              <Input
+                variant="bordered"
+                size="sm"
+                classNames={{ inputWrapper: 'mt-1 border-brand-200 dark:border-espresso-700 dark:bg-espresso-700', input: 'dark:text-espresso-50' }}
+                value={editName}
+                onValueChange={setEditName}
+              />
             </div>
             <div>
               <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Ngày sinh (DD-MM-YYYY)</label>
-              <input className="mt-1 w-full border border-brand-200 dark:border-espresso-700 dark:bg-espresso-700 dark:text-espresso-50 rounded-lg px-3 py-2 text-sm"
-                placeholder="01-01-2000" value={editDob} onChange={e => setEditDob(e.target.value)} />
+              <Input
+                variant="bordered"
+                size="sm"
+                classNames={{ inputWrapper: 'mt-1 border-brand-200 dark:border-espresso-700 dark:bg-espresso-700', input: 'dark:text-espresso-50' }}
+                placeholder="01-01-2000"
+                value={editDob}
+                onValueChange={setEditDob}
+              />
             </div>
             <div>
               <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Nơi ở</label>
-              <input className="mt-1 w-full border border-brand-200 dark:border-espresso-700 dark:bg-espresso-700 dark:text-espresso-50 rounded-lg px-3 py-2 text-sm"
-                placeholder="Paris, Lyon..." value={editCity} onChange={e => setEditCity(e.target.value)} />
+              <Input
+                variant="bordered"
+                size="sm"
+                classNames={{ inputWrapper: 'mt-1 border-brand-200 dark:border-espresso-700 dark:bg-espresso-700', input: 'dark:text-espresso-50' }}
+                placeholder="Paris, Lyon..."
+                value={editCity}
+                onValueChange={setEditCity}
+              />
             </div>
             <div>
               <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Số điện thoại</label>
-              <input className="mt-1 w-full border border-brand-200 dark:border-espresso-700 dark:bg-espresso-700 dark:text-espresso-50 rounded-lg px-3 py-2 text-sm"
-                type="tel" placeholder="+33 6 XX XX XX XX"
-                value={editPhone} onChange={e => setEditPhone(e.target.value)} />
+              <Input
+                variant="bordered"
+                size="sm"
+                type="tel"
+                classNames={{ inputWrapper: 'mt-1 border-brand-200 dark:border-espresso-700 dark:bg-espresso-700', input: 'dark:text-espresso-50' }}
+                placeholder="+33 6 XX XX XX XX"
+                value={editPhone}
+                onValueChange={setEditPhone}
+              />
             </div>
             <div>
               <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Số Carte Vitale</label>
-              <input className="mt-1 w-full border border-brand-200 dark:border-espresso-700 dark:bg-espresso-700 dark:text-espresso-50 rounded-lg px-3 py-2 text-sm font-mono"
+              <Input
+                variant="bordered"
+                size="sm"
+                classNames={{ inputWrapper: 'mt-1 border-brand-200 dark:border-espresso-700 dark:bg-espresso-700', input: 'dark:text-espresso-50 font-mono' }}
                 placeholder="1 85 01 75 XXX XXX XX"
-                value={editCarteNum} onChange={e => setEditCarteNum(e.target.value)} />
+                value={editCarteNum}
+                onValueChange={setEditCarteNum}
+              />
             </div>
             <div>
               <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Số Titre de Séjour</label>
-              <input className="mt-1 w-full border border-brand-200 dark:border-espresso-700 dark:bg-espresso-700 dark:text-espresso-50 rounded-lg px-3 py-2 text-sm font-mono"
+              <Input
+                variant="bordered"
+                size="sm"
+                classNames={{ inputWrapper: 'mt-1 border-brand-200 dark:border-espresso-700 dark:bg-espresso-700', input: 'dark:text-espresso-50 font-mono' }}
                 placeholder="XXXXXXXXX"
-                value={editTitreNum} onChange={e => setEditTitreNum(e.target.value)} />
+                value={editTitreNum}
+                onValueChange={setEditTitreNum}
+              />
             </div>
             {isAdmin && (
               <>
@@ -358,14 +397,12 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
               </>
             )}
             <div className="flex gap-2 pt-1">
-              <button onClick={saveEdit}
-                className="flex-1 flex items-center justify-center gap-1 bg-brand-500 text-white text-sm font-medium py-2 rounded-lg">
+              <Button className="flex-1 bg-brand-500 text-white text-sm font-medium" size="sm" onPress={saveEdit}>
                 <Check size={14} /> Lưu
-              </button>
-              <button onClick={() => setEditing(false)}
-                className="flex-1 bg-white dark:bg-espresso-700 border border-brand-200 dark:border-espresso-700 text-sm text-brand-600 dark:text-brand-300 py-2 rounded-lg">
+              </Button>
+              <Button variant="bordered" className="flex-1 border-brand-200 dark:border-espresso-700 text-sm text-brand-600 dark:text-brand-300" size="sm" onPress={() => setEditing(false)}>
                 Huỷ
-              </button>
+              </Button>
             </div>
           </div>
         ) : (
@@ -388,11 +425,11 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
             )}
           </div>
         )}
-      </div>
+      </Card>
 
       {/* ── QUẢN LÝ TÀI KHOẢN (chỉ admin) ─────────────────────────────── */}
       {isAdmin && member.userId && (
-        <div className="bg-white dark:bg-espresso-800 rounded-xl p-4 shadow-card border border-brand-100 dark:border-espresso-700 space-y-4">
+        <Card shadow="none" className="bg-white dark:bg-espresso-800 rounded-xl p-4 shadow-card border border-brand-100 dark:border-espresso-700 space-y-4">
           <p className="text-sm font-semibold text-espresso-700 dark:text-espresso-50 flex items-center gap-2">
             <KeyRound size={15} className="text-orange-500" /> Quản lý tài khoản
           </p>
@@ -421,8 +458,10 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                 />
                 <span className="px-2 text-xs text-brand-300 dark:text-brand-400 bg-brand-50 dark:bg-espresso-700 border-l border-brand-200 dark:border-espresso-700 py-2 shrink-0">@fm.com</span>
               </div>
-              <button
-                onClick={async () => {
+              <Button
+                size="sm"
+                className="bg-brand-500 text-white text-sm font-medium px-3"
+                onPress={async () => {
                   if (!editUsername.trim()) return;
                   await supabase.from('users').update({ name: editUsername.trim() }).eq('id', member.userId!);
                   setCurrentUsername(editUsername.trim());
@@ -430,10 +469,9 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                   setPwMsg('Đã cập nhật tên tài khoản!');
                   setTimeout(() => setPwMsg(''), 3000);
                 }}
-                className="flex items-center gap-1 bg-brand-500 text-white text-sm font-medium px-3 py-2 rounded-lg"
               >
                 <Check size={13} /> Lưu
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -441,29 +479,37 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
           <div>
             <div className="flex justify-between items-center mb-1">
               <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Mật khẩu</label>
-              <button
-                onClick={() => { setShowPwForm(!showPwForm); setPwMsg(''); setNewPassword(''); }}
-                className="text-xs text-orange-600 bg-orange-50 px-2.5 py-1 rounded-lg"
+              <Button
+                size="sm"
+                variant="flat"
+                className="text-xs text-orange-600 bg-orange-50 px-2.5 py-1 rounded-lg h-auto min-w-0"
+                onPress={() => { setShowPwForm(!showPwForm); setPwMsg(''); setNewPassword(''); }}
               >
                 {showPwForm ? 'Huỷ' : 'Đổi mật khẩu'}
-              </button>
+              </Button>
             </div>
             {showPwForm && (
               <form onSubmit={handleChangePassword} className="flex gap-2">
-                <input
-                  required type="password" minLength={6}
+                <Input
+                  required
+                  type="password"
+                  minLength={6}
+                  variant="bordered"
+                  size="sm"
                   placeholder="Mật khẩu mới (tối thiểu 6 ký tự)"
-                  className="flex-1 border border-brand-200 dark:border-espresso-700 dark:bg-espresso-700 dark:text-espresso-50 rounded-lg px-3 py-2 text-sm"
+                  classNames={{ base: 'flex-1', inputWrapper: 'border-brand-200 dark:border-espresso-700 dark:bg-espresso-700', input: 'dark:text-espresso-50' }}
                   value={newPassword}
-                  onChange={e => setNewPassword(e.target.value)}
+                  onValueChange={setNewPassword}
                 />
-                <button
-                  type="submit" disabled={pwLoading}
-                  className="flex items-center gap-1 bg-orange-500 text-white text-sm font-medium px-3 py-2 rounded-lg disabled:opacity-60"
+                <Button
+                  type="submit"
+                  isDisabled={pwLoading}
+                  size="sm"
+                  className="bg-orange-500 text-white text-sm font-medium px-3"
                 >
                   {pwLoading ? <Loader size={13} className="animate-spin" /> : <Check size={13} />}
                   Lưu
-                </button>
+                </Button>
               </form>
             )}
           </div>
@@ -471,7 +517,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
           {pwMsg && (
             <p className={`text-xs ${pwMsg.startsWith('Lỗi') ? 'text-red-500' : 'text-green-600'}`}>{pwMsg}</p>
           )}
-        </div>
+        </Card>
       )}
 
       {/* ── TÀI LIỆU CÁ NHÂN ───────────────────────────────────────────── */}
@@ -548,10 +594,14 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-sm font-semibold text-espresso-700 dark:text-espresso-50">Chi phí ({allExpenses.length})</h2>
           {canEdit && (
-            <button onClick={() => setShowExpenseForm(!showExpenseForm)}
-              className="flex items-center gap-1 bg-herb-500/10 text-herb-600 hover:bg-herb-500/10 text-sm font-medium px-3 py-1.5 rounded-lg transition">
+            <Button
+              size="sm"
+              variant="flat"
+              className="bg-herb-500/10 text-herb-600 hover:bg-herb-500/10 text-sm font-medium px-3 py-1.5 rounded-lg h-auto"
+              onPress={() => setShowExpenseForm(!showExpenseForm)}
+            >
               <Plus size={14} /> Nộp chi phí
-            </button>
+            </Button>
           )}
         </div>
 
@@ -559,7 +609,9 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
           <form onSubmit={handleSubmitExpense} className="bg-herb-500/10 rounded-xl p-4 space-y-3 border border-herb-500/30 mb-3">
             <div className="flex justify-between items-center">
               <p className="text-sm font-semibold text-herb-600">Nộp chi phí mới</p>
-              <button type="button" onClick={() => setShowExpenseForm(false)}><X size={15} className="text-brand-300" /></button>
+              <Button isIconOnly variant="light" size="sm" className="text-brand-300 h-auto min-w-0 p-0" onPress={() => setShowExpenseForm(false)}>
+                <X size={15} />
+              </Button>
             </div>
             <div>
               <label className="text-xs text-brand-600 dark:text-brand-300 font-medium">Sự kiện</label>
@@ -579,9 +631,17 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
               </div>
               <div>
                 <label className="text-xs text-brand-600 dark:text-brand-300 font-medium">Số tiền (€)</label>
-                <input type="number" min="0" step="0.01" required
-                  className="mt-1 w-full border border-brand-200 dark:border-espresso-700 dark:bg-espresso-700 dark:text-espresso-50 rounded-lg px-3 py-2 text-sm"
-                  value={formAmount} onChange={e => setFormAmount(e.target.value)} />
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  isRequired
+                  variant="bordered"
+                  size="sm"
+                  classNames={{ inputWrapper: 'mt-1 border-brand-200 dark:border-espresso-700 dark:bg-espresso-700', input: 'dark:text-espresso-50' }}
+                  value={formAmount}
+                  onValueChange={setFormAmount}
+                />
               </div>
             </div>
             <div>
@@ -595,7 +655,9 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                 <div className="mt-1 flex items-center gap-2 bg-white dark:bg-espresso-700 border border-brand-200 dark:border-espresso-700 rounded-lg px-3 py-2">
                   <Image size={15} className="text-herb-600 shrink-0" />
                   <span className="text-xs text-espresso-700 dark:text-espresso-50 truncate flex-1">{expenseFile.name}</span>
-                  <button type="button" onClick={() => setExpenseFile(null)}><X size={14} className="text-brand-300 hover:text-red-500" /></button>
+                  <Button isIconOnly variant="light" size="sm" className="h-auto min-w-0 p-0 text-brand-300 hover:text-red-500" onPress={() => setExpenseFile(null)}>
+                    <X size={14} />
+                  </Button>
                 </div>
               ) : (
                 <label className="mt-1 flex items-center gap-2 border border-dashed border-gray-300 dark:border-espresso-700 rounded-lg px-3 py-2.5 cursor-pointer hover:border-herb-500/30 dark:hover:border-herb-500/30 hover:bg-herb-500/10 dark:hover:bg-herb-500/10/20 transition">
@@ -607,13 +669,24 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
               )}
             </div>
             <div className="flex gap-2 pt-1">
-              <button type="submit" disabled={uploadingExp}
-                className="flex-1 flex items-center justify-center gap-2 bg-herb-500/10 text-white text-sm font-medium py-2 rounded-lg disabled:opacity-60">
+              <Button
+                type="submit"
+                isDisabled={uploadingExp}
+                className="flex-1 bg-herb-500/10 text-white text-sm font-medium py-2 rounded-lg"
+                size="sm"
+              >
                 {uploadingExp && <Loader size={14} className="animate-spin" />}
                 {uploadingExp ? 'Đang gửi...' : 'Gửi'}
-              </button>
-              <button type="button" onClick={() => setShowExpenseForm(false)}
-                className="flex-1 bg-white dark:bg-espresso-700 border border-brand-200 dark:border-espresso-700 text-sm text-brand-600 dark:text-brand-300 py-2 rounded-lg">Huỷ</button>
+              </Button>
+              <Button
+                type="button"
+                variant="bordered"
+                className="flex-1 border-brand-200 dark:border-espresso-700 text-sm text-brand-600 dark:text-brand-300"
+                size="sm"
+                onPress={() => setShowExpenseForm(false)}
+              >
+                Huỷ
+              </Button>
             </div>
           </form>
         )}
@@ -675,7 +748,7 @@ function DocCard({
 }) {
   const copied = copiedField === copyKey;
   return (
-    <div className="bg-white dark:bg-espresso-800 rounded-xl border border-brand-100 dark:border-espresso-700 shadow-card p-3 space-y-2">
+    <Card shadow="none" className="bg-white dark:bg-espresso-800 rounded-xl border border-brand-100 dark:border-espresso-700 shadow-card p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {icon}
@@ -694,13 +767,16 @@ function DocCard({
       {cardNumber ? (
         <div className="flex items-center justify-between bg-brand-50 dark:bg-espresso-700 rounded-lg px-3 py-2">
           <span className="text-sm font-mono text-espresso-800 dark:text-espresso-50 tracking-wide">{cardNumber}</span>
-          <button
-            onClick={() => onCopy(cardNumber)}
-            className="ml-2 p-1 text-brand-300 hover:text-brand-600 transition-colors shrink-0"
+          <Button
+            isIconOnly
+            variant="light"
+            size="sm"
+            className="ml-2 h-auto min-w-0 p-1 text-brand-300 hover:text-brand-600"
             title="Sao chép"
+            onPress={() => onCopy(cardNumber)}
           >
             {copied ? <CheckCheck size={14} className="text-green-500" /> : <Copy size={14} />}
-          </button>
+          </Button>
         </div>
       ) : (
         <p className="text-xs text-brand-300 dark:text-brand-400 italic">Chưa có số thẻ — chỉnh sửa thông tin để thêm</p>
@@ -715,6 +791,6 @@ function DocCard({
       ) : (
         <p className="text-xs text-brand-300 dark:text-brand-400">Chưa có tài liệu</p>
       )}
-    </div>
+    </Card>
   );
 }
