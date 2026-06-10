@@ -70,7 +70,7 @@ export default function Clients() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-bold text-espresso-800 dark:text-espresso-50">Khách hàng</h1>
+        <h1 className="text-lg font-bold text-[var(--text-primary)]">Khách hàng</h1>
         <Button onPress={openAdd} variant="primary" size="sm" className="flex items-center gap-1.5 rounded-xl">
           <Plus size={15} /> Thêm
         </Button>
@@ -79,7 +79,7 @@ export default function Clients() {
       <div className="relative">
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-300" />
         <input
-          className="w-full pl-9 pr-3 py-2 border border-brand-200 dark:border-espresso-700 dark:bg-espresso-800 dark:text-espresso-50 dark:placeholder-gray-500 rounded-xl text-sm bg-white"
+          className="w-full pl-9 pr-3 py-2 border border-brand-200 dark:border-[var(--border-color)] bg-white dark:bg-[var(--card-bg)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] rounded-xl text-sm"
           placeholder="Tìm kiếm khách hàng..."
           value={search}
           onChange={e => setSearch(e.target.value)}
@@ -89,7 +89,7 @@ export default function Clients() {
       {showForm && (
         <Card className="rounded-xl p-4">
           <div className="flex justify-between items-center mb-3">
-            <p className="font-semibold text-sm text-espresso-800 dark:text-espresso-50">{editingId ? 'Chỉnh sửa' : 'Thêm khách hàng mới'}</p>
+            <p className="font-semibold text-sm text-[var(--text-primary)]">{editingId ? 'Chỉnh sửa' : 'Thêm khách hàng mới'}</p>
             <Button onPress={() => { setShowForm(false); resetForm(); }} variant="ghost" isIconOnly size="sm"><X size={16} /></Button>
           </div>
           <form onSubmit={handleSubmit} className="space-y-2.5">
@@ -133,7 +133,7 @@ export default function Clients() {
               <Card key={client.id} className="rounded-2xl p-4">
                 <div className="flex justify-between items-start">
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-espresso-800 dark:text-espresso-50 truncate">{client.name}</p>
+                    <p className="font-semibold text-[var(--text-primary)] truncate">{client.name}</p>
                     {client.contactName && (
                       <p className="text-xs text-brand-400 dark:text-brand-300 mt-0.5 flex items-center gap-1">
                         <Check size={11} /> {client.contactName}
@@ -155,7 +155,7 @@ export default function Clients() {
                   {client.city  && <p className="text-xs text-brand-400 dark:text-brand-300 flex items-center gap-1.5"><MapPin size={11} /> {client.city}</p>}
                 </div>
                 {clientEvents.length > 0 && (
-                  <div className="mt-2 pt-2 border-t border-gray-50 dark:border-espresso-700">
+                  <div className="mt-2 pt-2 border-t border-[var(--border-color)]">
                     <p className="text-xs text-brand-300 dark:text-brand-400">{clientEvents.length} sự kiện liên quan</p>
                   </div>
                 )}

@@ -145,7 +145,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
     <div className="space-y-6 pb-20">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-slate-800">Tài chính</h1>
+        <h1 className="text-xl font-bold text-[var(--text-primary)]">Tài chính</h1>
         <Button
           onPress={handleExport}
           variant="primary"
@@ -188,29 +188,29 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
           icon={<TrendingUp size={20} className="text-green-500" />}
           label="Tổng doanh thu"
           value={totalIncome}
-          color="text-green-600"
-          bg="bg-green-50 "
+          color="text-green-600 dark:text-green-400"
+          bg="bg-green-50 dark:bg-green-500/10"
         />
         <SummaryCard
           icon={<TrendingDown size={20} className="text-red-500" />}
           label="Tổng chi phí"
           value={totalExpense}
-          color="text-red-600"
-          bg="bg-red-50 "
+          color="text-red-600 dark:text-red-400"
+          bg="bg-red-50 dark:bg-red-500/10"
         />
         <SummaryCard
           icon={<DollarSign size={20} className={netProfit >= 0 ? 'text-brand-500' : 'text-orange-500'} />}
           label="Lợi nhuận ròng"
           value={netProfit}
-          color={netProfit >= 0 ? 'text-brand-600' : 'text-orange-600'}
-          bg={netProfit >= 0 ? 'bg-brand-50' : 'bg-orange-50 '}
+          color={netProfit >= 0 ? 'text-brand-600 dark:text-brand-400' : 'text-orange-600 dark:text-orange-400'}
+          bg={netProfit >= 0 ? 'bg-brand-50 dark:bg-brand-500/10' : 'bg-orange-50 dark:bg-orange-500/10'}
         />
       </div>
 
       {/* Cost breakdown chart */}
       {totalExpense > 0 && (
         <Card className="rounded-xl p-4">
-          <h2 className="text-base font-semibold text-slate-700 mb-3">Phân bổ chi phí (tất cả sự kiện)</h2>
+          <h2 className="text-base font-semibold text-[var(--text-secondary)] mb-3">Phân bổ chi phí (tất cả sự kiện)</h2>
           <div className="space-y-2">
             {breakdownRent > 0 && (
               <BarRow label="Booth/Thuê" value={breakdownRent} maxVal={totalExpense} color="bg-purple-400" showPct totalVal={totalExpense} />
@@ -236,16 +236,16 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
 
       {/* Pending staff expenses */}
       <Card className="rounded-xl p-4">
-        <h2 className="text-base font-semibold text-slate-700 mb-3">Chi phí nhân viên chờ duyệt</h2>
+        <h2 className="text-base font-semibold text-[var(--text-secondary)] mb-3">Chi phí nhân viên chờ duyệt</h2>
         {pendingReceipts.length === 0 ? (
           <p className="text-sm text-green-600">Không có chi phí chờ duyệt ✓</p>
         ) : (
           <div className="space-y-2">
             {pendingReceipts.map(r => (
-              <div key={`${r.eventId}-${r.id}`} className="flex items-center justify-between gap-2 py-2 border-b border-gray-50 last:border-0">
+              <div key={`${r.eventId}-${r.id}`} className="flex items-center justify-between gap-2 py-2 border-b border-[var(--border-color)] last:border-0">
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-slate-800">{r.staffName}</p>
-                  <p className="text-xs text-slate-400">{r.type} · {r.amount.toLocaleString('fr-FR')}€ · {r.date}</p>
+                  <p className="text-sm font-medium text-[var(--text-primary)]">{r.staffName}</p>
+                  <p className="text-xs text-[var(--text-muted)]">{r.type} · {r.amount.toLocaleString('fr-FR')}€ · {r.date}</p>
                   <p className="text-xs text-brand-500">{r.eventName}</p>
                 </div>
                 <div className="flex gap-1.5 shrink-0">
@@ -259,9 +259,9 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
                   </Button>
                   <Button
                     onPress={() => updateExpenseStatus(r.eventId, r.id, 'rejected' as ExpenseStatus)}
-                    variant="danger-soft"
+                    variant="ghost"
                     size="sm"
-                    className="flex items-center gap-0.5 rounded-lg"
+                    className="flex items-center gap-0.5 rounded-lg text-red-500 bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20"
                   >
                     <X size={12} /> Từ chối
                   </Button>
@@ -274,7 +274,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
 
       {/* Per-event breakdown */}
       <div>
-        <h2 className="text-base font-semibold text-slate-700 mb-3">Theo sự kiện</h2>
+        <h2 className="text-base font-semibold text-[var(--text-secondary)] mb-3">Theo sự kiện</h2>
         <div className="space-y-3">
           {filteredEvents.map(event => {
             const fixedExp = Object.values(event.financials.expenses).reduce<number>(
@@ -299,8 +299,8 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
                     variant="ghost"
                     className="min-w-0 flex-1 text-left justify-start h-auto p-0"
                   >
-                    <p className="font-semibold text-slate-800 truncate">{event.name}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">{event.date}</p>
+                    <p className="font-semibold text-[var(--text-primary)] truncate">{event.name}</p>
+                    <p className="text-xs text-[var(--text-muted)] mt-0.5">{event.date}</p>
                   </Button>
                   <div className="flex items-center gap-2 shrink-0 ml-2">
                     <StatusBadge status={event.status} />
@@ -320,48 +320,48 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
                   <div className="space-y-2 mt-2">
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="text-xs text-slate-400">Doanh thu (€)</label>
+                        <label className="text-xs text-[var(--text-muted)]">Doanh thu (€)</label>
                         <input
                           type="number"
                           value={editIncome}
                           onChange={e => setEditIncome(Number(e.target.value))}
-                          className="w-full border border-brand-200 rounded-lg px-2 py-1.5 text-sm mt-0.5"
+                          className="w-full border border-brand-200 dark:border-[var(--border-color)] rounded-lg px-2 py-1.5 text-sm mt-0.5 bg-[var(--card-bg)] text-[var(--text-primary)]"
                         />
                       </div>
                       <div>
-                        <label className="text-xs text-slate-400">Chi phí - Booth (€)</label>
+                        <label className="text-xs text-[var(--text-muted)]">Chi phí - Booth (€)</label>
                         <input
                           type="number"
                           value={editRent}
                           onChange={e => setEditRent(Number(e.target.value))}
-                          className="w-full border border-brand-200 rounded-lg px-2 py-1.5 text-sm mt-0.5"
+                          className="w-full border border-brand-200 dark:border-[var(--border-color)] rounded-lg px-2 py-1.5 text-sm mt-0.5 bg-[var(--card-bg)] text-[var(--text-primary)]"
                         />
                       </div>
                       <div>
-                        <label className="text-xs text-slate-400">Chi phí - Nguyên liệu (€)</label>
+                        <label className="text-xs text-[var(--text-muted)]">Chi phí - Nguyên liệu (€)</label>
                         <input
                           type="number"
                           value={editIngredients}
                           onChange={e => setEditIngredients(Number(e.target.value))}
-                          className="w-full border border-brand-200 rounded-lg px-2 py-1.5 text-sm mt-0.5"
+                          className="w-full border border-brand-200 dark:border-[var(--border-color)] rounded-lg px-2 py-1.5 text-sm mt-0.5 bg-[var(--card-bg)] text-[var(--text-primary)]"
                         />
                       </div>
                       <div>
-                        <label className="text-xs text-slate-400">Chi phí - Vận chuyển (€)</label>
+                        <label className="text-xs text-[var(--text-muted)]">Chi phí - Vận chuyển (€)</label>
                         <input
                           type="number"
                           value={editTransport}
                           onChange={e => setEditTransport(Number(e.target.value))}
-                          className="w-full border border-brand-200 rounded-lg px-2 py-1.5 text-sm mt-0.5"
+                          className="w-full border border-brand-200 dark:border-[var(--border-color)] rounded-lg px-2 py-1.5 text-sm mt-0.5 bg-[var(--card-bg)] text-[var(--text-primary)]"
                         />
                       </div>
                       <div>
-                        <label className="text-xs text-slate-400">Chi phí - Lương (€)</label>
+                        <label className="text-xs text-[var(--text-muted)]">Chi phí - Lương (€)</label>
                         <input
                           type="number"
                           value={editStaff}
                           onChange={e => setEditStaff(Number(e.target.value))}
-                          className="w-full border border-brand-200 rounded-lg px-2 py-1.5 text-sm mt-0.5"
+                          className="w-full border border-brand-200 dark:border-[var(--border-color)] rounded-lg px-2 py-1.5 text-sm mt-0.5 bg-[var(--card-bg)] text-[var(--text-primary)]"
                         />
                       </div>
                     </div>
@@ -404,7 +404,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
                       </p>
                     )}
                     <div className="mt-3 flex justify-between text-xs font-semibold">
-                      <span className="text-slate-400">Lợi nhuận</span>
+                      <span className="text-[var(--text-muted)]">Lợi nhuận</span>
                       <span className={profit >= 0 ? 'text-green-600' : 'text-red-600'}>
                         {profit >= 0 ? '+' : ''}{profit.toLocaleString('fr-FR')}€
                       </span>
@@ -455,14 +455,14 @@ function BarRow({ label, value, maxVal, color, showPct, totalVal }: BarRowProps)
   const pctOfTotal = totalVal && totalVal > 0 ? Math.round((value / totalVal) * 100) : null;
   return (
     <div className="flex items-center gap-2">
-      <span className="text-xs text-slate-400 w-20 shrink-0">{label}</span>
-      <div className="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
+      <span className="text-xs text-[var(--text-muted)] w-20 shrink-0">{label}</span>
+      <div className="flex-1 bg-[var(--muted)] rounded-full h-2 overflow-hidden">
         <div
           className={`h-full rounded-full ${color} transition-all`}
           style={{ width: `${pct}%` }}
         />
       </div>
-      <span className="text-xs font-medium text-slate-700 w-14 text-right shrink-0">
+      <span className="text-xs font-medium text-[var(--text-secondary)] w-14 text-right shrink-0">
         {value.toLocaleString('fr-FR')}€
       </span>
       {showPct && pctOfTotal !== null && (

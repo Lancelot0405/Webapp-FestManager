@@ -146,13 +146,13 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
               <Card
                 key={event.id}
                 render={(props) => <button {...(props as React.ComponentPropsWithRef<'button'>)} onClick={() => onSelectEvent(event.id)} />}
-                className="w-full text-left rounded-2xl p-4 border border-slate-100 hover:border-brand-300 hover:shadow-card active:scale-[0.99] transition-all duration-150 cursor-pointer"
+                className="w-full text-left rounded-2xl p-4 border border-[var(--border-color)] hover:border-brand-300 hover:shadow-card active:scale-[0.99] transition-all duration-150 cursor-pointer"
               >
                 <div className="flex justify-between items-start gap-2">
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-slate-800 truncate">{event.name}</p>
+                    <p className="font-semibold text-[var(--text-primary)] truncate">{event.name}</p>
                     <p className="text-xs text-brand-400 mt-0.5">{event.date} · {event.location}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">{event.staff.length} nhân viên</p>
+                    <p className="text-xs text-[var(--text-muted)] mt-0.5">{event.staff.length} nhân viên</p>
                   </div>
                   <StatusBadge status={event.status} />
                 </div>
@@ -170,8 +170,8 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
             {myPendingExpenses.map(exp => (
               <Card key={exp.id} variant="secondary" className="rounded-2xl p-3 flex justify-between items-center">
                 <div>
-                  <p className="text-sm font-semibold text-slate-800">{exp.type}</p>
-                  <p className="text-xs text-slate-400">{exp.date}</p>
+                  <p className="text-sm font-semibold text-[var(--text-primary)]">{exp.type}</p>
+                  <p className="text-xs text-[var(--text-muted)]">{exp.date}</p>
                 </div>
                 <span className="text-sm font-bold text-indigo-600">{exp.amount}€</span>
               </Card>
@@ -202,10 +202,10 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
 type StatColor = 'brand' | 'indigo' | 'herb' | 'red';
 
 const colorMap: Record<StatColor, { bg: string; icon: string; value: string }> = {
-  brand:  { bg: 'bg-brand-50',   icon: 'text-brand-500',  value: 'text-brand-600'  },
-  indigo: { bg: 'bg-indigo-50',  icon: 'text-indigo-500', value: 'text-indigo-600' },
-  herb:   { bg: 'bg-herb-500/10', icon: 'text-herb-500',  value: 'text-herb-600'   },
-  red:    { bg: 'bg-red-50',     icon: 'text-red-500',    value: 'text-red-600'    },
+  brand:  { bg: 'bg-brand-50 dark:bg-brand-500/10',   icon: 'text-brand-500',  value: 'text-brand-600 dark:text-brand-400'  },
+  indigo: { bg: 'bg-indigo-50 dark:bg-indigo-500/10', icon: 'text-indigo-500', value: 'text-indigo-600 dark:text-indigo-400' },
+  herb:   { bg: 'bg-herb-500/10',                     icon: 'text-herb-500',   value: 'text-herb-600 dark:text-herb-400'    },
+  red:    { bg: 'bg-red-50 dark:bg-red-500/10',       icon: 'text-red-500',    value: 'text-red-600 dark:text-red-400'      },
 };
 
 function StatCard({ icon, label, value, color, alert, onClick }: {
@@ -225,7 +225,7 @@ function StatCard({ icon, label, value, color, alert, onClick }: {
       <div className={`shrink-0 ${c.icon}`}>{icon}</div>
       <div>
         <p className={`text-2xl font-black ${alert ? 'text-red-500' : c.value}`}>{value}</p>
-        <p className="text-xs text-slate-400 leading-tight mt-0.5">{label}</p>
+        <p className="text-xs text-[var(--text-muted)] leading-tight mt-0.5">{label}</p>
       </div>
     </Card>
   );
@@ -238,7 +238,7 @@ function SectionHeader({ title, onMore, icon }: { title: string; onMore?: () => 
         {icon} {title}
       </h2>
       {onMore && (
-        <Button onPress={onMore} variant="ghost" size="sm" className="flex items-center gap-0.5 text-xs text-slate-400 hover:text-brand-600 font-medium transition-colors">
+        <Button onPress={onMore} variant="ghost" size="sm" className="flex items-center gap-0.5 text-xs text-[var(--text-muted)] hover:text-brand-600 font-medium transition-colors">
           Xem thêm <ChevronRight size={12} />
         </Button>
       )}
@@ -247,7 +247,7 @@ function SectionHeader({ title, onMore, icon }: { title: string; onMore?: () => 
 }
 
 function EmptyState({ text }: { text: string }) {
-  return <p className="text-sm text-slate-400 text-center py-6">{text}</p>;
+  return <p className="text-sm text-[var(--text-muted)] text-center py-6">{text}</p>;
 }
 
 function RevenueChart({ events }: { events: FestivalEvent[] }) {
@@ -282,11 +282,11 @@ function RevenueChart({ events }: { events: FestivalEvent[] }) {
                 background: 'linear-gradient(180deg, #8B5CF6, #6366F1)',
               }}
             />
-            <span className="text-[9px] text-slate-400 leading-none">{month}</span>
+            <span className="text-[9px] text-[var(--text-muted)] leading-none">{month}</span>
           </div>
         ))}
       </div>
-      <p className="text-xs text-slate-400 mt-2 text-right">Max: {maxVal.toLocaleString('fr-FR')}€</p>
+      <p className="text-xs text-[var(--text-muted)] mt-2 text-right">Max: {maxVal.toLocaleString('fr-FR')}€</p>
     </Card>
   );
 }
@@ -309,15 +309,15 @@ function TopStaffList({ events, staff }: { events: FestivalEvent[]; staff: Staff
   ];
 
   return (
-    <Card className="rounded-2xl divide-y divide-slate-50">
+    <Card className="rounded-2xl divide-y divide-[var(--border-color)]">
       {top.map(({ member, count }, i) => (
         <div key={member!.id} className="flex items-center gap-3 px-4 py-3">
           <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${rankStyle[i]}`}>
             {i + 1}
           </span>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-slate-800 truncate">{member!.name}</p>
-            <p className="text-xs text-slate-400">{member!.city}</p>
+            <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{member!.name}</p>
+            <p className="text-xs text-[var(--text-muted)]">{member!.city}</p>
           </div>
           <span className="text-sm font-bold text-brand-500">{count} sự kiện</span>
         </div>
