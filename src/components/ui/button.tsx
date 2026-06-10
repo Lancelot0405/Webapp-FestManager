@@ -8,7 +8,6 @@ export interface ButtonProps extends Omit<ButtonRootProps, 'variant' | 'size'> {
   variant?: LegacyVariant | ButtonRootProps['variant']
   size?: LegacySize | ButtonRootProps['size']
   loading?: boolean
-  asChild?: boolean
 }
 
 const legacyVariantMap: Record<LegacyVariant, ButtonRootProps['variant']> = {
@@ -33,8 +32,8 @@ const isLegacyVariant = (v: string): v is LegacyVariant =>
 const isLegacySize = (s: string): s is LegacySize =>
   ['default','sm','lg','icon'].includes(s)
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = 'default', size = 'default', loading, asChild: _asChild, children, ...props }, ref) => {
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ variant = 'default', size = 'default', loading, children, ...props }, ref) => {
     const heroVariant = typeof variant === 'string' && isLegacyVariant(variant)
       ? legacyVariantMap[variant]
       : (variant as ButtonRootProps['variant'])
@@ -64,7 +63,3 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   }
 )
 Button.displayName = "Button"
-
-// eslint-disable-next-line react-refresh/only-export-components
-export { Button }
-export const buttonVariants = () => ''

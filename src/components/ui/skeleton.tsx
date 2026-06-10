@@ -29,13 +29,12 @@ function RowSkeleton({ className }: { className?: string }) {
   )
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function SkeletonList({ count = 5, className, variant: _variant }: { count?: number; className?: string; variant?: string }) {
+function SkeletonList({ count = 5, className, variant = 'row' }: { count?: number; className?: string; variant?: 'row' | 'card' }) {
   return (
-    <div className={cn("divide-y divide-[var(--border)]", className)}>
-      {Array.from({ length: count }).map((_, i) => (
-        <RowSkeleton key={i} />
-      ))}
+    <div className={cn(variant === 'card' ? "grid grid-cols-1 gap-3" : "divide-y divide-[var(--border)]", className)}>
+      {Array.from({ length: count }).map((_, i) =>
+        variant === 'card' ? <CardSkeleton key={i} /> : <RowSkeleton key={i} />
+      )}
     </div>
   )
 }

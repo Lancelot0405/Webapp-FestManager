@@ -23,7 +23,7 @@ export interface InputProps extends Omit<TextFieldProps, 'children'> {
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, hint, icon, className, inputClassName, placeholder, type, ...props }, _ref) => {
+  ({ label, error, hint, icon, className, inputClassName, placeholder, type, ...props }) => {
     return (
       <TextField
         isInvalid={!!error}

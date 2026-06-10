@@ -4,7 +4,6 @@ import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 // ── Dialog (Modal wrapper) ────────────────────────────────────────────────
-// Backward-compat: accepts `open` (Radix style) or `isOpen` (HeroUI style)
 interface DialogProps {
   open?: boolean
   isOpen?: boolean
@@ -45,15 +44,12 @@ const DialogContent = ({ position = "center", className, children }: DialogConte
         )}
       >
         <Modal.Dialog className="relative outline-none">
-          <button
-            onClick={() => {
-              // DialogClose equivalent — will trigger onOpenChange(false) via Modal
-            }}
-            className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none"
-            aria-label="Close"
+          <Modal.CloseTrigger
+            className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none z-10"
+            aria-label="Đóng"
           >
             <X className="size-4" />
-          </button>
+          </Modal.CloseTrigger>
           {children}
         </Modal.Dialog>
       </Modal.Container>
@@ -102,7 +98,6 @@ const DialogDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttri
 )
 DialogDescription.displayName = "DialogDescription"
 
-// Stub exports for Radix compat
 const DialogTrigger = ({ children }: { children?: React.ReactNode }) => <>{children}</>
 const DialogPortal   = ({ children }: { children?: React.ReactNode }) => <>{children}</>
 const DialogOverlay  = () => null
