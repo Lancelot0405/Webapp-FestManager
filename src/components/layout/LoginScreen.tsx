@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Download, Smartphone, X, ShieldCheck, Store, Tent, UtensilsCrossed } from 'lucide-react';
+import { Input } from '@heroui/react';
+import { Button } from '@/components/ui/button';
 import { supabase } from '../../lib/supabase';
 import { adminApi } from '../../lib/adminApi';
 import { useApp } from '../../context/AppContext';
@@ -117,11 +119,6 @@ export default function LoginScreen() {
     if (result === 'guide' || result === 'already') setShowInstallModal(v => !v);
   };
 
-  const fieldBase =
-    'w-full pl-9 pr-4 py-3 border rounded-xl transition-all ' +
-    'bg-white text-slate-800 placeholder:text-slate-300 ' +
-    'border-brand-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 focus:outline-none';
-
   return (
     <div className="w-full max-w-md flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-slate-50">
 
@@ -140,48 +137,76 @@ export default function LoginScreen() {
         {/* Tab */}
         <div className="flex w-full bg-brand-50 rounded-xl p-1 mb-6">
           {(['login', 'register'] as Mode[]).map(m => (
-            <button
+            <Button
               key={m}
+              type="button"
               onClick={() => reset(m)}
-              className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+              variant={mode === m ? 'solid' : 'light'}
+              size="sm"
+              className={`flex-1 text-sm font-semibold rounded-lg transition-all ${
                 mode === m
                   ? 'bg-white shadow text-brand-600'
                   : 'text-slate-400'
               }`}
             >
               {m === 'login' ? 'Đăng nhập' : 'Đăng ký'}
-            </button>
+            </Button>
           ))}
         </div>
 
         {/* ── LOGIN ── */}
         {mode === 'login' && (
           <form onSubmit={handleLogin} className="w-full space-y-4">
-            <Field label="Tên đăng nhập" icon={<User size={16} />}>
-              <input type="text" required autoComplete="username" placeholder="Nhập tên đăng nhập"
-                autoCapitalize="none" autoCorrect="off" spellCheck={false}
-                value={username} onChange={e => setUsername(e.target.value)}
-                className={fieldBase} />
+            <Field label="Tên đăng nhập">
+              <Input
+                type="text"
+                required
+                autoComplete="username"
+                placeholder="Nhập tên đăng nhập"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                value={username}
+                onValueChange={setUsername}
+                variant="bordered"
+                size="md"
+                startContent={<User size={16} className="text-brand-400 shrink-0" />}
+                classNames={{ inputWrapper: 'border-brand-200 focus-within:border-brand-500' }}
+              />
             </Field>
 
-            <Field label="Mật khẩu" icon={<Lock size={16} />}>
-              <input type={showPw ? 'text' : 'password'} required autoComplete="current-password"
+            <Field label="Mật khẩu">
+              <Input
+                type={showPw ? 'text' : 'password'}
+                required
+                autoComplete="current-password"
                 placeholder="Nhập mật khẩu"
-                value={password} onChange={e => setPassword(e.target.value)}
-                className={`${fieldBase} pr-10`} />
-              <button type="button" aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-                onClick={() => setShowPw(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-brand-500">
-                {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
+                value={password}
+                onValueChange={setPassword}
+                variant="bordered"
+                size="md"
+                startContent={<Lock size={16} className="text-brand-400 shrink-0" />}
+                endContent={
+                  <button type="button" aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                    onClick={() => setShowPw(v => !v)}
+                    className="text-slate-300 hover:text-brand-500">
+                    {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                }
+                classNames={{ inputWrapper: 'border-brand-200 focus-within:border-brand-500' }}
+              />
             </Field>
 
             {error && <ErrorMsg msg={error} />}
 
-            <button type="submit" disabled={loading}
-              className="w-full bg-brand-gradient hover:opacity-90 text-white font-semibold py-3 rounded-xl shadow-warm active:scale-[0.98] transition-all disabled:opacity-60">
+            <Button
+              type="submit"
+              loading={loading}
+              fullWidth
+              className="w-full bg-brand-gradient hover:opacity-90 text-white font-semibold py-3 rounded-xl shadow-warm active:scale-[0.98] transition-all"
+            >
               {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-            </button>
+            </Button>
           </form>
         )}
 
@@ -241,34 +266,69 @@ export default function LoginScreen() {
               </div>
             )}
 
-            <Field label="Tên đăng nhập" icon={<User size={16} />}>
-              <input type="text" required placeholder="Không dấu, không khoảng trắng"
-                autoCapitalize="none" autoCorrect="off" spellCheck={false}
-                value={username} onChange={e => setUsername(e.target.value.replace(/\s/g, ''))}
-                className={fieldBase} />
+            <Field label="Tên đăng nhập">
+              <Input
+                type="text"
+                required
+                placeholder="Không dấu, không khoảng trắng"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                value={username}
+                onValueChange={v => setUsername(v.replace(/\s/g, ''))}
+                variant="bordered"
+                size="md"
+                startContent={<User size={16} className="text-brand-400 shrink-0" />}
+                classNames={{ inputWrapper: 'border-brand-200 focus-within:border-brand-500' }}
+              />
             </Field>
 
-            <Field label="Tên hiển thị" icon={<User size={16} />}>
-              <input type="text" placeholder="Tên đầy đủ của bạn"
-                value={displayName} onChange={e => setDisplayName(e.target.value)}
-                className={fieldBase} />
+            <Field label="Tên hiển thị">
+              <Input
+                type="text"
+                placeholder="Tên đầy đủ của bạn"
+                value={displayName}
+                onValueChange={setDisplayName}
+                variant="bordered"
+                size="md"
+                startContent={<User size={16} className="text-brand-400 shrink-0" />}
+                classNames={{ inputWrapper: 'border-brand-200 focus-within:border-brand-500' }}
+              />
             </Field>
 
-            <Field label="Mật khẩu" icon={<Lock size={16} />}>
-              <input type={showPw ? 'text' : 'password'} required placeholder="Tối thiểu 6 ký tự"
-                value={password} onChange={e => setPassword(e.target.value)}
-                className={`${fieldBase} pr-10`} />
-              <button type="button" aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-                onClick={() => setShowPw(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-brand-500">
-                {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
+            <Field label="Mật khẩu">
+              <Input
+                type={showPw ? 'text' : 'password'}
+                required
+                placeholder="Tối thiểu 6 ký tự"
+                value={password}
+                onValueChange={setPassword}
+                variant="bordered"
+                size="md"
+                startContent={<Lock size={16} className="text-brand-400 shrink-0" />}
+                endContent={
+                  <button type="button" aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                    onClick={() => setShowPw(v => !v)}
+                    className="text-slate-300 hover:text-brand-500">
+                    {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                }
+                classNames={{ inputWrapper: 'border-brand-200 focus-within:border-brand-500' }}
+              />
             </Field>
 
-            <Field label="Xác nhận mật khẩu" icon={<Lock size={16} />}>
-              <input type="password" required placeholder="Nhập lại mật khẩu"
-                value={password2} onChange={e => setPassword2(e.target.value)}
-                className={fieldBase} />
+            <Field label="Xác nhận mật khẩu">
+              <Input
+                type="password"
+                required
+                placeholder="Nhập lại mật khẩu"
+                value={password2}
+                onValueChange={setPassword2}
+                variant="bordered"
+                size="md"
+                startContent={<Lock size={16} className="text-brand-400 shrink-0" />}
+                classNames={{ inputWrapper: 'border-brand-200 focus-within:border-brand-500' }}
+              />
             </Field>
 
             {error   && <ErrorMsg msg={error} />}
@@ -278,12 +338,16 @@ export default function LoginScreen() {
               </div>
             )}
 
-            <button type="submit" disabled={loading}
-              className={`w-full text-white font-semibold py-3 rounded-xl shadow-warm active:scale-[0.98] transition-all disabled:opacity-60 ${
+            <Button
+              type="submit"
+              loading={loading}
+              fullWidth
+              className={`w-full text-white font-semibold py-3 rounded-xl shadow-warm active:scale-[0.98] transition-all ${
                 registerRole === 'manager' ? 'bg-indigo-500 hover:bg-indigo-600' : 'bg-brand-gradient hover:opacity-90'
-              }`}>
+              }`}
+            >
               {loading ? 'Đang xử lý...' : registerRole === 'manager' ? 'Gửi yêu cầu đăng ký' : 'Tạo tài khoản'}
-            </button>
+            </Button>
           </form>
         )}
 
@@ -330,14 +394,11 @@ export default function LoginScreen() {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function Field({ label, icon, children }: { label: string; icon: React.ReactNode; children: React.ReactNode }) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
       <label className="text-xs font-semibold text-slate-700 mb-1 block">{label}</label>
-      <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-400">{icon}</span>
-        {children}
-      </div>
+      {children}
     </div>
   );
 }
@@ -347,17 +408,19 @@ function RoleBtn({ active, activeClass, onClick, icon, label }: {
   icon: React.ReactNode; label: string;
 }) {
   return (
-    <button
+    <Button
       type="button"
       onClick={onClick}
-      className={`py-2.5 rounded-xl text-sm font-semibold border transition-all flex items-center justify-center gap-1.5 active:scale-[0.97] ${
+      variant={active ? 'solid' : 'bordered'}
+      size="sm"
+      className={`py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-1.5 active:scale-[0.97] ${
         active
           ? `${activeClass} border-transparent`
           : 'bg-white text-brand-500 border-brand-200 hover:border-brand-400'
       }`}
     >
       {icon} {label}
-    </button>
+    </Button>
   );
 }
 

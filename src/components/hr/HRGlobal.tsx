@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Plus, User, Trash2, Search, ShieldCheck, Check, X } from 'lucide-react';
+import { Button, Card, Chip, Input } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import AddStaffForm from './AddStaffForm';
 import { SkeletonList } from '@/components/ui/skeleton';
@@ -58,9 +59,10 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
   const renderList = (list: StaffMember[]) => (
     <div className="space-y-2">
       {list.map(s => (
-        <div
+        <Card
           key={s.id}
-          className="bg-white rounded-xl shadow-card border border-slate-100 hover:border-brand-300 transition-colors flex items-stretch"
+          className="border border-slate-100 hover:border-brand-300 transition-colors flex flex-row items-stretch shadow-card rounded-xl overflow-hidden"
+          shadow="none"
         >
           <button
             onClick={() => onSelectStaff(String(s.id))}
@@ -81,14 +83,16 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
             </div>
           </button>
           {isAdmin && (
-            <button
-              onClick={e => handleDelete(e, s.id, s.name)}
-              className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-slate-100 transition-colors rounded-r-xl"
+            <Button
+              isIconOnly
+              variant="light"
+              onPress={e => handleDelete(e as unknown as React.MouseEvent, s.id, s.name)}
+              className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-slate-100 rounded-none rounded-r-xl h-auto"
             >
               <Trash2 size={15} />
-            </button>
+            </Button>
           )}
-        </div>
+        </Card>
       ))}
     </div>
   );
@@ -98,13 +102,15 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold text-slate-800">Nhân sự</h1>
         {isAdmin && (
-          <button
-            onClick={() => setShowForm(true)}
-            className="flex items-center gap-1 bg-brand-500 text-white text-sm font-semibold px-3 py-2 rounded-lg"
+          <Button
+            color="primary"
+            size="sm"
+            onPress={() => setShowForm(true)}
+            startContent={<Plus size={16} />}
+            className="font-semibold"
           >
-            <Plus size={16} />
             Thêm nhân viên
-          </button>
+          </Button>
         )}
       </div>
 
@@ -135,34 +141,43 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
                 </p>
               )}
               {pendingRegistrations.map(req => (
-                <div
+                <Card
                   key={req.id}
-                  className="bg-white rounded-xl p-3 border border-indigo-100 flex items-center gap-3"
+                  className="p-3 border border-indigo-100 rounded-xl"
+                  shadow="none"
                 >
-                  <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
-                    <ShieldCheck size={16} className="text-indigo-600" />
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
+                      <ShieldCheck size={16} className="text-indigo-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-slate-800">{req.displayName}</p>
+                      <p className="text-xs text-indigo-600">Quản lý · Chờ duyệt</p>
+                    </div>
+                    <div className="flex gap-1.5 shrink-0">
+                      <Button
+                        size="sm"
+                        color="success"
+                        onPress={() => approveRegistration(req.userId)}
+                        startContent={<Check size={12} />}
+                        className="text-xs font-medium text-white"
+                        title="Duyệt"
+                      >
+                        Duyệt
+                      </Button>
+                      <Button
+                        size="sm"
+                        color="danger"
+                        onPress={() => rejectRegistration(req.userId)}
+                        startContent={<X size={12} />}
+                        className="text-xs font-medium"
+                        title="Từ chối"
+                      >
+                        Từ chối
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-slate-800">{req.displayName}</p>
-                    <p className="text-xs text-indigo-600">Quản lý · Chờ duyệt</p>
-                  </div>
-                  <div className="flex gap-1.5 shrink-0">
-                    <button
-                      onClick={() => approveRegistration(req.userId)}
-                      className="flex items-center gap-1 bg-herb-500 hover:bg-herb-600 text-white text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors"
-                      title="Duyệt"
-                    >
-                      <Check size={12} /> Duyệt
-                    </button>
-                    <button
-                      onClick={() => rejectRegistration(req.userId)}
-                      className="flex items-center gap-1 bg-red-400 hover:bg-red-500 text-white text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors"
-                      title="Từ chối"
-                    >
-                      <X size={12} /> Từ chối
-                    </button>
-                  </div>
-                </div>
+                </Card>
               ))}
             </div>
           )}
@@ -170,32 +185,32 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
       )}
 
       {/* Search */}
-      <div className="relative">
-        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-        <input
-          type="text"
-          placeholder="Tìm theo tên hoặc thành phố..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="w-full pl-9 pr-3 py-2 border border-brand-200 rounded-xl text-sm focus:outline-none focus:border-brand-400 bg-white text-slate-800 placeholder:text-slate-300"
-        />
-      </div>
+      <Input
+        size="sm"
+        variant="bordered"
+        placeholder="Tìm theo tên hoặc thành phố..."
+        value={search}
+        onValueChange={setSearch}
+        startContent={<Search size={15} className="text-slate-400" />}
+        classNames={{
+          inputWrapper: 'border-brand-200 focus-within:border-brand-400 bg-white rounded-xl',
+          input: 'text-slate-800 placeholder:text-slate-300',
+        }}
+      />
 
       {/* Type filter pills */}
       {canViewAll && (
         <div className="flex gap-1.5">
           {(['Tất cả', 'Nhân viên cứng', 'Part-time'] as TypeFilter[]).map(t => (
-            <button
+            <Chip
               key={t}
+              variant={typeFilter === t ? 'flat' : 'bordered'}
+              color={typeFilter === t ? 'primary' : 'default'}
               onClick={() => setTypeFilter(t)}
-              className={`px-3 py-1 rounded-full text-xs font-semibold transition ${
-                typeFilter === t
-                  ? 'bg-brand-500 text-white'
-                  : 'bg-brand-50 text-slate-600 hover:bg-brand-100'
-              }`}
+              className="cursor-pointer text-xs font-semibold"
             >
               {t}
-            </button>
+            </Chip>
           ))}
         </div>
       )}
