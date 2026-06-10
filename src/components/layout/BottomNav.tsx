@@ -71,7 +71,7 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
              : STAFF_TABS;
 
   return (
-    <nav className="bg-white backdrop-blur-sm border-t border-slate-100 fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md pb-safe z-20">
+    <nav className="bg-white dark:bg-slate-900 backdrop-blur-sm border-t border-slate-100 dark:border-slate-800 fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md pb-safe z-20">
       <div className="flex justify-around items-center px-1 pt-1.5">
         {tabs.map(({ tab, icon, label }) => {
           const isActive = activeTab === tab;

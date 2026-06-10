@@ -72,7 +72,7 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
   return (
     <div className="space-y-4 pb-20">
       <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold text-slate-800">Lịch sự kiện</h1>
+        <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">Lịch sự kiện</h1>
         {isAdmin && (
           <Button onPress={() => setShowAddForm(true)} variant="primary" size="sm" className="flex items-center gap-1 rounded-lg">
             <Plus size={16} />
@@ -150,14 +150,14 @@ function EventCard({
     : event.date;
 
   return (
-    <Card className="rounded-xl overflow-hidden flex items-stretch">
+    <Card className="rounded-xl overflow-hidden flex items-stretch bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
       <Button onPress={onSelect} variant="ghost" className="flex-1 text-left p-4 min-w-0 h-auto rounded-none justify-start">
         <div className="flex justify-between items-start gap-2 w-full">
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-slate-800 truncate">{event.name}</p>
-            <p className="text-xs text-slate-500 mt-0.5">{dateDisplay}</p>
-            <p className="text-xs text-slate-400 truncate mt-0.5">{event.location}</p>
-            <p className="text-xs text-slate-400 mt-1">{event.staff.length} nhân viên</p>
+            <p className="font-semibold text-slate-800 dark:text-slate-100 truncate">{event.name}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{dateDisplay}</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 truncate mt-0.5">{event.location}</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{event.staff.length} nhân viên</p>
           </div>
           <StatusBadge status={event.status} />
         </div>
@@ -166,7 +166,7 @@ function EventCard({
         <Button
           onPress={onDelete}
           variant="ghost"
-          className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-slate-100 rounded-r-xl rounded-l-none"
+          className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-slate-100 dark:border-slate-700 rounded-r-xl rounded-l-none"
         >
           <Trash2 size={16} />
         </Button>

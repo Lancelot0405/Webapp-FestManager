@@ -85,7 +85,7 @@ export default function Clients() {
       />
 
       {showForm && (
-        <Card className="rounded-xl p-4">
+        <Card className="rounded-xl p-4 bg-white dark:bg-slate-800">
           <div className="flex justify-between items-center mb-3">
             <p className="font-semibold text-sm text-espresso-800 dark:text-espresso-50">{editingId ? 'Chỉnh sửa' : 'Thêm khách hàng mới'}</p>
             <Button onPress={() => { setShowForm(false); resetForm(); }} variant="ghost" isIconOnly size="sm"><X size={16} /></Button>
@@ -124,7 +124,7 @@ export default function Clients() {
           {filtered.map(client => {
             const clientEvents = events.filter(e => client.eventIds.includes(e.id));
             return (
-              <Card key={client.id} className="rounded-2xl p-4">
+              <Card key={client.id} className="rounded-2xl p-4 bg-white dark:bg-slate-800">
                 <div className="flex justify-between items-start">
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-espresso-800 dark:text-espresso-50 truncate">{client.name}</p>

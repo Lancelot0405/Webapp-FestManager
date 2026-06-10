@@ -85,7 +85,7 @@ export default function App() {
   const isInDetail = selectedEventId !== null || selectedStaffId !== null;
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans">
       <SpeedInsights />
 
       {/* ── Desktop/Tablet: sidebar + content side-by-side ─────────────────── */}

@@ -162,9 +162,9 @@ export default function Inventory() {
 
   // ── Item status helpers ────────────────────────────────────────────────────
   const itemBg = (low: boolean, warn: boolean) =>
-    low  ? 'bg-red-50 border-red-200' :
-    warn ? 'bg-indigo-50  border-indigo-200' :
-           'bg-white  border-brand-100';
+    low  ? 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800' :
+    warn ? 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800' :
+           'bg-white dark:bg-slate-800 border-brand-100 dark:border-slate-700';
 
   return (
     <div className="space-y-4 pb-20">
@@ -175,7 +175,7 @@ export default function Inventory() {
           <div className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center shadow-[0_2px_8px_0_rgb(124_58_237/0.30)]">
             <Package size={16} className="text-white" />
           </div>
-          <h1 className="text-xl font-black text-slate-800">Kho hàng</h1>
+          <h1 className="text-xl font-black text-slate-800 dark:text-slate-100">Kho hàng</h1>
         </div>
         {subTab !== 'history' && (
           <div className="flex gap-2">
@@ -268,10 +268,10 @@ export default function Inventory() {
 
       {/* ── Add form ── */}
       {showAddForm && (
-        <Card className="rounded-2xl">
+        <Card className="rounded-2xl bg-white dark:bg-slate-800">
           <form onSubmit={handleAddItem} className="p-4 space-y-3 animate-fade-in">
             <div className="flex justify-between items-center">
-              <p className="font-bold text-slate-800 text-sm">
+              <p className="font-bold text-slate-800 dark:text-slate-100 text-sm">
                 Thêm {itemLabel} — {sectionLabel}
               </p>
               <Button
@@ -333,7 +333,7 @@ export default function Inventory() {
                 className="w-full flex items-center justify-between px-4 py-3 text-left h-auto rounded-none"
               >
                 <div className="flex-1 min-w-0">
-                  <p className={`font-semibold text-sm ${isLow ? 'text-red-600' : 'text-slate-800'}`}>
+                  <p className={`font-semibold text-sm ${isLow ? 'text-red-600' : 'text-slate-800 dark:text-slate-100'}`}>
                     {item.name}
                   </p>
                   {isLow  && <p className="text-xs text-red-500 font-medium">⚠ Sắp hết hàng!</p>}
@@ -353,7 +353,7 @@ export default function Inventory() {
 
               {/* Edit panel */}
               {isExpanded && (
-                <div className="px-4 pb-4 pt-2 border-t border-brand-100 space-y-3 animate-fade-in">
+                <div className="px-4 pb-4 pt-2 border-t border-brand-100 dark:border-slate-700 space-y-3 animate-fade-in">
                   <FoodNameSelect
                     value={editName}
                     onChange={setEditName}

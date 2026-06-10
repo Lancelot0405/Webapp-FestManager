@@ -146,7 +146,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
     <div className="space-y-6 pb-20">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-slate-800">Tài chính</h1>
+        <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">Tài chính</h1>
         <Button
           onPress={handleExport}
           variant="primary"
@@ -210,8 +210,8 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
 
       {/* Cost breakdown chart */}
       {totalExpense > 0 && (
-        <Card className="rounded-xl p-4">
-          <h2 className="text-base font-semibold text-slate-700 mb-3">Phân bổ chi phí (tất cả sự kiện)</h2>
+        <Card className="rounded-xl p-4 bg-white dark:bg-slate-800">
+          <h2 className="text-base font-semibold text-slate-700 dark:text-slate-200 mb-3">Phân bổ chi phí (tất cả sự kiện)</h2>
           <div className="space-y-2">
             {breakdownRent > 0 && (
               <BarRow label="Booth/Thuê" value={breakdownRent} maxVal={totalExpense} color="bg-purple-400" showPct totalVal={totalExpense} />
@@ -236,8 +236,8 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
       )}
 
       {/* Pending staff expenses */}
-      <Card className="rounded-xl p-4">
-        <h2 className="text-base font-semibold text-slate-700 mb-3">Chi phí nhân viên chờ duyệt</h2>
+      <Card className="rounded-xl p-4 bg-white dark:bg-slate-800">
+        <h2 className="text-base font-semibold text-slate-700 dark:text-slate-200 mb-3">Chi phí nhân viên chờ duyệt</h2>
         {pendingReceipts.length === 0 ? (
           <p className="text-sm text-green-600">Không có chi phí chờ duyệt ✓</p>
         ) : (
@@ -245,8 +245,8 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
             {pendingReceipts.map(r => (
               <div key={`${r.eventId}-${r.id}`} className="flex items-center justify-between gap-2 py-2 border-b border-gray-50 last:border-0">
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-slate-800">{r.staffName}</p>
-                  <p className="text-xs text-slate-400">{r.type} · {r.amount.toLocaleString('fr-FR')}€ · {r.date}</p>
+                  <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{r.staffName}</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">{r.type} · {r.amount.toLocaleString('fr-FR')}€ · {r.date}</p>
                   <p className="text-xs text-brand-500">{r.eventName}</p>
                 </div>
                 <div className="flex gap-1.5 shrink-0">
@@ -275,7 +275,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
 
       {/* Per-event breakdown */}
       <div>
-        <h2 className="text-base font-semibold text-slate-700 mb-3">Theo sự kiện</h2>
+        <h2 className="text-base font-semibold text-slate-700 dark:text-slate-200 mb-3">Theo sự kiện</h2>
         <div className="space-y-3">
           {filteredEvents.map(event => {
             const fixedExp = Object.values(event.financials.expenses).reduce<number>(
@@ -292,7 +292,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
             return (
               <Card
                 key={event.id}
-                className="rounded-xl p-4"
+                className="rounded-xl p-4 bg-white dark:bg-slate-800"
               >
                 <div className="flex justify-between items-start mb-3">
                   <Button
@@ -300,8 +300,8 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
                     variant="ghost"
                     className="min-w-0 flex-1 text-left justify-start h-auto p-0"
                   >
-                    <p className="font-semibold text-slate-800 truncate">{event.name}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">{event.date}</p>
+                    <p className="font-semibold text-slate-800 dark:text-slate-100 truncate">{event.name}</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{event.date}</p>
                   </Button>
                   <div className="flex items-center gap-2 shrink-0 ml-2">
                     <StatusBadge status={event.status} />
@@ -417,10 +417,10 @@ interface SummaryCardProps {
 
 function SummaryCard({ icon, label, value, color, bg }: SummaryCardProps) {
   return (
-    <Card variant="secondary" className={`${bg} rounded-xl p-4 flex items-center gap-3`}>
+    <Card variant="transparent" className={`${bg} dark:bg-opacity-20 rounded-xl p-4 flex items-center gap-3`}>
       <div className="shrink-0">{icon}</div>
-      <div className="flex-1 flex justify-between items-center">
-        <p className="text-sm text-brand-600">{label}</p>
+      <div className="flex-1 flex justify-between items-center gap-2">
+        <p className="text-sm text-brand-600 dark:text-brand-400 shrink-0">{label}</p>
         <p className={`text-xl font-bold ${color}`}>{value.toLocaleString('fr-FR')}€</p>
       </div>
     </Card>
@@ -442,13 +442,13 @@ function BarRow({ label, value, maxVal, color, showPct, totalVal }: BarRowProps)
   return (
     <div className="flex items-center gap-2">
       <span className="text-xs text-slate-400 w-20 shrink-0">{label}</span>
-      <div className="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
+      <div className="flex-1 bg-slate-100 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
         <div
           className={`h-full rounded-full ${color} transition-all`}
           style={{ width: `${pct}%` }}
         />
       </div>
-      <span className="text-xs font-medium text-slate-700 w-14 text-right shrink-0">
+      <span className="text-xs font-medium text-slate-700 dark:text-slate-300 w-14 text-right shrink-0">
         {value.toLocaleString('fr-FR')}€
       </span>
       {showPct && pctOfTotal !== null && (

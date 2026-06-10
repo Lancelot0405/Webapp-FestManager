@@ -62,7 +62,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
       {list.map(s => (
         <Card
           key={s.id}
-          className="border border-slate-100 hover:border-brand-300 transition-colors flex flex-row items-stretch shadow-card rounded-xl overflow-hidden"
+          className="border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-brand-300 transition-colors flex flex-row items-stretch shadow-card rounded-xl overflow-hidden"
         >
           <Button
             onPress={() => onSelectStaff(String(s.id))}
@@ -74,12 +74,12 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
                 <User size={18} className="text-brand-600" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-slate-800">{s.name}</p>
-                <p className="text-xs text-slate-500">{s.city}</p>
+                <p className="font-semibold text-slate-800 dark:text-slate-100">{s.name}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{s.city}</p>
               </div>
               <div className="text-right shrink-0">
-                <p className="text-xs text-slate-500">{eventCountMap.get(s.id) ?? 0} sự kiện</p>
-                <p className="text-xs text-slate-400">{s.contracts.length} hợp đồng</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{eventCountMap.get(s.id) ?? 0} sự kiện</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500">{s.contracts.length} hợp đồng</p>
               </div>
             </div>
           </Button>
@@ -88,7 +88,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
               isIconOnly
               variant="ghost"
               onPress={e => handleDelete(e as unknown as React.MouseEvent, s.id, s.name)}
-              className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-slate-100 rounded-none rounded-r-xl h-auto"
+              className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-slate-100 dark:border-slate-700 rounded-none rounded-r-xl h-auto"
             >
               <Trash2 size={15} />
             </Button>
@@ -101,7 +101,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
   return (
     <div className="space-y-4 pb-20">
       <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold text-slate-800">Nhân sự</h1>
+        <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">Nhân sự</h1>
         {isAdmin && (
           <Button
             size="sm"
@@ -142,14 +142,14 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
               {pendingRegistrations.map(req => (
                 <Card
                   key={req.id}
-                  className="p-3 border border-indigo-100 rounded-xl"
+                  className="p-3 border border-indigo-100 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
                       <ShieldCheck size={16} className="text-indigo-600" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-slate-800">{req.displayName}</p>
+                      <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{req.displayName}</p>
                       <p className="text-xs text-indigo-600">Quản lý · Chờ duyệt</p>
                     </div>
                     <div className="flex gap-1.5 shrink-0">

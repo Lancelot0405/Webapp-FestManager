@@ -52,7 +52,7 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
   };
 
   return (
-    <header className="bg-white border-b border-slate-100 px-4 sticky top-0 z-10 pt-safe shadow-card">
+    <header className="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 px-4 sticky top-0 z-10 pt-safe shadow-card">
       <div className="flex justify-between items-center h-14">
 
         {/* Logo */}
@@ -72,7 +72,7 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
         <div className="flex items-center gap-1.5">
           {/* User info */}
           <div className="flex flex-col text-right mr-1">
-            <span className="text-sm font-semibold text-slate-800 leading-tight">
+            <span className="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-tight">
               {currentUser.name}
             </span>
             <Chip

@@ -55,7 +55,7 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
           <p className="text-white/70 text-xs font-medium uppercase tracking-widest mb-1">
             {canViewAll ? 'Tổng quan' : 'Cá nhân'}
           </p>
-          <h1 className="text-xl font-black leading-tight">
+          <h1 className="text-xl font-black leading-tight text-white">
             Xin chào, {currentUser.name} 👋
           </h1>
           {activeEvent ? (
@@ -146,13 +146,13 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
               <Card
                 key={event.id}
                 render={(props) => <button {...(props as React.ComponentPropsWithRef<'button'>)} onClick={() => onSelectEvent(event.id)} />}
-                className="w-full text-left rounded-2xl p-4 border border-slate-100 hover:border-brand-300 hover:shadow-card active:scale-[0.99] transition-all duration-150 cursor-pointer"
+                className="w-full text-left rounded-2xl p-4 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:border-brand-300 hover:shadow-card active:scale-[0.99] transition-all duration-150 cursor-pointer"
               >
                 <div className="flex justify-between items-start gap-2">
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-slate-800 truncate">{event.name}</p>
+                    <p className="font-semibold text-slate-800 dark:text-slate-100 truncate">{event.name}</p>
                     <p className="text-xs text-brand-400 mt-0.5">{event.date} · {event.location}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">{event.staff.length} nhân viên</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{event.staff.length} nhân viên</p>
                   </div>
                   <StatusBadge status={event.status} />
                 </div>
@@ -271,7 +271,7 @@ function RevenueChart({ events }: { events: FestivalEvent[] }) {
   const maxVal = Math.max(...entries.map(([, v]) => v), 100000);
 
   return (
-    <Card className="rounded-2xl p-4">
+    <Card className="rounded-2xl p-4 bg-white dark:bg-slate-800">
       <div className="flex items-end gap-2 h-24">
         {entries.map(([month, val]) => (
           <div key={month} className="flex-1 flex flex-col items-center gap-1">
@@ -309,15 +309,15 @@ function TopStaffList({ events, staff }: { events: FestivalEvent[]; staff: Staff
   ];
 
   return (
-    <Card className="rounded-2xl divide-y divide-slate-50">
+    <Card className="rounded-2xl divide-y divide-slate-50 dark:divide-slate-700 bg-white dark:bg-slate-800">
       {top.map(({ member, count }, i) => (
         <div key={member!.id} className="flex items-center gap-3 px-4 py-3">
           <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${rankStyle[i]}`}>
             {i + 1}
           </span>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-slate-800 truncate">{member!.name}</p>
-            <p className="text-xs text-slate-400">{member!.city}</p>
+            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">{member!.name}</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500">{member!.city}</p>
           </div>
           <span className="text-sm font-bold text-brand-500">{count} sự kiện</span>
         </div>
