@@ -23,6 +23,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } else {
       root.classList.remove('dark');
     }
+    root.setAttribute('data-theme', theme);
     localStorage.setItem('fm_theme', theme);
   }, [theme]);
 
