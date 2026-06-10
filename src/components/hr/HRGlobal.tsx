@@ -155,7 +155,6 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
                         size="sm"
                         onPress={() => approveRegistration(req.userId)}
                         className="text-xs font-medium text-white bg-green-500 hover:bg-green-600 flex items-center gap-1"
-                        title="Duyệt"
                       >
                         <Check size={12} /> Duyệt
                       </Button>
@@ -164,7 +163,6 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
                         variant="danger"
                         onPress={() => rejectRegistration(req.userId)}
                         className="text-xs font-medium flex items-center gap-1"
-                        title="Từ chối"
                       >
                         <X size={12} /> Từ chối
                       </Button>

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Download, Smartphone, X, ShieldCheck, Store, Tent, UtensilsCrossed } from 'lucide-react';
-import { Input } from '@heroui/react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '../../lib/supabase';
 import { adminApi } from '../../lib/adminApi';
@@ -141,7 +140,7 @@ export default function LoginScreen() {
               key={m}
               type="button"
               onClick={() => reset(m)}
-              variant={mode === m ? 'solid' : 'light'}
+              variant={mode === m ? 'default' : 'ghost'}
               size="sm"
               className={`flex-1 text-sm font-semibold rounded-lg transition-all ${
                 mode === m
@@ -158,43 +157,41 @@ export default function LoginScreen() {
         {mode === 'login' && (
           <form onSubmit={handleLogin} className="w-full space-y-4">
             <Field label="Tên đăng nhập">
-              <Input
-                type="text"
-                required
-                autoComplete="username"
-                placeholder="Nhập tên đăng nhập"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-                value={username}
-                onValueChange={setUsername}
-                variant="bordered"
-                size="md"
-                startContent={<User size={16} className="text-brand-400 shrink-0" />}
-                classNames={{ inputWrapper: 'bg-white border-brand-200 hover:border-brand-400 focus-within:!border-brand-500', input: 'text-slate-800 !text-slate-800' }}
-              />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-400 pointer-events-none"><User size={16} /></span>
+                <input
+                  type="text"
+                  required
+                  autoComplete="username"
+                  placeholder="Nhập tên đăng nhập"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
+                  className="w-full pl-9 pr-4 py-3 border border-brand-200 rounded-xl text-sm text-slate-800 bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 placeholder:text-slate-300 transition-all"
+                />
+              </div>
             </Field>
 
             <Field label="Mật khẩu">
-              <Input
-                type={showPw ? 'text' : 'password'}
-                required
-                autoComplete="current-password"
-                placeholder="Nhập mật khẩu"
-                value={password}
-                onValueChange={setPassword}
-                variant="bordered"
-                size="md"
-                startContent={<Lock size={16} className="text-brand-400 shrink-0" />}
-                endContent={
-                  <button type="button" aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-                    onClick={() => setShowPw(v => !v)}
-                    className="text-slate-300 hover:text-brand-500">
-                    {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                }
-                classNames={{ inputWrapper: 'bg-white border-brand-200 hover:border-brand-400 focus-within:!border-brand-500', input: 'text-slate-800 !text-slate-800' }}
-              />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-400 pointer-events-none"><Lock size={16} /></span>
+                <input
+                  type={showPw ? 'text' : 'password'}
+                  required
+                  autoComplete="current-password"
+                  placeholder="Nhập mật khẩu"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className="w-full pl-9 pr-10 py-3 border border-brand-200 rounded-xl text-sm text-slate-800 bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 placeholder:text-slate-300 transition-all"
+                />
+                <button type="button" aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                  onClick={() => setShowPw(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-brand-500">
+                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </Field>
 
             {error && <ErrorMsg msg={error} />}
@@ -267,68 +264,66 @@ export default function LoginScreen() {
             )}
 
             <Field label="Tên đăng nhập">
-              <Input
-                type="text"
-                required
-                placeholder="Không dấu, không khoảng trắng"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-                value={username}
-                onValueChange={v => setUsername(v.replace(/\s/g, ''))}
-                variant="bordered"
-                size="md"
-                startContent={<User size={16} className="text-brand-400 shrink-0" />}
-                classNames={{ inputWrapper: 'bg-white border-brand-200 hover:border-brand-400 focus-within:!border-brand-500', input: 'text-slate-800 !text-slate-800' }}
-              />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-400 pointer-events-none"><User size={16} /></span>
+                <input
+                  type="text"
+                  required
+                  placeholder="Không dấu, không khoảng trắng"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  value={username}
+                  onChange={e => setUsername(e.target.value.replace(/\s/g, ''))}
+                  className="w-full pl-9 pr-4 py-3 border border-brand-200 rounded-xl text-sm text-slate-800 bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 placeholder:text-slate-300 transition-all"
+                />
+              </div>
             </Field>
 
             <Field label="Tên hiển thị">
-              <Input
-                type="text"
-                placeholder="Tên đầy đủ của bạn"
-                value={displayName}
-                onValueChange={setDisplayName}
-                variant="bordered"
-                size="md"
-                startContent={<User size={16} className="text-brand-400 shrink-0" />}
-                classNames={{ inputWrapper: 'bg-white border-brand-200 hover:border-brand-400 focus-within:!border-brand-500', input: 'text-slate-800 !text-slate-800' }}
-              />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-400 pointer-events-none"><User size={16} /></span>
+                <input
+                  type="text"
+                  placeholder="Tên đầy đủ của bạn"
+                  value={displayName}
+                  onChange={e => setDisplayName(e.target.value)}
+                  className="w-full pl-9 pr-4 py-3 border border-brand-200 rounded-xl text-sm text-slate-800 bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 placeholder:text-slate-300 transition-all"
+                />
+              </div>
             </Field>
 
             <Field label="Mật khẩu">
-              <Input
-                type={showPw ? 'text' : 'password'}
-                required
-                placeholder="Tối thiểu 6 ký tự"
-                value={password}
-                onValueChange={setPassword}
-                variant="bordered"
-                size="md"
-                startContent={<Lock size={16} className="text-brand-400 shrink-0" />}
-                endContent={
-                  <button type="button" aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-                    onClick={() => setShowPw(v => !v)}
-                    className="text-slate-300 hover:text-brand-500">
-                    {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                }
-                classNames={{ inputWrapper: 'bg-white border-brand-200 hover:border-brand-400 focus-within:!border-brand-500', input: 'text-slate-800 !text-slate-800' }}
-              />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-400 pointer-events-none"><Lock size={16} /></span>
+                <input
+                  type={showPw ? 'text' : 'password'}
+                  required
+                  placeholder="Tối thiểu 6 ký tự"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className="w-full pl-9 pr-10 py-3 border border-brand-200 rounded-xl text-sm text-slate-800 bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 placeholder:text-slate-300 transition-all"
+                />
+                <button type="button" aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                  onClick={() => setShowPw(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-brand-500">
+                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </Field>
 
             <Field label="Xác nhận mật khẩu">
-              <Input
-                type="password"
-                required
-                placeholder="Nhập lại mật khẩu"
-                value={password2}
-                onValueChange={setPassword2}
-                variant="bordered"
-                size="md"
-                startContent={<Lock size={16} className="text-brand-400 shrink-0" />}
-                classNames={{ inputWrapper: 'bg-white border-brand-200 hover:border-brand-400 focus-within:!border-brand-500', input: 'text-slate-800 !text-slate-800' }}
-              />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-400 pointer-events-none"><Lock size={16} /></span>
+                <input
+                  type="password"
+                  required
+                  placeholder="Nhập lại mật khẩu"
+                  value={password2}
+                  onChange={e => setPassword2(e.target.value)}
+                  className="w-full pl-9 pr-4 py-3 border border-brand-200 rounded-xl text-sm text-slate-800 bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 placeholder:text-slate-300 transition-all"
+                />
+              </div>
             </Field>
 
             {error   && <ErrorMsg msg={error} />}
@@ -411,7 +406,7 @@ function RoleBtn({ active, activeClass, onClick, icon, label }: {
     <Button
       type="button"
       onClick={onClick}
-      variant={active ? 'solid' : 'bordered'}
+      variant={active ? 'default' : 'outline'}
       size="sm"
       className={`py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-1.5 active:scale-[0.97] ${
         active

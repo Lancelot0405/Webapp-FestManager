@@ -478,16 +478,14 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
             </div>
             {showPwForm && (
               <form onSubmit={handleChangePassword} className="flex gap-2">
-                <Input
+                <input
                   required
                   type="password"
                   minLength={6}
-                  variant="bordered"
-                  size="sm"
                   placeholder="Mật khẩu mới (tối thiểu 6 ký tự)"
-                  classNames={{ base: 'flex-1', inputWrapper: 'border-brand-200 dark:border-espresso-700 dark:bg-espresso-700', input: 'dark:text-espresso-50' }}
+                  className="flex-1 px-3 py-2 border border-brand-200 dark:border-espresso-700 rounded-lg text-sm bg-white dark:bg-espresso-700 dark:text-espresso-50 focus:outline-none focus:border-brand-400 transition-all"
                   value={newPassword}
-                  onValueChange={setNewPassword}
+                  onChange={e => setNewPassword(e.target.value)}
                 />
                 <Button
                   type="submit"
@@ -584,7 +582,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
           {canEdit && (
             <Button
               size="sm"
-              variant="flat"
+              variant="secondary"
               className="bg-herb-500/10 text-herb-600 hover:bg-herb-500/10 text-sm font-medium px-3 py-1.5 rounded-lg h-auto"
               onPress={() => setShowExpenseForm(!showExpenseForm)}
             >
@@ -597,7 +595,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
           <form onSubmit={handleSubmitExpense} className="bg-herb-500/10 rounded-xl p-4 space-y-3 border border-herb-500/30 mb-3">
             <div className="flex justify-between items-center">
               <p className="text-sm font-semibold text-herb-600">Nộp chi phí mới</p>
-              <Button isIconOnly variant="light" size="sm" className="text-brand-300 h-auto min-w-0 p-0" onPress={() => setShowExpenseForm(false)}>
+              <Button isIconOnly variant="ghost" size="sm" className="text-brand-300 h-auto min-w-0 p-0" onPress={() => setShowExpenseForm(false)}>
                 <X size={15} />
               </Button>
             </div>
@@ -619,16 +617,14 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
               </div>
               <div>
                 <label className="text-xs text-brand-600 dark:text-brand-300 font-medium">Số tiền (€)</label>
-                <Input
+                <input
                   type="number"
                   min="0"
                   step="0.01"
-                  isRequired
-                  variant="bordered"
-                  size="sm"
-                  classNames={{ inputWrapper: 'mt-1 border-brand-200 dark:border-espresso-700 dark:bg-espresso-700', input: 'dark:text-espresso-50' }}
+                  required
+                  className="mt-1 w-full px-3 py-2 border border-brand-200 dark:border-espresso-700 rounded-lg text-sm bg-white dark:bg-espresso-700 dark:text-espresso-50 focus:outline-none focus:border-brand-400 transition-all"
                   value={formAmount}
-                  onValueChange={setFormAmount}
+                  onChange={e => setFormAmount(e.target.value)}
                 />
               </div>
             </div>
@@ -643,7 +639,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                 <div className="mt-1 flex items-center gap-2 bg-white dark:bg-espresso-700 border border-brand-200 dark:border-espresso-700 rounded-lg px-3 py-2">
                   <Image size={15} className="text-herb-600 shrink-0" />
                   <span className="text-xs text-espresso-700 dark:text-espresso-50 truncate flex-1">{expenseFile.name}</span>
-                  <Button isIconOnly variant="light" size="sm" className="h-auto min-w-0 p-0 text-brand-300 hover:text-red-500" onPress={() => setExpenseFile(null)}>
+                  <Button isIconOnly variant="ghost" size="sm" className="h-auto min-w-0 p-0 text-brand-300 hover:text-red-500" onPress={() => setExpenseFile(null)}>
                     <X size={14} />
                   </Button>
                 </div>
@@ -668,7 +664,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
               </Button>
               <Button
                 type="button"
-                variant="bordered"
+                variant="outline"
                 className="flex-1 border-brand-200 dark:border-espresso-700 text-sm text-brand-600 dark:text-brand-300"
                 size="sm"
                 onPress={() => setShowExpenseForm(false)}
@@ -736,7 +732,7 @@ function DocCard({
 }) {
   const copied = copiedField === copyKey;
   return (
-    <Card shadow="none" className="bg-white dark:bg-espresso-800 rounded-xl border border-brand-100 dark:border-espresso-700 shadow-card p-3 space-y-2">
+    <Card className="bg-white dark:bg-espresso-800 rounded-xl border border-brand-100 dark:border-espresso-700 shadow-card p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {icon}
@@ -757,10 +753,10 @@ function DocCard({
           <span className="text-sm font-mono text-espresso-800 dark:text-espresso-50 tracking-wide">{cardNumber}</span>
           <Button
             isIconOnly
-            variant="light"
+            variant="ghost"
             size="sm"
             className="ml-2 h-auto min-w-0 p-1 text-brand-300 hover:text-brand-600"
-            title="Sao chép"
+            aria-label="Sao chép"
             onPress={() => onCopy(cardNumber)}
           >
             {copied ? <CheckCheck size={14} className="text-green-500" /> : <Copy size={14} />}
