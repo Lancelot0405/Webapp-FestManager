@@ -1,9 +1,9 @@
 import * as React from "react"
-import { Modal, useOverlayState } from "@heroui/react"
+import { createPortal } from "react-dom"
 import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-// ── Dialog (Modal wrapper) ────────────────────────────────────────────────
+// ── Dialog (Portal wrapper) ───────────────────────────────────────────────
 interface DialogProps {
   open?: boolean
   isOpen?: boolean
@@ -13,78 +13,118 @@ interface DialogProps {
 
 const Dialog = ({ open, isOpen, onOpenChange, children }: DialogProps) => {
   const resolved = isOpen ?? open ?? false
-  const state = useOverlayState({ isOpen: resolved, onOpenChange })
-
+  if (!resolved) return null
   return (
-    <Modal.Root state={state}>
+    <DialogPortalInner onOpenChange={onOpenChange}>
       {children}
-    </Modal.Root>
+    </DialogPortalInner>
   )
 }
 Dialog.displayName = "Dialog"
+
+// Internal portal wrapper — renders in document.body
+interface PortalProps {
+  onOpenChange?: (open: boolean) => void
+  children?: React.ReactNode
+}
+const DialogPortalInner = ({ onOpenChange, children }: PortalProps) => {
+  // Lock body scroll while open
+  React.useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [])
+
+  const handleBackdropClick = () => onOpenChange?.(false)
+
+  return createPortal(
+    <DialogPortalContext.Provider value={{ onOpenChange }}>
+      <div
+        className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center"
+        aria-modal="true"
+      >
+        {/* Backdrop */}
+        <div
+          className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+          onClick={handleBackdropClick}
+          aria-hidden="true"
+        />
+        {/* Content slot — rendered by DialogContent */}
+        {children}
+      </div>
+    </DialogPortalContext.Provider>,
+    document.body
+  )
+}
+
+const DialogPortalContext = React.createContext<{
+  onOpenChange?: (open: boolean) => void
+}>({})
 
 // ── DialogContent ─────────────────────────────────────────────────────────
 interface DialogContentProps {
   position?: "center" | "bottom"
   className?: string
   children?: React.ReactNode
+  hideClose?: boolean
 }
 
-const DialogContent = ({ position = "center", className, children }: DialogContentProps) => {
+const DialogContent = ({ position = "center", className, children, hideClose = false }: DialogContentProps) => {
+  const { onOpenChange } = React.useContext(DialogPortalContext)
   return (
-    <>
-      <Modal.Backdrop isDismissable />
-      <Modal.Container
-        placement={position === "bottom" ? "bottom" : "center"}
-        className={cn(
-          position === "bottom"
-            ? "w-full max-w-full rounded-t-2xl rounded-b-none"
-            : "w-full max-w-lg rounded-xl",
-          className
-        )}
-      >
-        <Modal.Dialog className="relative outline-none">
-          <Modal.CloseTrigger
-            className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none z-10"
-            aria-label="Đóng"
-          >
-            <X className="size-4" />
-          </Modal.CloseTrigger>
-          {children}
-        </Modal.Dialog>
-      </Modal.Container>
-    </>
+    <div
+      className={cn(
+        "relative z-10 bg-white dark:bg-[var(--card-bg)] shadow-xl outline-none",
+        position === "bottom"
+          ? "w-full max-w-full rounded-t-2xl rounded-b-none self-end"
+          : "w-full max-w-lg rounded-xl mx-4",
+        className
+      )}
+      onClick={e => e.stopPropagation()}
+    >
+      {!hideClose && (
+        <button
+          type="button"
+          onClick={() => onOpenChange?.(false)}
+          className="absolute right-4 top-4 rounded-full p-1 opacity-60 hover:opacity-100 transition-opacity focus:outline-none z-10 text-[var(--text-muted)]"
+          aria-label="Đóng"
+        >
+          <X className="size-4" />
+        </button>
+      )}
+      {children}
+    </div>
   )
 }
 DialogContent.displayName = "DialogContent"
 
 // ── Sub-components ────────────────────────────────────────────────────────
 const DialogHeader = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <Modal.Header className={cn("flex flex-col space-y-1.5", className)} {...props}>
+  <div className={cn("flex flex-col space-y-1.5 p-6 pb-0", className)} {...props}>
     {children}
-  </Modal.Header>
+  </div>
 )
 DialogHeader.displayName = "DialogHeader"
 
 const DialogBody = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <Modal.Body className={cn("py-4", className)} {...props}>
+  <div className={cn("py-4 px-6", className)} {...props}>
     {children}
-  </Modal.Body>
+  </div>
 )
 DialogBody.displayName = "DialogBody"
 
 const DialogFooter = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <Modal.Footer className={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)} {...props}>
+  <div className={cn("flex flex-col-reverse gap-2 p-6 pt-0 sm:flex-row sm:justify-end", className)} {...props}>
     {children}
-  </Modal.Footer>
+  </div>
 )
 DialogFooter.displayName = "DialogFooter"
 
 const DialogTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
   ({ className, children, ...props }, ref) => (
-    <Modal.Heading ref={ref} className={cn("text-lg font-semibold leading-none tracking-tight", className)} {...props}>
+    <h2 ref={ref} className={cn("text-lg font-semibold leading-none tracking-tight text-[var(--text-primary)]", className)} {...props}>
       {children}
-    </Modal.Heading>
+    </h2>
   )
 )
 DialogTitle.displayName = "DialogTitle"

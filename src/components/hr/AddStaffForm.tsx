@@ -75,7 +75,7 @@ export default function AddStaffForm({ onClose }: Props) {
 
   return (
     <Dialog open onOpenChange={open => !open && onClose()}>
-      <DialogContent position="bottom" className="w-full max-w-md bg-white dark:bg-[var(--card-bg)] overflow-hidden">
+      <DialogContent position="bottom" hideClose className="w-full max-w-md bg-white dark:bg-[var(--card-bg)] overflow-hidden">
       <div className="px-5 pt-5 pb-[calc(env(safe-area-inset-bottom,0px)+80px)] max-h-[90vh] overflow-y-auto overflow-x-hidden">
         <div className="flex justify-between items-center mb-5">
           <p className="text-base font-bold text-[var(--text-primary)]">Thêm nhân viên mới</p>

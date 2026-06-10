@@ -57,7 +57,7 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
 
   return (
     <Dialog open onOpenChange={open => !open && onClose()}>
-      <DialogContent position="bottom" className="w-full max-w-md bg-white dark:bg-[var(--card-bg)] overflow-hidden">
+      <DialogContent position="bottom" hideClose className="w-full max-w-md bg-white dark:bg-[var(--card-bg)] overflow-hidden">
         <div className="px-5 pt-5 pb-[calc(env(safe-area-inset-bottom,0px)+80px)] overflow-y-auto overflow-x-hidden max-h-[85vh]">
           <div className="flex justify-between items-center mb-5">
             <h2 className="text-base font-bold text-[var(--text-primary)]">Thêm sự kiện mới</h2>

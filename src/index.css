@@ -198,6 +198,15 @@
   --shadcn-primary-foreground: #FFFFFF;
   --shadcn-secondary:      #1E3A5F;
   --shadcn-secondary-foreground: #F1F5F9;
+
+  /* Override HeroUI CSS variables to match our design tokens */
+  --surface:           #1E293B;
+  --surface-secondary: #253348;
+  --surface-tertiary:  #2D3E55;
+  --overlay:           #1E293B;
+  --field-background:  #1E293B;
+  --foreground:        #F1F5F9;
+  --muted-color:       #64748B;
 }
 
 /* ── Base reset ───────────────────────────────────────────────────────── */
