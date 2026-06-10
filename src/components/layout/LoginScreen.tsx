@@ -171,7 +171,7 @@ export default function LoginScreen() {
                 variant="bordered"
                 size="md"
                 startContent={<User size={16} className="text-brand-400 shrink-0" />}
-                classNames={{ inputWrapper: 'border-brand-200 focus-within:border-brand-500' }}
+                classNames={{ inputWrapper: 'bg-white border-brand-200 hover:border-brand-400 focus-within:!border-brand-500', input: 'text-slate-800 !text-slate-800' }}
               />
             </Field>
 
@@ -193,7 +193,7 @@ export default function LoginScreen() {
                     {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 }
-                classNames={{ inputWrapper: 'border-brand-200 focus-within:border-brand-500' }}
+                classNames={{ inputWrapper: 'bg-white border-brand-200 hover:border-brand-400 focus-within:!border-brand-500', input: 'text-slate-800 !text-slate-800' }}
               />
             </Field>
 
@@ -279,7 +279,7 @@ export default function LoginScreen() {
                 variant="bordered"
                 size="md"
                 startContent={<User size={16} className="text-brand-400 shrink-0" />}
-                classNames={{ inputWrapper: 'border-brand-200 focus-within:border-brand-500' }}
+                classNames={{ inputWrapper: 'bg-white border-brand-200 hover:border-brand-400 focus-within:!border-brand-500', input: 'text-slate-800 !text-slate-800' }}
               />
             </Field>
 
@@ -292,7 +292,7 @@ export default function LoginScreen() {
                 variant="bordered"
                 size="md"
                 startContent={<User size={16} className="text-brand-400 shrink-0" />}
-                classNames={{ inputWrapper: 'border-brand-200 focus-within:border-brand-500' }}
+                classNames={{ inputWrapper: 'bg-white border-brand-200 hover:border-brand-400 focus-within:!border-brand-500', input: 'text-slate-800 !text-slate-800' }}
               />
             </Field>
 
@@ -313,7 +313,7 @@ export default function LoginScreen() {
                     {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 }
-                classNames={{ inputWrapper: 'border-brand-200 focus-within:border-brand-500' }}
+                classNames={{ inputWrapper: 'bg-white border-brand-200 hover:border-brand-400 focus-within:!border-brand-500', input: 'text-slate-800 !text-slate-800' }}
               />
             </Field>
 
@@ -327,7 +327,7 @@ export default function LoginScreen() {
                 variant="bordered"
                 size="md"
                 startContent={<Lock size={16} className="text-brand-400 shrink-0" />}
-                classNames={{ inputWrapper: 'border-brand-200 focus-within:border-brand-500' }}
+                classNames={{ inputWrapper: 'bg-white border-brand-200 hover:border-brand-400 focus-within:!border-brand-500', input: 'text-slate-800 !text-slate-800' }}
               />
             </Field>
 
