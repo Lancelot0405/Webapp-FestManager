@@ -56,7 +56,7 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
     'text-brand-600 bg-brand-50 hover:bg-brand-100 active:scale-95';
 
   return (
-    <header className="bg-white border-b border-slate-100 px-4 sticky top-0 z-10 pt-safe shadow-card">
+    <header className="bg-[var(--card-bg)] border-b border-[var(--border-color)] px-4 sticky top-0 z-10 pt-safe shadow-card">
       <div className="flex justify-between items-center h-14">
 
         {/* Logo */}
@@ -76,7 +76,7 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
         <div className="flex items-center gap-1.5">
           {/* User info */}
           <div className="flex flex-col text-right mr-1">
-            <span className="text-sm font-semibold text-slate-800 leading-tight">
+            <span className="text-sm font-semibold text-[var(--text-primary)] leading-tight">
               {currentUser.name}
             </span>
             <span className={`text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full self-end ${roleStyle[currentUser.role]}`}>
@@ -141,10 +141,10 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
           {/* Logout */}
           <Button
             onPress={onLogout}
-            variant="danger-soft"
+            variant="ghost"
             isIconOnly
             size="sm"
-            className="rounded-full"
+            className="rounded-full text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
             aria-label="Đăng xuất"
           >
             <LogOut size={16} />
@@ -159,11 +159,11 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
 
 function InstallDropdown({ isStandalone, isIos, onClose }: { isStandalone: boolean; isIos: boolean; onClose: () => void }) {
   return (
-    <div className="absolute right-0 top-11 w-72 bg-white rounded-2xl shadow-warm border border-slate-100 z-50 p-4 animate-fade-in">
+    <div className="absolute right-0 top-11 w-72 bg-[var(--card-bg)] rounded-2xl shadow-warm border border-[var(--border-color)] z-50 p-4 animate-fade-in">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Smartphone size={16} className="text-brand-500" />
-          <p className="text-sm font-semibold text-slate-800">
+          <p className="text-sm font-semibold text-[var(--text-primary)]">
             {isStandalone ? 'Đã cài đặt' : 'Cài FestManager'}
           </p>
         </div>
@@ -197,9 +197,9 @@ function NotifDropdown({
   onClearOne: (id: string) => void;
 }) {
   return (
-    <div className="absolute right-0 top-11 w-80 bg-white rounded-2xl shadow-warm border border-slate-100 z-50 overflow-hidden animate-fade-in">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-        <p className="text-sm font-semibold text-slate-800">
+    <div className="absolute right-0 top-11 w-80 bg-[var(--card-bg)] rounded-2xl shadow-warm border border-[var(--border-color)] z-50 overflow-hidden animate-fade-in">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-color)]">
+        <p className="text-sm font-semibold text-[var(--text-primary)]">
           Thông báo {notifications.length > 0 && `(${notifications.length})`}
         </p>
         {notifications.length > 0 && (
@@ -213,11 +213,11 @@ function NotifDropdown({
           <p className="text-sm text-slate-400 text-center py-6">Không có thông báo</p>
         ) : (
           notifications.map(n => (
-            <div key={n.id} className="flex items-start gap-2 px-4 py-3 border-b border-slate-100 hover:bg-brand-50">
+            <div key={n.id} className="flex items-start gap-2 px-4 py-3 border-b border-[var(--border-color)] hover:bg-[var(--accent)]">
               <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${n.type === 'expense' ? 'bg-indigo-500' : 'bg-brand-500'}`} />
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-slate-800 leading-snug">{n.message}</p>
-                <p className="text-xs text-slate-400 mt-0.5">{n.timestamp}</p>
+                <p className="text-sm text-[var(--text-primary)] leading-snug">{n.message}</p>
+                <p className="text-xs text-[var(--text-muted)] mt-0.5">{n.timestamp}</p>
               </div>
               <Button onPress={() => onClearOne(n.id)} variant="ghost" isIconOnly size="sm" className="shrink-0 mt-0.5">
                 <X size={14} />

@@ -1,5 +1,6 @@
 import * as React from "react"
 import { Button as HeroButton, type ButtonRootProps } from "@heroui/react"
+import { cn } from "@/lib/utils"
 
 export type LegacyVariant = 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'
 export type LegacySize = 'default' | 'sm' | 'lg' | 'icon'
@@ -8,6 +9,7 @@ export interface ButtonProps extends Omit<ButtonRootProps, 'variant' | 'size'> {
   variant?: LegacyVariant | ButtonRootProps['variant']
   size?: LegacySize | ButtonRootProps['size']
   loading?: boolean
+  fullWidth?: boolean
 }
 
 const legacyVariantMap: Record<LegacyVariant, ButtonRootProps['variant']> = {
@@ -33,7 +35,7 @@ const isLegacySize = (s: string): s is LegacySize =>
   ['default','sm','lg','icon'].includes(s)
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = 'default', size = 'default', loading, children, ...props }, ref) => {
+  ({ variant = 'default', size = 'default', loading, fullWidth, className, children, ...props }, ref) => {
     const heroVariant = typeof variant === 'string' && isLegacyVariant(variant)
       ? legacyVariantMap[variant]
       : (variant as ButtonRootProps['variant'])
@@ -49,6 +51,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         size={heroSize}
         isDisabled={props.isDisabled || loading}
         isIconOnly={size === 'icon'}
+        className={cn(fullWidth && 'w-full', className)}
         {...props}
       >
         {loading
