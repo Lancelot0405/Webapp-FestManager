@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, FileText, Plus, Upload, Image, X, Loader, Pencil, Check, CreditCard, ShieldCheck, KeyRound, Copy, CheckCheck, Building2 } from 'lucide-react';
-import { Button, Card, Input } from '@heroui/react';
+import { Button, Card } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import { ExpenseStatusBadge } from '../shared/StatusBadge';
@@ -90,7 +90,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
     <div className="text-center py-20 text-brand-300">
       <p>Không tìm thấy nhân viên</p>
       {onBack && (
-        <Button variant="light" size="sm" className="mt-4 text-brand-600 text-sm" onPress={onBack}>
+        <Button variant="ghost" size="sm" className="mt-4 text-brand-600 text-sm" onPress={onBack}>
           Quay lại
         </Button>
       )}
@@ -235,7 +235,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
     <div className="space-y-5 pb-20">
       {onBack && (
         <div className="flex items-center gap-2">
-          <Button isIconOnly variant="light" size="sm" className="text-brand-400 hover:text-espresso-700 dark:text-brand-300 dark:hover:text-gray-200" onPress={onBack}>
+          <Button isIconOnly variant="ghost" size="sm" className="text-brand-400 hover:text-espresso-700 dark:text-brand-300 dark:hover:text-gray-200" onPress={onBack}>
             <ArrowLeft size={22} />
           </Button>
           <h1 className="text-lg font-bold text-espresso-800 dark:text-espresso-50">Hồ sơ nhân viên</h1>
@@ -243,11 +243,11 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
       )}
 
       {/* ── THÔNG TIN CÁ NHÂN ──────────────────────────────────────────── */}
-      <Card shadow="none" className="bg-white dark:bg-espresso-800 rounded-xl p-4 shadow-card border border-brand-100 dark:border-espresso-700">
+      <Card className="bg-white dark:bg-espresso-800 rounded-xl p-4 shadow-card border border-brand-100 dark:border-espresso-700">
         <div className="flex justify-between items-center mb-3">
           <p className="text-sm font-semibold text-espresso-700 dark:text-espresso-50">Thông tin cá nhân</p>
           {canEdit && !editing && (
-            <Button size="sm" variant="flat" className="text-xs text-brand-600 bg-brand-50 px-2.5 py-1.5 rounded-lg hover:bg-brand-100 h-auto min-w-0" onPress={startEdit}>
+            <Button size="sm" variant="secondary" className="text-xs text-brand-600 bg-brand-50 px-2.5 py-1.5 rounded-lg hover:bg-brand-100 h-auto min-w-0" onPress={startEdit}>
               <Pencil size={12} /> Chỉnh sửa
             </Button>
           )}
@@ -257,68 +257,56 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
           <div className="space-y-3">
             <div>
               <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Họ tên</label>
-              <Input
-                variant="bordered"
-                size="sm"
-                classNames={{ inputWrapper: 'mt-1 border-brand-200 dark:border-espresso-700 dark:bg-espresso-700', input: 'dark:text-espresso-50' }}
+              <input
+                className="mt-1 w-full px-3 py-2 border border-brand-200 dark:border-espresso-700 rounded-xl text-sm text-espresso-800 dark:text-espresso-50 bg-white dark:bg-espresso-700 focus:outline-none focus:border-brand-400 transition-all"
                 value={editName}
-                onValueChange={setEditName}
+                onChange={e => setEditName(e.target.value)}
               />
             </div>
             <div>
               <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Ngày sinh (DD-MM-YYYY)</label>
-              <Input
-                variant="bordered"
-                size="sm"
-                classNames={{ inputWrapper: 'mt-1 border-brand-200 dark:border-espresso-700 dark:bg-espresso-700', input: 'dark:text-espresso-50' }}
+              <input
+                className="mt-1 w-full px-3 py-2 border border-brand-200 dark:border-espresso-700 rounded-xl text-sm text-espresso-800 dark:text-espresso-50 bg-white dark:bg-espresso-700 focus:outline-none focus:border-brand-400 transition-all placeholder:text-slate-300"
                 placeholder="01-01-2000"
                 value={editDob}
-                onValueChange={setEditDob}
+                onChange={e => setEditDob(e.target.value)}
               />
             </div>
             <div>
               <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Nơi ở</label>
-              <Input
-                variant="bordered"
-                size="sm"
-                classNames={{ inputWrapper: 'mt-1 border-brand-200 dark:border-espresso-700 dark:bg-espresso-700', input: 'dark:text-espresso-50' }}
+              <input
+                className="mt-1 w-full px-3 py-2 border border-brand-200 dark:border-espresso-700 rounded-xl text-sm text-espresso-800 dark:text-espresso-50 bg-white dark:bg-espresso-700 focus:outline-none focus:border-brand-400 transition-all placeholder:text-slate-300"
                 placeholder="Paris, Lyon..."
                 value={editCity}
-                onValueChange={setEditCity}
+                onChange={e => setEditCity(e.target.value)}
               />
             </div>
             <div>
               <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Số điện thoại</label>
-              <Input
-                variant="bordered"
-                size="sm"
+              <input
                 type="tel"
-                classNames={{ inputWrapper: 'mt-1 border-brand-200 dark:border-espresso-700 dark:bg-espresso-700', input: 'dark:text-espresso-50' }}
+                className="mt-1 w-full px-3 py-2 border border-brand-200 dark:border-espresso-700 rounded-xl text-sm text-espresso-800 dark:text-espresso-50 bg-white dark:bg-espresso-700 focus:outline-none focus:border-brand-400 transition-all placeholder:text-slate-300"
                 placeholder="+33 6 XX XX XX XX"
                 value={editPhone}
-                onValueChange={setEditPhone}
+                onChange={e => setEditPhone(e.target.value)}
               />
             </div>
             <div>
               <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Số Carte Vitale</label>
-              <Input
-                variant="bordered"
-                size="sm"
-                classNames={{ inputWrapper: 'mt-1 border-brand-200 dark:border-espresso-700 dark:bg-espresso-700', input: 'dark:text-espresso-50 font-mono' }}
+              <input
+                className="mt-1 w-full px-3 py-2 border border-brand-200 dark:border-espresso-700 rounded-xl text-sm text-espresso-800 dark:text-espresso-50 bg-white dark:bg-espresso-700 focus:outline-none focus:border-brand-400 transition-all placeholder:text-slate-300 font-mono"
                 placeholder="1 85 01 75 XXX XXX XX"
                 value={editCarteNum}
-                onValueChange={setEditCarteNum}
+                onChange={e => setEditCarteNum(e.target.value)}
               />
             </div>
             <div>
               <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Số Titre de Séjour</label>
-              <Input
-                variant="bordered"
-                size="sm"
-                classNames={{ inputWrapper: 'mt-1 border-brand-200 dark:border-espresso-700 dark:bg-espresso-700', input: 'dark:text-espresso-50 font-mono' }}
+              <input
+                className="mt-1 w-full px-3 py-2 border border-brand-200 dark:border-espresso-700 rounded-xl text-sm text-espresso-800 dark:text-espresso-50 bg-white dark:bg-espresso-700 focus:outline-none focus:border-brand-400 transition-all placeholder:text-slate-300 font-mono"
                 placeholder="XXXXXXXXX"
                 value={editTitreNum}
-                onValueChange={setEditTitreNum}
+                onChange={e => setEditTitreNum(e.target.value)}
               />
             </div>
             {isAdmin && (
@@ -400,7 +388,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
               <Button className="flex-1 bg-brand-500 text-white text-sm font-medium" size="sm" onPress={saveEdit}>
                 <Check size={14} /> Lưu
               </Button>
-              <Button variant="bordered" className="flex-1 border-brand-200 dark:border-espresso-700 text-sm text-brand-600 dark:text-brand-300" size="sm" onPress={() => setEditing(false)}>
+              <Button variant="outline" className="flex-1 border-brand-200 dark:border-espresso-700 text-sm text-brand-600 dark:text-brand-300" size="sm" onPress={() => setEditing(false)}>
                 Huỷ
               </Button>
             </div>
@@ -429,7 +417,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
 
       {/* ── QUẢN LÝ TÀI KHOẢN (chỉ admin) ─────────────────────────────── */}
       {isAdmin && member.userId && (
-        <Card shadow="none" className="bg-white dark:bg-espresso-800 rounded-xl p-4 shadow-card border border-brand-100 dark:border-espresso-700 space-y-4">
+        <Card className="bg-white dark:bg-espresso-800 rounded-xl p-4 shadow-card border border-brand-100 dark:border-espresso-700 space-y-4">
           <p className="text-sm font-semibold text-espresso-700 dark:text-espresso-50 flex items-center gap-2">
             <KeyRound size={15} className="text-orange-500" /> Quản lý tài khoản
           </p>
@@ -481,7 +469,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
               <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Mật khẩu</label>
               <Button
                 size="sm"
-                variant="flat"
+                variant="secondary"
                 className="text-xs text-orange-600 bg-orange-50 px-2.5 py-1 rounded-lg h-auto min-w-0"
                 onPress={() => { setShowPwForm(!showPwForm); setPwMsg(''); setNewPassword(''); }}
               >

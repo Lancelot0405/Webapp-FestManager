@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Plus, User, Trash2, Search, ShieldCheck, Check, X } from 'lucide-react';
-import { Button, Card, Chip, Input } from '@heroui/react';
+import { Button, Card, Chip } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import AddStaffForm from './AddStaffForm';
 import { SkeletonList } from '@/components/ui/skeleton';
@@ -62,7 +62,6 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
         <Card
           key={s.id}
           className="border border-slate-100 hover:border-brand-300 transition-colors flex flex-row items-stretch shadow-card rounded-xl overflow-hidden"
-          shadow="none"
         >
           <button
             onClick={() => onSelectStaff(String(s.id))}
@@ -85,7 +84,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
           {isAdmin && (
             <Button
               isIconOnly
-              variant="light"
+              variant="ghost"
               onPress={e => handleDelete(e as unknown as React.MouseEvent, s.id, s.name)}
               className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-slate-100 rounded-none rounded-r-xl h-auto"
             >
@@ -103,13 +102,11 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
         <h1 className="text-xl font-bold text-slate-800">Nhân sự</h1>
         {isAdmin && (
           <Button
-            color="primary"
             size="sm"
             onPress={() => setShowForm(true)}
-            startContent={<Plus size={16} />}
-            className="font-semibold"
+            className="font-semibold bg-brand-500 text-white hover:bg-brand-600 flex items-center gap-1.5"
           >
-            Thêm nhân viên
+            <Plus size={16} /> Thêm nhân viên
           </Button>
         )}
       </div>
@@ -144,7 +141,6 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
                 <Card
                   key={req.id}
                   className="p-3 border border-indigo-100 rounded-xl"
-                  shadow="none"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
@@ -157,23 +153,20 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
                     <div className="flex gap-1.5 shrink-0">
                       <Button
                         size="sm"
-                        color="success"
                         onPress={() => approveRegistration(req.userId)}
-                        startContent={<Check size={12} />}
-                        className="text-xs font-medium text-white"
+                        className="text-xs font-medium text-white bg-green-500 hover:bg-green-600 flex items-center gap-1"
                         title="Duyệt"
                       >
-                        Duyệt
+                        <Check size={12} /> Duyệt
                       </Button>
                       <Button
                         size="sm"
-                        color="danger"
+                        variant="danger"
                         onPress={() => rejectRegistration(req.userId)}
-                        startContent={<X size={12} />}
-                        className="text-xs font-medium"
+                        className="text-xs font-medium flex items-center gap-1"
                         title="Từ chối"
                       >
-                        Từ chối
+                        <X size={12} /> Từ chối
                       </Button>
                     </div>
                   </div>
@@ -185,18 +178,17 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
       )}
 
       {/* Search */}
-      <Input
-        size="sm"
-        variant="bordered"
-        placeholder="Tìm theo tên hoặc thành phố..."
-        value={search}
-        onValueChange={setSearch}
-        startContent={<Search size={15} className="text-slate-400" />}
-        classNames={{
-          inputWrapper: 'border-brand-200 focus-within:border-brand-400 bg-white rounded-xl',
-          input: 'text-slate-800 placeholder:text-slate-300',
-        }}
-      />
+      <div className="relative">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+          <Search size={15} />
+        </span>
+        <input
+          className="w-full pl-9 pr-4 py-2.5 border border-brand-200 rounded-xl text-sm text-slate-800 bg-white focus:outline-none focus:border-brand-400 placeholder:text-slate-300 transition-all"
+          placeholder="Tìm theo tên hoặc thành phố..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+      </div>
 
       {/* Type filter pills */}
       {canViewAll && (
@@ -204,8 +196,8 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
           {(['Tất cả', 'Nhân viên cứng', 'Part-time'] as TypeFilter[]).map(t => (
             <Chip
               key={t}
-              variant={typeFilter === t ? 'flat' : 'bordered'}
-              color={typeFilter === t ? 'primary' : 'default'}
+              variant={typeFilter === t ? 'soft' : undefined}
+              color={typeFilter === t ? 'default' : 'default'}
               onClick={() => setTypeFilter(t)}
               className="cursor-pointer text-xs font-semibold"
             >
