@@ -1,46 +1,63 @@
 import * as React from "react"
+import {
+  TextField,
+  Label,
+  Input as HeroInput,
+  FieldError,
+  Description,
+  type TextFieldProps,
+} from "@heroui/react"
 import { cn } from "@/lib/utils"
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends Omit<TextFieldProps, 'children'> {
   label?: string
   error?: string
   hint?: string
   icon?: React.ReactNode
+  placeholder?: string
+  type?: React.HTMLInputTypeAttribute
+  className?: string
+  inputClassName?: string
+  defaultValue?: string
+  autoComplete?: string
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, label, error, hint, icon, id: idProp, ...props }, ref) => {
-    const generatedId = React.useId()
-    const inputId = idProp ?? generatedId
+  ({ label, error, hint, icon, className, inputClassName, placeholder, type, ...props }, _ref) => {
     return (
-      <div className="flex flex-col gap-1">
+      <TextField
+        isInvalid={!!error}
+        className={cn("flex flex-col gap-1 w-full", className)}
+        {...props}
+      >
         {label && (
-          <label htmlFor={inputId} className="text-sm font-medium text-foreground">
+          <Label className="text-sm font-medium text-[var(--text-primary)]">
             {label}
-          </label>
+          </Label>
         )}
         <div className="relative">
           {icon && (
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground [&_svg]:size-4">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] [&_svg]:size-4 pointer-events-none z-10">
               {icon}
             </span>
           )}
-          <input
-            id={inputId}
+          <HeroInput
+            placeholder={placeholder}
             type={type}
             className={cn(
-              "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+              "h-9 w-full rounded-md border border-[var(--border-color)] bg-transparent px-3 py-1 text-base text-[var(--text-primary)] shadow-sm transition-colors",
+              "placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)]",
+              "disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+              "dark:bg-[var(--card-bg)] dark:border-[var(--border-color)]",
               icon && "pl-9",
-              error && "border-destructive focus-visible:ring-destructive",
-              className
+              error && "border-[var(--destructive)] focus:ring-[var(--destructive)]",
+              inputClassName
             )}
-            ref={ref}
-            {...props}
           />
         </div>
-        {error && <p className="text-xs text-destructive">{error}</p>}
-        {hint && !error && <p className="text-xs text-muted-foreground">{hint}</p>}
-      </div>
+        {error && <FieldError className="text-xs text-[var(--destructive)]">{error}</FieldError>}
+        {hint && !error && <Description className="text-xs text-[var(--text-muted)]">{hint}</Description>}
+      </TextField>
     )
   }
 )
