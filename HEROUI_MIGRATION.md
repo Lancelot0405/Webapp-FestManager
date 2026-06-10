@@ -12,10 +12,10 @@
 - [ ] `src/context/ThemeContext.tsx` — Thêm `data-theme` attribute sync với HeroUI
 
 ### Phase 1 — Layout Components
-- [ ] `src/components/layout/Header.tsx` — HeroUI Navbar + Dropdown
-- [ ] `src/components/layout/BottomNav.tsx` — Giữ custom, dùng HeroUI Button
-- [ ] `src/components/layout/Sidebar.tsx` — HeroUI Avatar cho user footer
-- [ ] `src/components/layout/LoginScreen.tsx` — Card, Input, Button, Chip
+- [x] `src/components/layout/Header.tsx` — HeroUI Button + Chip (Navbar không có trong v3.1.0)
+- [x] `src/components/layout/BottomNav.tsx` — Đã dùng HeroUI Button từ trước, giữ nguyên
+- [x] `src/components/layout/Sidebar.tsx` — HeroUI Avatar + AvatarFallback cho user footer
+- [x] `src/components/layout/LoginScreen.tsx` — Card + CardContent + Button (HeroUI Input quá đơn giản, giữ raw input)
 
 ### Phase 2 — Shared UI Wrappers
 - [ ] `src/components/ui/button.tsx` — Cải thiện (radius, isLoading)

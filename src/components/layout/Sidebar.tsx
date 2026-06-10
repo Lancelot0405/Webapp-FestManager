@@ -1,4 +1,4 @@
-import { Button } from '@heroui/react';
+import { Button, Avatar, AvatarFallback } from '@heroui/react';
 import {
   LayoutDashboard,
   Calendar,
@@ -97,9 +97,11 @@ export default function Sidebar({ activeTab, onTabChange, onLogoClick }: Sidebar
       {/* User info footer */}
       <div className="px-4 py-4 border-t border-slate-100">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-brand-gradient flex items-center justify-center text-white text-xs font-bold shrink-0">
-            {currentUser.name.charAt(0).toUpperCase()}
-          </div>
+          <Avatar size="sm" className="shrink-0 bg-brand-gradient">
+            <AvatarFallback className="text-white text-xs font-bold">
+              {currentUser.name.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
           <div className="min-w-0">
             <p className="text-sm font-semibold text-slate-800 truncate">
               {currentUser.name}

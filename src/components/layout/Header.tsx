@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { LogOut, Bell, X, BellPlus, Download, Smartphone, UtensilsCrossed } from 'lucide-react';
-import { Button } from '@heroui/react';
+import { Button, Chip } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
 import { usePushNotifications } from '../../hooks/usePushNotifications';
@@ -11,10 +11,10 @@ interface HeaderProps {
   onLogout:    () => void;
 }
 
-const roleStyle: Record<string, string> = {
-  admin:   'bg-brand-100 text-brand-700',
-  manager: 'bg-indigo-100 text-indigo-600',
-  staff:   'bg-herb-500/10 text-herb-600',
+const roleChipColor: Record<string, 'accent' | 'warning' | 'success'> = {
+  admin:   'accent',
+  manager: 'warning',
+  staff:   'success',
 };
 const roleLabel: Record<string, string> = {
   admin: 'Admin', manager: 'Quản lý', staff: 'Nhân viên',
@@ -51,10 +51,6 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
     if (result === 'guide' || result === 'already') setShowInstallModal(v => !v);
   };
 
-  const iconBtn =
-    'w-9 h-9 rounded-full flex items-center justify-center transition-all duration-150 ' +
-    'text-brand-600 bg-brand-50 hover:bg-brand-100 active:scale-95';
-
   return (
     <header className="bg-white border-b border-slate-100 px-4 sticky top-0 z-10 pt-safe shadow-card">
       <div className="flex justify-between items-center h-14">
@@ -79,9 +75,14 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
             <span className="text-sm font-semibold text-slate-800 leading-tight">
               {currentUser.name}
             </span>
-            <span className={`text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full self-end ${roleStyle[currentUser.role]}`}>
+            <Chip
+              size="sm"
+              color={roleChipColor[currentUser.role]}
+              variant="secondary"
+              className="self-end mt-0.5"
+            >
               {roleLabel[currentUser.role]}
-            </span>
+            </Chip>
           </div>
 
           {/* Install */}
@@ -125,9 +126,9 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
           {/* Push subscribe — staff */}
           {!isAdmin && !isManager && (
             subscribed ? (
-              <div className={`${iconBtn} cursor-default`} aria-label="Đã bật thông báo">
-                <Bell size={16} className="text-herb-500" />
-              </div>
+              <Button variant="ghost" isIconOnly size="sm" className="rounded-full cursor-default" isDisabled aria-label="Đã bật thông báo">
+                <Bell size={16} className="text-success" />
+              </Button>
             ) : (
               <Button onPress={subscribe} isDisabled={pushLoading} variant="ghost" isIconOnly size="sm" className="rounded-full relative" aria-label="Bật thông báo đẩy">
                 {pushLoading
@@ -203,7 +204,7 @@ function NotifDropdown({
           Thông báo {notifications.length > 0 && `(${notifications.length})`}
         </p>
         {notifications.length > 0 && (
-          <Button onPress={onClearAll} variant="ghost" size="sm" className="text-xs text-red-500">
+          <Button onPress={onClearAll} variant="danger" size="sm" className="text-xs h-7">
             Xóa tất cả
           </Button>
         )}
