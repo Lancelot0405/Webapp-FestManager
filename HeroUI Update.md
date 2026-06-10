@@ -52,14 +52,15 @@
 
 ---
 
-## 🔜 Phase 2 — Shared + Layout
-**Trạng thái:** CHƯA BẮT ĐẦU
+## ✅ Phase 2 — Shared + Layout
+**Trạng thái:** HOÀN THÀNH  
+**Commit:** `2907015`
 
-### Kế hoạch:
-- `src/components/shared/StatusBadge.tsx` → HeroUI `Chip`
-- `src/components/shared/DocThumbnail.tsx` → HeroUI `Card`/`Surface`
-- `src/components/layout/BottomNav.tsx` → HeroUI `Button` isIconOnly
-- `src/components/layout/Sidebar.tsx` → HeroUI tokens cho bg/border
+### Đã làm:
+- `StatusBadge.tsx`: `<span>` → HeroUI `Chip` (variant=soft, color map EventStatus/ExpenseStatus → accent/success/danger/default/warning)
+- `DocThumbnail.tsx`: link file → HeroUI `Card` (variant=secondary) bên trong `<a>`, bỏ border CSS thủ công
+- `BottomNav.tsx`: native `<button>` → HeroUI `Button` (variant=ghost, aria-label, onPress), giữ layout icon+label dọc
+- `Sidebar.tsx`: native `<button>` → HeroUI `Button` (variant=primary khi active / ghost khi không, fullWidth, justify-start)
 
 ---
 
