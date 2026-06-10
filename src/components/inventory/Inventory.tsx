@@ -161,13 +161,13 @@ export default function Inventory() {
 
   // ── Item status helpers ────────────────────────────────────────────────────
   const itemBg = (low: boolean, warn: boolean) =>
-    low  ? 'bg-red-50 border-red-200' :
-    warn ? 'bg-indigo-50  border-indigo-200' :
-           'bg-white  border-brand-100';
+    low  ? 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30' :
+    warn ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/30' :
+           'bg-[var(--card-bg)] border-[var(--border-color)]';
 
   const selectCls =
-    'mt-1 w-full border border-brand-200 bg-white  ' +
-    'text-slate-800 rounded-xl px-3 py-2.5 focus:outline-none ' +
+    'mt-1 w-full border border-brand-200 dark:border-[var(--border-color)] bg-white dark:bg-[var(--card-bg)] ' +
+    'text-[var(--text-primary)] rounded-xl px-3 py-2.5 focus:outline-none ' +
     'focus:ring-2 focus:ring-brand-200 focus:border-brand-500 transition-all';
 
   return (
@@ -179,7 +179,7 @@ export default function Inventory() {
           <div className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center shadow-[0_2px_8px_0_rgb(124_58_237/0.30)]">
             <Package size={16} className="text-white" />
           </div>
-          <h1 className="text-xl font-black text-slate-800">Kho hàng</h1>
+          <h1 className="text-xl font-black text-[var(--text-primary)]">Kho hàng</h1>
         </div>
         {subTab !== 'history' && (
           <div className="flex gap-2">
@@ -202,7 +202,7 @@ export default function Inventory() {
 
       {/* ── Main tabs ── */}
       {canSeeRestaurant && canSeeFestival && (
-        <div className="flex border-b border-brand-100">
+        <div className="flex border-b border-[var(--border-color)]">
           {([
             { id: 'restaurant' as MainTab, icon: <Store size={14} />,  label: 'Nhà hàng', color: 'text-brand-600 border-brand-500' },
             { id: 'festival'   as MainTab, icon: <Tent size={14} />,   label: 'Festival',  color: 'text-herb-600 border-herb-500' },
@@ -212,7 +212,7 @@ export default function Inventory() {
               onPress={() => handleMainTabChange(t.id)}
               variant="ghost"
               className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold border-b-2 rounded-none h-auto transition-colors ${
-                mainTab === t.id ? t.color : 'border-transparent text-slate-400 hover:text-brand-500'
+                mainTab === t.id ? t.color : 'border-transparent text-[var(--text-muted)] hover:text-brand-500'
               }`}
             >
               {t.icon} {t.label}
@@ -275,7 +275,7 @@ export default function Inventory() {
         <Card className="rounded-2xl">
           <form onSubmit={handleAddItem} className="p-4 space-y-3 animate-fade-in">
             <div className="flex justify-between items-center">
-              <p className="font-bold text-slate-800 text-sm">
+              <p className="font-bold text-[var(--text-primary)] text-sm">
                 Thêm {itemLabel} — {sectionLabel}
               </p>
               <Button
@@ -313,7 +313,7 @@ export default function Inventory() {
         {state.loading ? (
           <SkeletonList count={3} variant="row" />
         ) : filteredItems.length === 0 && subTab !== 'history' ? (
-          <p className="text-sm text-slate-400 text-center py-10">
+          <p className="text-sm text-[var(--text-muted)] text-center py-10">
             Chưa có {itemLabel} nào trong kho {sectionLabel}
           </p>
         ) : null}
@@ -336,7 +336,7 @@ export default function Inventory() {
                 className="w-full flex items-center justify-between px-4 py-3 text-left h-auto rounded-none"
               >
                 <div className="flex-1 min-w-0">
-                  <p className={`font-semibold text-sm ${isLow ? 'text-red-600' : 'text-slate-800'}`}>
+                  <p className={`font-semibold text-sm ${isLow ? 'text-red-600' : 'text-[var(--text-primary)]'}`}>
                     {item.name}
                   </p>
                   {isLow  && <p className="text-xs text-red-500 font-medium">⚠ Sắp hết hàng!</p>}
@@ -356,7 +356,7 @@ export default function Inventory() {
 
               {/* Edit panel */}
               {isExpanded && (
-                <div className="px-4 pb-4 pt-2 border-t border-brand-100 space-y-3 animate-fade-in">
+                <div className="px-4 pb-4 pt-2 border-t border-[var(--border-color)] space-y-3 animate-fade-in">
                   <FoodNameSelect
                     value={editName}
                     onChange={setEditName}
@@ -390,9 +390,9 @@ export default function Inventory() {
                     </Button>
                     <Button
                       onPress={() => handleDelete(item)}
-                      variant="danger-soft"
+                      variant="ghost"
                       isIconOnly
-                      className="px-3 rounded-xl"
+                      className="px-3 rounded-xl text-red-500 bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20"
                       aria-label={`Xóa ${item.name}`}
                     >
                       <Trash2 size={15} />

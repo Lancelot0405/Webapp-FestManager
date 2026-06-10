@@ -61,23 +61,23 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
       {list.map(s => (
         <Card
           key={s.id}
-          className="border border-slate-100 hover:border-brand-300 transition-colors flex flex-row items-stretch shadow-card rounded-xl overflow-hidden"
+          className="border border-[var(--border-color)] hover:border-brand-300 transition-colors flex flex-row items-stretch shadow-card rounded-xl overflow-hidden"
         >
           <button
             onClick={() => onSelectStaff(String(s.id))}
             className="flex-1 text-left p-4 min-w-0"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-full bg-brand-100 dark:bg-brand-500/10 flex items-center justify-center shrink-0">
                 <User size={18} className="text-brand-600" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-slate-800">{s.name}</p>
-                <p className="text-xs text-slate-500">{s.city}</p>
+                <p className="font-semibold text-[var(--text-primary)]">{s.name}</p>
+                <p className="text-xs text-[var(--text-muted)]">{s.city}</p>
               </div>
               <div className="text-right shrink-0">
-                <p className="text-xs text-slate-500">{eventCountMap.get(s.id) ?? 0} sự kiện</p>
-                <p className="text-xs text-slate-400">{s.contracts.length} hợp đồng</p>
+                <p className="text-xs text-[var(--text-muted)]">{eventCountMap.get(s.id) ?? 0} sự kiện</p>
+                <p className="text-xs text-[var(--text-muted)]">{s.contracts.length} hợp đồng</p>
               </div>
             </div>
           </button>
@@ -86,7 +86,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
               isIconOnly
               variant="ghost"
               onPress={e => handleDelete(e as unknown as React.MouseEvent, s.id, s.name)}
-              className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-slate-100 rounded-none rounded-r-xl h-auto"
+              className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 border-l border-[var(--border-color)] rounded-none rounded-r-xl h-auto"
             >
               <Trash2 size={15} />
             </Button>
@@ -99,7 +99,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
   return (
     <div className="space-y-4 pb-20">
       <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold text-slate-800">Nhân sự</h1>
+        <h1 className="text-xl font-bold text-[var(--text-primary)]">Nhân sự</h1>
         {isAdmin && (
           <Button
             size="sm"
@@ -113,7 +113,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
 
       {/* Pending registrations — admin only */}
       {isAdmin && (
-        <div className="bg-indigo-50 border border-indigo-200 rounded-xl overflow-hidden">
+        <div className="bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/30 rounded-xl overflow-hidden">
           <button
             onClick={() => setShowPending(v => !v)}
             className="w-full flex items-center justify-between px-4 py-3"
@@ -147,7 +147,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
                       <ShieldCheck size={16} className="text-indigo-600" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-slate-800">{req.displayName}</p>
+                      <p className="text-sm font-semibold text-[var(--text-primary)]">{req.displayName}</p>
                       <p className="text-xs text-indigo-600">Quản lý · Chờ duyệt</p>
                     </div>
                     <div className="flex gap-1.5 shrink-0">
@@ -181,7 +181,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
           <Search size={15} />
         </span>
         <input
-          className="w-full pl-9 pr-4 py-2.5 border border-brand-200 rounded-xl text-sm text-slate-800 bg-white focus:outline-none focus:border-brand-400 placeholder:text-slate-300 transition-all"
+          className="w-full pl-9 pr-4 py-2.5 border border-brand-200 dark:border-[var(--border-color)] rounded-xl text-sm text-[var(--text-primary)] bg-white dark:bg-[var(--card-bg)] focus:outline-none focus:border-brand-400 placeholder:text-[var(--text-muted)] transition-all"
           placeholder="Tìm theo tên hoặc thành phố..."
           value={search}
           onChange={e => setSearch(e.target.value)}
@@ -212,13 +212,13 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
       {state.loading ? (
         <SkeletonList count={4} variant="row" />
       ) : filtered.length === 0 ? (
-        <p className="text-sm text-slate-400 text-center py-10">Chưa có nhân viên</p>
+        <p className="text-sm text-[var(--text-muted)] text-center py-10">Chưa có nhân viên</p>
       ) : typeFilter === 'Tất cả' && canViewAll ? (
         <>
           {permanent.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-full">
+                <span className="text-xs font-semibold text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-500/10 px-2.5 py-1 rounded-full">
                   Nhân viên cứng · {permanent.length}
                 </span>
               </div>
@@ -228,7 +228,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
           {partTime.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full">
+                <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/10 px-2.5 py-1 rounded-full">
                   Part-time · {partTime.length}
                 </span>
               </div>

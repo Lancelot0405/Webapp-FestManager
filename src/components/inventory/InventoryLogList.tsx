@@ -53,13 +53,13 @@ export default function InventoryLogList({ logs }: Props) {
             placeholder="Tìm mặt hàng..."
             value={itemSearch}
             onChange={e => setItemSearch(e.target.value)}
-            className="w-full pl-7 pr-2 py-2 border border-brand-200 dark:border-espresso-700 bg-white dark:bg-espresso-700 text-espresso-800 dark:text-espresso-50 rounded-xl text-xs focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900 transition-all placeholder:text-brand-200 dark:placeholder:text-espresso-100/30"
+            className="w-full pl-7 pr-2 py-2 border border-brand-200 dark:border-[var(--border-color)] bg-white dark:bg-[var(--card-bg)] text-[var(--text-primary)] rounded-xl text-xs focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 transition-all placeholder:text-[var(--text-muted)]"
           />
         </div>
         <select
           value={festivalFilter}
           onChange={e => setFestivalFilter(e.target.value)}
-          className="border border-brand-200 dark:border-espresso-700 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-espresso-700 text-espresso-800 dark:text-espresso-50 transition-all"
+          className="border border-brand-200 dark:border-[var(--border-color)] rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-brand-500 bg-white dark:bg-[var(--card-bg)] text-[var(--text-primary)] transition-all"
         >
           <option value="">Tất cả sự kiện</option>
           {festivalNames.map(name => <option key={name} value={name}>{name}</option>)}
@@ -72,10 +72,10 @@ export default function InventoryLogList({ logs }: Props) {
       ) : (
         <div className="space-y-2">
           {displayed.map(log => (
-            <div key={log.id} className="bg-white dark:bg-espresso-700 rounded-xl p-3 border border-brand-100 dark:border-espresso-700 shadow-card">
+            <div key={log.id} className="bg-[var(--card-bg)] rounded-xl p-3 border border-[var(--border-color)] shadow-card">
               <div className="flex justify-between items-start gap-2">
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-espresso-800 dark:text-espresso-50 truncate">{log.itemName}</p>
+                  <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{log.itemName}</p>
                   <p className="text-xs text-brand-400 truncate">{log.festivalName} · {log.submittedBy}</p>
                 </div>
                 <div className="text-right shrink-0">
