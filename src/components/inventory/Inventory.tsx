@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { Plus, X, Trash2, FileSpreadsheet, Upload, Check, ChevronDown, ChevronUp, History, Store, Tent, Package } from 'lucide-react';
+import { Button, Card } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import { getErrorMessage } from '../../lib/errors';
@@ -187,12 +188,14 @@ export default function Inventory() {
               {importing ? 'Đang import...' : 'Import'}
               <input ref={importRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleImport} />
             </label>
-            <button
-              onClick={() => { setShowAddForm(true); setExpandedId(null); }}
-              className="flex items-center gap-1.5 bg-brand-gradient text-white text-xs font-bold px-3 py-2 rounded-xl shadow-[0_2px_6px_0_rgb(124_58_237/0.30)] active:scale-95 transition-all"
+            <Button
+              onPress={() => { setShowAddForm(true); setExpandedId(null); }}
+              variant="primary"
+              size="sm"
+              className="flex items-center gap-1.5 rounded-xl"
             >
               <Plus size={14} /> Thêm
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -204,17 +207,16 @@ export default function Inventory() {
             { id: 'restaurant' as MainTab, icon: <Store size={14} />,  label: 'Nhà hàng', color: 'text-brand-600 border-brand-500' },
             { id: 'festival'   as MainTab, icon: <Tent size={14} />,   label: 'Festival',  color: 'text-herb-600 border-herb-500' },
           ]).map(t => (
-            <button
+            <Button
               key={t.id}
-              onClick={() => handleMainTabChange(t.id)}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold border-b-2 transition-colors ${
-                mainTab === t.id
-                  ? t.color
-                  : 'border-transparent text-slate-400 hover:text-brand-500'
+              onPress={() => handleMainTabChange(t.id)}
+              variant="ghost"
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold border-b-2 rounded-none h-auto transition-colors ${
+                mainTab === t.id ? t.color : 'border-transparent text-slate-400 hover:text-brand-500'
               }`}
             >
               {t.icon} {t.label}
-            </button>
+            </Button>
           ))}
         </div>
       )}
@@ -243,23 +245,19 @@ export default function Inventory() {
         ]).map(({ id, label, count }) => {
           const isActive = subTab === id;
           return (
-            <button
+            <Button
               key={id}
-              onClick={() => handleSubTabChange(id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 ${
-                isActive
-                  ? 'bg-brand-gradient text-white shadow-[0_2px_6px_0_rgb(124_58_237/0.30)] border-transparent'
-                  : 'bg-brand-50  text-brand-500 border border-brand-200 hover:border-brand-400'
-              }`}
+              onPress={() => handleSubTabChange(id)}
+              variant={isActive ? 'primary' : 'ghost'}
+              size="sm"
+              className={`flex items-center gap-1.5 rounded-full ${isActive ? 'shadow-[0_2px_6px_0_rgb(124_58_237/0.30)]' : 'border border-brand-200 hover:border-brand-400'}`}
             >
               {id === 'history' && <History size={11} />}
               {label}
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
-                isActive ? 'bg-white/25 text-white' : 'bg-brand-100 text-brand-600'
-              }`}>
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${isActive ? 'bg-white/25 text-white' : 'bg-brand-100 text-brand-600'}`}>
                 {count}
               </span>
-            </button>
+            </Button>
           );
         })}
       </div>
@@ -274,36 +272,40 @@ export default function Inventory() {
 
       {/* ── Add form ── */}
       {showAddForm && (
-        <form onSubmit={handleAddItem} className="bg-white  rounded-2xl border border-brand-200 p-4 shadow-warm space-y-3 animate-fade-in">
-          <div className="flex justify-between items-center">
-            <p className="font-bold text-slate-800 text-sm">
-              Thêm {itemLabel} — {sectionLabel}
-            </p>
-            <button
-              type="button"
-              aria-label="Đóng"
-              onClick={() => setShowAddForm(false)}
-              className="w-7 h-7 rounded-full flex items-center justify-center text-brand-400 hover:text-brand-600 hover:bg-brand-50 transition-colors"
-            >
-              <X size={15} />
-            </button>
-          </div>
+        <Card className="rounded-2xl">
+          <form onSubmit={handleAddItem} className="p-4 space-y-3 animate-fade-in">
+            <div className="flex justify-between items-center">
+              <p className="font-bold text-slate-800 text-sm">
+                Thêm {itemLabel} — {sectionLabel}
+              </p>
+              <Button
+                type="button"
+                onPress={() => setShowAddForm(false)}
+                variant="ghost"
+                isIconOnly
+                size="sm"
+                aria-label="Đóng"
+              >
+                <X size={15} />
+              </Button>
+            </div>
 
-          <FoodNameSelect value={newName} onChange={setNewName} itemType={subTab === 'equipment' ? 'equipment' : 'food'} required />
-          <NumberPicker label="Số lượng" value={newCurrent} onChange={setNewCurrent} required min={0} step={0.1} />
-          <NumberPicker label="Cảnh báo" value={newThreshold} onChange={setNewThreshold} min={0} step={0.1} placeholder="0" />
+            <FoodNameSelect value={newName} onChange={setNewName} itemType={subTab === 'equipment' ? 'equipment' : 'food'} required />
+            <NumberPicker label="Số lượng" value={newCurrent} onChange={setNewCurrent} required min={0} step={0.1} />
+            <NumberPicker label="Cảnh báo" value={newThreshold} onChange={setNewThreshold} min={0} step={0.1} placeholder="0" />
 
-          <div>
-            <label className="text-xs font-semibold text-brand-700">Đơn vị</label>
-            <select className={selectCls} value={newUnit} onChange={e => setNewUnit(e.target.value as InventoryUnit)}>
-              {unitOptions.map(u => <option key={u} value={u}>{u}</option>)}
-            </select>
-          </div>
+            <div>
+              <label className="text-xs font-semibold text-brand-700">Đơn vị</label>
+              <select className={selectCls} value={newUnit} onChange={e => setNewUnit(e.target.value as InventoryUnit)}>
+                {unitOptions.map(u => <option key={u} value={u}>{u}</option>)}
+              </select>
+            </div>
 
-          <button type="submit" className="w-full bg-brand-gradient text-white font-bold py-2.5 rounded-xl shadow-warm hover:opacity-90 active:scale-[0.98] transition-all">
-            Thêm vào kho
-          </button>
-        </form>
+            <Button type="submit" variant="primary" fullWidth className="rounded-xl">
+              Thêm vào kho
+            </Button>
+          </form>
+        </Card>
       )}
 
       {/* ── Item list ── */}
@@ -326,11 +328,12 @@ export default function Inventory() {
           return (
             <div key={item.id} className={`rounded-2xl border shadow-card overflow-hidden transition-all ${itemBg(isLow, isWarn)}`}>
               {/* Row */}
-              <button
+              <Button
+                onPress={() => isExpanded ? setExpandedId(null) : openEdit(item)}
+                variant="ghost"
                 aria-label={isExpanded ? `Đóng chỉnh sửa ${item.name}` : `Chỉnh sửa ${item.name}`}
                 aria-expanded={isExpanded}
-                className="w-full flex items-center justify-between px-4 py-3 text-left"
-                onClick={() => isExpanded ? setExpandedId(null) : openEdit(item)}
+                className="w-full flex items-center justify-between px-4 py-3 text-left h-auto rounded-none"
               >
                 <div className="flex-1 min-w-0">
                   <p className={`font-semibold text-sm ${isLow ? 'text-red-600' : 'text-slate-800'}`}>
@@ -349,7 +352,7 @@ export default function Inventory() {
                     : <ChevronDown size={14} className="text-brand-400" />
                   }
                 </div>
-              </button>
+              </Button>
 
               {/* Edit panel */}
               {isExpanded && (
@@ -371,25 +374,29 @@ export default function Inventory() {
                   </div>
 
                   <div className="flex gap-2">
-                    <button
-                      onClick={() => handleSaveEdit(item)}
-                      className="flex-1 flex items-center justify-center gap-1.5 bg-brand-gradient text-white text-sm font-bold py-2.5 rounded-xl shadow-warm hover:opacity-90 active:scale-[0.98] transition-all"
+                    <Button
+                      onPress={() => handleSaveEdit(item)}
+                      variant="primary"
+                      className="flex-1 flex items-center justify-center gap-1.5 rounded-xl"
                     >
                       <Check size={14} /> Lưu
-                    </button>
-                    <button
-                      onClick={() => setExpandedId(null)}
-                      className="flex-1 bg-brand-50 text-brand-600 text-sm font-semibold py-2.5 rounded-xl border border-brand-200 hover:bg-brand-100 active:scale-[0.98] transition-all"
+                    </Button>
+                    <Button
+                      onPress={() => setExpandedId(null)}
+                      variant="ghost"
+                      className="flex-1 rounded-xl border border-brand-200"
                     >
                       Hủy
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      onPress={() => handleDelete(item)}
+                      variant="danger-soft"
+                      isIconOnly
+                      className="px-3 rounded-xl"
                       aria-label={`Xóa ${item.name}`}
-                      onClick={() => handleDelete(item)}
-                      className="px-3 bg-red-50 text-red-500 rounded-xl border border-red-200 hover:bg-red-100 active:scale-95 transition-all"
                     >
                       <Trash2 size={15} />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}

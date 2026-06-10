@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { LogOut, Bell, X, BellPlus, Download, Smartphone, UtensilsCrossed } from 'lucide-react';
+import { Button } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
 import { usePushNotifications } from '../../hooks/usePushNotifications';
@@ -85,9 +86,9 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
 
           {/* Install */}
           <div className="relative" ref={installRef}>
-            <button onClick={handleInstallClick} className={iconBtn} aria-label="Cài đặt ứng dụng">
+            <Button onPress={handleInstallClick} variant="ghost" isIconOnly size="sm" className="rounded-full" aria-label="Cài đặt ứng dụng">
               <Download size={16} />
-            </button>
+            </Button>
             {showInstallModal && (
               <InstallDropdown isStandalone={isStandalone} isIos={isIos} onClose={() => setShowInstallModal(false)} />
             )}
@@ -96,9 +97,12 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
           {/* Notifications — admin/manager */}
           {(isAdmin || isManager) && (
             <div className="relative" ref={notifRef}>
-              <button
-                onClick={() => setShowNotifDropdown(v => !v)}
-                className={`${iconBtn} relative`}
+              <Button
+                onPress={() => setShowNotifDropdown(v => !v)}
+                variant="ghost"
+                isIconOnly
+                size="sm"
+                className="rounded-full relative"
                 aria-label="Thông báo"
               >
                 <Bell size={16} />
@@ -107,7 +111,7 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
                     {notifications.length > 9 ? '9+' : notifications.length}
                   </span>
                 )}
-              </button>
+              </Button>
               {showNotifDropdown && (
                 <NotifDropdown
                   notifications={notifications}
@@ -125,23 +129,26 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
                 <Bell size={16} className="text-herb-500" />
               </div>
             ) : (
-              <button onClick={subscribe} disabled={pushLoading} className={`${iconBtn} relative`} aria-label="Bật thông báo đẩy">
+              <Button onPress={subscribe} isDisabled={pushLoading} variant="ghost" isIconOnly size="sm" className="rounded-full relative" aria-label="Bật thông báo đẩy">
                 {pushLoading
                   ? <span className="w-4 h-4 border-2 border-brand-400 border-t-transparent rounded-full animate-spin" />
                   : <><BellPlus size={16} /><span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-indigo-500 rounded-full border-2 border-white" /></>
                 }
-              </button>
+              </Button>
             )
           )}
 
           {/* Logout */}
-          <button
-            onClick={onLogout}
-            className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-150 text-red-500 bg-red-50 hover:bg-red-100 active:scale-95"
+          <Button
+            onPress={onLogout}
+            variant="danger-soft"
+            isIconOnly
+            size="sm"
+            className="rounded-full"
             aria-label="Đăng xuất"
           >
             <LogOut size={16} />
-          </button>
+          </Button>
         </div>
       </div>
     </header>
@@ -160,7 +167,7 @@ function InstallDropdown({ isStandalone, isIos, onClose }: { isStandalone: boole
             {isStandalone ? 'Đã cài đặt' : 'Cài FestManager'}
           </p>
         </div>
-        <button onClick={onClose} className="text-slate-300 hover:text-slate-500"><X size={15} /></button>
+        <Button onPress={onClose} variant="ghost" isIconOnly size="sm"><X size={15} /></Button>
       </div>
       {isStandalone ? (
         <p className="text-sm text-brand-600">FestManager đã được cài trên thiết bị của bạn 🎉</p>
@@ -196,9 +203,9 @@ function NotifDropdown({
           Thông báo {notifications.length > 0 && `(${notifications.length})`}
         </p>
         {notifications.length > 0 && (
-          <button onClick={onClearAll} className="text-xs text-red-500 hover:text-red-600 font-medium">
+          <Button onPress={onClearAll} variant="ghost" size="sm" className="text-xs text-red-500">
             Xóa tất cả
-          </button>
+          </Button>
         )}
       </div>
       <div className="max-h-72 overflow-y-auto">
@@ -212,9 +219,9 @@ function NotifDropdown({
                 <p className="text-sm text-slate-800 leading-snug">{n.message}</p>
                 <p className="text-xs text-slate-400 mt-0.5">{n.timestamp}</p>
               </div>
-              <button onClick={() => onClearOne(n.id)} className="shrink-0 text-slate-300 hover:text-slate-500 mt-0.5">
+              <Button onPress={() => onClearOne(n.id)} variant="ghost" isIconOnly size="sm" className="shrink-0 mt-0.5">
                 <X size={14} />
-              </button>
+              </Button>
             </div>
           ))
         )}

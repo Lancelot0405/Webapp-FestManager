@@ -7,7 +7,7 @@ import { X } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { computeEventStatus } from '../../lib/eventStatus';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { Button as HeroButton } from '@heroui/react';
 import type { FestivalEvent } from '../../types';
 
 interface AddEventFormProps {
@@ -61,9 +61,9 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
         <div className="px-5 pt-5 pb-[calc(env(safe-area-inset-bottom,0px)+80px)] overflow-y-auto overflow-x-hidden max-h-[85vh]">
           <div className="flex justify-between items-center mb-5">
             <h2 className="text-base font-bold text-slate-800">Thêm sự kiện mới</h2>
-            <button onClick={onClose} aria-label="Đóng" className="w-8 h-8 flex items-center justify-center rounded-full bg-brand-50 text-slate-500 hover:bg-brand-100 transition-colors">
+            <HeroButton onPress={onClose} variant="ghost" isIconOnly size="sm" className="rounded-full" aria-label="Đóng">
               <X size={16} />
-            </button>
+            </HeroButton>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -115,7 +115,7 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
                 required
               />
             </div>
-            <Button type="submit" className="w-full">Tạo sự kiện</Button>
+            <HeroButton type="submit" variant="primary" fullWidth className="rounded-xl">Tạo sự kiện</HeroButton>
           </form>
         </div>
       </DialogContent>

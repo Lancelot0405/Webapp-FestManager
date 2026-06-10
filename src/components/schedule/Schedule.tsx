@@ -4,6 +4,7 @@
 
 import { useState } from 'react';
 import { Plus, Trash2, Search } from 'lucide-react';
+import { Button, Card } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
 import AddEventForm from './AddEventForm';
@@ -72,13 +73,10 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold text-slate-800">Lịch sự kiện</h1>
         {isAdmin && (
-          <button
-            onClick={() => setShowAddForm(true)}
-            className="flex items-center gap-1 bg-brand-500 text-white text-sm font-semibold px-3 py-2 rounded-lg"
-          >
+          <Button onPress={() => setShowAddForm(true)} variant="primary" size="sm" className="flex items-center gap-1 rounded-lg">
             <Plus size={16} />
             Thêm sự kiện
-          </button>
+          </Button>
         )}
       </div>
 
@@ -97,17 +95,15 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
       {/* Status filter pills */}
       <div className="flex flex-wrap gap-1.5">
         {STATUS_FILTERS.map(s => (
-          <button
+          <Button
             key={s}
-            onClick={() => setStatusFilter(s)}
-            className={`px-3 py-1 rounded-full text-xs font-semibold transition ${
-              statusFilter === s
-                ? 'bg-brand-500 text-white'
-                : 'bg-brand-50 text-slate-600 hover:bg-brand-100'
-            }`}
+            onPress={() => setStatusFilter(s)}
+            variant={statusFilter === s ? 'primary' : 'ghost'}
+            size="sm"
+            className="rounded-full"
           >
             {s}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -156,9 +152,9 @@ function EventCard({
     : event.date;
 
   return (
-    <div className="bg-white rounded-xl shadow-card border border-slate-100 hover:border-brand-300 transition-colors flex items-stretch">
-      <button onClick={onSelect} className="flex-1 text-left p-4 min-w-0">
-        <div className="flex justify-between items-start gap-2">
+    <Card className="rounded-xl overflow-hidden flex items-stretch">
+      <Button onPress={onSelect} variant="ghost" className="flex-1 text-left p-4 min-w-0 h-auto rounded-none justify-start">
+        <div className="flex justify-between items-start gap-2 w-full">
           <div className="flex-1 min-w-0">
             <p className="font-semibold text-slate-800 truncate">{event.name}</p>
             <p className="text-xs text-slate-500 mt-0.5">{dateDisplay}</p>
@@ -167,15 +163,16 @@ function EventCard({
           </div>
           <StatusBadge status={event.status} />
         </div>
-      </button>
+      </Button>
       {isAdmin && (
-        <button
-          onClick={onDelete}
-          className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-slate-100 transition-colors rounded-r-xl"
+        <Button
+          onPress={onDelete}
+          variant="ghost"
+          className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-slate-100 rounded-r-xl rounded-l-none"
         >
           <Trash2 size={16} />
-        </button>
+        </Button>
       )}
-    </div>
+    </Card>
   );
 }
