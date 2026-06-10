@@ -1,3 +1,4 @@
+import { Button } from '@heroui/react';
 import {
   LayoutDashboard,
   Calendar,
@@ -72,21 +73,23 @@ export default function Sidebar({ activeTab, onTabChange, onLogoClick }: Sidebar
         {tabs.map(({ tab, icon, label }) => {
           const isActive = activeTab === tab;
           return (
-            <button
+            <Button
               key={tab}
-              onClick={() => onTabChange(tab)}
+              variant={isActive ? 'primary' : 'ghost'}
+              onPress={() => onTabChange(tab)}
               aria-current={isActive ? 'page' : undefined}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 active:scale-[0.98] ${
+              fullWidth
+              className={`flex items-center gap-3 px-3 py-2.5 justify-start text-sm font-semibold h-auto rounded-xl ${
                 isActive
                   ? 'bg-brand-gradient text-white shadow-[0_2px_8px_0_rgb(124_58_237/0.30)]'
-                  : 'text-slate-500 hover:bg-brand-50'
+                  : 'text-slate-500'
               }`}
             >
               <span className={isActive ? 'text-white' : 'text-brand-400'}>
                 {icon}
               </span>
               {label}
-            </button>
+            </Button>
           );
         })}
       </nav>

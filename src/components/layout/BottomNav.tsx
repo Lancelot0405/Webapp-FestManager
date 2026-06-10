@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Button } from '@heroui/react';
 import {
   LayoutDashboard,
   Calendar,
@@ -75,11 +76,13 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
         {tabs.map(({ tab, icon, label }) => {
           const isActive = activeTab === tab;
           return (
-            <button
+            <Button
               key={tab}
-              onClick={() => onTabChange(tab)}
-              className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl transition-all duration-150 min-w-0 flex-1 active:scale-95"
+              variant="ghost"
+              onPress={() => onTabChange(tab)}
               aria-current={isActive ? 'page' : undefined}
+              aria-label={label}
+              className="flex flex-col items-center gap-0.5 px-2 py-1 min-w-0 flex-1 h-auto rounded-xl"
             >
               <div className={`p-1.5 rounded-xl transition-all duration-150 ${
                 isActive
@@ -95,7 +98,7 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
               }`}>
                 {label}
               </span>
-            </button>
+            </Button>
           );
         })}
       </div>

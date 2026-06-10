@@ -1,3 +1,4 @@
+import { Card } from '@heroui/react';
 import { FileText } from 'lucide-react';
 
 interface Props {
@@ -17,19 +18,27 @@ export default function DocThumbnail({ url, fileName, className = '' }: Props) {
         <img
           src={url}
           alt={fileName ?? 'Tài liệu'}
-          className="w-full rounded-lg object-cover border border-gray-200 hover:opacity-90 transition"
+          className="w-full rounded-lg object-cover hover:opacity-90 transition"
           style={{ maxHeight: 160 }}
         />
       </a>
     );
   }
 
-  // PDF hoặc file khác
   return (
-    <a href={url} target="_blank" rel="noreferrer"
-      className={`flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 hover:border-blue-300 transition ${className}`}>
-      <FileText size={16} className="text-blue-500 shrink-0" />
-      <span className="text-xs text-gray-700 truncate">{fileName ?? 'Xem tài liệu'}</span>
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      className={`flex items-center gap-2 no-underline ${className}`}
+    >
+      <Card
+        variant="secondary"
+        className="flex items-center gap-2 px-3 py-2.5 w-full hover:border-primary-400 transition"
+      >
+        <FileText size={16} className="text-primary-500 shrink-0" />
+        <span className="text-xs text-default-700 truncate">{fileName ?? 'Xem tài liệu'}</span>
+      </Card>
     </a>
   );
 }
