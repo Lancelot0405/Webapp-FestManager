@@ -78,8 +78,15 @@ Mỗi phase ưu tiên hoàn thiện trải nghiệm mobile (bottom nav, safe-are
 
 ---
 
-## 🔜 Phase 4 — Schedule + Inventory + Header
-**Trạng thái:** CHƯA BẮT ĐẦU
+## ✅ Phase 4 — Schedule + Inventory + Header
+**Trạng thái:** HOÀN THÀNH  
+**Commit:** `c97a846`
+
+### Đã làm:
+- `Header.tsx`: icon buttons (install/bell/push-subscribe/logout) → `Button isIconOnly`, dropdown actions → `Button`
+- `Schedule.tsx`: "Thêm sự kiện" + filter pills → `Button`, `EventCard` div → `Card`, select/delete → `Button`
+- `AddEventForm.tsx`: close + submit → `Button` HeroUI trực tiếp (bỏ shadcn `@/components/ui/button` wrapper)
+- `Inventory.tsx`: add/main-tab/sub-tab/save/cancel/delete/toggle-row → `Button`, add-form container → `Card`; giữ nguyên `<label>` file input
 
 ---
 
