@@ -26,18 +26,18 @@
 - [x] `src/components/ui/tabs.tsx` — **Tạo mới**: HeroUI Tabs wrapper với items API
 
 ### Phase 3 — Page Components
-- [ ] `src/components/dashboard/Dashboard.tsx` — Card, Table
-- [ ] `src/components/schedule/Schedule.tsx` — Card, Chip filters
-- [ ] `src/components/schedule/EventDetail.tsx` — Tabs
-- [ ] `src/components/schedule/AddEventForm.tsx` — Input, Button
-- [ ] `src/components/schedule/tabs/*.tsx` — Card, Input
-- [ ] `src/components/hr/HRGlobal.tsx` — Card, Chip
-- [ ] `src/components/hr/AddStaffForm.tsx` — Input, Select, ButtonGroup
-- [ ] `src/components/hr/StaffProfile.tsx` — Card, Input
-- [ ] `src/components/finance/Finance.tsx` — Card, Table, Button
-- [ ] `src/components/inventory/Inventory.tsx` — Tabs, Accordion
-- [ ] `src/components/inventory/NumberPicker.tsx` — Input +/- 
-- [ ] `src/components/clients/Clients.tsx` — Card, Input, Textarea
+- [x] `src/components/dashboard/Dashboard.tsx` — Đã dùng HeroUI Card/Button, giữ nguyên layout divs
+- [x] `src/components/schedule/Schedule.tsx` — Input wrapper cho search
+- [x] `src/components/schedule/EventDetail.tsx` — HeroUI Button thay raw button, tabs dùng Button với border-b-2
+- [x] `src/components/schedule/AddEventForm.tsx` — Input wrapper cho tất cả form fields
+- [x] `src/components/hr/HRGlobal.tsx` — Input wrapper, fix Chip→Button, raw button→HeroUI Button
+- [x] `src/components/hr/AddStaffForm.tsx` — Input wrapper, close button→HeroUI Button
+- [x] `src/components/finance/Finance.tsx` — Input wrapper cho edit form
+- [x] `src/components/inventory/Inventory.tsx` — NativeSelect thay raw select
+- [x] `src/components/inventory/NumberPicker.tsx` — HeroUI Button + Input wrapper
+- [x] `src/components/clients/Clients.tsx` — Input wrapper, remove Field helper
+- [ ] `src/components/schedule/tabs/*.tsx` — (defer to next phase nếu cần)
+- [ ] `src/components/hr/StaffProfile.tsx` — (defer: quá phức tạp, 600+ lines)
 
 ### Phase 4 — PWA & Responsive Polish
 - [ ] Safe area: `classNames={{ base: "pt-safe" }}` trên Navbar

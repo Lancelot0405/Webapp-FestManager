@@ -4,6 +4,7 @@
 
 import { useState, lazy, Suspense } from 'react';
 import { ArrowLeft, Trash2, Download, Copy } from 'lucide-react';
+import { Button } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 // Lazy-load: @react-pdf/renderer rất nặng, chỉ tải khi mở chi tiết sự kiện.
@@ -55,11 +56,9 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
 
   const handleExport = async () => {
     if (!event) return;
-    // Tải xlsx động — chỉ nạp khi người dùng thực sự export.
     const XLSX = await import('xlsx');
     const wb = XLSX.utils.book_new();
 
-    // Sheet 1: Event info
     const expTotal = Object.values(event.financials.expenses).reduce<number>((s, v) => s + (v ?? 0), 0);
     const infoRows = [
       { 'Thông tin': 'Tên sự kiện', 'Giá trị': event.name },
@@ -73,7 +72,6 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
     ];
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(infoRows), 'Thông tin');
 
-    // Sheet 2: Expenses
     if (event.receipts.length > 0) {
       const expRows = event.receipts.map(r => ({
         'Nhân viên': r.staffName,
@@ -93,7 +91,9 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
     return (
       <div className="text-center py-20 text-espresso-400">
         <p>Không tìm thấy sự kiện</p>
-        <button onClick={onBack} className="mt-4 text-brand-600 text-sm">Quay lại</button>
+        <Button onPress={onBack} variant="ghost" size="sm" className="mt-4 text-brand-600">
+          Quay lại
+        </Button>
       </div>
     );
   }
@@ -102,41 +102,57 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
     <div className="pb-6">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
-        <button onClick={onBack} aria-label="Quay lại" className="p-1 text-espresso-500 hover:text-espresso-700 dark:text-brand-300 dark:hover:text-gray-200">
+        <Button
+          onPress={onBack}
+          variant="ghost"
+          isIconOnly
+          size="sm"
+          aria-label="Quay lại"
+          className="text-espresso-500 hover:text-espresso-700 dark:text-brand-300 dark:hover:text-gray-200"
+        >
           <ArrowLeft size={22} />
-        </button>
+        </Button>
         <div className="min-w-0 flex-1">
           <h1 className="font-bold text-espresso-800 dark:text-espresso-50 text-lg truncate">{event.name}</h1>
           <p className="text-xs text-espresso-500 dark:text-brand-300">{event.date} · {event.location}</p>
         </div>
         {isAdmin && (
           <div className="flex items-center gap-1 shrink-0">
-            <button
-              onClick={handleExport}
-              className="p-2 text-brand-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
-              aria-label="Xuất Excel" title="Xuất Excel"
+            <Button
+              onPress={handleExport}
+              variant="ghost"
+              isIconOnly
+              size="sm"
+              className="text-brand-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg"
+              aria-label="Xuất Excel"
             >
               <Download size={18} />
-            </button>
+            </Button>
             <Suspense fallback={
               <span className="px-3 py-1.5 text-sm text-espresso-400">PDF…</span>
             }>
               <EventPDFExport event={event} />
             </Suspense>
-            <button
-              onClick={handleClone}
-              className="p-2 text-herb-500 hover:text-herb-600 hover:bg-herb-50 rounded-lg transition-colors"
-              aria-label="Nhân bản sự kiện" title="Nhân bản sự kiện"
+            <Button
+              onPress={handleClone}
+              variant="ghost"
+              isIconOnly
+              size="sm"
+              className="text-herb-500 hover:text-herb-600 hover:bg-herb-50 rounded-lg"
+              aria-label="Nhân bản sự kiện"
             >
               <Copy size={18} />
-            </button>
-            <button
-              onClick={handleDelete}
-              className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-              aria-label="Xóa sự kiện" title="Xóa sự kiện"
+            </Button>
+            <Button
+              onPress={handleDelete}
+              variant="ghost"
+              isIconOnly
+              size="sm"
+              className="text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
+              aria-label="Xóa sự kiện"
             >
               <Trash2 size={18} />
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -144,17 +160,19 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
       {/* Tabs */}
       <div className="flex border-b border-brand-200 dark:border-espresso-700 mb-4 overflow-x-auto">
         {TABS.map(tab => (
-          <button
+          <Button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors ${
+            onPress={() => setActiveTab(tab.id)}
+            variant="ghost"
+            size="sm"
+            className={`px-4 py-2 text-sm font-semibold whitespace-nowrap border-b-2 rounded-none h-auto transition-colors ${
               activeTab === tab.id
                 ? 'border-brand-500 text-brand-600'
                 : 'border-transparent text-espresso-500 dark:text-brand-300 hover:text-espresso-700 dark:hover:text-gray-200'
             }`}
           >
             {tab.label}
-          </button>
+          </Button>
         ))}
       </div>
 

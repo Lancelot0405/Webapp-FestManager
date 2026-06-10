@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import { TrendingUp, TrendingDown, DollarSign, FileSpreadsheet, Pencil, Check, X } from 'lucide-react';
 import { Button, Card } from '@heroui/react';
+import { Input } from '@/components/ui/input';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
 import type { ExpenseStatus, FestivalEvent } from '../../types';
@@ -319,51 +320,36 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
                 {isEditing ? (
                   <div className="space-y-2 mt-2">
                     <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="text-xs text-slate-400">Doanh thu (€)</label>
-                        <input
-                          type="number"
-                          value={editIncome}
-                          onChange={e => setEditIncome(Number(e.target.value))}
-                          className="w-full border border-brand-200 rounded-lg px-2 py-1.5 text-sm mt-0.5"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs text-slate-400">Chi phí - Booth (€)</label>
-                        <input
-                          type="number"
-                          value={editRent}
-                          onChange={e => setEditRent(Number(e.target.value))}
-                          className="w-full border border-brand-200 rounded-lg px-2 py-1.5 text-sm mt-0.5"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs text-slate-400">Chi phí - Nguyên liệu (€)</label>
-                        <input
-                          type="number"
-                          value={editIngredients}
-                          onChange={e => setEditIngredients(Number(e.target.value))}
-                          className="w-full border border-brand-200 rounded-lg px-2 py-1.5 text-sm mt-0.5"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs text-slate-400">Chi phí - Vận chuyển (€)</label>
-                        <input
-                          type="number"
-                          value={editTransport}
-                          onChange={e => setEditTransport(Number(e.target.value))}
-                          className="w-full border border-brand-200 rounded-lg px-2 py-1.5 text-sm mt-0.5"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs text-slate-400">Chi phí - Lương (€)</label>
-                        <input
-                          type="number"
-                          value={editStaff}
-                          onChange={e => setEditStaff(Number(e.target.value))}
-                          className="w-full border border-brand-200 rounded-lg px-2 py-1.5 text-sm mt-0.5"
-                        />
-                      </div>
+                      <Input
+                        label="Doanh thu (€)"
+                        type="number"
+                        value={String(editIncome)}
+                        onChange={e => setEditIncome(Number(e.target.value))}
+                      />
+                      <Input
+                        label="Chi phí - Booth (€)"
+                        type="number"
+                        value={String(editRent)}
+                        onChange={e => setEditRent(Number(e.target.value))}
+                      />
+                      <Input
+                        label="Chi phí - Nguyên liệu (€)"
+                        type="number"
+                        value={String(editIngredients)}
+                        onChange={e => setEditIngredients(Number(e.target.value))}
+                      />
+                      <Input
+                        label="Chi phí - Vận chuyển (€)"
+                        type="number"
+                        value={String(editTransport)}
+                        onChange={e => setEditTransport(Number(e.target.value))}
+                      />
+                      <Input
+                        label="Chi phí - Lương (€)"
+                        type="number"
+                        value={String(editStaff)}
+                        onChange={e => setEditStaff(Number(e.target.value))}
+                      />
                     </div>
                     <div className="flex gap-2 mt-2">
                       <Button

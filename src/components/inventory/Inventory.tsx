@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { Plus, X, Trash2, FileSpreadsheet, Upload, Check, ChevronDown, ChevronUp, History, Store, Tent, Package } from 'lucide-react';
 import { Button, Card } from '@heroui/react';
+import { NativeSelect } from '@/components/ui/select';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import { getErrorMessage } from '../../lib/errors';
@@ -165,11 +166,6 @@ export default function Inventory() {
     warn ? 'bg-indigo-50  border-indigo-200' :
            'bg-white  border-brand-100';
 
-  const selectCls =
-    'mt-1 w-full border border-brand-200 bg-white  ' +
-    'text-slate-800 rounded-xl px-3 py-2.5 focus:outline-none ' +
-    'focus:ring-2 focus:ring-brand-200 focus:border-brand-500 transition-all';
-
   return (
     <div className="space-y-4 pb-20">
 
@@ -294,12 +290,13 @@ export default function Inventory() {
             <NumberPicker label="Số lượng" value={newCurrent} onChange={setNewCurrent} required min={0} step={0.1} />
             <NumberPicker label="Cảnh báo" value={newThreshold} onChange={setNewThreshold} min={0} step={0.1} placeholder="0" />
 
-            <div>
-              <label className="text-xs font-semibold text-brand-700">Đơn vị</label>
-              <select className={selectCls} value={newUnit} onChange={e => setNewUnit(e.target.value as InventoryUnit)}>
-                {unitOptions.map(u => <option key={u} value={u}>{u}</option>)}
-              </select>
-            </div>
+            <NativeSelect
+              label="Đơn vị"
+              value={newUnit}
+              onChange={e => setNewUnit(e.target.value as InventoryUnit)}
+            >
+              {unitOptions.map(u => <option key={u} value={u}>{u}</option>)}
+            </NativeSelect>
 
             <Button type="submit" variant="primary" fullWidth className="rounded-xl">
               Thêm vào kho
@@ -366,12 +363,13 @@ export default function Inventory() {
                   <NumberPicker label="Số lượng" value={editQty} onChange={setEditQty} required min={0} step={0.1} />
                   <NumberPicker label="Cảnh báo" value={editThreshold} onChange={setEditThreshold} min={0} step={0.1} placeholder="0" />
 
-                  <div>
-                    <label className="text-xs font-semibold text-brand-700">Đơn vị</label>
-                    <select className={selectCls} value={editUnit} onChange={e => setEditUnit(e.target.value as InventoryUnit)}>
-                      {currentUnitOpts.map(u => <option key={u} value={u}>{u}</option>)}
-                    </select>
-                  </div>
+                  <NativeSelect
+                    label="Đơn vị"
+                    value={editUnit}
+                    onChange={e => setEditUnit(e.target.value as InventoryUnit)}
+                  >
+                    {currentUnitOpts.map(u => <option key={u} value={u}>{u}</option>)}
+                  </NativeSelect>
 
                   <div className="flex gap-2">
                     <Button

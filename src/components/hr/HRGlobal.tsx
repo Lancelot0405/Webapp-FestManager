@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Plus, User, Trash2, Search, ShieldCheck, Check, X } from 'lucide-react';
-import { Button, Card, Chip } from '@heroui/react';
+import { Button, Card } from '@heroui/react';
+import { Input } from '@/components/ui/input';
 import { useApp } from '../../context/AppContext';
 import AddStaffForm from './AddStaffForm';
 import { SkeletonList } from '@/components/ui/skeleton';
@@ -63,9 +64,10 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
           key={s.id}
           className="border border-slate-100 hover:border-brand-300 transition-colors flex flex-row items-stretch shadow-card rounded-xl overflow-hidden"
         >
-          <button
-            onClick={() => onSelectStaff(String(s.id))}
-            className="flex-1 text-left p-4 min-w-0"
+          <Button
+            onPress={() => onSelectStaff(String(s.id))}
+            variant="ghost"
+            className="flex-1 text-left p-4 min-w-0 h-auto rounded-none justify-start"
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center shrink-0">
@@ -80,7 +82,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
                 <p className="text-xs text-slate-400">{s.contracts.length} hợp đồng</p>
               </div>
             </div>
-          </button>
+          </Button>
           {isAdmin && (
             <Button
               isIconOnly
@@ -176,31 +178,26 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
       )}
 
       {/* Search */}
-      <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-          <Search size={15} />
-        </span>
-        <input
-          className="w-full pl-9 pr-4 py-2.5 border border-brand-200 rounded-xl text-sm text-slate-800 bg-white focus:outline-none focus:border-brand-400 placeholder:text-slate-300 transition-all"
-          placeholder="Tìm theo tên hoặc thành phố..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
-      </div>
+      <Input
+        placeholder="Tìm theo tên hoặc thành phố..."
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        icon={<Search size={15} />}
+      />
 
       {/* Type filter pills */}
       {canViewAll && (
         <div className="flex gap-1.5">
           {(['Tất cả', 'Nhân viên cứng', 'Part-time'] as TypeFilter[]).map(t => (
-            <Chip
+            <Button
               key={t}
-              variant={typeFilter === t ? 'soft' : undefined}
-              color={typeFilter === t ? 'default' : 'default'}
-              onClick={() => setTypeFilter(t)}
-              className="cursor-pointer text-xs font-semibold"
+              onPress={() => setTypeFilter(t)}
+              variant={typeFilter === t ? 'primary' : 'ghost'}
+              size="sm"
+              className="rounded-full text-xs"
             >
               {t}
-            </Chip>
+            </Button>
           ))}
         </div>
       )}

@@ -4,7 +4,9 @@ import { useApp } from '../../context/AppContext';
 import { adminApi } from '../../lib/adminApi';
 import { useToast } from '../../context/ToastContext';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Button as HeroButton } from '@heroui/react';
 import type { StaffMember, StaffType, UserRole, UserDepartment } from '../../types';
 
 const DOMAIN = '@fm.com';
@@ -79,21 +81,18 @@ export default function AddStaffForm({ onClose }: Props) {
       <div className="px-5 pt-5 pb-[calc(env(safe-area-inset-bottom,0px)+80px)] max-h-[90vh] overflow-y-auto overflow-x-hidden">
         <div className="flex justify-between items-center mb-5">
           <p className="text-base font-bold text-espresso-800 dark:text-espresso-50">Thêm nhân viên mới</p>
-          <button onClick={onClose} aria-label="Đóng" className="w-8 h-8 flex items-center justify-center rounded-full bg-brand-50 dark:bg-espresso-700 text-espresso-500 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-espresso-600 transition-colors">
+          <HeroButton onPress={onClose} variant="ghost" isIconOnly size="sm" className="rounded-full" aria-label="Đóng">
             <X size={16} />
-          </button>
+          </HeroButton>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="text-xs font-semibold text-espresso-600 dark:text-brand-300 mb-1 block">Tên *</label>
-            <input
-              required
-              className="w-full px-3 py-2.5 border border-brand-200 dark:border-espresso-600 rounded-xl text-sm text-espresso-800 dark:text-espresso-50 bg-white dark:bg-espresso-700 focus:outline-none focus:border-brand-400 dark:focus:border-brand-400 placeholder:text-slate-300 dark:placeholder:text-gray-500 transition-all"
-              placeholder="Nguyễn Văn A"
-              value={name}
-              onChange={e => setName(e.target.value)}
-            />
-          </div>
+          <Input
+            label="Tên *"
+            placeholder="Nguyễn Văn A"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            required
+          />
 
           <div>
             <label className="text-xs font-semibold text-espresso-600 dark:text-brand-300 mb-1 block">
@@ -182,28 +181,20 @@ export default function AddStaffForm({ onClose }: Props) {
             </div>
           )}
 
-          <div>
-            <label className="text-xs font-semibold text-espresso-600 dark:text-brand-300 mb-1 block">Ngày sinh</label>
-            <div className="overflow-hidden rounded-xl">
-              <input
-                type="date"
-                className="border border-brand-200 dark:border-espresso-600 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-400 transition-all"
-                value={dob}
-                onChange={e => setDob(e.target.value)}
-              />
-            </div>
-          </div>
+          <Input
+            label="Ngày sinh"
+            type="date"
+            value={dob}
+            onChange={e => setDob(e.target.value)}
+          />
 
-          <div>
-            <label className="text-xs font-semibold text-espresso-600 dark:text-brand-300 mb-1 block">Thành phố *</label>
-            <input
-              required
-              className="w-full px-3 py-2.5 border border-brand-200 dark:border-espresso-600 rounded-xl text-sm text-espresso-800 dark:text-espresso-50 bg-white dark:bg-espresso-700 focus:outline-none focus:border-brand-400 dark:focus:border-brand-400 placeholder:text-slate-300 dark:placeholder:text-gray-500 transition-all"
-              placeholder="Paris"
-              value={city}
-              onChange={e => setCity(e.target.value)}
-            />
-          </div>
+          <Input
+            label="Thành phố *"
+            placeholder="Paris"
+            value={city}
+            onChange={e => setCity(e.target.value)}
+            required
+          />
 
           <div>
             <label className="text-xs font-semibold text-espresso-600 dark:text-brand-300 mb-1 block">Loại nhân viên</label>

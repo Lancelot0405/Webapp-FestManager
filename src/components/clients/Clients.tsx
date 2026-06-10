@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Plus, X, Pencil, Trash2, Phone, Mail, MapPin, Building2, Check, Search } from 'lucide-react';
 import { Button, Card } from '@heroui/react';
+import { Input } from '@/components/ui/input';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import type { Client } from '../../types';
@@ -76,15 +77,12 @@ export default function Clients() {
         </Button>
       </div>
 
-      <div className="relative">
-        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-300" />
-        <input
-          className="w-full pl-9 pr-3 py-2 border border-brand-200 dark:border-espresso-700 dark:bg-espresso-800 dark:text-espresso-50 dark:placeholder-gray-500 rounded-xl text-sm bg-white"
-          placeholder="Tìm kiếm khách hàng..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
-      </div>
+      <Input
+        placeholder="Tìm kiếm khách hàng..."
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        icon={<Search size={15} />}
+      />
 
       {showForm && (
         <Card className="rounded-xl p-4">
@@ -93,26 +91,22 @@ export default function Clients() {
             <Button onPress={() => { setShowForm(false); resetForm(); }} variant="ghost" isIconOnly size="sm"><X size={16} /></Button>
           </div>
           <form onSubmit={handleSubmit} className="space-y-2.5">
-            <Field label="Tên tổ chức *">
-              <input required className="form-input" placeholder="Tên ban tổ chức / công ty" value={fName} onChange={e => setFName(e.target.value)} />
-            </Field>
-            <Field label="Người liên hệ">
-              <input className="form-input" placeholder="Họ tên người phụ trách" value={fContactName} onChange={e => setFContactName(e.target.value)} />
-            </Field>
+            <Input label="Tên tổ chức *" required placeholder="Tên ban tổ chức / công ty" value={fName} onChange={e => setFName(e.target.value)} />
+            <Input label="Người liên hệ" placeholder="Họ tên người phụ trách" value={fContactName} onChange={e => setFContactName(e.target.value)} />
             <div className="grid grid-cols-2 gap-2">
-              <Field label="Số điện thoại">
-                <input className="form-input" type="tel" placeholder="+33..." value={fPhone} onChange={e => setFPhone(e.target.value)} />
-              </Field>
-              <Field label="Email">
-                <input className="form-input" type="email" placeholder="email@..." value={fEmail} onChange={e => setFEmail(e.target.value)} />
-              </Field>
+              <Input label="Số điện thoại" type="tel" placeholder="+33..." value={fPhone} onChange={e => setFPhone(e.target.value)} />
+              <Input label="Email" type="email" placeholder="email@..." value={fEmail} onChange={e => setFEmail(e.target.value)} />
             </div>
-            <Field label="Thành phố">
-              <input className="form-input" placeholder="Paris" value={fCity} onChange={e => setFCity(e.target.value)} />
-            </Field>
-            <Field label="Ghi chú">
-              <textarea className="form-input resize-none h-16" placeholder="Thông tin thêm..." value={fNotes} onChange={e => setFNotes(e.target.value)} />
-            </Field>
+            <Input label="Thành phố" placeholder="Paris" value={fCity} onChange={e => setFCity(e.target.value)} />
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium text-[var(--text-primary)]">Ghi chú</label>
+              <textarea
+                className="h-9 w-full rounded-md border border-[var(--border-color)] bg-transparent px-3 py-1 text-base text-[var(--text-primary)] shadow-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-none h-16"
+                placeholder="Thông tin thêm..."
+                value={fNotes}
+                onChange={e => setFNotes(e.target.value)}
+              />
+            </div>
             <Button type="submit" variant="primary" fullWidth className="rounded-lg">
               {editingId ? 'Lưu thay đổi' : 'Thêm khách hàng'}
             </Button>
@@ -171,11 +165,3 @@ export default function Clients() {
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <label className="text-xs font-medium text-brand-600 dark:text-brand-300 mb-1 block">{label}</label>
-      {children}
-    </div>
-  );
-}

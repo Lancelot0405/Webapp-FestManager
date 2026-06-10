@@ -7,6 +7,7 @@ import { X } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { computeEventStatus } from '../../lib/eventStatus';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { Button as HeroButton } from '@heroui/react';
 import type { FestivalEvent } from '../../types';
 
@@ -51,10 +52,6 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
     onClose();
   };
 
-  const inputClass =
-    'w-full max-w-full border border-brand-200 bg-white text-slate-800 placeholder:text-slate-300 ' +
-    'rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-400 transition-all';
-
   return (
     <Dialog open onOpenChange={open => !open && onClose()}>
       <DialogContent position="bottom" className="w-full max-w-md bg-white overflow-hidden">
@@ -66,55 +63,39 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
             </HeroButton>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="text-xs font-semibold text-slate-700 mb-1 block">Tên sự kiện *</label>
-              <input
-                className={inputClass}
-                placeholder="Nhập tên sự kiện..."
-                value={name}
-                onChange={e => setName(e.target.value)}
-                required
-              />
-            </div>
+            <Input
+              label="Tên sự kiện *"
+              placeholder="Nhập tên sự kiện..."
+              value={name}
+              onChange={e => setName(e.target.value)}
+              required
+            />
             <div className="grid grid-cols-2 gap-3">
-              <div className="min-w-0 flex flex-col">
-                <label className="text-xs font-semibold text-slate-700 mb-1 block">Ngày bắt đầu *</label>
-                <div className="overflow-hidden rounded-xl">
-                  <input
-                    type="date"
-                    className="border border-brand-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-400 transition-all"
-                    value={startDate}
-                    onChange={e => {
-                      setStartDate(e.target.value);
-                      if (endDate && e.target.value > endDate) setEndDate('');
-                    }}
-                    required
-                  />
-                </div>
-              </div>
-              <div className="min-w-0 flex flex-col">
-                <label className="text-xs font-semibold text-slate-700 mb-1 block">Ngày kết thúc</label>
-                <div className="overflow-hidden rounded-xl">
-                  <input
-                    type="date"
-                    className="border border-brand-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-400 transition-all"
-                    value={endDate}
-                    min={startDate}
-                    onChange={e => setEndDate(e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-slate-700 mb-1 block">Địa điểm *</label>
-              <input
-                className={inputClass}
-                placeholder="Nhập địa điểm..."
-                value={location}
-                onChange={e => setLocation(e.target.value)}
+              <Input
+                label="Ngày bắt đầu *"
+                type="date"
+                value={startDate}
+                onChange={e => {
+                  setStartDate(e.target.value);
+                  if (endDate && e.target.value > endDate) setEndDate('');
+                }}
                 required
               />
+              <Input
+                label="Ngày kết thúc"
+                type="date"
+                value={endDate}
+                min={startDate}
+                onChange={e => setEndDate(e.target.value)}
+              />
             </div>
+            <Input
+              label="Địa điểm *"
+              placeholder="Nhập địa điểm..."
+              value={location}
+              onChange={e => setLocation(e.target.value)}
+              required
+            />
             <HeroButton type="submit" variant="primary" fullWidth className="rounded-xl">Tạo sự kiện</HeroButton>
           </form>
         </div>
