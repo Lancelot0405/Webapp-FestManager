@@ -4,7 +4,7 @@
 
 import { useState } from 'react';
 import { Plus, Trash2, Search } from 'lucide-react';
-import { Button, Card } from '@heroui/react';
+import { Button } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
 import AddEventForm from './AddEventForm';
@@ -152,9 +152,12 @@ function EventCard({
     : event.date;
 
   return (
-    <Card className="rounded-xl overflow-hidden flex items-stretch">
-      <Button onPress={onSelect} variant="ghost" className="flex-1 text-left p-4 min-w-0 h-auto rounded-none justify-start">
-        <div className="flex justify-between items-start gap-2 w-full">
+    <div className="flex items-stretch bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl overflow-hidden shadow-card hover:border-brand-300 hover:shadow-warm transition-all duration-150">
+      <button
+        onClick={onSelect}
+        className="flex-1 text-left p-4 min-w-0 active:bg-brand-50/10"
+      >
+        <div className="flex justify-between items-start gap-2">
           <div className="flex-1 min-w-0">
             <p className="font-semibold text-[var(--text-primary)] truncate">{event.name}</p>
             <p className="text-xs text-[var(--text-muted)] mt-0.5">{dateDisplay}</p>
@@ -163,16 +166,15 @@ function EventCard({
           </div>
           <StatusBadge status={event.status} />
         </div>
-      </Button>
+      </button>
       {isAdmin && (
-        <Button
-          onPress={onDelete}
-          variant="ghost"
-          className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 border-l border-[var(--border-color)] rounded-r-xl rounded-l-none"
+        <button
+          onClick={onDelete}
+          className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 border-l border-[var(--border-color)] transition-colors"
         >
           <Trash2 size={16} />
-        </Button>
+        </button>
       )}
-    </Card>
+    </div>
   );
 }

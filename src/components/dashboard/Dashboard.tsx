@@ -1,6 +1,6 @@
 import React from 'react';
 import { Calendar, Users, Package, Clock, TrendingUp, ChevronRight } from 'lucide-react';
-import { Button, Card } from '@heroui/react';
+import { Button } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
 import type { ActiveTab, FestivalEvent, StaffMember } from '../../types';
@@ -143,10 +143,10 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
         ) : (
           <div className="space-y-2.5">
             {displayEvents.map(event => (
-              <Card
+              <button
                 key={event.id}
-                render={(props) => <button {...(props as React.ComponentPropsWithRef<'button'>)} onClick={() => onSelectEvent(event.id)} />}
-                className="w-full text-left rounded-2xl p-4 border border-[var(--border-color)] hover:border-brand-300 hover:shadow-card active:scale-[0.99] transition-all duration-150 cursor-pointer"
+                onClick={() => onSelectEvent(event.id)}
+                className="w-full text-left bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-4 hover:border-brand-300 hover:shadow-card active:scale-[0.99] transition-all duration-150"
               >
                 <div className="flex justify-between items-start gap-2">
                   <div className="flex-1 min-w-0">
@@ -156,7 +156,7 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
                   </div>
                   <StatusBadge status={event.status} />
                 </div>
-              </Card>
+              </button>
             ))}
           </div>
         )}
@@ -168,13 +168,13 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
           <SectionHeader title="Chi phí chờ duyệt" />
           <div className="space-y-2">
             {myPendingExpenses.map(exp => (
-              <Card key={exp.id} variant="secondary" className="rounded-2xl p-3 flex justify-between items-center">
+              <div key={exp.id} className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-3 flex justify-between items-center">
                 <div>
                   <p className="text-sm font-semibold text-[var(--text-primary)]">{exp.type}</p>
                   <p className="text-xs text-[var(--text-muted)]">{exp.date}</p>
                 </div>
                 <span className="text-sm font-bold text-indigo-600">{exp.amount}€</span>
-              </Card>
+              </div>
             ))}
           </div>
         </div>
@@ -218,16 +218,18 @@ function StatCard({ icon, label, value, color, alert, onClick }: {
 }) {
   const c = colorMap[color];
   return (
-    <Card
-      render={(props) => <button {...(props as React.ComponentPropsWithRef<'button'>)} onClick={onClick} />}
-      className={`${c.bg} rounded-2xl p-4 flex items-center gap-3 w-full text-left active:scale-[0.97] hover:brightness-95 cursor-pointer`}
+    <button
+      onClick={onClick}
+      className={`${c.bg} rounded-2xl p-4 flex items-center gap-3 w-full text-left active:scale-[0.97] hover:brightness-95 transition-all cursor-pointer border border-transparent hover:border-brand-200 dark:hover:border-white/10`}
     >
-      <div className={`shrink-0 ${c.icon}`}>{icon}</div>
-      <div>
-        <p className={`text-2xl font-black ${alert ? 'text-red-500' : c.value}`}>{value}</p>
-        <p className="text-xs text-[var(--text-muted)] leading-tight mt-0.5">{label}</p>
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-white/60 dark:bg-white/10 ${c.icon}`}>
+        {icon}
       </div>
-    </Card>
+      <div className="min-w-0">
+        <p className={`text-2xl font-black leading-none ${alert ? 'text-red-500' : c.value}`}>{value}</p>
+        <p className="text-xs text-[var(--text-muted)] leading-tight mt-1">{label}</p>
+      </div>
+    </button>
   );
 }
 
@@ -271,7 +273,7 @@ function RevenueChart({ events }: { events: FestivalEvent[] }) {
   const maxVal = Math.max(...entries.map(([, v]) => v), 100000);
 
   return (
-    <Card className="rounded-2xl p-4">
+    <div className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-4">
       <div className="flex items-end gap-2 h-24">
         {entries.map(([month, val]) => (
           <div key={month} className="flex-1 flex flex-col items-center gap-1">
@@ -287,7 +289,7 @@ function RevenueChart({ events }: { events: FestivalEvent[] }) {
         ))}
       </div>
       <p className="text-xs text-[var(--text-muted)] mt-2 text-right">Max: {maxVal.toLocaleString('fr-FR')}€</p>
-    </Card>
+    </div>
   );
 }
 
@@ -309,7 +311,7 @@ function TopStaffList({ events, staff }: { events: FestivalEvent[]; staff: Staff
   ];
 
   return (
-    <Card className="rounded-2xl divide-y divide-[var(--border-color)]">
+    <div className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl divide-y divide-[var(--border-color)]">
       {top.map(({ member, count }, i) => (
         <div key={member!.id} className="flex items-center gap-3 px-4 py-3">
           <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${rankStyle[i]}`}>
@@ -322,6 +324,6 @@ function TopStaffList({ events, staff }: { events: FestivalEvent[]; staff: Staff
           <span className="text-sm font-bold text-brand-500">{count} sự kiện</span>
         </div>
       ))}
-    </Card>
+    </div>
   );
 }
