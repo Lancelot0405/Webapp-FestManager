@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { LogOut, Bell, X, BellPlus, Download, Smartphone, UtensilsCrossed } from 'lucide-react';
+import { LogOut, Bell, X, BellPlus, Download, Smartphone, UtensilsCrossed, Sun, Moon } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
+import { useTheme } from '../../context/ThemeContext';
 import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
 import { usePushNotifications } from '../../hooks/usePushNotifications';
 import { useInstallPrompt } from '../../hooks/useInstallPrompt';
@@ -26,6 +27,7 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
   const isAdmin         = currentUser?.role === 'admin';
   const isManager       = currentUser?.role === 'manager';
 
+  const { theme, toggleTheme } = useTheme();
   const { notifications, clearAll, clearOne } = useRealtimeNotifications(isAdmin || isManager);
   const { subscribed, loading: pushLoading, subscribe } = usePushNotifications();
   const { isIos, isStandalone, triggerInstall } = useInstallPrompt();
@@ -83,6 +85,18 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
               {roleLabel[currentUser.role]}
             </span>
           </div>
+
+          {/* Dark mode toggle */}
+          <Button
+            onPress={toggleTheme}
+            variant="ghost"
+            isIconOnly
+            size="sm"
+            className="rounded-full"
+            aria-label={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
+          >
+            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+          </Button>
 
           {/* Install */}
           <div className="relative" ref={installRef}>

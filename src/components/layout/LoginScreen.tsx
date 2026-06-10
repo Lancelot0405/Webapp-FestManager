@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Download, Smartphone, X, ShieldCheck, Store, Tent, UtensilsCrossed } from 'lucide-react';
+import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Download, Smartphone, X, ShieldCheck, Store, Tent, UtensilsCrossed, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTheme } from '../../context/ThemeContext';
 import { supabase } from '../../lib/supabase';
 import { adminApi } from '../../lib/adminApi';
 import { useApp } from '../../context/AppContext';
@@ -13,6 +14,7 @@ type RegisterRole   = 'staff' | 'manager';
 
 export default function LoginScreen() {
   const { login }  = useApp();
+  const { theme, toggleTheme } = useTheme();
   const { isIos, isStandalone, triggerInstall } = useInstallPrompt();
 
   const [showInstallModal, setShowInstallModal] = useState(false);
@@ -347,7 +349,7 @@ export default function LoginScreen() {
         )}
 
         {/* Footer */}
-        <div className="border-t border-slate-100 mt-6 pt-4 flex items-center justify-center gap-3">
+        <div className="border-t border-[var(--border-color)] mt-6 pt-4 flex items-center justify-center gap-3">
           <div className="relative">
             <button
               onClick={handleInstallClick}
@@ -381,6 +383,16 @@ export default function LoginScreen() {
               </div>
             )}
           </div>
+
+          {/* Dark mode toggle */}
+          <button
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-brand-50 dark:bg-[var(--muted)] hover:bg-brand-100 dark:hover:bg-[var(--accent)] text-brand-600 dark:text-[var(--text-secondary)] text-xs font-medium transition-colors"
+          >
+            {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+            {theme === 'dark' ? 'Sáng' : 'Tối'}
+          </button>
         </div>
       </div>
     </div>
