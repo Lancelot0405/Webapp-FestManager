@@ -1,81 +1,175 @@
-# CLAUDE.md
+# FestManager — CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Quy tắc bắt buộc
 
-## Commands
+- Sau mỗi thay đổi lớn, chụp screenshot và so sánh với design gốc trước khi tiếp tục
+- Luôn triển khai cho **PWA (mobile)** trước, sau đó mới điều chỉnh cho Tablet/PC
+- Luôn **chia nhỏ kế hoạch** thành các bước cụ thể trước khi bắt đầu triển khai
+
+---
+
+## Tổng quan dự án
+
+FestManager là một **Progressive Web App (PWA)** quản lý hoạt động F&B (Food & Beverage) cho các sự kiện và lễ hội. Ứng dụng được tối ưu cho mobile với hỗ trợ offline và thông báo push.
+
+**Stack:**
+- React 19 + TypeScript 5 + Vite 8
+- Tailwind CSS 4 (dark mode via CSS class)
+- Supabase (PostgreSQL, Auth, Realtime, Edge Functions, Storage)
+- Triển khai trên Vercel
+
+**Ngôn ngữ:** Toàn bộ UI, label, và string dùng tiếng Việt. Định dạng ngày: DD-MM-YYYY.
+
+---
+
+## Lệnh phổ biến
 
 ```bash
-npm install                 # Install dependencies
-cp .env.example .env        # Configure Supabase + VAPID keys before first run
-
-npm run dev                 # Vite dev server at localhost:5173
-npm run build               # tsc -b && vite build → dist/
-npm run preview             # Preview production build locally
-
-npm test                    # Run Vitest (33 tests)
-npm run test:watch          # Watch mode
-npm run lint                # ESLint (flat config, must pass with 0 errors)
+npm run dev          # Khởi động dev server (http://localhost:5173)
+npm run build        # Type-check + build production (dist/)
+npm run lint         # Chạy ESLint
+npm run test         # Chạy test một lần
+npm run test:watch   # Chạy test ở watch mode
+npm run preview      # Preview build production
 ```
 
-Required env vars: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_VAPID_PUBLIC_KEY`.
+---
 
-## Architecture
-
-**FestManager** is a PWA for event/F&B management built on React 19 + TypeScript + Vite + Tailwind CSS 4 + Supabase.
-
-### State Management
-
-All global state lives in `src/context/AppContext.tsx` (848 lines). State mutations go through `src/lib/appReducer.ts` — a pure reducer with 20+ action types covering events, staff, inventory, expenses, and clients. This is the primary place to add new state logic.
-
-Navigation is currently `useState`-based (no React Router yet) — active view is stored in context.
-
-### Data Layer
-
-- **`src/lib/db.ts`** — All Supabase query helpers. Fetch from here, dispatch to reducer.
-- **`src/lib/adminApi.ts`** — Calls the Supabase Edge Function `admin` for privileged ops (no service key on frontend). The Edge Function lives at `supabase/functions/admin/index.ts`.
-- **`src/types/index.ts`** — Single source of truth for all TypeScript types.
-
-### Component Tree
+## Kiến trúc & cấu trúc thư mục
 
 ```
-src/components/
-├── layout/      — Header, BottomNav, Sidebar, LoginScreen
-├── dashboard/   — Stats, revenue chart, event list
-├── schedule/    — EventDetail with tabs (Info, Staff, Expenses, Inventory, Contracts)
-├── inventory/   — Food/Equipment dual categories, bulk xlsx import, history log
-├── finance/     — Revenue/expense dashboard, approval workflow, Excel export
-├── hr/          — Staff list, StaffProfile, AddStaffForm
-├── clients/     — Organizer/partner management
-└── shared/      — Reusable UI: Button, Input, Modal, Skeleton, Toast, ErrorBoundary
+src/
+├── components/
+│   ├── clients/       # Quản lý khách hàng/đối tác sự kiện
+│   ├── dashboard/     # Trang tổng quan, biểu đồ doanh thu
+│   ├── finance/       # Báo cáo tài chính, duyệt chi phí
+│   ├── hr/            # Hồ sơ nhân viên, hợp đồng
+│   ├── inventory/     # Quản lý tồn kho thực phẩm & thiết bị
+│   ├── layout/        # Header, BottomNav, LoginScreen
+│   ├── schedule/      # Lịch sự kiện; tabs: Info/Staff/Expenses/Inventory/Contracts
+│   └── shared/        # ErrorBoundary, StatusBadge, DocThumbnail; ui/: Button, Input, Modal, Skeleton
+├── context/
+│   ├── AppContext.tsx  # Global state + Supabase sync (events, staff, inventory, expenses, users)
+│   ├── appReducer.ts   # Reducer với 30+ actions
+│   ├── ThemeContext.tsx
+│   └── ToastContext.tsx
+├── hooks/
+│   ├── useInstallPrompt.ts          # PWA install prompt
+│   ├── usePushNotifications.ts      # Web Push / VAPID subscription
+│   └── useRealtimeNotifications.ts  # Supabase Realtime listener
+├── lib/
+│   ├── supabase.ts    # Supabase client (anon key, không dùng service role ở frontend)
+│   ├── adminApi.ts    # Client gọi Edge Function cho các tác vụ admin
+│   ├── db.ts          # Hàm fetch dữ liệu (fetchStaff, fetchEvents, fetchInventory…)
+│   ├── dateHelpers.ts # toISODate / fromISODate
+│   ├── eventStatus.ts # Hằng số và tiện ích trạng thái sự kiện
+│   └── errors.ts      # Custom error classes
+├── types/index.ts     # Tất cả TypeScript interfaces dùng chung
+└── data/mockData.ts   # Dữ liệu mock/tĩnh
 ```
 
-Heavy libraries (`xlsx`, `@react-pdf`) are lazy-loaded via dynamic imports — Vite splits them as separate chunks.
+**Backend (Supabase):**
+```
+supabase/
+├── schema.sql             # Định nghĩa schema PostgreSQL (12 bảng + enums)
+├── migrations/            # Migration files (001_…, 002_…)
+└── functions/admin/       # Edge Function: register, create-staff, set-password, delete-user, get-user-email
+```
 
-### Backend (Supabase)
+---
 
-13 tables defined in `supabase/schema.sql`. Key tables: `users`, `staff_members`, `contracts`, `events` (JSONB for expenses/inventory), `event_staff`, `inventory_items`, `inventory_logs`, `expenses`, `clients`. All tables have RLS policies.
+## State Management
 
-The `admin` Edge Function handles: `register`, `create-staff`, `set-password`, `delete-user`, `get-user-email`. All admin actions verify JWT + `role='admin'`.
+Toàn bộ state được quản lý qua `AppContext` + `appReducer`. **Không dùng Redux hay Zustand.**
 
-### Design System — "Warm Feast"
+- Thêm state mới → cập nhật `appReducer.ts` + dispatch từ component
+- Sync với Supabase diễn ra trong `AppContext.tsx`
+- Toast notification → dùng `useToast()` từ `ToastContext`
+- Theme → dùng `useTheme()` từ `ThemeContext`
 
-Colors defined in `tailwind.config.js`: primary orange (`#F97316`), secondary yellow (`#EAB308`), success green (`#22C55E`), warm surface (`#FFFBF5`). Dark mode is toggled via `ThemeContext` with localStorage persistence. Font: Plus Jakarta Sans.
+---
 
-Custom Tailwind tokens: `safe-area-*` insets, `bottom-nav-height`, `card`, `warm`, `hero`, `float` shadows, `fadeUp`/`slideUp`/`pop`/`shimmer` animations.
+## Database & Backend
 
-### Key Hooks
+**Bảng chính:**
+| Bảng | Mô tả |
+|------|-------|
+| `users` | Auth users với roles: `admin`, `manager`, `staff` |
+| `staff_members` | Hồ sơ nhân viên |
+| `events` | Sự kiện lễ hội |
+| `event_staff` | Junction table event ↔ staff |
+| `contracts` | Hợp đồng nhân viên |
+| `inventory_items` | Tồn kho |
+| `inventory_logs` | Lịch sử thay đổi tồn kho |
+| `expenses` | Chi phí nhân viên (pending/approved/rejected) |
+| `clients` | Đối tác/khách hàng sự kiện |
+| `push_subscriptions` | Web Push VAPID subscriptions |
+| `registration_requests` | Yêu cầu đăng ký manager |
 
-- `useApp()` — access AppContext (state + dispatch)
-- `useToast()` — trigger toast notifications
-- `useTheme()` — dark/light toggle
-- `usePushNotifications()` — Web Push (VAPID)
-- `useRealtimeNotifications()` — Supabase Realtime listener
+**Edge Functions (supabase/functions/admin/):**
+- `register` — public, tự đăng ký staff/manager
+- `create-staff`, `set-password`, `delete-user`, `get-user-email` — chỉ admin
 
-## Known TODOs (from docs/)
+**Quy tắc bảo mật:**
+- Service role key **chỉ** dùng trong Edge Functions, không bao giờ expose ra frontend
+- Row-Level Security (RLS) bật trên tất cả bảng
+- Tất cả tác vụ admin đi qua Edge Function, không gọi trực tiếp Supabase với service role
 
-- React Router (replace useState navigation)
-- TanStack Query (replace full-table refetches)
-- Split AppContext into domain stores (Zustand or smaller contexts)
-- Component tests (React Testing Library)
-- Random temp passwords (currently hardcoded `'fest1234'`)
-- Deploy Edge Function `admin` for production
+---
+
+## Biến môi trường
+
+Tạo file `.env` từ `.env.example`:
+```
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_ANON_KEY=...
+VITE_VAPID_PUBLIC_KEY=...
+```
+
+---
+
+## Quy ước code
+
+- **TypeScript strict:** `noUnusedLocals`, `noUnusedParameters` bật — xóa imports/variables không dùng
+- **Tailwind CSS:** Dùng utility classes, dark mode qua prefix `dark:`, safe area qua custom spacing
+- **Import order:** External packages trước, sau đó internal (`@/` hoặc relative)
+- **Component file:** Mỗi component trong file riêng, export default
+- **Không comment** trừ khi lý do thực sự không rõ ràng từ code
+- **Không thêm tính năng** ngoài phạm vi yêu cầu
+
+---
+
+## Quy ước UI / UX
+
+- **Mobile-first:** max-width `md` là chuẩn, layout đơn cột
+- **Dark mode:** Luôn kiểm tra cả light và dark khi thêm màu sắc mới
+- **iOS safe area:** Dùng padding/margin `safe-*` cho header và bottom nav
+- **Icons:** Dùng inline SVG hoặc emoji, không import thư viện icon nặng
+- **Ngày tháng:** Hiển thị DD-MM-YYYY, lưu ISO 8601 trong DB
+
+---
+
+## Testing
+
+- Framework: **Vitest**
+- Test files: `src/**/*.test.ts`
+- Test files hiện có: `appReducer.test.ts`, `dateHelpers.test.ts`, `eventStatus.test.ts`
+- Khi thêm logic mới trong `lib/` hoặc `appReducer.ts`, viết unit test kèm theo
+
+---
+
+## PWA
+
+- Service Worker: `public/sw.js` — network-first cho HTML, cache-first cho assets
+- Manifest: `public/manifest.json`
+- Push notifications: Web Push API + VAPID (hook: `usePushNotifications`)
+- Cần test trên mobile thật hoặc DevTools > Application > Service Workers
+
+---
+
+## Deployment
+
+- **Platform:** Vercel (tự động deploy từ branch `main`)
+- **Build command:** `npm run build`
+- **Output dir:** `dist/`
+- Vercel Speed Insights đã tích hợp
