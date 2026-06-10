@@ -196,7 +196,7 @@ function InstallDropdown({ isStandalone, isIos, onClose }: { isStandalone: boole
           Dùng menu trình duyệt → "Cài đặt ứng dụng" hoặc "Thêm vào màn hình chính".
         </p>
       )}
-      <p className="text-xs text-slate-400 mt-3">Yêu cầu Safari iOS 16.4+ hoặc Chrome Android</p>
+      <p className="text-xs text-[var(--text-muted)] mt-3">Yêu cầu Safari iOS 16.4+ hoặc Chrome Android</p>
     </div>
   );
 }
@@ -224,7 +224,7 @@ function NotifDropdown({
       </div>
       <div className="max-h-72 overflow-y-auto">
         {notifications.length === 0 ? (
-          <p className="text-sm text-slate-400 text-center py-6">Không có thông báo</p>
+          <p className="text-sm text-[var(--text-muted)] text-center py-6">Không có thông báo</p>
         ) : (
           notifications.map(n => (
             <div key={n.id} className="flex items-start gap-2 px-4 py-3 border-b border-[var(--border-color)] hover:bg-[var(--accent)]">
@@ -248,7 +248,7 @@ function InstallStep({ n, text }: { n: number; text: string }) {
   return (
     <div className="flex gap-2.5 items-start">
       <span className="w-5 h-5 rounded-full bg-brand-gradient text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">{n}</span>
-      <p className="text-xs text-slate-700 leading-snug">{text}</p>
+      <p className="text-xs text-[var(--text-primary)] leading-snug">{text}</p>
     </div>
   );
 }

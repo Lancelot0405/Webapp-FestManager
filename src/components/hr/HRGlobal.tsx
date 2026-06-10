@@ -177,7 +177,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
 
       {/* Search */}
       <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none">
           <Search size={15} />
         </span>
         <input

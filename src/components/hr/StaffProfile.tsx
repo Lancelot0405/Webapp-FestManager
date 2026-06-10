@@ -235,17 +235,17 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
     <div className="space-y-5 pb-20">
       {onBack && (
         <div className="flex items-center gap-2">
-          <Button isIconOnly variant="ghost" size="sm" className="text-brand-400 hover:text-espresso-700 dark:text-brand-300 dark:hover:text-gray-200" onPress={onBack}>
+          <Button isIconOnly variant="ghost" size="sm" className="text-brand-400 hover:text-[var(--text-primary)] dark:text-brand-300" onPress={onBack}>
             <ArrowLeft size={22} />
           </Button>
-          <h1 className="text-lg font-bold text-espresso-800 dark:text-espresso-50">Hồ sơ nhân viên</h1>
+          <h1 className="text-lg font-bold text-[var(--text-primary)]">Hồ sơ nhân viên</h1>
         </div>
       )}
 
       {/* ── THÔNG TIN CÁ NHÂN ──────────────────────────────────────────── */}
-      <Card className="bg-white dark:bg-espresso-800 rounded-xl p-4 shadow-card border border-brand-100 dark:border-espresso-700">
+      <Card className="bg-[var(--card-bg)] rounded-xl p-4 shadow-card border border-brand-100 dark:border-[var(--border-color)]">
         <div className="flex justify-between items-center mb-3">
-          <p className="text-sm font-semibold text-espresso-700 dark:text-espresso-50">Thông tin cá nhân</p>
+          <p className="text-sm font-semibold text-[var(--text-primary)]">Thông tin cá nhân</p>
           {canEdit && !editing && (
             <Button size="sm" variant="secondary" className="text-xs text-brand-600 bg-brand-50 px-2.5 py-1.5 rounded-lg hover:bg-brand-100 h-auto min-w-0" onPress={startEdit}>
               <Pencil size={12} /> Chỉnh sửa
@@ -258,7 +258,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
             <div>
               <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Họ tên</label>
               <input
-                className="mt-1 w-full px-3 py-2 border border-brand-200 dark:border-espresso-700 rounded-xl text-sm text-espresso-800 dark:text-espresso-50 bg-white dark:bg-espresso-700 focus:outline-none focus:border-brand-400 transition-all"
+                className="mt-1 w-full px-3 py-2 border border-brand-200 dark:border-[var(--border-color)] rounded-xl text-sm text-[var(--text-primary)] bg-white dark:bg-[var(--card-bg)] focus:outline-none focus:border-brand-400 transition-all"
                 value={editName}
                 onChange={e => setEditName(e.target.value)}
               />
@@ -266,7 +266,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
             <div>
               <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Ngày sinh (DD-MM-YYYY)</label>
               <input
-                className="mt-1 w-full px-3 py-2 border border-brand-200 dark:border-espresso-700 rounded-xl text-sm text-espresso-800 dark:text-espresso-50 bg-white dark:bg-espresso-700 focus:outline-none focus:border-brand-400 transition-all placeholder:text-slate-300"
+                className="mt-1 w-full px-3 py-2 border border-brand-200 dark:border-[var(--border-color)] rounded-xl text-sm text-[var(--text-primary)] bg-white dark:bg-[var(--card-bg)] focus:outline-none focus:border-brand-400 transition-all placeholder:text-[var(--text-muted)]"
                 placeholder="01-01-2000"
                 value={editDob}
                 onChange={e => setEditDob(e.target.value)}
@@ -275,7 +275,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
             <div>
               <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Nơi ở</label>
               <input
-                className="mt-1 w-full px-3 py-2 border border-brand-200 dark:border-espresso-700 rounded-xl text-sm text-espresso-800 dark:text-espresso-50 bg-white dark:bg-espresso-700 focus:outline-none focus:border-brand-400 transition-all placeholder:text-slate-300"
+                className="mt-1 w-full px-3 py-2 border border-brand-200 dark:border-[var(--border-color)] rounded-xl text-sm text-[var(--text-primary)] bg-white dark:bg-[var(--card-bg)] focus:outline-none focus:border-brand-400 transition-all placeholder:text-[var(--text-muted)]"
                 placeholder="Paris, Lyon..."
                 value={editCity}
                 onChange={e => setEditCity(e.target.value)}
@@ -285,7 +285,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
               <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Số điện thoại</label>
               <input
                 type="tel"
-                className="mt-1 w-full px-3 py-2 border border-brand-200 dark:border-espresso-700 rounded-xl text-sm text-espresso-800 dark:text-espresso-50 bg-white dark:bg-espresso-700 focus:outline-none focus:border-brand-400 transition-all placeholder:text-slate-300"
+                className="mt-1 w-full px-3 py-2 border border-brand-200 dark:border-[var(--border-color)] rounded-xl text-sm text-[var(--text-primary)] bg-white dark:bg-[var(--card-bg)] focus:outline-none focus:border-brand-400 transition-all placeholder:text-[var(--text-muted)]"
                 placeholder="+33 6 XX XX XX XX"
                 value={editPhone}
                 onChange={e => setEditPhone(e.target.value)}
@@ -294,7 +294,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
             <div>
               <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Số Carte Vitale</label>
               <input
-                className="mt-1 w-full px-3 py-2 border border-brand-200 dark:border-espresso-700 rounded-xl text-sm text-espresso-800 dark:text-espresso-50 bg-white dark:bg-espresso-700 focus:outline-none focus:border-brand-400 transition-all placeholder:text-slate-300 font-mono"
+                className="mt-1 w-full px-3 py-2 border border-brand-200 dark:border-[var(--border-color)] rounded-xl text-sm text-[var(--text-primary)] bg-white dark:bg-[var(--card-bg)] focus:outline-none focus:border-brand-400 transition-all placeholder:text-[var(--text-muted)] font-mono"
                 placeholder="1 85 01 75 XXX XXX XX"
                 value={editCarteNum}
                 onChange={e => setEditCarteNum(e.target.value)}
@@ -303,7 +303,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
             <div>
               <label className="text-xs text-brand-400 dark:text-brand-300 font-medium">Số Titre de Séjour</label>
               <input
-                className="mt-1 w-full px-3 py-2 border border-brand-200 dark:border-espresso-700 rounded-xl text-sm text-espresso-800 dark:text-espresso-50 bg-white dark:bg-espresso-700 focus:outline-none focus:border-brand-400 transition-all placeholder:text-slate-300 font-mono"
+                className="mt-1 w-full px-3 py-2 border border-brand-200 dark:border-[var(--border-color)] rounded-xl text-sm text-[var(--text-primary)] bg-white dark:bg-[var(--card-bg)] focus:outline-none focus:border-brand-400 transition-all placeholder:text-[var(--text-muted)] font-mono"
                 placeholder="XXXXXXXXX"
                 value={editTitreNum}
                 onChange={e => setEditTitreNum(e.target.value)}
@@ -318,7 +318,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                       className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
                         editStaffType === 'permanent'
                           ? 'bg-brand-500 text-white border-brand-200'
-                          : 'bg-white dark:bg-espresso-700 text-brand-600 dark:text-brand-300 border-brand-200 dark:border-espresso-700 hover:border-brand-200'
+                          : 'bg-white dark:bg-[var(--card-bg)] text-brand-600 dark:text-brand-300 border-brand-200 dark:border-[var(--border-color)] hover:border-brand-200'
                       }`}>
                       Nhân viên cứng
                     </button>
@@ -326,7 +326,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                       className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
                         editStaffType === 'part-time'
                           ? 'bg-purple-600 text-white border-purple-600'
-                          : 'bg-white dark:bg-espresso-700 text-brand-600 dark:text-brand-300 border-brand-200 dark:border-espresso-700 hover:border-purple-300'
+                          : 'bg-white dark:bg-[var(--card-bg)] text-brand-600 dark:text-brand-300 border-brand-200 dark:border-[var(--border-color)] hover:border-purple-300'
                       }`}>
                       Part-time
                     </button>
@@ -344,7 +344,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                           className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
                             editRole === 'staff'
                               ? 'bg-herb-500/10 text-white border-herb-500/30'
-                              : 'bg-white dark:bg-espresso-700 text-brand-600 dark:text-brand-300 border-brand-200 dark:border-espresso-700 hover:border-herb-500/30'
+                              : 'bg-white dark:bg-[var(--card-bg)] text-brand-600 dark:text-brand-300 border-brand-200 dark:border-[var(--border-color)] hover:border-herb-500/30'
                           }`}>
                           Nhân viên
                         </button>
@@ -352,7 +352,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                           className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
                             editRole === 'manager'
                               ? 'bg-saffron-500 text-white border-saffron-300'
-                              : 'bg-white dark:bg-espresso-700 text-brand-600 dark:text-brand-300 border-brand-200 dark:border-espresso-700 hover:border-saffron-300'
+                              : 'bg-white dark:bg-[var(--card-bg)] text-brand-600 dark:text-brand-300 border-brand-200 dark:border-[var(--border-color)] hover:border-saffron-300'
                           }`}>
                           Quản lý
                         </button>
@@ -373,7 +373,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                             className={`py-2 rounded-lg text-xs font-medium border transition-colors ${
                               editDepartment === id
                                 ? 'bg-teal-600 text-white border-teal-600'
-                                : 'bg-white dark:bg-espresso-700 text-brand-600 dark:text-brand-300 border-brand-200 dark:border-espresso-700'
+                                : 'bg-white dark:bg-[var(--card-bg)] text-brand-600 dark:text-brand-300 border-brand-200 dark:border-[var(--border-color)]'
                             }`}>
                             {label}
                           </button>
@@ -388,7 +388,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
               <Button className="flex-1 bg-brand-500 text-white text-sm font-medium" size="sm" onPress={saveEdit}>
                 <Check size={14} /> Lưu
               </Button>
-              <Button variant="outline" className="flex-1 border-brand-200 dark:border-espresso-700 text-sm text-brand-600 dark:text-brand-300" size="sm" onPress={() => setEditing(false)}>
+              <Button variant="outline" className="flex-1 border-brand-200 dark:border-[var(--border-color)] text-sm text-brand-600 dark:text-brand-300" size="sm" onPress={() => setEditing(false)}>
                 Huỷ
               </Button>
             </div>
@@ -417,8 +417,8 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
 
       {/* ── QUẢN LÝ TÀI KHOẢN (chỉ admin) ─────────────────────────────── */}
       {isAdmin && member.userId && (
-        <Card className="bg-white dark:bg-espresso-800 rounded-xl p-4 shadow-card border border-brand-100 dark:border-espresso-700 space-y-4">
-          <p className="text-sm font-semibold text-espresso-700 dark:text-espresso-50 flex items-center gap-2">
+        <Card className="bg-[var(--card-bg)] rounded-xl p-4 shadow-card border border-brand-100 dark:border-[var(--border-color)] space-y-4">
+          <p className="text-sm font-semibold text-[var(--text-primary)] flex items-center gap-2">
             <KeyRound size={15} className="text-orange-500" /> Quản lý tài khoản
           </p>
 
@@ -428,7 +428,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
 
             {/* Hiển thị username hiện tại */}
             {currentUsername && (
-              <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-brand-50 dark:bg-espresso-700/50 rounded-lg border border-brand-100 dark:border-espresso-700">
+              <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-brand-50 dark:bg-[var(--card-bg)]/50 rounded-lg border border-brand-100 dark:border-[var(--border-color)]">
                 <span className="text-xs text-brand-400 dark:text-brand-300 shrink-0">Hiện tại:</span>
                 <span className="text-sm font-mono font-medium text-brand-600 dark:text-brand-400 flex-1 truncate">
                   {currentUsername}<span className="text-brand-300 dark:text-brand-400">@fm.com</span>
@@ -437,14 +437,14 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
             )}
 
             <div className="flex gap-2">
-              <div className="flex-1 flex items-center border border-brand-200 dark:border-espresso-700 rounded-lg overflow-hidden">
+              <div className="flex-1 flex items-center border border-brand-200 dark:border-[var(--border-color)] rounded-lg overflow-hidden">
                 <input
-                  className="flex-1 px-3 py-2 text-sm bg-white dark:bg-espresso-700 dark:text-espresso-50"
+                  className="flex-1 px-3 py-2 text-sm bg-white dark:bg-[var(--card-bg)] dark:text-[var(--text-primary)]"
                   placeholder="username mới"
                   value={editUsername}
                   onChange={e => setEditUsername(e.target.value.replace(/\s/g, '').toLowerCase())}
                 />
-                <span className="px-2 text-xs text-brand-300 dark:text-brand-400 bg-brand-50 dark:bg-espresso-700 border-l border-brand-200 dark:border-espresso-700 py-2 shrink-0">@fm.com</span>
+                <span className="px-2 text-xs text-brand-300 dark:text-brand-400 bg-brand-50 dark:bg-[var(--card-bg)] border-l border-brand-200 dark:border-[var(--border-color)] py-2 shrink-0">@fm.com</span>
               </div>
               <Button
                 size="sm"
@@ -483,7 +483,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                   type="password"
                   minLength={6}
                   placeholder="Mật khẩu mới (tối thiểu 6 ký tự)"
-                  className="flex-1 px-3 py-2 border border-brand-200 dark:border-espresso-700 rounded-lg text-sm bg-white dark:bg-espresso-700 dark:text-espresso-50 focus:outline-none focus:border-brand-400 transition-all"
+                  className="flex-1 px-3 py-2 border border-brand-200 dark:border-[var(--border-color)] rounded-lg text-sm bg-white dark:bg-[var(--card-bg)] dark:text-[var(--text-primary)] focus:outline-none focus:border-brand-400 transition-all"
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
                 />
@@ -509,7 +509,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
       {/* ── TÀI LIỆU CÁ NHÂN ───────────────────────────────────────────── */}
       {canEdit && (
         <div className="space-y-3">
-          <p className="text-sm font-semibold text-espresso-700 dark:text-espresso-50">Tài liệu cá nhân</p>
+          <p className="text-sm font-semibold text-[var(--text-primary)]">Tài liệu cá nhân</p>
 
           {/* Carte Vitale */}
           <DocCard
@@ -544,7 +544,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
       {/* ── HỢP ĐỒNG ────────────────────────────────────────────────────── */}
       <div>
         <div className="flex justify-between items-center mb-2">
-          <h2 className="text-sm font-semibold text-espresso-700 dark:text-espresso-50">Hợp đồng ({member.contracts.length})</h2>
+          <h2 className="text-sm font-semibold text-[var(--text-primary)]">Hợp đồng ({member.contracts.length})</h2>
           {canEdit && (
             <label className={`flex items-center gap-1 text-sm font-medium cursor-pointer px-3 py-1.5 rounded-lg transition
               ${uploadingContract ? 'bg-brand-50 text-brand-300' : 'bg-brand-50 text-brand-600 hover:bg-brand-100'}`}>
@@ -556,17 +556,17 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
           )}
         </div>
         {member.contracts.length === 0 ? (
-          <p className="text-xs text-brand-300 dark:text-brand-400 py-4 text-center bg-white dark:bg-espresso-800 rounded-xl border border-dashed border-brand-200 dark:border-espresso-700">
+          <p className="text-xs text-brand-300 dark:text-brand-400 py-4 text-center bg-white dark:bg-[var(--card-bg)] rounded-xl border border-dashed border-brand-200 dark:border-[var(--border-color)]">
             Chưa có hợp đồng
           </p>
         ) : (
           <div className="space-y-2">
             {member.contracts.map(c => (
               <a key={c.id} href={c.url} target="_blank" rel="noreferrer"
-                className="flex items-center gap-3 bg-white dark:bg-espresso-800 rounded-xl p-3 border border-brand-100 dark:border-espresso-700 shadow-card hover:border-brand-200 dark:hover:border-brand-200">
+                className="flex items-center gap-3 bg-white dark:bg-[var(--card-bg)] rounded-xl p-3 border border-brand-100 dark:border-[var(--border-color)] shadow-card hover:border-brand-200 dark:hover:border-brand-200">
                 <FileText size={18} className="text-brand-500 shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-espresso-800 dark:text-espresso-50 truncate">{c.fileName ?? 'Hợp đồng'}</p>
+                  <p className="text-sm text-[var(--text-primary)] truncate">{c.fileName ?? 'Hợp đồng'}</p>
                   <p className="text-xs text-brand-400 dark:text-brand-300">{c.date}</p>
                 </div>
               </a>
@@ -578,7 +578,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
       {/* ── CHI PHÍ ─────────────────────────────────────────────────────── */}
       <div>
         <div className="flex justify-between items-center mb-2">
-          <h2 className="text-sm font-semibold text-espresso-700 dark:text-espresso-50">Chi phí ({allExpenses.length})</h2>
+          <h2 className="text-sm font-semibold text-[var(--text-primary)]">Chi phí ({allExpenses.length})</h2>
           {canEdit && (
             <Button
               size="sm"
@@ -601,7 +601,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
             </div>
             <div>
               <label className="text-xs text-brand-600 dark:text-brand-300 font-medium">Sự kiện</label>
-              <select required className="mt-1 w-full border border-brand-200 dark:border-espresso-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-espresso-700 dark:text-espresso-50"
+              <select required className="mt-1 w-full border border-brand-200 dark:border-[var(--border-color)] rounded-lg px-3 py-2 text-sm bg-white dark:bg-[var(--card-bg)] dark:text-[var(--text-primary)]"
                 value={formEventId} onChange={e => setFormEventId(Number(e.target.value))}>
                 <option value="">Chọn sự kiện</option>
                 {myEvents.map(ev => <option key={ev.id} value={ev.id}>{ev.name}</option>)}
@@ -610,7 +610,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="text-xs text-brand-600 dark:text-brand-300 font-medium">Loại chi phí</label>
-                <select className="mt-1 w-full border border-brand-200 dark:border-espresso-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-espresso-700 dark:text-espresso-50"
+                <select className="mt-1 w-full border border-brand-200 dark:border-[var(--border-color)] rounded-lg px-3 py-2 text-sm bg-white dark:bg-[var(--card-bg)] dark:text-[var(--text-primary)]"
                   value={formCategory} onChange={e => setFormCategory(e.target.value as ExpenseCategory)}>
                   {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
@@ -622,7 +622,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                   min="0"
                   step="0.01"
                   required
-                  className="mt-1 w-full px-3 py-2 border border-brand-200 dark:border-espresso-700 rounded-lg text-sm bg-white dark:bg-espresso-700 dark:text-espresso-50 focus:outline-none focus:border-brand-400 transition-all"
+                  className="mt-1 w-full px-3 py-2 border border-brand-200 dark:border-[var(--border-color)] rounded-lg text-sm bg-white dark:bg-[var(--card-bg)] dark:text-[var(--text-primary)] focus:outline-none focus:border-brand-400 transition-all"
                   value={formAmount}
                   onChange={e => setFormAmount(e.target.value)}
                 />
@@ -630,21 +630,21 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
             </div>
             <div>
               <label className="text-xs text-brand-600 dark:text-brand-300 font-medium">Ngày</label>
-              <input type="date" required className="mt-1 w-full border border-brand-200 dark:border-espresso-700 dark:bg-espresso-700 dark:text-espresso-50 dark:[color-scheme:dark] rounded-lg px-3 py-2 text-sm"
+              <input type="date" required className="mt-1 w-full border border-brand-200 dark:border-[var(--border-color)] dark:bg-[var(--card-bg)] dark:text-[var(--text-primary)] dark:[color-scheme:dark] rounded-lg px-3 py-2 text-sm"
                 value={formDate} onChange={e => setFormDate(e.target.value)} />
             </div>
             <div>
               <label className="text-xs text-brand-600 dark:text-brand-300 font-medium">Ảnh hóa đơn (không bắt buộc, tối đa 5MB)</label>
               {expenseFile ? (
-                <div className="mt-1 flex items-center gap-2 bg-white dark:bg-espresso-700 border border-brand-200 dark:border-espresso-700 rounded-lg px-3 py-2">
+                <div className="mt-1 flex items-center gap-2 bg-white dark:bg-[var(--card-bg)] border border-brand-200 dark:border-[var(--border-color)] rounded-lg px-3 py-2">
                   <Image size={15} className="text-herb-600 shrink-0" />
-                  <span className="text-xs text-espresso-700 dark:text-espresso-50 truncate flex-1">{expenseFile.name}</span>
+                  <span className="text-xs text-[var(--text-primary)] truncate flex-1">{expenseFile.name}</span>
                   <Button isIconOnly variant="ghost" size="sm" className="h-auto min-w-0 p-0 text-brand-300 hover:text-red-500" onPress={() => setExpenseFile(null)}>
                     <X size={14} />
                   </Button>
                 </div>
               ) : (
-                <label className="mt-1 flex items-center gap-2 border border-dashed border-gray-300 dark:border-espresso-700 rounded-lg px-3 py-2.5 cursor-pointer hover:border-herb-500/30 dark:hover:border-herb-500/30 hover:bg-herb-500/10 dark:hover:bg-herb-500/10/20 transition">
+                <label className="mt-1 flex items-center gap-2 border border-dashed border-gray-300 dark:border-[var(--border-color)] rounded-lg px-3 py-2.5 cursor-pointer hover:border-herb-500/30 dark:hover:border-herb-500/30 hover:bg-herb-500/10 dark:hover:bg-herb-500/10/20 transition">
                   <Upload size={15} className="text-brand-300 dark:text-brand-400" />
                   <span className="text-xs text-brand-400 dark:text-brand-300">Chọn ảnh hoặc PDF</span>
                   <input type="file" accept="image/*,.pdf" className="hidden"
@@ -665,7 +665,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
               <Button
                 type="button"
                 variant="outline"
-                className="flex-1 border-brand-200 dark:border-espresso-700 text-sm text-brand-600 dark:text-brand-300"
+                className="flex-1 border-brand-200 dark:border-[var(--border-color)] text-sm text-brand-600 dark:text-brand-300"
                 size="sm"
                 onPress={() => setShowExpenseForm(false)}
               >
@@ -676,18 +676,18 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
         )}
 
         {allExpenses.length === 0 ? (
-          <p className="text-xs text-brand-300 dark:text-brand-400 text-center py-6 bg-white dark:bg-espresso-800 rounded-xl border border-dashed border-brand-200 dark:border-espresso-700">Chưa có chi phí nào</p>
+          <p className="text-xs text-brand-300 dark:text-brand-400 text-center py-6 bg-white dark:bg-[var(--card-bg)] rounded-xl border border-dashed border-brand-200 dark:border-[var(--border-color)]">Chưa có chi phí nào</p>
         ) : (
           <div className="space-y-2">
             {allExpenses.map(exp => (
-              <div key={exp.id} className="bg-white dark:bg-espresso-800 rounded-xl p-3 border border-brand-100 dark:border-espresso-700 shadow-card">
+              <div key={exp.id} className="bg-white dark:bg-[var(--card-bg)] rounded-xl p-3 border border-brand-100 dark:border-[var(--border-color)] shadow-card">
                 <div className="flex justify-between items-start">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-espresso-800 dark:text-espresso-50">{exp.type}</p>
+                    <p className="text-sm font-medium text-[var(--text-primary)]">{exp.type}</p>
                     <p className="text-xs text-brand-400 dark:text-brand-300">{exp.eventName} · {exp.date}</p>
                   </div>
                   <div className="flex flex-col items-end gap-1 ml-2">
-                    <span className="text-sm font-bold text-espresso-700 dark:text-espresso-50">{exp.amount}€</span>
+                    <span className="text-sm font-bold text-[var(--text-primary)]">{exp.amount}€</span>
                     <ExpenseStatusBadge status={exp.status} />
                   </div>
                 </div>
@@ -711,7 +711,7 @@ function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between text-sm">
       <span className="text-brand-400 dark:text-brand-300">{label}</span>
-      <span className="text-espresso-800 dark:text-espresso-50 font-medium">{value}</span>
+      <span className="text-[var(--text-primary)] font-medium">{value}</span>
     </div>
   );
 }
@@ -732,14 +732,14 @@ function DocCard({
 }) {
   const copied = copiedField === copyKey;
   return (
-    <Card className="bg-white dark:bg-espresso-800 rounded-xl border border-brand-100 dark:border-espresso-700 shadow-card p-3 space-y-2">
+    <Card className="bg-white dark:bg-[var(--card-bg)] rounded-xl border border-brand-100 dark:border-[var(--border-color)] shadow-card p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {icon}
-          <p className="text-sm font-medium text-espresso-800 dark:text-espresso-50">{label}</p>
+          <p className="text-sm font-medium text-[var(--text-primary)]">{label}</p>
         </div>
         <label className={`flex items-center gap-1 text-xs font-medium cursor-pointer px-2.5 py-1.5 rounded-lg transition
-          ${uploading ? 'bg-brand-50 dark:bg-espresso-700 text-brand-300 dark:text-brand-400' : 'bg-brand-50 dark:bg-espresso-700 text-brand-600 dark:text-brand-300 hover:bg-brand-50 dark:hover:bg-espresso-700'}`}>
+          ${uploading ? 'bg-brand-50 dark:bg-[var(--card-bg)] text-brand-300 dark:text-brand-400' : 'bg-brand-50 dark:bg-[var(--card-bg)] text-brand-600 dark:text-brand-300 hover:bg-brand-50 dark:hover:bg-[var(--accent)]'}`}>
           {uploading ? <Loader size={12} className="animate-spin" /> : <Upload size={12} />}
           {uploading ? 'Uploading...' : doc ? 'Cập nhật' : 'Upload'}
           <input ref={fileRef} type="file" accept="image/*,.pdf" className="hidden"
@@ -749,8 +749,8 @@ function DocCard({
 
       {/* Số thẻ */}
       {cardNumber ? (
-        <div className="flex items-center justify-between bg-brand-50 dark:bg-espresso-700 rounded-lg px-3 py-2">
-          <span className="text-sm font-mono text-espresso-800 dark:text-espresso-50 tracking-wide">{cardNumber}</span>
+        <div className="flex items-center justify-between bg-brand-50 dark:bg-[var(--card-bg)] rounded-lg px-3 py-2">
+          <span className="text-sm font-mono text-[var(--text-primary)] tracking-wide">{cardNumber}</span>
           <Button
             isIconOnly
             variant="ghost"

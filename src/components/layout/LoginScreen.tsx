@@ -147,7 +147,7 @@ export default function LoginScreen() {
               className={`flex-1 text-sm font-semibold rounded-lg transition-all ${
                 mode === m
                   ? 'bg-white shadow text-brand-600'
-                  : 'text-slate-400'
+                  : 'text-[var(--text-muted)]'
               }`}
             >
               {m === 'login' ? 'Đăng nhập' : 'Đăng ký'}
@@ -190,7 +190,7 @@ export default function LoginScreen() {
                 />
                 <button type="button" aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                   onClick={() => setShowPw(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-brand-500">
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-brand-500">
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
@@ -308,7 +308,7 @@ export default function LoginScreen() {
                 />
                 <button type="button" aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                   onClick={() => setShowPw(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-brand-500">
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-brand-500">
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
@@ -366,7 +366,7 @@ export default function LoginScreen() {
                       {isStandalone ? 'Đã cài đặt' : 'Cài FestManager'}
                     </p>
                   </div>
-                  <button onClick={() => setShowInstallModal(false)} className="text-slate-300 hover:text-slate-500"><X size={15} /></button>
+                  <button onClick={() => setShowInstallModal(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)]"><X size={15} /></button>
                 </div>
                 {isStandalone ? (
                   <p className="text-sm text-brand-500">FestManager đã được cài 🎉</p>
@@ -379,7 +379,7 @@ export default function LoginScreen() {
                 ) : (
                   <p className="text-sm text-brand-400">Dùng menu trình duyệt → "Cài đặt ứng dụng".</p>
                 )}
-                <p className="text-xs text-slate-400 mt-3">Yêu cầu Safari iOS 16.4+ hoặc Chrome Android</p>
+                <p className="text-xs text-[var(--text-muted)] mt-3">Yêu cầu Safari iOS 16.4+ hoặc Chrome Android</p>
               </div>
             )}
           </div>

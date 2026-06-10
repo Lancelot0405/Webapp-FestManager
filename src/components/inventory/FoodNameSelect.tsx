@@ -82,7 +82,7 @@ export default function FoodNameSelect({
           <button
             type="button"
             onClick={() => { onChange(''); setOpenGroup(null); }}
-            className="text-xs text-brand-400 hover:text-red-500 px-3 py-2 rounded-xl border border-brand-200 dark:border-espresso-700 bg-white dark:bg-espresso-700 font-medium transition-colors"
+            className="text-xs text-brand-400 hover:text-red-500 px-3 py-2 rounded-xl border border-brand-200 dark:border-[var(--border-color)] bg-white dark:bg-[var(--card-bg)] font-medium transition-colors"
           >
             Đổi
           </button>
@@ -93,15 +93,15 @@ export default function FoodNameSelect({
       {!custom && !value && (
         <div className="space-y-1.5">
           {loading ? (
-            <div className="h-9 bg-brand-50 dark:bg-espresso-700 rounded-xl shimmer" />
+            <div className="h-9 bg-brand-50 dark:bg-[var(--card-bg)] rounded-xl shimmer" />
           ) : (
             <>
               {Object.entries(groups).map(([group, items]) => (
-                <div key={group} className="border border-brand-100 dark:border-espresso-700 rounded-xl overflow-hidden">
+                <div key={group} className="border border-brand-100 dark:border-[var(--border-color)] rounded-xl overflow-hidden">
                   <button
                     type="button"
                     onClick={() => setOpenGroup(openGroup === group ? null : group)}
-                    className="w-full flex items-center justify-between px-3 py-2.5 bg-brand-50 dark:bg-espresso-700 text-xs font-bold text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-espresso-700/80 transition-colors"
+                    className="w-full flex items-center justify-between px-3 py-2.5 bg-brand-50 dark:bg-[var(--card-bg)] text-xs font-bold text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-[var(--accent)] transition-colors"
                   >
                     {group}
                     <ChevronDown
@@ -110,13 +110,13 @@ export default function FoodNameSelect({
                     />
                   </button>
                   {openGroup === group && (
-                    <div className="flex flex-wrap gap-1.5 p-2.5 bg-white dark:bg-espresso-800">
+                    <div className="flex flex-wrap gap-1.5 p-2.5 bg-white dark:bg-[var(--card-bg)]">
                       {items.map(t => (
                         <button
                           key={t.id}
                           type="button"
                           onClick={() => { onChange(t.name); setCustom(false); setOpenGroup(null); }}
-                          className="px-2.5 py-1 rounded-lg text-xs font-medium border border-brand-200 dark:border-espresso-700 bg-brand-50 dark:bg-espresso-700 text-brand-700 dark:text-brand-300 hover:bg-brand-500 hover:text-white hover:border-brand-500 active:scale-95 transition-all"
+                          className="px-2.5 py-1 rounded-lg text-xs font-medium border border-brand-200 dark:border-[var(--border-color)] bg-brand-50 dark:bg-[var(--card-bg)] text-brand-700 dark:text-brand-300 hover:bg-brand-500 hover:text-white hover:border-brand-500 active:scale-95 transition-all"
                         >
                           {t.name}
                         </button>
@@ -143,7 +143,7 @@ export default function FoodNameSelect({
           <input
             autoFocus
             required={required}
-            className="flex-1 border border-brand-300 dark:border-brand-700 bg-white dark:bg-espresso-700 text-espresso-800 dark:text-espresso-50 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-200 dark:focus:ring-brand-800 focus:border-brand-500 transition-all placeholder:text-brand-200 dark:placeholder:text-espresso-100/30"
+            className="flex-1 border border-brand-300 dark:border-[var(--border-color)] bg-white dark:bg-[var(--card-bg)] text-[var(--text-primary)] rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-200 dark:focus:ring-brand-800 focus:border-brand-500 transition-all placeholder:text-[var(--text-muted)]"
             placeholder={placeholder ?? (itemType === 'food' ? 'VD: Thịt bò' : 'VD: Găng tay')}
             value={value}
             onChange={e => onChange(e.target.value)}
@@ -151,7 +151,7 @@ export default function FoodNameSelect({
           <button
             type="button"
             onClick={() => { setCustom(false); onChange(''); }}
-            className="px-3 py-2 rounded-xl border border-brand-200 dark:border-espresso-700 bg-white dark:bg-espresso-700 text-xs text-brand-400 hover:text-red-500 font-medium transition-colors"
+            className="px-3 py-2 rounded-xl border border-brand-200 dark:border-[var(--border-color)] bg-white dark:bg-[var(--card-bg)] text-xs text-brand-400 hover:text-red-500 font-medium transition-colors"
           >
             Hủy
           </button>

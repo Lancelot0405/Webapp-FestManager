@@ -82,7 +82,7 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
 
       {/* Search input */}
       <div className="relative">
-        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
         <input
           type="text"
           placeholder="Tìm theo tên hoặc địa điểm..."

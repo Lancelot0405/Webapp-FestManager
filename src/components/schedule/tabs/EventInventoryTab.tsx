@@ -150,7 +150,7 @@ export default function EventInventoryTab({ event }: Props) {
                           <button onClick={() => handleSave(item.id, item.name)} className="p-1 text-green-600 hover:bg-green-50 rounded">
                             <Check size={15} />
                           </button>
-                          <button onClick={() => setEditingId(null)} className="p-1 text-brand-300 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-espresso-700 rounded">
+                          <button onClick={() => setEditingId(null)} className="p-1 text-brand-300 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-[var(--accent)] rounded">
                             <X size={15} />
                           </button>
                         </>

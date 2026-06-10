@@ -87,18 +87,18 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
   };
 
   const inputCls =
-    'w-full border border-brand-200 dark:border-espresso-700 bg-white dark:bg-espresso-700 ' +
-    'text-espresso-800 dark:text-espresso-50 rounded-xl px-3 py-2 text-xs ' +
+    'w-full border border-brand-200 dark:border-[var(--border-color)] bg-white dark:bg-[var(--card-bg)] ' +
+    'text-[var(--text-primary)] rounded-xl px-3 py-2 text-xs ' +
     'focus:outline-none focus:ring-2 focus:ring-brand-200 dark:focus:ring-brand-800 focus:border-brand-500 transition-all ' +
-    'placeholder:text-brand-200 dark:placeholder:text-espresso-100/30';
+    'placeholder:text-[var(--text-muted)]';
 
   const modal = (
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-espresso-800/60 dark:bg-black/70 backdrop-blur-sm px-0 sm:px-4">
-      <div className="w-full sm:max-w-md bg-white dark:bg-espresso-700 rounded-t-2xl sm:rounded-2xl shadow-warm flex flex-col max-h-[85dvh] sm:max-h-[85vh]">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/40 dark:bg-black/70 backdrop-blur-sm px-0 sm:px-4">
+      <div className="w-full sm:max-w-md bg-white dark:bg-[var(--card-bg)] rounded-t-2xl sm:rounded-2xl shadow-warm flex flex-col max-h-[85dvh] sm:max-h-[85vh] border border-[var(--border-color)]">
 
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-brand-100 dark:border-espresso-700 shrink-0">
-          <h2 className="font-bold text-espresso-800 dark:text-espresso-50 text-sm">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-brand-100 dark:border-[var(--border-color)] shrink-0">
+          <h2 className="font-bold text-[var(--text-primary)] text-sm">
             Quản lý mẫu — {itemType === 'food' ? 'Thực phẩm' : 'Thiết bị'}
           </h2>
           <button
@@ -119,11 +119,11 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
           ) : (
             <>
               {Object.entries(groups).map(([group, items]) => (
-                <div key={group} className="border border-brand-100 dark:border-espresso-700 rounded-xl overflow-hidden">
+                <div key={group} className="border border-brand-100 dark:border-[var(--border-color)] rounded-xl overflow-hidden">
                   <button
                     type="button"
                     onClick={() => setOpenGroup(openGroup === group ? null : group)}
-                    className="w-full flex items-center justify-between px-3 py-2.5 bg-brand-50 dark:bg-espresso-700 text-xs font-bold text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-espresso-700/80 transition-colors"
+                    className="w-full flex items-center justify-between px-3 py-2.5 bg-brand-50 dark:bg-[var(--card-bg)] text-xs font-bold text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-[var(--accent)] transition-colors"
                   >
                     <span>{group} <span className="font-normal text-brand-400">({items.length})</span></span>
                     {openGroup === group
@@ -133,10 +133,10 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
                   </button>
 
                   {openGroup === group && (
-                    <div className="p-3 bg-white dark:bg-espresso-800 space-y-2">
+                    <div className="p-3 bg-white dark:bg-[var(--card-bg)] space-y-2">
                       <div className="flex flex-wrap gap-1.5">
                         {items.map(t => (
-                          <div key={t.id} className="flex items-center gap-1 pl-2.5 pr-1 py-1 rounded-lg border border-brand-200 dark:border-espresso-700 bg-brand-50 dark:bg-espresso-700 text-xs text-brand-700 dark:text-brand-300 font-medium">
+                          <div key={t.id} className="flex items-center gap-1 pl-2.5 pr-1 py-1 rounded-lg border border-brand-200 dark:border-[var(--border-color)] bg-brand-50 dark:bg-[var(--card-bg)] text-xs text-brand-700 dark:text-brand-300 font-medium">
                             {t.name}
                             <button
                               type="button"
@@ -178,7 +178,7 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
                           <button
                             type="button"
                             onClick={() => { setNewItemGroup(''); setNewItemName(''); }}
-                            className="px-2 py-1.5 rounded-xl border border-brand-200 dark:border-espresso-700 text-xs text-brand-400 hover:text-red-500"
+                            className="px-2 py-1.5 rounded-xl border border-brand-200 dark:border-[var(--border-color)] text-xs text-brand-400 hover:text-red-500"
                           >
                             <X size={12} />
                           </button>
@@ -227,7 +227,7 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
                     <button
                       type="button"
                       onClick={() => { setShowAddGroup(false); setNewGroupName(''); setNewItemName(''); }}
-                      className="px-3 py-2 rounded-xl border border-brand-200 dark:border-espresso-700 text-xs text-brand-400 hover:text-red-500"
+                      className="px-3 py-2 rounded-xl border border-brand-200 dark:border-[var(--border-color)] text-xs text-brand-400 hover:text-red-500"
                     >
                       Hủy
                     </button>
@@ -247,7 +247,7 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
         </div>
 
         {/* Footer */}
-        <div className="px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] border-t border-brand-100 dark:border-espresso-700 shrink-0">
+        <div className="px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] border-t border-brand-100 dark:border-[var(--border-color)] shrink-0">
           <button
             type="button"
             onClick={onClose}

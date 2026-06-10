@@ -40,7 +40,7 @@ export default function NumberPicker({
             className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition-all active:scale-95 ${
               !custom && numVal === v
                 ? 'bg-brand-gradient text-white border-transparent shadow-[0_2px_6px_0_rgb(249_115_22/0.35)]'
-                : 'bg-brand-50 dark:bg-espresso-700 text-brand-600 dark:text-brand-400 border-brand-200 dark:border-espresso-700 hover:border-brand-400 hover:bg-brand-100'
+                : 'bg-brand-50 dark:bg-[var(--card-bg)] text-brand-600 dark:text-brand-400 border-brand-200 dark:border-[var(--border-color)] hover:border-brand-400 hover:bg-brand-100'
             }`}
           >
             {v}
@@ -52,7 +52,7 @@ export default function NumberPicker({
           className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition-all flex items-center gap-1 active:scale-95 ${
             custom
               ? 'bg-brand-gradient text-white border-transparent shadow-[0_2px_6px_0_rgb(249_115_22/0.35)]'
-              : 'bg-brand-50 dark:bg-espresso-700 text-brand-500 dark:text-brand-400 border-brand-200 dark:border-espresso-700 hover:border-brand-400'
+              : 'bg-brand-50 dark:bg-[var(--card-bg)] text-brand-500 dark:text-brand-400 border-brand-200 dark:border-[var(--border-color)] hover:border-brand-400'
           }`}
         >
           <Pencil size={10} /> Tùy chỉnh
@@ -66,7 +66,7 @@ export default function NumberPicker({
           step={step}
           required={required}
           autoFocus
-          className="mt-2 w-full border border-brand-300 dark:border-brand-700 bg-white dark:bg-espresso-700 text-espresso-800 dark:text-espresso-50 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-200 dark:focus:ring-brand-800 focus:border-brand-500 transition-all"
+          className="mt-2 w-full border border-brand-300 dark:border-[var(--border-color)] bg-white dark:bg-[var(--card-bg)] text-[var(--text-primary)] rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-200 dark:focus:ring-brand-800 focus:border-brand-500 transition-all"
           placeholder={placeholder}
           value={value}
           onChange={e => onChange(e.target.value)}

@@ -53,12 +53,12 @@ export default function Sidebar({ activeTab, onTabChange, onLogoClick }: Sidebar
              : STAFF_TABS;
 
   return (
-    <aside className="hidden md:flex flex-col w-56 lg:w-64 bg-white backdrop-blur-sm border-r border-slate-100 shrink-0 sticky top-0 h-screen animate-slide-left shadow-card">
+    <aside className="hidden md:flex flex-col w-56 lg:w-64 bg-[var(--card-bg)] backdrop-blur-sm border-r border-[var(--border-color)] shrink-0 sticky top-0 h-screen animate-slide-left shadow-card">
 
       {/* Logo */}
       <button
         onClick={onLogoClick}
-        className="flex items-center gap-2.5 px-5 h-16 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 border-b border-slate-100"
+        className="flex items-center gap-2.5 px-5 h-16 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 border-b border-[var(--border-color)]"
       >
         <div className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center shadow-[0_2px_8px_0_rgb(124_58_237/0.35)]">
           <UtensilsCrossed size={16} className="text-white" />
@@ -82,7 +82,7 @@ export default function Sidebar({ activeTab, onTabChange, onLogoClick }: Sidebar
               className={`flex items-center gap-3 px-3 py-2.5 justify-start text-sm font-semibold h-auto rounded-xl ${
                 isActive
                   ? 'bg-brand-gradient text-white shadow-[0_2px_8px_0_rgb(124_58_237/0.30)]'
-                  : 'text-slate-500'
+                  : 'text-[var(--text-muted)]'
               }`}
             >
               <span className={isActive ? 'text-white' : 'text-brand-400'}>
@@ -95,13 +95,13 @@ export default function Sidebar({ activeTab, onTabChange, onLogoClick }: Sidebar
       </nav>
 
       {/* User info footer */}
-      <div className="px-4 py-4 border-t border-slate-100">
+      <div className="px-4 py-4 border-t border-[var(--border-color)]">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-full bg-brand-gradient flex items-center justify-center text-white text-xs font-bold shrink-0">
             {currentUser.name.charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-slate-800 truncate">
+            <p className="text-sm font-semibold text-[var(--text-primary)] truncate">
               {currentUser.name}
             </p>
             <p className="text-[10px] font-medium text-brand-500 uppercase tracking-wide">

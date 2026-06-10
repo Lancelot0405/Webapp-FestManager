@@ -52,22 +52,22 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
   };
 
   const inputClass =
-    'w-full max-w-full border border-brand-200 bg-white text-slate-800 placeholder:text-slate-300 ' +
+    'w-full max-w-full border border-brand-200 dark:border-[var(--border-color)] bg-white dark:bg-[var(--card-bg)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] ' +
     'rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-400 transition-all';
 
   return (
     <Dialog open onOpenChange={open => !open && onClose()}>
-      <DialogContent position="bottom" className="w-full max-w-md bg-white overflow-hidden">
+      <DialogContent position="bottom" className="w-full max-w-md bg-white dark:bg-[var(--card-bg)] overflow-hidden">
         <div className="px-5 pt-5 pb-[calc(env(safe-area-inset-bottom,0px)+80px)] overflow-y-auto overflow-x-hidden max-h-[85vh]">
           <div className="flex justify-between items-center mb-5">
-            <h2 className="text-base font-bold text-slate-800">Thêm sự kiện mới</h2>
+            <h2 className="text-base font-bold text-[var(--text-primary)]">Thêm sự kiện mới</h2>
             <HeroButton onPress={onClose} variant="ghost" isIconOnly size="sm" className="rounded-full" aria-label="Đóng">
               <X size={16} />
             </HeroButton>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-xs font-semibold text-slate-700 mb-1 block">Tên sự kiện *</label>
+              <label className="text-xs font-semibold text-[var(--text-muted)] mb-1 block">Tên sự kiện *</label>
               <input
                 className={inputClass}
                 placeholder="Nhập tên sự kiện..."
@@ -78,7 +78,7 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="min-w-0 flex flex-col">
-                <label className="text-xs font-semibold text-slate-700 mb-1 block">Ngày bắt đầu *</label>
+                <label className="text-xs font-semibold text-[var(--text-muted)] mb-1 block">Ngày bắt đầu *</label>
                 <div className="overflow-hidden rounded-xl">
                   <input
                     type="date"
@@ -93,7 +93,7 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
                 </div>
               </div>
               <div className="min-w-0 flex flex-col">
-                <label className="text-xs font-semibold text-slate-700 mb-1 block">Ngày kết thúc</label>
+                <label className="text-xs font-semibold text-[var(--text-muted)] mb-1 block">Ngày kết thúc</label>
                 <div className="overflow-hidden rounded-xl">
                   <input
                     type="date"
@@ -106,7 +106,7 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
               </div>
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-700 mb-1 block">Địa điểm *</label>
+              <label className="text-xs font-semibold text-[var(--text-muted)] mb-1 block">Địa điểm *</label>
               <input
                 className={inputClass}
                 placeholder="Nhập địa điểm..."
