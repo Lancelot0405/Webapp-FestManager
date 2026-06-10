@@ -8,8 +8,8 @@
 ## Tiến trình
 
 ### Phase 0 — Foundation Fix
-- [ ] `src/main.tsx` — Thêm `<HeroUIProvider>`
-- [ ] `src/context/ThemeContext.tsx` — Thêm `data-theme` attribute sync với HeroUI
+- [x] `src/main.tsx` — HeroUIProvider không tồn tại trong v3.1.0; theming dùng `data-theme` CSS attribute (không cần wrapper)
+- [x] `src/context/ThemeContext.tsx` — `data-theme` attribute sync với HeroUI qua `root.setAttribute('data-theme', theme)`
 
 ### Phase 1 — Layout Components
 - [x] `src/components/layout/Header.tsx` — HeroUI Button + Chip (Navbar không có trong v3.1.0)
