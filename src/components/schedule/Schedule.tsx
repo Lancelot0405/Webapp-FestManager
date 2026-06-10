@@ -70,7 +70,7 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
   return (
     <div className="space-y-4 pb-20">
       <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold text-espresso-800 dark:text-espresso-50">Lịch sự kiện</h1>
+        <h1 className="text-xl font-bold text-slate-800">Lịch sự kiện</h1>
         {isAdmin && (
           <button
             onClick={() => setShowAddForm(true)}
@@ -84,13 +84,13 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
 
       {/* Search input */}
       <div className="relative">
-        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-espresso-400 pointer-events-none" />
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
         <input
           type="text"
           placeholder="Tìm theo tên hoặc địa điểm..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full pl-9 pr-3 py-2 border border-brand-200 dark:border-espresso-600 dark:bg-espresso-800 dark:text-espresso-50 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-brand-400"
+          className="w-full pl-9 pr-3 py-2 border border-brand-200 rounded-xl text-sm focus:outline-none focus:border-brand-400 bg-white text-slate-800 placeholder:text-slate-300"
         />
       </div>
 
@@ -103,7 +103,7 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
             className={`px-3 py-1 rounded-full text-xs font-semibold transition ${
               statusFilter === s
                 ? 'bg-brand-500 text-white'
-                : 'bg-brand-50 dark:bg-espresso-700 text-espresso-800 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-espresso-600'
+                : 'bg-brand-50 text-slate-600 hover:bg-brand-100'
             }`}
           >
             {s}
@@ -118,7 +118,7 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
       {state.loading ? (
         <SkeletonList count={3} variant="card" />
       ) : sorted.length === 0 ? (
-        <p className="text-sm text-espresso-400 text-center py-10">Chưa có sự kiện nào</p>
+        <p className="text-sm text-slate-400 text-center py-10">Chưa có sự kiện nào</p>
       ) : (
         <div className="space-y-3">
           {sorted.map(event => (
@@ -156,14 +156,14 @@ function EventCard({
     : event.date;
 
   return (
-    <div className="bg-white dark:bg-espresso-800 rounded-xl shadow-card border border-brand-100 dark:border-espresso-700 hover:border-brand-300 transition-colors flex items-stretch">
+    <div className="bg-white rounded-xl shadow-card border border-slate-100 hover:border-brand-300 transition-colors flex items-stretch">
       <button onClick={onSelect} className="flex-1 text-left p-4 min-w-0">
         <div className="flex justify-between items-start gap-2">
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-espresso-800 dark:text-espresso-50 truncate">{event.name}</p>
-            <p className="text-xs text-espresso-500 dark:text-brand-300 mt-0.5">{dateDisplay}</p>
-            <p className="text-xs text-espresso-400 dark:text-brand-400 truncate mt-0.5">{event.location}</p>
-            <p className="text-xs text-espresso-400 dark:text-brand-400 mt-1">{event.staff.length} nhân viên</p>
+            <p className="font-semibold text-slate-800 truncate">{event.name}</p>
+            <p className="text-xs text-slate-500 mt-0.5">{dateDisplay}</p>
+            <p className="text-xs text-slate-400 truncate mt-0.5">{event.location}</p>
+            <p className="text-xs text-slate-400 mt-1">{event.staff.length} nhân viên</p>
           </div>
           <StatusBadge status={event.status} />
         </div>
@@ -171,7 +171,7 @@ function EventCard({
       {isAdmin && (
         <button
           onClick={onDelete}
-          className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-brand-100 dark:border-espresso-700 transition-colors rounded-r-xl"
+          className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-slate-100 transition-colors rounded-r-xl"
         >
           <Trash2 size={16} />
         </button>

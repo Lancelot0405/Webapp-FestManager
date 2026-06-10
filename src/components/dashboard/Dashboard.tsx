@@ -33,6 +33,7 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
 
   const parse = (d: string) => {
     const [dd, mm, yyyy] = d.split('-');
+    void dd;
     return new Date(`${yyyy}-${mm}-${dd}`).getTime();
   };
 
@@ -45,7 +46,6 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
 
       {/* ── Hero banner ── */}
       <div className="relative overflow-hidden rounded-2xl bg-brand-gradient p-5 text-white shadow-hero">
-        {/* Decorative circles */}
         <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full bg-white/10" />
         <div className="absolute -bottom-8 -right-2 w-20 h-20 rounded-full bg-white/10" />
 
@@ -89,7 +89,7 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
             icon={<Users size={18} />}
             label="Tổng nhân viên"
             value={staff.length}
-            color="saffron"
+            color="indigo"
             onClick={() => onNavigate('hr')}
           />
           <StatCard
@@ -143,13 +143,13 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
               <button
                 key={event.id}
                 onClick={() => onSelectEvent(event.id)}
-                className="w-full text-left bg-white dark:bg-espresso-700 rounded-2xl p-4 border border-brand-100 dark:border-espresso-700 hover:border-brand-300 hover:shadow-card active:scale-[0.99] transition-all duration-150"
+                className="w-full text-left bg-white rounded-2xl p-4 border border-slate-100 hover:border-brand-300 hover:shadow-card active:scale-[0.99] transition-all duration-150"
               >
                 <div className="flex justify-between items-start gap-2">
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-espresso-800 dark:text-espresso-50 truncate">{event.name}</p>
+                    <p className="font-semibold text-slate-800 truncate">{event.name}</p>
                     <p className="text-xs text-brand-400 mt-0.5">{event.date} · {event.location}</p>
-                    <p className="text-xs text-brand-300 mt-0.5">{event.staff.length} nhân viên</p>
+                    <p className="text-xs text-slate-400 mt-0.5">{event.staff.length} nhân viên</p>
                   </div>
                   <StatusBadge status={event.status} />
                 </div>
@@ -165,12 +165,12 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
           <SectionHeader title="Chi phí chờ duyệt" />
           <div className="space-y-2">
             {myPendingExpenses.map(exp => (
-              <div key={exp.id} className="bg-saffron-100/60 dark:bg-saffron-500/10 rounded-2xl p-3 flex justify-between items-center border border-saffron-200 dark:border-saffron-500/20">
+              <div key={exp.id} className="bg-indigo-50 rounded-2xl p-3 flex justify-between items-center border border-indigo-100">
                 <div>
-                  <p className="text-sm font-semibold text-espresso-800 dark:text-espresso-50">{exp.type}</p>
-                  <p className="text-xs text-brand-400">{exp.date}</p>
+                  <p className="text-sm font-semibold text-slate-800">{exp.type}</p>
+                  <p className="text-xs text-slate-400">{exp.date}</p>
                 </div>
-                <span className="text-sm font-bold text-saffron-600 dark:text-saffron-400">{exp.amount}€</span>
+                <span className="text-sm font-bold text-indigo-600">{exp.amount}€</span>
               </div>
             ))}
           </div>
@@ -196,13 +196,13 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
 
 // ── Sub-components ──────────────────────────────────────────────────────────
 
-type StatColor = 'brand' | 'saffron' | 'herb' | 'red';
+type StatColor = 'brand' | 'indigo' | 'herb' | 'red';
 
 const colorMap: Record<StatColor, { bg: string; icon: string; value: string }> = {
-  brand:   { bg: 'bg-brand-50 dark:bg-brand-900/20',   icon: 'text-brand-500',   value: 'text-brand-600 dark:text-brand-400' },
-  saffron: { bg: 'bg-saffron-50 dark:bg-saffron-500/10', icon: 'text-saffron-500', value: 'text-saffron-600 dark:text-saffron-400' },
-  herb:    { bg: 'bg-herb-500/10 dark:bg-herb-500/10',  icon: 'text-herb-500',    value: 'text-herb-600 dark:text-herb-400' },
-  red:     { bg: 'bg-red-50 dark:bg-red-900/20',        icon: 'text-red-500',     value: 'text-red-600 dark:text-red-400' },
+  brand:  { bg: 'bg-brand-50',   icon: 'text-brand-500',  value: 'text-brand-600'  },
+  indigo: { bg: 'bg-indigo-50',  icon: 'text-indigo-500', value: 'text-indigo-600' },
+  herb:   { bg: 'bg-herb-500/10', icon: 'text-herb-500',  value: 'text-herb-600'   },
+  red:    { bg: 'bg-red-50',     icon: 'text-red-500',    value: 'text-red-600'    },
 };
 
 function StatCard({ icon, label, value, color, alert, onClick }: {
@@ -222,7 +222,7 @@ function StatCard({ icon, label, value, color, alert, onClick }: {
       <div className={`shrink-0 ${c.icon}`}>{icon}</div>
       <div>
         <p className={`text-2xl font-black ${alert ? 'text-red-500' : c.value}`}>{value}</p>
-        <p className="text-xs text-brand-400 dark:text-brand-500 leading-tight mt-0.5">{label}</p>
+        <p className="text-xs text-slate-400 leading-tight mt-0.5">{label}</p>
       </div>
     </button>
   );
@@ -231,11 +231,11 @@ function StatCard({ icon, label, value, color, alert, onClick }: {
 function SectionHeader({ title, onMore, icon }: { title: string; onMore?: () => void; icon?: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between mb-3">
-      <h2 className="flex items-center gap-1.5 text-xs font-bold text-brand-500 dark:text-brand-400 uppercase tracking-widest">
+      <h2 className="flex items-center gap-1.5 text-xs font-bold text-brand-500 uppercase tracking-widest">
         {icon} {title}
       </h2>
       {onMore && (
-        <button onClick={onMore} className="flex items-center gap-0.5 text-xs text-brand-400 hover:text-brand-600 font-medium transition-colors">
+        <button onClick={onMore} className="flex items-center gap-0.5 text-xs text-slate-400 hover:text-brand-600 font-medium transition-colors">
           Xem thêm <ChevronRight size={12} />
         </button>
       )}
@@ -244,7 +244,7 @@ function SectionHeader({ title, onMore, icon }: { title: string; onMore?: () => 
 }
 
 function EmptyState({ text }: { text: string }) {
-  return <p className="text-sm text-brand-300 dark:text-brand-600 text-center py-6">{text}</p>;
+  return <p className="text-sm text-slate-400 text-center py-6">{text}</p>;
 }
 
 function RevenueChart({ events }: { events: FestivalEvent[] }) {
@@ -268,7 +268,7 @@ function RevenueChart({ events }: { events: FestivalEvent[] }) {
   const maxVal = Math.max(...entries.map(([, v]) => v), 100000);
 
   return (
-    <div className="bg-white dark:bg-espresso-700 rounded-2xl p-4 border border-brand-100 dark:border-espresso-700">
+    <div className="bg-white rounded-2xl p-4 border border-slate-100">
       <div className="flex items-end gap-2 h-24">
         {entries.map(([month, val]) => (
           <div key={month} className="flex-1 flex flex-col items-center gap-1">
@@ -276,14 +276,14 @@ function RevenueChart({ events }: { events: FestivalEvent[] }) {
               className="w-full rounded-t-lg transition-all"
               style={{
                 height: `${Math.max((val / maxVal) * 80, 4)}px`,
-                background: 'linear-gradient(180deg, #F97316, #EAB308)',
+                background: 'linear-gradient(180deg, #8B5CF6, #6366F1)',
               }}
             />
-            <span className="text-[9px] text-brand-400 leading-none">{month}</span>
+            <span className="text-[9px] text-slate-400 leading-none">{month}</span>
           </div>
         ))}
       </div>
-      <p className="text-xs text-brand-300 mt-2 text-right">Max: {maxVal.toLocaleString('fr-FR')}€</p>
+      <p className="text-xs text-slate-400 mt-2 text-right">Max: {maxVal.toLocaleString('fr-FR')}€</p>
     </div>
   );
 }
@@ -300,23 +300,23 @@ function TopStaffList({ events, staff }: { events: FestivalEvent[]; staff: Staff
   if (top.length === 0) return <EmptyState text="Chưa có dữ liệu" />;
 
   const rankStyle = [
-    'bg-saffron-100 text-saffron-600 dark:bg-saffron-500/20 dark:text-saffron-400',
-    'bg-brand-100 text-brand-500 dark:bg-brand-900/30 dark:text-brand-400',
-    'bg-herb-500/10 text-herb-600 dark:bg-herb-500/20 dark:text-herb-400',
+    'bg-indigo-100 text-indigo-600',
+    'bg-brand-100  text-brand-600',
+    'bg-herb-500/10 text-herb-600',
   ];
 
   return (
-    <div className="bg-white dark:bg-espresso-700 rounded-2xl border border-brand-100 dark:border-espresso-700 divide-y divide-brand-50 dark:divide-espresso-700">
+    <div className="bg-white rounded-2xl border border-slate-100 divide-y divide-slate-50">
       {top.map(({ member, count }, i) => (
         <div key={member!.id} className="flex items-center gap-3 px-4 py-3">
           <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${rankStyle[i]}`}>
             {i + 1}
           </span>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-espresso-800 dark:text-espresso-50 truncate">{member!.name}</p>
-            <p className="text-xs text-brand-400">{member!.city}</p>
+            <p className="text-sm font-semibold text-slate-800 truncate">{member!.name}</p>
+            <p className="text-xs text-slate-400">{member!.city}</p>
           </div>
-          <span className="text-sm font-bold text-brand-500 dark:text-brand-400">{count} sự kiện</span>
+          <span className="text-sm font-bold text-brand-500">{count} sự kiện</span>
         </div>
       ))}
     </div>

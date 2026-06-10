@@ -22,19 +22,18 @@ export default function Input({
 
   const fieldClass =
     'w-full py-3 rounded-xl border font-sans transition-all focus:outline-none focus:ring-2 ' +
-    'bg-white dark:bg-espresso-700 text-espresso-800 dark:text-espresso-50 ' +
-    'placeholder:text-brand-300 dark:placeholder:text-espresso-100/40 ' +
+    'bg-white text-slate-800 placeholder:text-slate-300 ' +
     (icon ? 'pl-9 pr-4 ' : 'px-4 ') +
     (error
-      ? 'border-red-400 focus:border-red-400 focus:ring-red-100 dark:focus:ring-red-900'
-      : 'border-brand-200 dark:border-espresso-700 focus:border-brand-500 focus:ring-brand-100 dark:focus:ring-brand-900');
+      ? 'border-red-400 focus:border-red-400 focus:ring-red-100'
+      : 'border-brand-200 focus:border-brand-500 focus:ring-brand-100');
 
   return (
     <div>
       {label && (
         <label
           htmlFor={inputId}
-          className="text-xs font-semibold text-brand-700 dark:text-brand-300 mb-1 block"
+          className="text-xs font-semibold text-slate-700 mb-1 block"
         >
           {label}
         </label>
@@ -54,7 +53,7 @@ export default function Input({
         />
       </div>
       {hint && !error && (
-        <p id={`${inputId}-hint`} className="text-xs text-brand-500 dark:text-brand-400 mt-1">
+        <p id={`${inputId}-hint`} className="text-xs text-brand-500 mt-1">
           {hint}
         </p>
       )}

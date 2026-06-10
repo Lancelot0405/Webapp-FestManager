@@ -52,14 +52,14 @@ export default function Sidebar({ activeTab, onTabChange, onLogoClick }: Sidebar
              : STAFF_TABS;
 
   return (
-    <aside className="hidden md:flex flex-col w-56 lg:w-64 bg-white/95 dark:bg-espresso-700/95 backdrop-blur-sm border-r border-brand-100 dark:border-espresso-600 shrink-0 sticky top-0 h-screen animate-slide-left shadow-card">
+    <aside className="hidden md:flex flex-col w-56 lg:w-64 bg-white backdrop-blur-sm border-r border-slate-100 shrink-0 sticky top-0 h-screen animate-slide-left shadow-card">
 
       {/* Logo */}
       <button
         onClick={onLogoClick}
-        className="flex items-center gap-2.5 px-5 h-16 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 border-b border-brand-50 dark:border-espresso-600"
+        className="flex items-center gap-2.5 px-5 h-16 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 border-b border-slate-100"
       >
-        <div className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center shadow-[0_2px_8px_0_rgb(249_115_22/0.35)]">
+        <div className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center shadow-[0_2px_8px_0_rgb(124_58_237/0.35)]">
           <UtensilsCrossed size={16} className="text-white" />
         </div>
         <span className="text-lg font-black tracking-tight text-brand-gradient select-none">
@@ -78,11 +78,11 @@ export default function Sidebar({ activeTab, onTabChange, onLogoClick }: Sidebar
               aria-current={isActive ? 'page' : undefined}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 active:scale-[0.98] ${
                 isActive
-                  ? 'bg-brand-gradient text-white shadow-[0_2px_8px_0_rgb(249_115_22/0.30)]'
-                  : 'text-espresso-600 dark:text-espresso-200 hover:bg-brand-50 dark:hover:bg-espresso-600/50'
+                  ? 'bg-brand-gradient text-white shadow-[0_2px_8px_0_rgb(124_58_237/0.30)]'
+                  : 'text-slate-500 hover:bg-brand-50'
               }`}
             >
-              <span className={isActive ? 'text-white' : 'text-brand-400 dark:text-brand-500'}>
+              <span className={isActive ? 'text-white' : 'text-brand-400'}>
                 {icon}
               </span>
               {label}
@@ -92,16 +92,16 @@ export default function Sidebar({ activeTab, onTabChange, onLogoClick }: Sidebar
       </nav>
 
       {/* User info footer */}
-      <div className="px-4 py-4 border-t border-brand-50 dark:border-espresso-600">
+      <div className="px-4 py-4 border-t border-slate-100">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-full bg-brand-gradient flex items-center justify-center text-white text-xs font-bold shrink-0">
             {currentUser.name.charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-espresso-800 dark:text-espresso-50 truncate">
+            <p className="text-sm font-semibold text-slate-800 truncate">
               {currentUser.name}
             </p>
-            <p className="text-[10px] font-medium text-brand-400 dark:text-brand-500 uppercase tracking-wide">
+            <p className="text-[10px] font-medium text-brand-500 uppercase tracking-wide">
               {currentUser.role === 'admin' ? 'Admin' : currentUser.role === 'manager' ? 'Quản lý' : 'Nhân viên'}
             </p>
           </div>

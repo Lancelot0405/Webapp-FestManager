@@ -160,14 +160,14 @@ export default function Inventory() {
 
   // ── Item status helpers ────────────────────────────────────────────────────
   const itemBg = (low: boolean, warn: boolean) =>
-    low  ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' :
-    warn ? 'bg-saffron-50 dark:bg-saffron-500/10 border-saffron-200 dark:border-saffron-500/20' :
-           'bg-white dark:bg-espresso-700 border-brand-100 dark:border-espresso-700';
+    low  ? 'bg-red-50 border-red-200' :
+    warn ? 'bg-indigo-50  border-indigo-200' :
+           'bg-white  border-brand-100';
 
   const selectCls =
-    'mt-1 w-full border border-brand-200 dark:border-espresso-700 bg-white dark:bg-espresso-700 ' +
-    'text-espresso-800 dark:text-espresso-50 rounded-xl px-3 py-2.5 focus:outline-none ' +
-    'focus:ring-2 focus:ring-brand-200 dark:focus:ring-brand-800 focus:border-brand-500 transition-all';
+    'mt-1 w-full border border-brand-200 bg-white  ' +
+    'text-slate-800 rounded-xl px-3 py-2.5 focus:outline-none ' +
+    'focus:ring-2 focus:ring-brand-200 focus:border-brand-500 transition-all';
 
   return (
     <div className="space-y-4 pb-20">
@@ -175,10 +175,10 @@ export default function Inventory() {
       {/* ── Page header ── */}
       <div className="flex justify-between items-center gap-2">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center shadow-[0_2px_8px_0_rgb(249_115_22/0.30)]">
+          <div className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center shadow-[0_2px_8px_0_rgb(124_58_237/0.30)]">
             <Package size={16} className="text-white" />
           </div>
-          <h1 className="text-xl font-black text-espresso-800 dark:text-espresso-50">Kho hàng</h1>
+          <h1 className="text-xl font-black text-slate-800">Kho hàng</h1>
         </div>
         {subTab !== 'history' && (
           <div className="flex gap-2">
@@ -189,7 +189,7 @@ export default function Inventory() {
             </label>
             <button
               onClick={() => { setShowAddForm(true); setExpandedId(null); }}
-              className="flex items-center gap-1.5 bg-brand-gradient text-white text-xs font-bold px-3 py-2 rounded-xl shadow-[0_2px_6px_0_rgb(249_115_22/0.30)] active:scale-95 transition-all"
+              className="flex items-center gap-1.5 bg-brand-gradient text-white text-xs font-bold px-3 py-2 rounded-xl shadow-[0_2px_6px_0_rgb(124_58_237/0.30)] active:scale-95 transition-all"
             >
               <Plus size={14} /> Thêm
             </button>
@@ -199,7 +199,7 @@ export default function Inventory() {
 
       {/* ── Main tabs ── */}
       {canSeeRestaurant && canSeeFestival && (
-        <div className="flex border-b border-brand-100 dark:border-espresso-700">
+        <div className="flex border-b border-brand-100">
           {([
             { id: 'restaurant' as MainTab, icon: <Store size={14} />,  label: 'Nhà hàng', color: 'text-brand-600 border-brand-500' },
             { id: 'festival'   as MainTab, icon: <Tent size={14} />,   label: 'Festival',  color: 'text-herb-600 border-herb-500' },
@@ -210,7 +210,7 @@ export default function Inventory() {
               className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold border-b-2 transition-colors ${
                 mainTab === t.id
                   ? t.color
-                  : 'border-transparent text-brand-300 dark:text-brand-600 hover:text-brand-500'
+                  : 'border-transparent text-slate-400 hover:text-brand-500'
               }`}
             >
               {t.icon} {t.label}
@@ -222,14 +222,14 @@ export default function Inventory() {
       {/* ── Section chip ── */}
       <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border ${
         mainTab === 'restaurant'
-          ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-200 dark:border-brand-800'
+          ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-200'
           : 'bg-herb-500/10 dark:bg-herb-500/10 border-herb-500/30 dark:border-herb-500/30'
       }`}>
         {mainTab === 'restaurant'
           ? <Store size={13} className="text-brand-500" />
           : <Tent  size={13} className="text-herb-500" />
         }
-        <span className={`text-xs font-bold ${mainTab === 'restaurant' ? 'text-brand-700 dark:text-brand-300' : 'text-herb-600 dark:text-herb-400'}`}>
+        <span className={`text-xs font-bold ${mainTab === 'restaurant' ? 'text-brand-700' : 'text-herb-600'}`}>
           {sectionLabel}
         </span>
       </div>
@@ -248,14 +248,14 @@ export default function Inventory() {
               onClick={() => handleSubTabChange(id)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 ${
                 isActive
-                  ? 'bg-brand-gradient text-white shadow-[0_2px_6px_0_rgb(249_115_22/0.30)] border-transparent'
-                  : 'bg-brand-50 dark:bg-espresso-700 text-brand-500 dark:text-brand-400 border border-brand-200 dark:border-espresso-700 hover:border-brand-400'
+                  ? 'bg-brand-gradient text-white shadow-[0_2px_6px_0_rgb(124_58_237/0.30)] border-transparent'
+                  : 'bg-brand-50  text-brand-500 border border-brand-200 hover:border-brand-400'
               }`}
             >
               {id === 'history' && <History size={11} />}
               {label}
               <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
-                isActive ? 'bg-white/25 text-white' : 'bg-brand-100 dark:bg-espresso-600 text-brand-600 dark:text-brand-400'
+                isActive ? 'bg-white/25 text-white' : 'bg-brand-100 text-brand-600'
               }`}>
                 {count}
               </span>
@@ -266,7 +266,7 @@ export default function Inventory() {
 
       {/* Import hint */}
       {subTab !== 'history' && (
-        <div className="flex items-start gap-2 bg-herb-500/10 dark:bg-herb-500/10 border border-herb-500/30 rounded-xl px-3 py-2 text-xs text-herb-600 dark:text-herb-400">
+        <div className="flex items-start gap-2 bg-herb-500/10 dark:bg-herb-500/10 border border-herb-500/30 rounded-xl px-3 py-2 text-xs text-herb-600">
           <Upload size={11} className="shrink-0 mt-0.5" />
           <span>File Excel: 2 cột <strong>Tên | Số lượng</strong> — đơn vị chỉnh trong app sau</span>
         </div>
@@ -274,9 +274,9 @@ export default function Inventory() {
 
       {/* ── Add form ── */}
       {showAddForm && (
-        <form onSubmit={handleAddItem} className="bg-white dark:bg-espresso-700 rounded-2xl border border-brand-200 dark:border-brand-800 p-4 shadow-warm space-y-3 animate-fade-in">
+        <form onSubmit={handleAddItem} className="bg-white  rounded-2xl border border-brand-200 p-4 shadow-warm space-y-3 animate-fade-in">
           <div className="flex justify-between items-center">
-            <p className="font-bold text-espresso-800 dark:text-espresso-50 text-sm">
+            <p className="font-bold text-slate-800 text-sm">
               Thêm {itemLabel} — {sectionLabel}
             </p>
             <button
@@ -294,7 +294,7 @@ export default function Inventory() {
           <NumberPicker label="Cảnh báo" value={newThreshold} onChange={setNewThreshold} min={0} step={0.1} placeholder="0" />
 
           <div>
-            <label className="text-xs font-semibold text-brand-700 dark:text-brand-300">Đơn vị</label>
+            <label className="text-xs font-semibold text-brand-700">Đơn vị</label>
             <select className={selectCls} value={newUnit} onChange={e => setNewUnit(e.target.value as InventoryUnit)}>
               {unitOptions.map(u => <option key={u} value={u}>{u}</option>)}
             </select>
@@ -311,7 +311,7 @@ export default function Inventory() {
         {state.loading ? (
           <SkeletonList count={3} variant="row" />
         ) : filteredItems.length === 0 && subTab !== 'history' ? (
-          <p className="text-sm text-brand-300 dark:text-brand-600 text-center py-10">
+          <p className="text-sm text-slate-400 text-center py-10">
             Chưa có {itemLabel} nào trong kho {sectionLabel}
           </p>
         ) : null}
@@ -333,17 +333,17 @@ export default function Inventory() {
                 onClick={() => isExpanded ? setExpandedId(null) : openEdit(item)}
               >
                 <div className="flex-1 min-w-0">
-                  <p className={`font-semibold text-sm ${isLow ? 'text-red-600 dark:text-red-400' : 'text-espresso-800 dark:text-espresso-50'}`}>
+                  <p className={`font-semibold text-sm ${isLow ? 'text-red-600' : 'text-slate-800'}`}>
                     {item.name}
                   </p>
                   {isLow  && <p className="text-xs text-red-500 font-medium">⚠ Sắp hết hàng!</p>}
-                  {isWarn && <p className="text-xs text-saffron-600 dark:text-saffron-400 font-medium">Sắp tới mức cảnh báo</p>}
+                  {isWarn && <p className="text-xs text-indigo-600 font-medium">Sắp tới mức cảnh báo</p>}
                 </div>
                 <div className="flex items-center gap-2 shrink-0 ml-3">
-                  <span className={`text-sm font-black ${isLow ? 'text-red-500' : isWarn ? 'text-saffron-600' : 'text-brand-600 dark:text-brand-400'}`}>
+                  <span className={`text-sm font-black ${isLow ? 'text-red-500' : isWarn ? 'text-indigo-600' : 'text-brand-600'}`}>
                     {item.current}
                   </span>
-                  <span className="text-xs text-brand-400 dark:text-brand-500">{item.unit}</span>
+                  <span className="text-xs text-brand-400">{item.unit}</span>
                   {isExpanded
                     ? <ChevronUp size={14} className="text-brand-400" />
                     : <ChevronDown size={14} className="text-brand-400" />
@@ -353,7 +353,7 @@ export default function Inventory() {
 
               {/* Edit panel */}
               {isExpanded && (
-                <div className="px-4 pb-4 pt-2 border-t border-brand-100 dark:border-espresso-700 space-y-3 animate-fade-in">
+                <div className="px-4 pb-4 pt-2 border-t border-brand-100 space-y-3 animate-fade-in">
                   <FoodNameSelect
                     value={editName}
                     onChange={setEditName}
@@ -364,7 +364,7 @@ export default function Inventory() {
                   <NumberPicker label="Cảnh báo" value={editThreshold} onChange={setEditThreshold} min={0} step={0.1} placeholder="0" />
 
                   <div>
-                    <label className="text-xs font-semibold text-brand-700 dark:text-brand-300">Đơn vị</label>
+                    <label className="text-xs font-semibold text-brand-700">Đơn vị</label>
                     <select className={selectCls} value={editUnit} onChange={e => setEditUnit(e.target.value as InventoryUnit)}>
                       {currentUnitOpts.map(u => <option key={u} value={u}>{u}</option>)}
                     </select>
@@ -379,14 +379,14 @@ export default function Inventory() {
                     </button>
                     <button
                       onClick={() => setExpandedId(null)}
-                      className="flex-1 bg-brand-50 dark:bg-espresso-800 text-brand-600 dark:text-brand-400 text-sm font-semibold py-2.5 rounded-xl border border-brand-200 dark:border-espresso-700 hover:bg-brand-100 active:scale-[0.98] transition-all"
+                      className="flex-1 bg-brand-50 text-brand-600 text-sm font-semibold py-2.5 rounded-xl border border-brand-200 hover:bg-brand-100 active:scale-[0.98] transition-all"
                     >
                       Hủy
                     </button>
                     <button
                       aria-label={`Xóa ${item.name}`}
                       onClick={() => handleDelete(item)}
-                      className="px-3 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-xl border border-red-200 dark:border-red-800 hover:bg-red-100 active:scale-95 transition-all"
+                      className="px-3 bg-red-50 text-red-500 rounded-xl border border-red-200 hover:bg-red-100 active:scale-95 transition-all"
                     >
                       <Trash2 size={15} />
                     </button>

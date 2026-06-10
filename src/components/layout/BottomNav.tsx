@@ -70,7 +70,7 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
              : STAFF_TABS;
 
   return (
-    <nav className="bg-white/95 dark:bg-espresso-700/95 backdrop-blur-sm border-t border-brand-100 dark:border-espresso-700 fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md pb-safe z-20">
+    <nav className="bg-white backdrop-blur-sm border-t border-slate-100 fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md pb-safe z-20">
       <div className="flex justify-around items-center px-1 pt-1.5">
         {tabs.map(({ tab, icon, label }) => {
           const isActive = activeTab === tab;
@@ -83,15 +83,15 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
             >
               <div className={`p-1.5 rounded-xl transition-all duration-150 ${
                 isActive
-                  ? 'bg-brand-gradient shadow-[0_2px_8px_0_rgb(249_115_22/0.35)]'
-                  : 'text-brand-300 dark:text-brand-600'
+                  ? 'bg-brand-gradient shadow-[0_2px_8px_0_rgb(124_58_237/0.35)]'
+                  : 'text-slate-400'
               }`}>
                 <span className={isActive ? 'text-white' : ''}>
                   {icon}
                 </span>
               </div>
               <span className={`text-[10px] font-semibold leading-none transition-colors ${
-                isActive ? 'text-brand-500 dark:text-brand-400' : 'text-brand-300 dark:text-brand-600'
+                isActive ? 'text-brand-600' : 'text-slate-400'
               }`}>
                 {label}
               </span>

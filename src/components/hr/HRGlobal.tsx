@@ -39,7 +39,6 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
 
   const q = search.trim().toLowerCase();
 
-  // Staff only sees themselves; admin/manager sees all
   const visibleStaff = canViewAll
     ? staff
     : staff.filter(s => s.userId === currentUser?.id);
@@ -61,7 +60,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
       {list.map(s => (
         <div
           key={s.id}
-          className="bg-white dark:bg-espresso-800 rounded-xl shadow-card border border-brand-100 dark:border-espresso-700 hover:border-brand-300 transition-colors flex items-stretch"
+          className="bg-white rounded-xl shadow-card border border-slate-100 hover:border-brand-300 transition-colors flex items-stretch"
         >
           <button
             onClick={() => onSelectStaff(String(s.id))}
@@ -72,19 +71,19 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
                 <User size={18} className="text-brand-600" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-espresso-800 dark:text-espresso-50">{s.name}</p>
-                <p className="text-xs text-espresso-500 dark:text-brand-300">{s.city}</p>
+                <p className="font-semibold text-slate-800">{s.name}</p>
+                <p className="text-xs text-slate-500">{s.city}</p>
               </div>
               <div className="text-right shrink-0">
-                <p className="text-xs text-espresso-500 dark:text-brand-300">{eventCountMap.get(s.id) ?? 0} sự kiện</p>
-                <p className="text-xs text-espresso-400 dark:text-brand-400">{s.contracts.length} hợp đồng</p>
+                <p className="text-xs text-slate-500">{eventCountMap.get(s.id) ?? 0} sự kiện</p>
+                <p className="text-xs text-slate-400">{s.contracts.length} hợp đồng</p>
               </div>
             </div>
           </button>
           {isAdmin && (
             <button
               onClick={e => handleDelete(e, s.id, s.name)}
-              className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-brand-100 dark:border-espresso-700 transition-colors rounded-r-xl"
+              className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-slate-100 transition-colors rounded-r-xl"
             >
               <Trash2 size={15} />
             </button>
@@ -97,7 +96,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
   return (
     <div className="space-y-4 pb-20">
       <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold text-espresso-800 dark:text-espresso-50">Nhân sự</h1>
+        <h1 className="text-xl font-bold text-slate-800">Nhân sự</h1>
         {isAdmin && (
           <button
             onClick={() => setShowForm(true)}
@@ -111,41 +110,41 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
 
       {/* Pending registrations — admin only */}
       {isAdmin && (
-        <div className="bg-saffron-50 dark:bg-saffron-900/20 border border-saffron-200 dark:border-saffron-700 rounded-xl overflow-hidden">
+        <div className="bg-indigo-50 border border-indigo-200 rounded-xl overflow-hidden">
           <button
             onClick={() => setShowPending(v => !v)}
             className="w-full flex items-center justify-between px-4 py-3"
           >
             <div className="flex items-center gap-2">
-              <ShieldCheck size={16} className="text-saffron-600 dark:text-saffron-400" />
-              <span className="text-sm font-semibold text-saffron-700 dark:text-saffron-300">
+              <ShieldCheck size={16} className="text-indigo-600" />
+              <span className="text-sm font-semibold text-indigo-700">
                 Yêu cầu đăng ký quản lý
               </span>
-              <span className="bg-saffron-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+              <span className="bg-indigo-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                 {pendingRegistrations.length}
               </span>
             </div>
-            <span className="text-saffron-400 text-xs">{showPending ? '▲' : '▼'}</span>
+            <span className="text-indigo-400 text-xs">{showPending ? '▲' : '▼'}</span>
           </button>
 
           {showPending && (
             <div className="px-4 pb-4 space-y-2">
               {pendingRegistrations.length === 0 && (
-                <p className="text-xs text-saffron-400 dark:text-saffron-500 text-center py-2">
+                <p className="text-xs text-indigo-400 text-center py-2">
                   Chưa có yêu cầu đăng ký nào
                 </p>
               )}
               {pendingRegistrations.map(req => (
                 <div
                   key={req.id}
-                  className="bg-white dark:bg-espresso-800 rounded-xl p-3 border border-saffron-100 dark:border-espresso-600 flex items-center gap-3"
+                  className="bg-white rounded-xl p-3 border border-indigo-100 flex items-center gap-3"
                 >
-                  <div className="w-9 h-9 rounded-full bg-saffron-100 dark:bg-saffron-900/40 flex items-center justify-center shrink-0">
-                    <ShieldCheck size={16} className="text-saffron-600 dark:text-saffron-400" />
+                  <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
+                    <ShieldCheck size={16} className="text-indigo-600" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-espresso-800 dark:text-espresso-50">{req.displayName}</p>
-                    <p className="text-xs text-saffron-600 dark:text-saffron-400">Quản lý · Chờ duyệt</p>
+                    <p className="text-sm font-semibold text-slate-800">{req.displayName}</p>
+                    <p className="text-xs text-indigo-600">Quản lý · Chờ duyệt</p>
                   </div>
                   <div className="flex gap-1.5 shrink-0">
                     <button
@@ -172,13 +171,13 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
 
       {/* Search */}
       <div className="relative">
-        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-espresso-400 pointer-events-none" />
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
         <input
           type="text"
           placeholder="Tìm theo tên hoặc thành phố..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full pl-9 pr-3 py-2 border border-brand-200 dark:border-espresso-600 dark:bg-espresso-800 dark:text-espresso-50 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-brand-400"
+          className="w-full pl-9 pr-3 py-2 border border-brand-200 rounded-xl text-sm focus:outline-none focus:border-brand-400 bg-white text-slate-800 placeholder:text-slate-300"
         />
       </div>
 
@@ -192,7 +191,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
               className={`px-3 py-1 rounded-full text-xs font-semibold transition ${
                 typeFilter === t
                   ? 'bg-brand-500 text-white'
-                  : 'bg-brand-50 dark:bg-espresso-700 text-espresso-800 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-espresso-600'
+                  : 'bg-brand-50 text-slate-600 hover:bg-brand-100'
               }`}
             >
               {t}
@@ -208,9 +207,8 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
       {state.loading ? (
         <SkeletonList count={4} variant="row" />
       ) : filtered.length === 0 ? (
-        <p className="text-sm text-espresso-400 text-center py-10">Chưa có nhân viên</p>
+        <p className="text-sm text-slate-400 text-center py-10">Chưa có nhân viên</p>
       ) : typeFilter === 'Tất cả' && canViewAll ? (
-        // Grouped view
         <>
           {permanent.length > 0 && (
             <div className="space-y-2">
@@ -225,7 +223,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
           {partTime.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-saffron-700 bg-saffron-50 px-2.5 py-1 rounded-full">
+                <span className="text-xs font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full">
                   Part-time · {partTime.length}
                 </span>
               </div>

@@ -19,18 +19,17 @@ const base =
 
 const variants: Record<Variant, string> = {
   primary:
-    'bg-brand-500 text-white hover:bg-brand-600 shadow-[0_2px_8px_0_rgb(249_115_22/0.35)] ' +
-    'hover:shadow-[0_4px_12px_0_rgb(249_115_22/0.45)] dark:bg-brand-400 dark:hover:bg-brand-500',
+    'bg-brand-500 text-white hover:bg-brand-600 shadow-[0_2px_8px_0_rgb(124_58_237/0.35)] ' +
+    'hover:shadow-[0_4px_12px_0_rgb(124_58_237/0.45)]',
   saffron:
-    'bg-saffron-500 text-espresso-800 hover:bg-saffron-600 shadow-[0_2px_8px_0_rgb(234_179_8/0.30)] ' +
-    'hover:shadow-[0_4px_12px_0_rgb(234_179_8/0.40)] dark:bg-saffron-400 dark:text-espresso-800',
+    'bg-indigo-500 text-white hover:bg-indigo-600 shadow-[0_2px_8px_0_rgb(99_102_241/0.30)] ' +
+    'hover:shadow-[0_4px_12px_0_rgb(99_102_241/0.40)]',
   secondary:
-    'border border-brand-200 dark:border-brand-900 bg-brand-50 dark:bg-espresso-700 ' +
-    'text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-espresso-700/80',
+    'border border-brand-200 bg-brand-50 text-brand-700 hover:bg-brand-100',
   danger:
     'bg-red-500 text-white hover:bg-red-600 shadow-[0_2px_8px_0_rgb(239_68_68/0.30)]',
   ghost:
-    'text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-espresso-700',
+    'text-brand-600 hover:bg-brand-50',
 };
 
 const sizes: Record<Size, string> = {

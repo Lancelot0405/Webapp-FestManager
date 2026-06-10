@@ -5,66 +5,41 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Design Tokens — Warm Feast ───────────────────────────────────────── */
+/* ── Design Tokens — MeetCraft Purple ─────────────────────────────────── */
 :root {
-  /* Primary — cam lửa */
-  --primary:        #F97316;
-  --primary-hover:  #EA6D0D;
-  --primary-light:  #FFF7ED;
-  --primary-border: #FED7AA;
+  /* Primary — tím violet */
+  --primary:        #8B5CF6;
+  --primary-hover:  #7C3AED;
+  --primary-light:  #F5F3FF;
+  --primary-border: #DDD6FE;
 
-  /* Secondary — vàng nghệ */
-  --secondary:      #EAB308;
-  --secondary-light:#FEFCE8;
+  /* Secondary — indigo */
+  --secondary:      #6366F1;
+  --secondary-light:#EEF2FF;
 
-  /* Success — xanh lá tươi */
+  /* Success — xanh lá */
   --success:        #22C55E;
   --success-light:  #F0FDF4;
 
   /* Surfaces */
-  --surface:        #FFFBF5;
+  --surface:        #F8F9FA;
   --card:           #FFFFFF;
-  --border:         #FED7AA;
+  --border:         #EDE9FE;
 
   /* Text */
-  --text-primary:   #1C1008;
-  --text-secondary: #78350F;
-  --text-muted:     #A16207;
+  --text-primary:   #1E293B;
+  --text-secondary: #475569;
+  --text-muted:     #94A3B8;
 
-  /* Shadows (warm tinted) */
-  --shadow-card:    0 1px 4px 0 rgb(249 115 22 / 0.08), 0 1px 2px -1px rgb(249 115 22 / 0.06);
-  --shadow-warm:    0 4px 16px 0 rgb(249 115 22 / 0.15);
+  /* Shadows (purple tinted) */
+  --shadow-card:    0 1px 4px 0 rgb(124 58 237 / 0.08), 0 1px 2px -1px rgb(124 58 237 / 0.06);
+  --shadow-warm:    0 4px 16px 0 rgb(124 58 237 / 0.15);
 
   /* iOS safe area */
   --sat: env(safe-area-inset-top, 0px);
   --sar: env(safe-area-inset-right, 0px);
   --sab: env(safe-area-inset-bottom, 0px);
   --sal: env(safe-area-inset-left, 0px);
-}
-
-/* ── Dark mode tokens ─────────────────────────────────────────────────── */
-.dark {
-  --primary:        #FB923C;
-  --primary-hover:  #F97316;
-  --primary-light:  #431407;
-  --primary-border: #92400E;
-
-  --secondary:      #FDE047;
-  --secondary-light:#1C1A00;
-
-  --success:        #4ADE80;
-  --success-light:  #052E16;
-
-  --surface:        #1C1008;
-  --card:           #2C1A0E;
-  --border:         #92400E;
-
-  --text-primary:   #FEF3C7;
-  --text-secondary: #FCD34D;
-  --text-muted:     #D97706;
-
-  --shadow-card:    0 1px 4px 0 rgb(0 0 0 / 0.40);
-  --shadow-warm:    0 4px 16px 0 rgb(0 0 0 / 0.50);
 }
 
 /* ── Base reset ───────────────────────────────────────────────────────── */
@@ -84,7 +59,6 @@ body {
   background: var(--surface);
   color: var(--text-primary);
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  transition: background 0.2s ease, color 0.2s ease;
 }
 
 #root {
@@ -181,26 +155,17 @@ input[type="date"] {
 .shimmer {
   background: linear-gradient(
     90deg,
-    rgb(249 115 22 / 0.06) 25%,
-    rgb(249 115 22 / 0.12) 50%,
-    rgb(249 115 22 / 0.06) 75%
+    rgb(124 58 237 / 0.06) 25%,
+    rgb(124 58 237 / 0.12) 50%,
+    rgb(124 58 237 / 0.06) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
-.dark .shimmer {
-  background: linear-gradient(
-    90deg,
-    rgb(251 146 60 / 0.08) 25%,
-    rgb(251 146 60 / 0.16) 50%,
-    rgb(251 146 60 / 0.08) 75%
-  );
-  background-size: 200% 100%;
-}
 
-/* ── Warm gradient text utility ───────────────────────────────────────── */
+/* ── Purple gradient text utility ─────────────────────────────────────── */
 .text-brand-gradient {
-  background: linear-gradient(135deg, #F97316, #EAB308);
+  background: linear-gradient(135deg, #8B5CF6, #6366F1);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -210,8 +175,7 @@ input[type="date"] {
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: #FED7AA;
+  background: #DDD6FE;
   border-radius: 9999px;
 }
-::-webkit-scrollbar-thumb:hover { background: #F97316; }
-.dark ::-webkit-scrollbar-thumb { background: #92400E; }
+::-webkit-scrollbar-thumb:hover { background: #8B5CF6; }

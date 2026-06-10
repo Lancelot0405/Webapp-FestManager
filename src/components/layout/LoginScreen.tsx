@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Moon, Sun, Download, Smartphone, X, ShieldCheck, Store, Tent, UtensilsCrossed } from 'lucide-react';
+import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Download, Smartphone, X, ShieldCheck, Store, Tent, UtensilsCrossed } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { adminApi } from '../../lib/adminApi';
 import { useApp } from '../../context/AppContext';
-import { useTheme } from '../../context/ThemeContext';
 import { useInstallPrompt } from '../../hooks/useInstallPrompt';
 
 const DOMAIN = '@fm.com';
@@ -13,7 +12,6 @@ type RegisterRole   = 'staff' | 'manager';
 
 export default function LoginScreen() {
   const { login }  = useApp();
-  const { theme, toggleTheme } = useTheme();
   const { isIos, isStandalone, triggerInstall } = useInstallPrompt();
 
   const [showInstallModal, setShowInstallModal] = useState(false);
@@ -121,35 +119,34 @@ export default function LoginScreen() {
 
   const fieldBase =
     'w-full pl-9 pr-4 py-3 border rounded-xl transition-all ' +
-    'bg-white dark:bg-espresso-700 text-espresso-800 dark:text-espresso-50 ' +
-    'placeholder:text-brand-200 dark:placeholder:text-espresso-100/30 ' +
-    'border-brand-200 dark:border-espresso-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900 focus:outline-none';
+    'bg-white text-slate-800 placeholder:text-slate-300 ' +
+    'border-brand-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 focus:outline-none';
 
   return (
-    <div className="w-full max-w-md flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-surface-light dark:bg-surface-dark">
+    <div className="w-full max-w-md flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-slate-50">
 
       {/* Card */}
-      <div className="w-full bg-white dark:bg-espresso-700 rounded-3xl p-8 shadow-warm">
+      <div className="w-full bg-white rounded-3xl p-8 shadow-warm">
 
         {/* Logo */}
         <div className="flex flex-col items-center mb-7">
           <div className="w-16 h-16 rounded-2xl bg-brand-gradient flex items-center justify-center mb-3 shadow-hero">
             <UtensilsCrossed size={28} className="text-white" />
           </div>
-          <h1 className="text-2xl font-black text-espresso-800 dark:text-espresso-50 tracking-tight">FestManager</h1>
-          <p className="text-brand-400 dark:text-brand-500 text-sm mt-0.5">Hệ thống quản lý F&amp;B lưu động</p>
+          <h1 className="text-2xl font-black text-slate-800 tracking-tight">FestManager</h1>
+          <p className="text-brand-400 text-sm mt-0.5">Hệ thống quản lý F&amp;B lưu động</p>
         </div>
 
         {/* Tab */}
-        <div className="flex w-full bg-brand-50 dark:bg-espresso-800 rounded-xl p-1 mb-6">
+        <div className="flex w-full bg-brand-50 rounded-xl p-1 mb-6">
           {(['login', 'register'] as Mode[]).map(m => (
             <button
               key={m}
               onClick={() => reset(m)}
               className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
                 mode === m
-                  ? 'bg-white dark:bg-espresso-700 shadow text-brand-600 dark:text-brand-400'
-                  : 'text-brand-400 dark:text-brand-600'
+                  ? 'bg-white shadow text-brand-600'
+                  : 'text-slate-400'
               }`}
             >
               {m === 'login' ? 'Đăng nhập' : 'Đăng ký'}
@@ -174,7 +171,7 @@ export default function LoginScreen() {
                 className={`${fieldBase} pr-10`} />
               <button type="button" aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                 onClick={() => setShowPw(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-300 hover:text-brand-500">
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-brand-500">
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </Field>
@@ -191,13 +188,13 @@ export default function LoginScreen() {
         {/* ── REGISTER ── */}
         {mode === 'register' && (
           <form onSubmit={handleRegister} className="w-full space-y-4">
-            <div className="bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800 rounded-xl px-3 py-2.5 text-xs text-brand-600 dark:text-brand-400">
+            <div className="bg-brand-50 border border-brand-200 rounded-xl px-3 py-2.5 text-xs text-brand-600">
               💡 Nếu admin đã tạo tài khoản cho bạn, hãy dùng thông tin do admin cung cấp.
             </div>
 
             {/* Role */}
             <div>
-              <label className="text-xs font-semibold text-brand-700 dark:text-brand-300 mb-1.5 block">Đăng ký với vai trò</label>
+              <label className="text-xs font-semibold text-slate-700 mb-1.5 block">Đăng ký với vai trò</label>
               <div className="grid grid-cols-2 gap-2">
                 <RoleBtn
                   active={registerRole === 'staff'}
@@ -208,14 +205,14 @@ export default function LoginScreen() {
                 />
                 <RoleBtn
                   active={registerRole === 'manager'}
-                  activeClass="bg-saffron-500 text-espresso-800 shadow-[0_2px_8px_0_rgb(234_179_8/0.35)]"
+                  activeClass="bg-indigo-500 text-white shadow-[0_2px_8px_0_rgb(99_102_241/0.35)]"
                   onClick={() => setRegisterRole('manager')}
                   icon={<ShieldCheck size={14} />}
                   label="Quản lý"
                 />
               </div>
               {registerRole === 'manager' && (
-                <p className="mt-1.5 text-xs text-saffron-600 dark:text-saffron-400">
+                <p className="mt-1.5 text-xs text-indigo-600">
                   ⏳ Tài khoản quản lý cần được admin duyệt trước khi đăng nhập.
                 </p>
               )}
@@ -224,7 +221,7 @@ export default function LoginScreen() {
             {/* Department */}
             {registerRole === 'staff' && (
               <div>
-                <label className="text-xs font-semibold text-brand-700 dark:text-brand-300 mb-1.5 block">Bộ phận</label>
+                <label className="text-xs font-semibold text-slate-700 mb-1.5 block">Bộ phận</label>
                 <div className="grid grid-cols-2 gap-2">
                   <RoleBtn
                     active={registerDept === 'restaurant'}
@@ -263,7 +260,7 @@ export default function LoginScreen() {
                 className={`${fieldBase} pr-10`} />
               <button type="button" aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                 onClick={() => setShowPw(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-300 hover:text-brand-500">
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-brand-500">
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </Field>
@@ -283,7 +280,7 @@ export default function LoginScreen() {
 
             <button type="submit" disabled={loading}
               className={`w-full text-white font-semibold py-3 rounded-xl shadow-warm active:scale-[0.98] transition-all disabled:opacity-60 ${
-                registerRole === 'manager' ? 'bg-saffron-500 hover:bg-saffron-600 text-espresso-800' : 'bg-brand-gradient hover:opacity-90'
+                registerRole === 'manager' ? 'bg-indigo-500 hover:bg-indigo-600' : 'bg-brand-gradient hover:opacity-90'
               }`}>
               {loading ? 'Đang xử lý...' : registerRole === 'manager' ? 'Gửi yêu cầu đăng ký' : 'Tạo tài khoản'}
             </button>
@@ -291,32 +288,24 @@ export default function LoginScreen() {
         )}
 
         {/* Footer */}
-        <div className="border-t border-brand-100 dark:border-espresso-700 mt-6 pt-4 flex items-center justify-center gap-3">
-          <button
-            onClick={toggleTheme}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-brand-50 dark:bg-espresso-800 hover:bg-brand-100 dark:hover:bg-espresso-700 text-brand-600 dark:text-brand-400 text-xs font-medium transition-colors"
-          >
-            {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
-            {theme === 'dark' ? 'Giao diện sáng' : 'Giao diện tối'}
-          </button>
-
+        <div className="border-t border-slate-100 mt-6 pt-4 flex items-center justify-center gap-3">
           <div className="relative">
             <button
               onClick={handleInstallClick}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-brand-50 dark:bg-espresso-800 hover:bg-brand-100 dark:hover:bg-espresso-700 text-brand-600 dark:text-brand-400 text-xs font-medium transition-colors"
+              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-600 text-xs font-medium transition-colors"
             >
               <Download size={14} /> Cài đặt app
             </button>
             {showInstallModal && (
-              <div className="absolute bottom-11 right-0 w-72 bg-white dark:bg-espresso-700 rounded-2xl shadow-warm border border-brand-100 dark:border-espresso-700 z-50 p-4 animate-fade-in">
+              <div className="absolute bottom-11 right-0 w-72 bg-white rounded-2xl shadow-warm border border-slate-100 z-50 p-4 animate-fade-in">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <Smartphone size={16} className="text-brand-500" />
-                    <p className="text-sm font-semibold text-espresso-800 dark:text-espresso-50">
+                    <p className="text-sm font-semibold text-slate-800">
                       {isStandalone ? 'Đã cài đặt' : 'Cài FestManager'}
                     </p>
                   </div>
-                  <button onClick={() => setShowInstallModal(false)} className="text-brand-300 hover:text-brand-500"><X size={15} /></button>
+                  <button onClick={() => setShowInstallModal(false)} className="text-slate-300 hover:text-slate-500"><X size={15} /></button>
                 </div>
                 {isStandalone ? (
                   <p className="text-sm text-brand-500">FestManager đã được cài 🎉</p>
@@ -329,7 +318,7 @@ export default function LoginScreen() {
                 ) : (
                   <p className="text-sm text-brand-400">Dùng menu trình duyệt → "Cài đặt ứng dụng".</p>
                 )}
-                <p className="text-xs text-brand-300 mt-3">Yêu cầu Safari iOS 16.4+ hoặc Chrome Android</p>
+                <p className="text-xs text-slate-400 mt-3">Yêu cầu Safari iOS 16.4+ hoặc Chrome Android</p>
               </div>
             )}
           </div>
@@ -344,7 +333,7 @@ export default function LoginScreen() {
 function Field({ label, icon, children }: { label: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
     <div>
-      <label className="text-xs font-semibold text-brand-700 dark:text-brand-300 mb-1 block">{label}</label>
+      <label className="text-xs font-semibold text-slate-700 mb-1 block">{label}</label>
       <div className="relative">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-400">{icon}</span>
         {children}
@@ -364,7 +353,7 @@ function RoleBtn({ active, activeClass, onClick, icon, label }: {
       className={`py-2.5 rounded-xl text-sm font-semibold border transition-all flex items-center justify-center gap-1.5 active:scale-[0.97] ${
         active
           ? `${activeClass} border-transparent`
-          : 'bg-white dark:bg-espresso-700 text-brand-500 dark:text-brand-400 border-brand-200 dark:border-espresso-700 hover:border-brand-400'
+          : 'bg-white text-brand-500 border-brand-200 hover:border-brand-400'
       }`}
     >
       {icon} {label}
@@ -374,7 +363,7 @@ function RoleBtn({ active, activeClass, onClick, icon, label }: {
 
 function ErrorMsg({ msg }: { msg: string }) {
   return (
-    <div className="flex items-center gap-2 text-red-500 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl px-3 py-2.5 text-sm">
+    <div className="flex items-center gap-2 text-red-500 bg-red-50 border border-red-200 rounded-xl px-3 py-2.5 text-sm">
       <AlertCircle size={15} className="shrink-0" /> {msg}
     </div>
   );
@@ -384,7 +373,7 @@ function InstallStep({ n, text }: { n: number; text: string }) {
   return (
     <div className="flex gap-2.5 items-start">
       <span className="w-5 h-5 rounded-full bg-brand-gradient text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">{n}</span>
-      <p className="text-xs text-espresso-800 dark:text-espresso-50 leading-snug">{text}</p>
+      <p className="text-xs text-slate-700 leading-snug">{text}</p>
     </div>
   );
 }

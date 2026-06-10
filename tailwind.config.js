@@ -1,50 +1,62 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: 'class',
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
-        // ── Warm Feast — F&B / Festival palette ──────────────────────────
+        // ── MeetCraft — Purple/Indigo palette ─────────────────────────────
         brand: {
-          50:  '#FFF7ED',   // orange-50
-          100: '#FFEDD5',   // orange-100
-          200: '#FED7AA',   // orange-200 — border nhạt
-          300: '#FDBA74',   // orange-300
-          400: '#FB923C',   // orange-400 — dark primary
-          500: '#F97316',   // orange-500 — light primary ★
-          600: '#EA6D0D',   // primary hover
-          700: '#C2570A',   // pressed
-          800: '#9A3E08',   // dark heavy
-          900: '#431407',   // dark light bg
+          50:  '#F5F3FF',   // violet-50
+          100: '#EDE9FE',   // violet-100
+          200: '#DDD6FE',   // violet-200 — border nhạt
+          300: '#C4B5FD',   // violet-300
+          400: '#A78BFA',   // violet-400
+          500: '#8B5CF6',   // violet-500 — primary ★
+          600: '#7C3AED',   // violet-600 — primary hover
+          700: '#6D28D9',   // violet-700 — pressed
+          800: '#5B21B6',   // violet-800
+          900: '#4C1D95',   // violet-900
         },
-        saffron: {
-          50:  '#FEFCE8',
-          100: '#FEF9C3',
-          300: '#FDE047',
-          400: '#FACC15',
-          500: '#EAB308',   // yellow-500 — secondary accent ★
-          600: '#CA8A04',
+        indigo: {
+          50:  '#EEF2FF',
+          100: '#E0E7FF',
+          300: '#A5B4FC',
+          400: '#818CF8',
+          500: '#6366F1',   // indigo-500 — secondary accent ★
+          600: '#4F46E5',
         },
         herb: {
           400: '#4ADE80',
-          500: '#22C55E',   // green-500 — success / fresh ★
+          500: '#22C55E',   // green-500 — success ★
           600: '#16A34A',
         },
+        slate: {
+          50:  '#F8FAFC',
+          100: '#F1F5F9',
+          200: '#E2E8F0',
+          300: '#CBD5E1',
+          400: '#94A3B8',
+          500: '#64748B',
+          600: '#475569',
+          700: '#334155',
+          800: '#1E293B',
+          900: '#0F172A',
+        },
+        // Giữ tên espresso để không break các class cũ, map sang slate
         espresso: {
-          50:  '#FEF3C7',   // dark text-primary
-          100: '#FCD34D',   // dark text-secondary
-          700: '#2C1A0E',   // dark card bg
-          800: '#1C1008',   // dark surface / light text-primary
-          900: '#0F0804',   // darkest
+          50:  '#F8FAFC',
+          100: '#F1F5F9',
+          700: '#334155',
+          800: '#1E293B',
+          900: '#0F172A',
         },
         surface: {
-          light: '#FFFBF5',
-          dark:  '#1C1008',
+          light: '#F8F9FA',
+          dark:  '#F8F9FA',
         },
         card: {
           light: '#FFFFFF',
-          dark:  '#2C1A0E',
+          dark:  '#FFFFFF',
         },
       },
 
@@ -65,22 +77,19 @@ export default {
       },
 
       boxShadow: {
-        // Warm shadows — tinted orange/amber instead of neutral gray
-        card:  '0 1px 4px 0 rgb(249 115 22 / 0.08), 0 1px 2px -1px rgb(249 115 22 / 0.06)',
-        warm:  '0 4px 16px 0 rgb(249 115 22 / 0.15), 0 1px 4px 0 rgb(249 115 22 / 0.08)',
-        hero:  '0 8px 32px 0 rgb(234 99 13 / 0.25)',
-        float: '0 8px 24px 0 rgb(249 115 22 / 0.20)',
+        // Purple-tinted shadows
+        card:  '0 1px 4px 0 rgb(124 58 237 / 0.08), 0 1px 2px -1px rgb(124 58 237 / 0.06)',
+        warm:  '0 4px 16px 0 rgb(124 58 237 / 0.15), 0 1px 4px 0 rgb(124 58 237 / 0.08)',
+        hero:  '0 8px 32px 0 rgb(124 58 237 / 0.25)',
+        float: '0 8px 24px 0 rgb(124 58 237 / 0.20)',
       },
 
       backgroundImage: {
-        // Gradient chính — cam đỏ → vàng nghệ
-        'brand-gradient':   'linear-gradient(135deg, #F97316 0%, #EAB308 100%)',
-        // Gradient tối hơn cho header
-        'brand-gradient-d': 'linear-gradient(135deg, #EA6D0D 0%, #CA8A04 100%)',
-        // Hero card
-        'hero-gradient':    'linear-gradient(135deg, #F97316 0%, #FACC15 50%, #22C55E 100%)',
-        // Dark mode surface gradient
-        'dark-surface':     'linear-gradient(180deg, #1C1008 0%, #2C1A0E 100%)',
+        // Gradient tím → indigo
+        'brand-gradient':   'linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%)',
+        'brand-gradient-d': 'linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%)',
+        'hero-gradient':    'linear-gradient(135deg, #8B5CF6 0%, #6366F1 50%, #22C55E 100%)',
+        'dark-surface':     'linear-gradient(180deg, #F8F9FA 0%, #F1F5F9 100%)',
       },
 
       animation: {
