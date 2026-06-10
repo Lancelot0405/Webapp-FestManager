@@ -28,16 +28,21 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
   const [saving,       setSaving]       = useState(false);
   const [deletingId,   setDeletingId]   = useState<number | null>(null);
 
-  const load = async () => {
-    setLoading(true);
-    const { data } = await supabase
-      .from('food_templates').select('*').eq('item_type', itemType)
-      .order('group_name').order('sort_order');
-    setTemplates(data ?? []);
-    setLoading(false);
-  };
-
-  useEffect(() => { load(); }, [itemType]);
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      setLoading(true);
+      const { data } = await supabase
+        .from('food_templates').select('*').eq('item_type', itemType)
+        .order('group_name').order('sort_order');
+      if (!cancelled) {
+        setTemplates(data ?? []);
+        setLoading(false);
+      }
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [itemType]);
 
   const groups = templates.reduce<Record<string, FoodTemplate[]>>((acc, t) => {
     if (!acc[t.group_name]) acc[t.group_name] = [];

@@ -6,8 +6,8 @@ import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { computeEventStatus } from '../../lib/eventStatus';
-import Modal from '../shared/ui/Modal';
-import Button from '../shared/ui/Button';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import type { FestivalEvent } from '../../types';
 
 interface AddEventFormProps {
@@ -56,7 +56,8 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
     'rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-400 transition-all';
 
   return (
-    <Modal onClose={onClose} className="w-full max-w-md bg-white rounded-t-2xl shadow-2xl overflow-hidden animate-slide-up">
+    <Dialog open onOpenChange={open => !open && onClose()}>
+      <DialogContent position="bottom" className="w-full max-w-md bg-white overflow-hidden">
         <div className="px-5 pt-5 pb-[calc(env(safe-area-inset-bottom,0px)+80px)] overflow-y-auto overflow-x-hidden max-h-[85vh]">
           <div className="flex justify-between items-center mb-5">
             <h2 className="text-base font-bold text-slate-800">Thêm sự kiện mới</h2>
@@ -114,9 +115,10 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
                 required
               />
             </div>
-            <Button type="submit" fullWidth>Tạo sự kiện</Button>
+            <Button type="submit" className="w-full">Tạo sự kiện</Button>
           </form>
         </div>
-    </Modal>
+      </DialogContent>
+    </Dialog>
   );
 }

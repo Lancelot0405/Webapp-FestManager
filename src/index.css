@@ -5,6 +5,66 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── shadcn/ui CSS Variables ───────────────────────────────────────────── */
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card-bg: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --shadcn-primary: oklch(0.627 0.265 303.9);
+  --shadcn-primary-foreground: oklch(0.97 0.014 254.604);
+  --shadcn-secondary: oklch(0.967 0.001 286.375);
+  --shadcn-secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border-color: oklch(0.922 0 0);
+  --input-color: oklch(0.922 0 0);
+  --ring: oklch(0.627 0.265 303.9);
+  --radius: 0.875rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.627 0.265 303.9);
+  --sidebar-primary-foreground: oklch(0.97 0.014 254.604);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.627 0.265 303.9);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card-bg: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --shadcn-primary: oklch(0.627 0.265 303.9);
+  --shadcn-primary-foreground: oklch(0.97 0.014 254.604);
+  --shadcn-secondary: oklch(0.274 0.006 286.033);
+  --shadcn-secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border-color: oklch(1 0 0 / 10%);
+  --input-color: oklch(1 0 0 / 15%);
+  --ring: oklch(0.627 0.265 303.9);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.627 0.265 303.9);
+  --sidebar-primary-foreground: oklch(0.97 0.014 254.604);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.627 0.265 303.9);
+}
+
 /* ── Design Tokens — MeetCraft Purple ─────────────────────────────────── */
 :root {
   /* Primary — tím violet */

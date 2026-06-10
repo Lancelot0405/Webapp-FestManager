@@ -1,9 +1,39 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
+        // ── shadcn/ui semantic tokens ──────────────────────────────────────
+        background: 'var(--background)',
+        foreground: 'var(--foreground)',
+        primary: {
+          DEFAULT: 'var(--shadcn-primary)',
+          foreground: 'var(--shadcn-primary-foreground)',
+        },
+        secondary: {
+          DEFAULT: 'var(--shadcn-secondary)',
+          foreground: 'var(--shadcn-secondary-foreground)',
+        },
+        muted: {
+          DEFAULT: 'var(--muted)',
+          foreground: 'var(--muted-foreground)',
+        },
+        accent: {
+          DEFAULT: 'var(--accent)',
+          foreground: 'var(--accent-foreground)',
+        },
+        destructive: {
+          DEFAULT: 'var(--destructive)',
+        },
+        border: 'var(--border-color)',
+        input: 'var(--input-color)',
+        ring: 'var(--ring)',
+        popover: {
+          DEFAULT: 'var(--popover)',
+          foreground: 'var(--popover-foreground)',
+        },
         // ── MeetCraft — Purple/Indigo palette ─────────────────────────────
         brand: {
           50:  '#F5F3FF',   // violet-50
@@ -110,5 +140,5 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [require('tailwindcss-animate')],
 }

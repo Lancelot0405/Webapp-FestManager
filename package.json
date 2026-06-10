@@ -12,12 +12,18 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.16",
+    "@radix-ui/react-slot": "^1.2.5",
     "@react-pdf/renderer": "^4.5.1",
     "@supabase/supabase-js": "^2.107.0",
     "@vercel/speed-insights": "^2.0.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "lucide-react": "^1.17.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss-animate": "^1.0.7",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

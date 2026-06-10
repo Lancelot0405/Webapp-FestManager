@@ -3,8 +3,8 @@ import { X, ShieldCheck, Building2 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { adminApi } from '../../lib/adminApi';
 import { useToast } from '../../context/ToastContext';
-import Button from '../shared/ui/Button';
-import Modal from '../shared/ui/Modal';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import type { StaffMember, StaffType, UserRole, UserDepartment } from '../../types';
 
 const DOMAIN = '@fm.com';
@@ -74,7 +74,8 @@ export default function AddStaffForm({ onClose }: Props) {
   };
 
   return (
-    <Modal onClose={onClose} className="w-full max-w-md bg-white dark:bg-espresso-800 rounded-t-2xl shadow-warm overflow-hidden animate-slide-up">
+    <Dialog open onOpenChange={open => !open && onClose()}>
+      <DialogContent position="bottom" className="w-full max-w-md bg-white dark:bg-espresso-800 overflow-hidden">
       <div className="px-5 pt-5 pb-[calc(env(safe-area-inset-bottom,0px)+80px)] max-h-[90vh] overflow-y-auto overflow-x-hidden">
         <div className="flex justify-between items-center mb-5">
           <p className="text-base font-bold text-espresso-800 dark:text-espresso-50">Thêm nhân viên mới</p>
@@ -232,11 +233,12 @@ export default function AddStaffForm({ onClose }: Props) {
             </div>
           </div>
 
-          <Button type="submit" fullWidth loading={loading} className="font-semibold shadow-warm">
+          <Button type="submit" className="w-full font-semibold shadow-warm" loading={loading}>
             {loading ? 'Đang tạo...' : 'Thêm nhân viên'}
           </Button>
         </form>
       </div>
-    </Modal>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Plus, User, Trash2, Search, ShieldCheck, Check, X } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import AddStaffForm from './AddStaffForm';
-import { SkeletonList } from '../shared/ui/Skeleton';
+import { SkeletonList } from '@/components/ui/skeleton';
 import type { StaffMember } from '../../types';
 
 interface HRGlobalProps {

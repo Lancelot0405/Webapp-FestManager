@@ -7,7 +7,7 @@ import { Plus, Trash2, Search } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
 import AddEventForm from './AddEventForm';
-import { SkeletonList } from '../shared/ui/Skeleton';
+import { SkeletonList } from '@/components/ui/skeleton';
 import { computeEventStatus } from '../../lib/eventStatus';
 import type { EventStatus, FestivalEvent } from '../../types';
 

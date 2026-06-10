@@ -3,7 +3,7 @@ import { Plus, X, Trash2, FileSpreadsheet, Upload, Check, ChevronDown, ChevronUp
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import { getErrorMessage } from '../../lib/errors';
-import { SkeletonList } from '../shared/ui/Skeleton';
+import { SkeletonList } from '@/components/ui/skeleton';
 import type { InventoryUnit, InventoryCategory, InventoryItem } from '../../types';
 import InventoryLogList from './InventoryLogList';
 import NumberPicker from './NumberPicker';
