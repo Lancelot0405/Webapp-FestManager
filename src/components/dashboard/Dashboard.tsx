@@ -1,4 +1,6 @@
+import React from 'react';
 import { Calendar, Users, Package, Clock, TrendingUp, ChevronRight } from 'lucide-react';
+import { Button, Card } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
 import type { ActiveTab, FestivalEvent, StaffMember } from '../../types';
@@ -57,14 +59,15 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
             Xin chào, {currentUser.name} 👋
           </h1>
           {activeEvent ? (
-            <button
-              onClick={() => onSelectEvent(activeEvent.id)}
+            <Button
+              onPress={() => onSelectEvent(activeEvent.id)}
+              variant="ghost"
               className="mt-3 flex items-center gap-1.5 bg-white/20 hover:bg-white/30 active:bg-white/40 rounded-xl px-3 py-1.5 text-sm font-semibold transition-all"
             >
               <span className="w-2 h-2 rounded-full bg-herb-400 animate-pulse" />
               Đang diễn ra: {activeEvent.name}
               <ChevronRight size={14} />
-            </button>
+            </Button>
           ) : (
             <p className="text-white/70 text-sm mt-1">
               {upcomingEvents.length > 0
@@ -140,10 +143,10 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
         ) : (
           <div className="space-y-2.5">
             {displayEvents.map(event => (
-              <button
+              <Card
                 key={event.id}
-                onClick={() => onSelectEvent(event.id)}
-                className="w-full text-left bg-white rounded-2xl p-4 border border-slate-100 hover:border-brand-300 hover:shadow-card active:scale-[0.99] transition-all duration-150"
+                render={(props) => <button {...(props as React.ComponentPropsWithRef<'button'>)} onClick={() => onSelectEvent(event.id)} />}
+                className="w-full text-left rounded-2xl p-4 border border-slate-100 hover:border-brand-300 hover:shadow-card active:scale-[0.99] transition-all duration-150 cursor-pointer"
               >
                 <div className="flex justify-between items-start gap-2">
                   <div className="flex-1 min-w-0">
@@ -153,7 +156,7 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
                   </div>
                   <StatusBadge status={event.status} />
                 </div>
-              </button>
+              </Card>
             ))}
           </div>
         )}
@@ -165,13 +168,13 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
           <SectionHeader title="Chi phí chờ duyệt" />
           <div className="space-y-2">
             {myPendingExpenses.map(exp => (
-              <div key={exp.id} className="bg-indigo-50 rounded-2xl p-3 flex justify-between items-center border border-indigo-100">
+              <Card key={exp.id} variant="secondary" className="rounded-2xl p-3 flex justify-between items-center">
                 <div>
                   <p className="text-sm font-semibold text-slate-800">{exp.type}</p>
                   <p className="text-xs text-slate-400">{exp.date}</p>
                 </div>
                 <span className="text-sm font-bold text-indigo-600">{exp.amount}€</span>
-              </div>
+              </Card>
             ))}
           </div>
         </div>
@@ -215,16 +218,16 @@ function StatCard({ icon, label, value, color, alert, onClick }: {
 }) {
   const c = colorMap[color];
   return (
-    <button
-      onClick={onClick}
-      className={`${c.bg} rounded-2xl p-4 flex items-center gap-3 w-full text-left transition-all duration-150 active:scale-[0.97] hover:brightness-95`}
+    <Card
+      render={(props) => <button {...(props as React.ComponentPropsWithRef<'button'>)} onClick={onClick} />}
+      className={`${c.bg} rounded-2xl p-4 flex items-center gap-3 w-full text-left active:scale-[0.97] hover:brightness-95 cursor-pointer`}
     >
       <div className={`shrink-0 ${c.icon}`}>{icon}</div>
       <div>
         <p className={`text-2xl font-black ${alert ? 'text-red-500' : c.value}`}>{value}</p>
         <p className="text-xs text-slate-400 leading-tight mt-0.5">{label}</p>
       </div>
-    </button>
+    </Card>
   );
 }
 
@@ -235,9 +238,9 @@ function SectionHeader({ title, onMore, icon }: { title: string; onMore?: () => 
         {icon} {title}
       </h2>
       {onMore && (
-        <button onClick={onMore} className="flex items-center gap-0.5 text-xs text-slate-400 hover:text-brand-600 font-medium transition-colors">
+        <Button onPress={onMore} variant="ghost" size="sm" className="flex items-center gap-0.5 text-xs text-slate-400 hover:text-brand-600 font-medium transition-colors">
           Xem thêm <ChevronRight size={12} />
-        </button>
+        </Button>
       )}
     </div>
   );
@@ -268,7 +271,7 @@ function RevenueChart({ events }: { events: FestivalEvent[] }) {
   const maxVal = Math.max(...entries.map(([, v]) => v), 100000);
 
   return (
-    <div className="bg-white rounded-2xl p-4 border border-slate-100">
+    <Card className="rounded-2xl p-4">
       <div className="flex items-end gap-2 h-24">
         {entries.map(([month, val]) => (
           <div key={month} className="flex-1 flex flex-col items-center gap-1">
@@ -284,7 +287,7 @@ function RevenueChart({ events }: { events: FestivalEvent[] }) {
         ))}
       </div>
       <p className="text-xs text-slate-400 mt-2 text-right">Max: {maxVal.toLocaleString('fr-FR')}€</p>
-    </div>
+    </Card>
   );
 }
 
@@ -306,7 +309,7 @@ function TopStaffList({ events, staff }: { events: FestivalEvent[]; staff: Staff
   ];
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 divide-y divide-slate-50">
+    <Card className="rounded-2xl divide-y divide-slate-50">
       {top.map(({ member, count }, i) => (
         <div key={member!.id} className="flex items-center gap-3 px-4 py-3">
           <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${rankStyle[i]}`}>
@@ -319,6 +322,6 @@ function TopStaffList({ events, staff }: { events: FestivalEvent[]; staff: Staff
           <span className="text-sm font-bold text-brand-500">{count} sự kiện</span>
         </div>
       ))}
-    </div>
+    </Card>
   );
 }

@@ -4,6 +4,7 @@
 
 import { useState } from 'react';
 import { TrendingUp, TrendingDown, DollarSign, FileSpreadsheet, Pencil, Check, X } from 'lucide-react';
+import { Button, Card } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
 import type { ExpenseStatus, FestivalEvent } from '../../types';
@@ -145,40 +146,38 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-slate-800">Tài chính</h1>
-        <button
-          onClick={handleExport}
-          className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-3 py-2 rounded-lg transition"
+        <Button
+          onPress={handleExport}
+          variant="primary"
+          size="sm"
+          className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 rounded-lg"
         >
           <FileSpreadsheet size={15} />
           Xuất Excel
-        </button>
+        </Button>
       </div>
 
       {/* Month filter */}
       {allMonths.length > 0 && (
         <div className="flex gap-2 overflow-x-auto pb-1">
-          <button
-            onClick={() => setSelectedMonth('all')}
-            className={`shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition ${
-              selectedMonth === 'all'
-                ? 'bg-brand-500 text-white'
-                : 'bg-brand-50 dark:bg-espresso-700 text-brand-600 hover:bg-brand-100 dark:hover:bg-espresso-700'
-            }`}
+          <Button
+            onPress={() => setSelectedMonth('all')}
+            variant={selectedMonth === 'all' ? 'primary' : 'ghost'}
+            size="sm"
+            className="shrink-0 rounded-full"
           >
             Tất cả
-          </button>
+          </Button>
           {allMonths.map(m => (
-            <button
+            <Button
               key={m}
-              onClick={() => setSelectedMonth(m)}
-              className={`shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition ${
-                selectedMonth === m
-                  ? 'bg-brand-500 text-white'
-                  : 'bg-brand-50 dark:bg-espresso-700 text-brand-600 hover:bg-brand-100 dark:hover:bg-espresso-700'
-              }`}
+              onPress={() => setSelectedMonth(m)}
+              variant={selectedMonth === m ? 'primary' : 'ghost'}
+              size="sm"
+              className="shrink-0 rounded-full"
             >
               {m}
-            </button>
+            </Button>
           ))}
         </div>
       )}
@@ -210,7 +209,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
 
       {/* Cost breakdown chart */}
       {totalExpense > 0 && (
-        <div className="bg-white rounded-xl p-4 shadow-card border border-slate-100">
+        <Card className="rounded-xl p-4">
           <h2 className="text-base font-semibold text-slate-700 mb-3">Phân bổ chi phí (tất cả sự kiện)</h2>
           <div className="space-y-2">
             {breakdownRent > 0 && (
@@ -232,11 +231,11 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
               <BarRow label="Khác" value={breakdownOther} maxVal={totalExpense} color="bg-gray-400" showPct totalVal={totalExpense} />
             )}
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Pending staff expenses */}
-      <div className="bg-white rounded-xl p-4 shadow-card border border-slate-100">
+      <Card className="rounded-xl p-4">
         <h2 className="text-base font-semibold text-slate-700 mb-3">Chi phí nhân viên chờ duyệt</h2>
         {pendingReceipts.length === 0 ? (
           <p className="text-sm text-green-600">Không có chi phí chờ duyệt ✓</p>
@@ -250,24 +249,28 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
                   <p className="text-xs text-brand-500">{r.eventName}</p>
                 </div>
                 <div className="flex gap-1.5 shrink-0">
-                  <button
-                    onClick={() => updateExpenseStatus(r.eventId, r.id, 'approved' as ExpenseStatus)}
-                    className="flex items-center gap-0.5 px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 text-xs font-medium rounded-lg transition"
+                  <Button
+                    onPress={() => updateExpenseStatus(r.eventId, r.id, 'approved' as ExpenseStatus)}
+                    variant="ghost"
+                    size="sm"
+                    className="flex items-center gap-0.5 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg"
                   >
                     <Check size={12} /> Duyệt
-                  </button>
-                  <button
-                    onClick={() => updateExpenseStatus(r.eventId, r.id, 'rejected' as ExpenseStatus)}
-                    className="flex items-center gap-0.5 px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-medium rounded-lg transition"
+                  </Button>
+                  <Button
+                    onPress={() => updateExpenseStatus(r.eventId, r.id, 'rejected' as ExpenseStatus)}
+                    variant="danger-soft"
+                    size="sm"
+                    className="flex items-center gap-0.5 rounded-lg"
                   >
                     <X size={12} /> Từ chối
-                  </button>
+                  </Button>
                 </div>
               </div>
             ))}
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Per-event breakdown */}
       <div>
@@ -286,26 +289,30 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
             const isEditing = editingEventId === event.id;
 
             return (
-              <div
+              <Card
                 key={event.id}
-                className="bg-white rounded-xl p-4 shadow-card border border-slate-100"
+                className="rounded-xl p-4"
               >
                 <div className="flex justify-between items-start mb-3">
-                  <button
-                    onClick={() => onSelectEvent(event.id)}
-                    className="min-w-0 flex-1 text-left hover:opacity-75 transition-opacity"
+                  <Button
+                    onPress={() => onSelectEvent(event.id)}
+                    variant="ghost"
+                    className="min-w-0 flex-1 text-left justify-start h-auto p-0"
                   >
                     <p className="font-semibold text-slate-800 truncate">{event.name}</p>
                     <p className="text-xs text-slate-400 mt-0.5">{event.date}</p>
-                  </button>
+                  </Button>
                   <div className="flex items-center gap-2 shrink-0 ml-2">
                     <StatusBadge status={event.status} />
-                    <button
-                      onClick={() => isEditing ? setEditingEventId(null) : startEditing(event)}
-                      className="p-1 rounded-lg hover:bg-brand-50 text-slate-300 hover:text-brand-500 transition"
+                    <Button
+                      onPress={() => isEditing ? setEditingEventId(null) : startEditing(event)}
+                      variant="ghost"
+                      isIconOnly
+                      size="sm"
+                      className="rounded-lg"
                     >
                       <Pencil size={14} />
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -359,18 +366,20 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
                       </div>
                     </div>
                     <div className="flex gap-2 mt-2">
-                      <button
-                        onClick={() => saveEditing(event)}
-                        className="flex-1 bg-brand-500 hover:bg-brand-100 text-white text-sm font-medium py-1.5 rounded-lg transition"
+                      <Button
+                        onPress={() => saveEditing(event)}
+                        variant="primary"
+                        fullWidth
                       >
                         Lưu
-                      </button>
-                      <button
-                        onClick={() => setEditingEventId(null)}
-                        className="flex-1 bg-brand-50 dark:bg-espresso-700 hover:bg-brand-100 dark:hover:bg-espresso-700 text-slate-700 text-sm font-medium py-1.5 rounded-lg transition"
+                      </Button>
+                      <Button
+                        onPress={() => setEditingEventId(null)}
+                        variant="ghost"
+                        fullWidth
                       >
                         Hủy
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ) : (
@@ -402,7 +411,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
                     </div>
                   </>
                 )}
-              </div>
+              </Card>
             );
           })}
         </div>
@@ -422,13 +431,13 @@ interface SummaryCardProps {
 
 function SummaryCard({ icon, label, value, color, bg }: SummaryCardProps) {
   return (
-    <div className={`${bg} rounded-xl p-4 flex items-center gap-3 border border-transparent `}>
+    <Card variant="secondary" className={`${bg} rounded-xl p-4 flex items-center gap-3`}>
       <div className="shrink-0">{icon}</div>
       <div className="flex-1 flex justify-between items-center">
         <p className="text-sm text-brand-600">{label}</p>
         <p className={`text-xl font-bold ${color}`}>{value.toLocaleString('fr-FR')}€</p>
       </div>
-    </div>
+    </Card>
   );
 }
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Plus, X, Pencil, Trash2, Phone, Mail, MapPin, Building2, Check, Search } from 'lucide-react';
+import { Button, Card } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import type { Client } from '../../types';
@@ -70,9 +71,9 @@ export default function Clients() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-bold text-espresso-800 dark:text-espresso-50">Khách hàng</h1>
-        <button onClick={openAdd} className="flex items-center gap-1.5 bg-brand-500 text-white text-sm font-medium px-3 py-1.5 rounded-xl">
+        <Button onPress={openAdd} variant="primary" size="sm" className="flex items-center gap-1.5 rounded-xl">
           <Plus size={15} /> Thêm
-        </button>
+        </Button>
       </div>
 
       <div className="relative">
@@ -86,10 +87,10 @@ export default function Clients() {
       </div>
 
       {showForm && (
-        <div className="bg-white dark:bg-espresso-800 rounded-xl border border-brand-200 dark:border-brand-200 p-4 shadow-card">
+        <Card className="rounded-xl p-4">
           <div className="flex justify-between items-center mb-3">
             <p className="font-semibold text-sm text-espresso-800 dark:text-espresso-50">{editingId ? 'Chỉnh sửa' : 'Thêm khách hàng mới'}</p>
-            <button onClick={() => { setShowForm(false); resetForm(); }} className="text-brand-300"><X size={16} /></button>
+            <Button onPress={() => { setShowForm(false); resetForm(); }} variant="ghost" isIconOnly size="sm"><X size={16} /></Button>
           </div>
           <form onSubmit={handleSubmit} className="space-y-2.5">
             <Field label="Tên tổ chức *">
@@ -112,11 +113,11 @@ export default function Clients() {
             <Field label="Ghi chú">
               <textarea className="form-input resize-none h-16" placeholder="Thông tin thêm..." value={fNotes} onChange={e => setFNotes(e.target.value)} />
             </Field>
-            <button type="submit" className="w-full bg-brand-500 text-white font-medium py-2 rounded-lg text-sm">
+            <Button type="submit" variant="primary" fullWidth className="rounded-lg">
               {editingId ? 'Lưu thay đổi' : 'Thêm khách hàng'}
-            </button>
+            </Button>
           </form>
-        </div>
+        </Card>
       )}
 
       {filtered.length === 0 ? (
@@ -129,7 +130,7 @@ export default function Clients() {
           {filtered.map(client => {
             const clientEvents = events.filter(e => client.eventIds.includes(e.id));
             return (
-              <div key={client.id} className="bg-white dark:bg-espresso-800 rounded-2xl p-4 border border-brand-100 dark:border-espresso-700 shadow-card">
+              <Card key={client.id} className="rounded-2xl p-4">
                 <div className="flex justify-between items-start">
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-espresso-800 dark:text-espresso-50 truncate">{client.name}</p>
@@ -140,12 +141,12 @@ export default function Clients() {
                     )}
                   </div>
                   <div className="flex gap-1.5 ml-2">
-                    <button onClick={() => openEdit(client)} className="p-1.5 text-brand-300 hover:text-brand-600 rounded-lg hover:bg-brand-50 transition-colors">
+                    <Button onPress={() => openEdit(client)} variant="ghost" isIconOnly size="sm" className="rounded-lg text-brand-300 hover:text-brand-600">
                       <Pencil size={14} />
-                    </button>
-                    <button onClick={() => handleDelete(client.id)} className="p-1.5 text-brand-300 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors">
+                    </Button>
+                    <Button onPress={() => handleDelete(client.id)} variant="ghost" isIconOnly size="sm" className="rounded-lg text-brand-300 hover:text-red-500">
                       <Trash2 size={14} />
-                    </button>
+                    </Button>
                   </div>
                 </div>
                 <div className="mt-2 space-y-1">
@@ -161,7 +162,7 @@ export default function Clients() {
                 {client.notes && (
                   <p className="text-xs text-brand-300 dark:text-brand-400 mt-1.5 italic">{client.notes}</p>
                 )}
-              </div>
+              </Card>
             );
           })}
         </div>
