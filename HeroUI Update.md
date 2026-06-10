@@ -1,7 +1,10 @@
 # HeroUI Update — Tiến độ Migration
 
 **Branch:** `claude/nifty-mccarthy-q5r9gz`  
-**Mục tiêu:** Nâng cấp toàn bộ UI sang HeroUI v3 + Tailwind CSS v4, design mới hoàn toàn, tối ưu Tablet & PC.
+**Mục tiêu:** Nâng cấp toàn bộ UI sang HeroUI v3 + Tailwind CSS v4, design mới hoàn toàn.
+
+**Chiến lược triển khai:** PWA (mobile-first) trước → PC/tablet sau.  
+Mỗi phase ưu tiên hoàn thiện trải nghiệm mobile (bottom nav, safe-area, touch target) trước khi bổ sung responsive cho màn lớn.
 
 ---
 
@@ -64,8 +67,14 @@
 
 ---
 
-## 🔜 Phase 3 — Dashboard, Finance, Clients
-**Trạng thái:** CHƯA BẮT ĐẦU
+## ✅ Phase 3 — Dashboard, Finance, Clients
+**Trạng thái:** HOÀN THÀNH  
+**Commit:** `e93c9bf`
+
+### Đã làm:
+- `Dashboard.tsx`: StatCard + event list → `Card` (render=button), hero active-event button + SectionHeader "Xem thêm" → `Button`, các container chart/topstaff/pending-expenses → `Card`
+- `Finance.tsx`: "Xuất Excel" + filter pills + approve/reject + edit/save/cancel → `Button`, SummaryCard + breakdown + pending-receipts + per-event cards → `Card`
+- `Clients.tsx`: add/close/submit/edit/delete → `Button`, form container + client cards → `Card`
 
 ---
 
