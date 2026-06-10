@@ -119,7 +119,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <div className="w-full max-w-md flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-slate-50">
+    <div data-theme="light" className="w-full max-w-md flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-slate-50">
       <Card className="w-full shadow-warm">
         <CardContent className="p-8">
 
