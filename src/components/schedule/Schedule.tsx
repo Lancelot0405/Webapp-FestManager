@@ -71,7 +71,7 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
   return (
     <div className="space-y-4 pb-20">
       <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold text-slate-800">Lịch sự kiện</h1>
+        <h1 className="text-xl font-bold text-[var(--text-primary)]">Lịch sự kiện</h1>
         {isAdmin && (
           <Button onPress={() => setShowAddForm(true)} variant="primary" size="sm" className="flex items-center gap-1 rounded-lg">
             <Plus size={16} />
@@ -88,7 +88,7 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
           placeholder="Tìm theo tên hoặc địa điểm..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full pl-9 pr-3 py-2 border border-brand-200 rounded-xl text-sm focus:outline-none focus:border-brand-400 bg-white text-slate-800 placeholder:text-slate-300"
+          className="w-full pl-9 pr-3 py-2 border border-brand-200 dark:border-[var(--border-color)] rounded-xl text-sm focus:outline-none focus:border-brand-400 bg-white dark:bg-[var(--card-bg)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
         />
       </div>
 
@@ -114,7 +114,7 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
       {state.loading ? (
         <SkeletonList count={3} variant="card" />
       ) : sorted.length === 0 ? (
-        <p className="text-sm text-slate-400 text-center py-10">Chưa có sự kiện nào</p>
+        <p className="text-sm text-[var(--text-muted)] text-center py-10">Chưa có sự kiện nào</p>
       ) : (
         <div className="space-y-3">
           {sorted.map(event => (
@@ -156,10 +156,10 @@ function EventCard({
       <Button onPress={onSelect} variant="ghost" className="flex-1 text-left p-4 min-w-0 h-auto rounded-none justify-start">
         <div className="flex justify-between items-start gap-2 w-full">
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-slate-800 truncate">{event.name}</p>
-            <p className="text-xs text-slate-500 mt-0.5">{dateDisplay}</p>
-            <p className="text-xs text-slate-400 truncate mt-0.5">{event.location}</p>
-            <p className="text-xs text-slate-400 mt-1">{event.staff.length} nhân viên</p>
+            <p className="font-semibold text-[var(--text-primary)] truncate">{event.name}</p>
+            <p className="text-xs text-[var(--text-muted)] mt-0.5">{dateDisplay}</p>
+            <p className="text-xs text-[var(--text-muted)] truncate mt-0.5">{event.location}</p>
+            <p className="text-xs text-[var(--text-muted)] mt-1">{event.staff.length} nhân viên</p>
           </div>
           <StatusBadge status={event.status} />
         </div>
@@ -168,7 +168,7 @@ function EventCard({
         <Button
           onPress={onDelete}
           variant="ghost"
-          className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 border-l border-slate-100 rounded-r-xl rounded-l-none"
+          className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 border-l border-[var(--border-color)] rounded-r-xl rounded-l-none"
         >
           <Trash2 size={16} />
         </Button>

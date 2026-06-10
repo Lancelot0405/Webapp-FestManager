@@ -91,7 +91,7 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
 
   if (!event) {
     return (
-      <div className="text-center py-20 text-espresso-400">
+      <div className="text-center py-20 text-[var(--text-muted)]">
         <p>Không tìm thấy sự kiện</p>
         <button onClick={onBack} className="mt-4 text-brand-600 text-sm">Quay lại</button>
       </div>
@@ -102,12 +102,12 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
     <div className="pb-6">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
-        <button onClick={onBack} aria-label="Quay lại" className="p-1 text-espresso-500 hover:text-espresso-700 dark:text-brand-300 dark:hover:text-gray-200">
+        <button onClick={onBack} aria-label="Quay lại" className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)]">
           <ArrowLeft size={22} />
         </button>
         <div className="min-w-0 flex-1">
-          <h1 className="font-bold text-espresso-800 dark:text-espresso-50 text-lg truncate">{event.name}</h1>
-          <p className="text-xs text-espresso-500 dark:text-brand-300">{event.date} · {event.location}</p>
+          <h1 className="font-bold text-[var(--text-primary)] text-lg truncate">{event.name}</h1>
+          <p className="text-xs text-[var(--text-muted)]">{event.date} · {event.location}</p>
         </div>
         {isAdmin && (
           <div className="flex items-center gap-1 shrink-0">
@@ -119,7 +119,7 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
               <Download size={18} />
             </button>
             <Suspense fallback={
-              <span className="px-3 py-1.5 text-sm text-espresso-400">PDF…</span>
+              <span className="px-3 py-1.5 text-sm text-[var(--text-muted)]">PDF…</span>
             }>
               <EventPDFExport event={event} />
             </Suspense>
@@ -142,7 +142,7 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-brand-200 dark:border-espresso-700 mb-4 overflow-x-auto">
+      <div className="flex border-b border-[var(--border-color)] mb-4 overflow-x-auto">
         {TABS.map(tab => (
           <button
             key={tab.id}
@@ -150,7 +150,7 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
             className={`px-4 py-2 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors ${
               activeTab === tab.id
                 ? 'border-brand-500 text-brand-600'
-                : 'border-transparent text-espresso-500 dark:text-brand-300 hover:text-espresso-700 dark:hover:text-gray-200'
+                : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]'
             }`}
           >
             {tab.label}

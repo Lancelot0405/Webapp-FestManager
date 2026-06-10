@@ -133,14 +133,14 @@ export default function EventExpensesTab({ event }: Props) {
             const showForm     = showFormForStaff === staffId;
 
             return (
-              <div key={staffId} className="bg-white dark:bg-espresso-700 rounded-xl border border-brand-200 dark:border-espresso-700 shadow-card overflow-hidden">
+              <div key={staffId} className="bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] shadow-card overflow-hidden">
                 {/* Header */}
                 <button
                   className="w-full flex justify-between items-center px-4 py-3 text-left"
                   onClick={() => toggle(staffId)}
                 >
                   <div>
-                    <p className="text-sm font-semibold text-espresso-800 dark:text-gray-100">
+                    <p className="text-sm font-semibold text-[var(--text-primary)]">
                       {name}
                       {isMe && <span className="ml-2 text-xs text-brand-500 font-normal">(bạn)</span>}
                     </p>
@@ -155,10 +155,10 @@ export default function EventExpensesTab({ event }: Props) {
                 </button>
 
                 {isOpen && (
-                  <div className="border-t border-brand-200 dark:border-espresso-700">
+                  <div className="border-t border-[var(--border-color)]">
                     {/* Nút nộp chi phí — chỉ hiện cho chính nhân viên đó */}
                     {isMe && !showForm && (
-                      <div className="px-4 py-2 bg-brand-50 dark:bg-espresso-700/50 border-b border-brand-200 dark:border-espresso-700">
+                      <div className="px-4 py-2 bg-[var(--muted)] border-b border-[var(--border-color)]">
                         <button
                           onClick={() => setShowFormForStaff(staffId)}
                           className="flex items-center gap-1 text-sm text-brand-600 font-semibold"
@@ -181,7 +181,7 @@ export default function EventExpensesTab({ event }: Props) {
                         <div className="grid grid-cols-2 gap-2">
                           <div>
                             <label className="text-xs text-brand-600 dark:text-gray-300 font-semibold">Loại</label>
-                            <select className="mt-1 w-full border border-brand-200 dark:border-slate-600 rounded-lg px-2 py-2 text-sm bg-white dark:bg-espresso-700 dark:text-gray-100"
+                            <select className="mt-1 w-full border border-brand-200 dark:border-[var(--border-color)] rounded-lg px-2 py-2 text-sm bg-white dark:bg-[var(--card-bg)] text-[var(--text-primary)]"
                               value={formCategory} onChange={e => setFormCategory(e.target.value as ExpenseCategory)}>
                               {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                             </select>
@@ -189,7 +189,7 @@ export default function EventExpensesTab({ event }: Props) {
                           <div>
                             <label className="text-xs text-brand-600 dark:text-gray-300 font-semibold">Số tiền (€)</label>
                             <input type="number" min="0" step="0.01" required
-                              className="mt-1 w-full border border-brand-200 dark:border-slate-600 dark:bg-espresso-700 dark:text-gray-100 rounded-lg px-2 py-2 text-sm"
+                              className="mt-1 w-full border border-brand-200 dark:border-[var(--border-color)] dark:bg-[var(--card-bg)] text-[var(--text-primary)] rounded-lg px-2 py-2 text-sm"
                               value={formAmount} onChange={e => setFormAmount(e.target.value)} />
                           </div>
                         </div>
@@ -197,7 +197,7 @@ export default function EventExpensesTab({ event }: Props) {
                         <div>
                           <label className="text-xs text-brand-600 dark:text-gray-300 font-semibold">Ngày</label>
                           <input type="date" required
-                            className="mt-1 w-full border border-brand-200 dark:border-slate-600 dark:bg-espresso-700 dark:text-gray-100 dark:[color-scheme:dark] rounded-lg px-3 py-2 text-sm"
+                            className="mt-1 w-full border border-brand-200 dark:border-[var(--border-color)] dark:bg-[var(--card-bg)] text-[var(--text-primary)] dark:[color-scheme:dark] rounded-lg px-3 py-2 text-sm"
                             value={formDate} onChange={e => setFormDate(e.target.value)} />
                         </div>
 
@@ -205,15 +205,15 @@ export default function EventExpensesTab({ event }: Props) {
                         <div>
                           <label className="text-xs text-brand-600 dark:text-gray-300 font-semibold">Ảnh hóa đơn (không bắt buộc, tối đa 5MB)</label>
                           {expenseFile ? (
-                            <div className="mt-1 flex items-center gap-2 bg-white dark:bg-espresso-700 border border-brand-200 dark:border-slate-600 rounded-lg px-3 py-2">
+                            <div className="mt-1 flex items-center gap-2 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-lg px-3 py-2">
                               <ImageIcon size={14} className="text-brand-500 shrink-0" />
-                              <span className="text-xs text-brand-600 dark:text-gray-200 truncate flex-1">{expenseFile.name}</span>
+                              <span className="text-xs text-brand-600 text-[var(--text-primary)] truncate flex-1">{expenseFile.name}</span>
                               <button type="button" onClick={() => { setExpenseFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}>
                                 <X size={13} className="text-brand-400 hover:text-red-500" />
                               </button>
                             </div>
                           ) : (
-                            <label className="mt-1 flex items-center gap-2 border border-dashed border-brand-200 dark:border-slate-600 rounded-lg px-3 py-2.5 cursor-pointer hover:border-brand-400 hover:bg-white dark:hover:bg-espresso-700 transition">
+                            <label className="mt-1 flex items-center gap-2 border border-dashed border-brand-200 dark:border-[var(--border-color)] rounded-lg px-3 py-2.5 cursor-pointer hover:border-brand-400 hover:bg-[var(--card-bg)] transition">
                               <Upload size={14} className="text-brand-400" />
                               <span className="text-xs text-brand-400 dark:text-brand-400">Chọn ảnh hoặc PDF</span>
                               <input ref={fileInputRef} type="file" accept="image/*,.pdf" className="hidden"
@@ -229,7 +229,7 @@ export default function EventExpensesTab({ event }: Props) {
                             {uploading ? 'Đang gửi...' : 'Gửi'}
                           </button>
                           <button type="button" onClick={() => { setShowFormForStaff(null); resetForm(); }}
-                            className="flex-1 bg-white dark:bg-espresso-700 border border-brand-200 dark:border-slate-600 text-sm text-brand-600 dark:text-gray-300 py-2 rounded-lg">
+                            className="flex-1 bg-[var(--card-bg)] border border-[var(--border-color)] text-sm text-[var(--text-secondary)] py-2 rounded-lg">
                             Huỷ
                           </button>
                         </div>
@@ -237,7 +237,7 @@ export default function EventExpensesTab({ event }: Props) {
                     )}
 
                     {/* Danh sách chi phí */}
-                    <div className="divide-y divide-brand-50 dark:divide-espresso-700">
+                    <div className="divide-y divide-[var(--border-color)]">
                       {expenses.length === 0 && (
                         <p className="px-4 py-3 text-xs text-brand-400 dark:text-brand-400">Chưa có chi phí nào</p>
                       )}
@@ -245,11 +245,11 @@ export default function EventExpensesTab({ event }: Props) {
                         <div key={r.id} className="px-4 py-3">
                           <div className="flex justify-between items-start">
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-semibold text-espresso-800 dark:text-gray-100">{r.type}</p>
+                              <p className="text-sm font-semibold text-[var(--text-primary)]">{r.type}</p>
                               <p className="text-xs text-brand-400 dark:text-brand-400">{r.date}</p>
                             </div>
                             <div className="flex flex-col items-end gap-1 shrink-0 ml-2">
-                              <span className="text-sm font-bold text-espresso-800 dark:text-gray-100">{r.amount}€</span>
+                              <span className="text-sm font-bold text-[var(--text-primary)]">{r.amount}€</span>
                               <ExpenseStatusBadge status={r.status} />
                             </div>
                           </div>

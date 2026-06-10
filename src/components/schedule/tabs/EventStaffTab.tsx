@@ -67,7 +67,7 @@ export default function EventStaffTab({ event }: Props) {
                   className={`w-full flex items-center justify-between text-left rounded-lg px-3 py-2 text-sm transition-colors border ${
                     selected.has(s.id)
                       ? 'bg-brand-500 text-white border-brand-200'
-                      : 'bg-white dark:bg-espresso-800 text-espresso-700 dark:text-espresso-50 border-brand-100 dark:border-espresso-700 hover:bg-brand-100 dark:hover:bg-espresso-700'
+                      : 'bg-[var(--card-bg)] text-[var(--text-primary)] border-[var(--border-color)] hover:bg-[var(--accent)]'
                   }`}
                 >
                   <span>{s.name}{s.city ? ` — ${s.city}` : ''}</span>
@@ -93,10 +93,10 @@ export default function EventStaffTab({ event }: Props) {
           {event.staff.map(s => (
             <div
               key={s.id}
-              className="bg-white dark:bg-espresso-800 rounded-xl p-3 flex justify-between items-center shadow-card border border-brand-100 dark:border-espresso-700"
+              className="bg-[var(--card-bg)] rounded-xl p-3 flex justify-between items-center shadow-card border border-[var(--border-color)]"
             >
               <div>
-                <p className="font-medium text-espresso-800 dark:text-espresso-50 text-sm">{s.name}</p>
+                <p className="font-medium text-[var(--text-primary)] text-sm">{s.name}</p>
                 <p className="text-xs text-brand-300 dark:text-brand-400">{s.city}</p>
               </div>
               {isAdmin && (

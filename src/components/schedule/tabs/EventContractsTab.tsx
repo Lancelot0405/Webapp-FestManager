@@ -102,14 +102,14 @@ export default function EventContractsTab({ event }: Props) {
         if (!canViewAll && !isMe) return null;
 
         return (
-          <div key={ref.id} className="bg-white dark:bg-espresso-800 rounded-xl border border-brand-100 dark:border-espresso-700 shadow-card overflow-hidden">
+          <div key={ref.id} className="bg-[var(--card-bg)] rounded-xl border border-brand-100 dark:border-[var(--border-color)] shadow-card overflow-hidden">
             {/* Header */}
             <button
               className="w-full flex justify-between items-center px-4 py-3 text-left"
               onClick={() => toggle(ref.id)}
             >
               <div>
-                <p className="text-sm font-semibold text-espresso-800 dark:text-espresso-50">
+                <p className="text-sm font-semibold text-[var(--text-primary)]">
                   {ref.name}
                   {isMe && <span className="ml-2 text-xs text-brand-500 font-normal">(bạn)</span>}
                 </p>
@@ -125,10 +125,10 @@ export default function EventContractsTab({ event }: Props) {
             </button>
 
             {isOpen && (
-              <div className="border-t border-brand-100 dark:border-espresso-700">
+              <div className="border-t border-brand-100 dark:border-[var(--border-color)]">
                 {/* Upload button — nhân viên tự upload, hoặc admin upload hộ */}
                 {(isMe || isAdmin) && !isManager && (
-                  <div className="px-4 py-3 bg-brand-50 dark:bg-espresso-700/50 border-b border-brand-100 dark:border-espresso-700">
+                  <div className="px-4 py-3 bg-[var(--muted)] border-b border-[var(--border-color)]">
                     <label className={`flex items-center gap-2 cursor-pointer w-fit ${isBusy ? 'opacity-60 pointer-events-none' : ''}`}>
                       {isBusy
                         ? <Loader size={14} className="animate-spin text-brand-500" />
@@ -152,7 +152,7 @@ export default function EventContractsTab({ event }: Props) {
                 )}
 
                 {/* Danh sách hợp đồng */}
-                <div className="divide-y divide-gray-50 dark:divide-slate-700">
+                <div className="divide-y divide-[var(--border-color)]">
                   {eventContracts.length === 0 ? (
                     <p className="px-4 py-3 text-xs text-brand-300 dark:text-brand-400">Chưa có hợp đồng nào được tải lên</p>
                   ) : (
@@ -161,7 +161,7 @@ export default function EventContractsTab({ event }: Props) {
                         <div className="flex items-center gap-2">
                           <FileText size={14} className="text-brand-400 shrink-0" />
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-espresso-800 dark:text-espresso-50 truncate">
+                            <p className="text-sm font-medium text-[var(--text-primary)] truncate">
                               {c.fileName ?? 'Hợp đồng'}
                             </p>
                             <p className="text-xs text-brand-300 dark:text-brand-400">{c.date}</p>
