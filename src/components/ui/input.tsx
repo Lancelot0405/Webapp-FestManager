@@ -1,39 +1,28 @@
 import * as React from "react"
-import {
-  TextField,
-  Label,
-  Input as HeroInput,
-  FieldError,
-  Description,
-  type TextFieldProps,
-} from "@heroui/react"
 import { cn } from "@/lib/utils"
 
-export interface InputProps extends Omit<TextFieldProps, 'children'> {
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string
   error?: string
   hint?: string
   icon?: React.ReactNode
-  placeholder?: string
-  type?: React.HTMLInputTypeAttribute
-  className?: string
   inputClassName?: string
-  defaultValue?: string
-  autoComplete?: string
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, hint, icon, className, inputClassName, placeholder, type, ...props }, _ref) => {
+  ({ label, error, hint, icon, className, inputClassName, id, ...props }, ref) => {
+    const genId = React.useId()
+    const inputId = id ?? genId
+
     return (
-      <TextField
-        isInvalid={!!error}
-        className={cn("flex flex-col gap-1 w-full", className)}
-        {...props}
-      >
+      <div className={cn("flex flex-col gap-1 w-full", className)}>
         {label && (
-          <Label className="text-sm font-medium text-[var(--text-primary)]">
+          <label
+            htmlFor={inputId}
+            className="text-sm font-medium text-[var(--text-primary)]"
+          >
             {label}
-          </Label>
+          </label>
         )}
         <div className="relative">
           {icon && (
@@ -41,9 +30,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               {icon}
             </span>
           )}
-          <HeroInput
-            placeholder={placeholder}
-            type={type}
+          <input
+            ref={ref}
+            id={inputId}
             className={cn(
               "h-9 w-full rounded-md border border-[var(--border-color)] bg-transparent px-3 py-1 text-base text-[var(--text-primary)] shadow-sm transition-colors",
               "placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)]",
@@ -53,11 +42,22 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               error && "border-[var(--destructive)] focus:ring-[var(--destructive)]",
               inputClassName
             )}
+            aria-invalid={!!error}
+            aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}
+            {...props}
           />
         </div>
-        {error && <FieldError className="text-xs text-[var(--destructive)]">{error}</FieldError>}
-        {hint && !error && <Description className="text-xs text-[var(--text-muted)]">{hint}</Description>}
-      </TextField>
+        {error && (
+          <p id={`${inputId}-error`} className="text-xs text-[var(--destructive)]">
+            {error}
+          </p>
+        )}
+        {hint && !error && (
+          <p id={`${inputId}-hint`} className="text-xs text-[var(--text-muted)]">
+            {hint}
+          </p>
+        )}
+      </div>
     )
   }
 )

@@ -8,6 +8,7 @@ export interface ButtonProps extends Omit<ButtonRootProps, 'variant' | 'size'> {
   variant?: LegacyVariant | ButtonRootProps['variant']
   size?: LegacySize | ButtonRootProps['size']
   loading?: boolean
+  isLoading?: boolean
   asChild?: boolean
 }
 
@@ -34,7 +35,8 @@ const isLegacySize = (s: string): s is LegacySize =>
   ['default','sm','lg','icon'].includes(s)
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = 'default', size = 'default', loading, asChild: _asChild, children, ...props }, ref) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ({ variant = 'default', size = 'default', loading, isLoading, asChild: _asChild, children, ...props }, ref) => {
     const heroVariant = typeof variant === 'string' && isLegacyVariant(variant)
       ? legacyVariantMap[variant]
       : (variant as ButtonRootProps['variant'])
@@ -43,16 +45,18 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       ? legacySizeMap[size]
       : (size as ButtonRootProps['size'])
 
+    const busy = loading || isLoading
+
     return (
       <HeroButton
         ref={ref}
         variant={heroVariant}
         size={heroSize}
-        isDisabled={props.isDisabled || loading}
+        isDisabled={props.isDisabled || busy}
         isIconOnly={size === 'icon'}
         {...props}
       >
-        {loading
+        {busy
           ? <>
               <span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
               {children}
@@ -65,6 +69,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 )
 Button.displayName = "Button"
 
-// eslint-disable-next-line react-refresh/only-export-components
 export { Button }
+// eslint-disable-next-line react-refresh/only-export-components
 export const buttonVariants = () => ''

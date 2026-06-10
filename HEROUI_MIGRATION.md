@@ -18,12 +18,12 @@
 - [x] `src/components/layout/LoginScreen.tsx` — Card + CardContent + Button (HeroUI Input quá đơn giản, giữ raw input)
 
 ### Phase 2 — Shared UI Wrappers
-- [ ] `src/components/ui/button.tsx` — Cải thiện (radius, isLoading)
-- [ ] `src/components/ui/input.tsx` — Migrate TextField → Input
-- [ ] `src/components/ui/dialog.tsx` — Fix placement, scrollBehavior
-- [ ] `src/components/ui/skeleton.tsx` — Giữ nguyên (đã tốt)
-- [ ] `src/components/ui/select.tsx` — **Tạo mới** (HeroUI Select wrapper)
-- [ ] `src/components/ui/tabs.tsx` — **Tạo mới** (HeroUI Tabs wrapper)
+- [x] `src/components/ui/button.tsx` — Thêm isLoading prop, giữ legacy variant/size mapping
+- [x] `src/components/ui/input.tsx` — Migrate TextField (RAC) → native input wrapper (đơn giản hơn, tránh RAC controlled/uncontrolled conflict)
+- [x] `src/components/ui/dialog.tsx` — Fix close button dùng Modal.CloseTrigger (thay vì button rỗng)
+- [x] `src/components/ui/skeleton.tsx` — Giữ nguyên (đã tốt)
+- [x] `src/components/ui/select.tsx` — **Tạo mới**: HeroUI Select wrapper + NativeSelect fallback
+- [x] `src/components/ui/tabs.tsx` — **Tạo mới**: HeroUI Tabs wrapper với items API
 
 ### Phase 3 — Page Components
 - [ ] `src/components/dashboard/Dashboard.tsx` — Card, Table

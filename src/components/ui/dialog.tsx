@@ -4,7 +4,6 @@ import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 // ── Dialog (Modal wrapper) ────────────────────────────────────────────────
-// Backward-compat: accepts `open` (Radix style) or `isOpen` (HeroUI style)
 interface DialogProps {
   open?: boolean
   isOpen?: boolean
@@ -27,6 +26,7 @@ Dialog.displayName = "Dialog"
 // ── DialogContent ─────────────────────────────────────────────────────────
 interface DialogContentProps {
   position?: "center" | "bottom"
+  scrollBehavior?: "inside" | "outside"
   className?: string
   children?: React.ReactNode
 }
@@ -45,15 +45,12 @@ const DialogContent = ({ position = "center", className, children }: DialogConte
         )}
       >
         <Modal.Dialog className="relative outline-none">
-          <button
-            onClick={() => {
-              // DialogClose equivalent — will trigger onOpenChange(false) via Modal
-            }}
+          <Modal.CloseTrigger
             className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none"
             aria-label="Close"
           >
             <X className="size-4" />
-          </button>
+          </Modal.CloseTrigger>
           {children}
         </Modal.Dialog>
       </Modal.Container>
