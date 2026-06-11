@@ -1,6 +1,6 @@
 # Kế hoạch Nâng cấp Giao diện FestManager → HeroUI v3 Glass Preset
 
-> **Trạng thái tổng thể:** 🔄 Đang triển khai (2/11 phases)  
+> **Trạng thái tổng thể:** 🔄 Đang triển khai (3/11 phases)  
 > **Cập nhật lần cuối:** 2026-06-11  
 > **Nhánh triển khai:** `claude/zealous-tesla-179zmi`
 
@@ -146,7 +146,7 @@ Kiểm tra: Ripple khi bấm button, Input focus ring, Modal/Drawer mở đúng.
 
 ## Phase 3 — Layout: Header + BottomNav
 
-**Trạng thái:** 🔲 Chưa bắt đầu  
+**Trạng thái:** ✅ Hoàn thành  
 **Files:** `src/components/layout/Header.tsx`, `src/components/layout/BottomNav.tsx`  
 **Độ khó:** Trung bình  
 
