@@ -1,7 +1,7 @@
 # Kế hoạch Nâng cấp Giao diện FestManager → HeroUI v3 Glass Preset
 
 > **Trạng thái tổng thể:** 🔄 Đang triển khai (7/11 phases)  
-> **Cập nhật lần cuối:** 2026-06-11  
+> **Cập nhật lần cuối:** 2026-06-11 (sau Phase 7)  
 > **Nhánh triển khai:** `claude/zealous-tesla-179zmi`
 
 ---
@@ -430,13 +430,13 @@ Kiểm tra thủ công trên mobile:
 
 | Phase | Mô tả | Trạng thái | Commit |
 |---|---|---|---|
-| 1 | CSS Foundation & Tokens | ✅ Hoàn thành | e9c96fd → phase-1 |
-| 2 | UI Primitives (Modal, Input, Button) | ✅ Hoàn thành | phase-2 |
-| 3 | Layout (Header + BottomNav) | 🔲 Chưa bắt đầu | — |
-| 4 | LoginScreen | 🔲 Chưa bắt đầu | — |
-| 5 | Dashboard | 🔲 Chưa bắt đầu | — |
-| 6 | Clients Page | 🔲 Chưa bắt đầu | — |
-| 7 | Finance Page | 🔲 Chưa bắt đầu | — |
+| 1 | CSS Foundation & Tokens | ✅ Hoàn thành | `5b7ec9a` |
+| 2 | UI Primitives (Modal, Input, Button) | ✅ Hoàn thành | `ee13764` |
+| 3 | Layout (Header + BottomNav) | ✅ Hoàn thành | `58aff2d` |
+| 4 | LoginScreen | ✅ Hoàn thành | `b81c87b` |
+| 5 | Dashboard | ✅ Hoàn thành | `9e9ffbf` |
+| 6 | Clients Page | ✅ Hoàn thành | `ab9cf15` |
+| 7 | Finance Page | ✅ Hoàn thành | `35c06d2` |
 | 8 | HR Pages | 🔲 Chưa bắt đầu | — |
 | 9 | Inventory Page | 🔲 Chưa bắt đầu | — |
 | 10 | Schedule Pages | 🔲 Chưa bắt đầu | — |
