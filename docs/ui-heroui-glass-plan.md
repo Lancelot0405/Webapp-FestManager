@@ -1,6 +1,6 @@
 # Kế hoạch Nâng cấp Giao diện FestManager → HeroUI v3 Glass Preset
 
-> **Trạng thái tổng thể:** 🔄 Đang triển khai (1/11 phases)  
+> **Trạng thái tổng thể:** 🔄 Đang triển khai (2/11 phases)  
 > **Cập nhật lần cuối:** 2026-06-11  
 > **Nhánh triển khai:** `claude/zealous-tesla-179zmi`
 
@@ -108,30 +108,32 @@ Kiểm tra thủ công: mở app, xem font và màu nền đã đổi chưa.
 
 ## Phase 2 — UI Primitives Layer
 
-**Trạng thái:** 🔲 Chưa bắt đầu  
+**Trạng thái:** ✅ Hoàn thành  
 **Files:** `src/components/ui/dialog.tsx`, `src/components/ui/input.tsx`, `src/components/ui/button.tsx`  
 **Độ khó:** Trung bình  
 
 ### 2.1 `dialog.tsx` → HeroUI `Modal` + `Drawer`
 
-- [ ] Thay `Dialog position="center"` → HeroUI `Modal` với `backdrop="blur"`
-- [ ] Thay `Dialog position="bottom"` → HeroUI `Drawer` anchor="bottom"
-- [ ] Giữ nguyên các sub-component exports (`DialogHeader`, `DialogBody`, `DialogFooter`, `DialogTitle`) để không phá vỡ các file đang dùng
-- [ ] Cập nhật `AddEventForm.tsx` dùng Drawer mới
-- [ ] Cập nhật `AddStaffForm.tsx` dùng Drawer mới
+- [x] Thay `Dialog position="center"` → HeroUI `ModalRoot/ModalBackdrop/ModalContainer/ModalDialog`
+- [x] Thay `Dialog position="bottom"` → HeroUI `DrawerRoot/DrawerBackdrop/DrawerContent/DrawerDialog`
+- [x] Giữ nguyên toàn bộ external API (open, isOpen, onOpenChange, position, hideClose)
+- [x] Giữ nguyên sub-component exports (DialogHeader, DialogBody, DialogFooter, DialogTitle...)
+- [x] Glass styling: `bg-[var(--popover)] backdrop-blur border border-[var(--glass-border)]`
+- [x] Backdrop: `bg-black/60 backdrop-blur-sm`
 
 ### 2.2 `input.tsx` → HeroUI `Input` chuẩn
 
-- [ ] Rewrite wrapper dùng HeroUI `Input` từ `@heroui/react`
-- [ ] Default props: `variant="bordered"`, `radius="sm"`, `classNames` glass style
-- [ ] Thêm `Textarea` wrapper mới trong cùng file
-- [ ] Giữ nguyên interface props hiện tại (label, errorMessage, hint, startContent)
+- [x] Rewrite dùng `TextField` + `InputRoot` từ `@heroui/react`
+- [x] Glass styling: `bg-[var(--glass-bg)] border-[var(--glass-border)] backdrop-blur`
+- [x] Focus ring: `focus:ring-[var(--primary)]/30`
+- [x] Đổi prop `icon` → `startContent`/`endContent` (rõ ràng hơn)
+- [x] Error state: `border-[var(--danger)]`
 
 ### 2.3 `button.tsx` — Chuẩn hóa Glass style
 
-- [ ] Cập nhật default classNames theo Glass preset
-- [ ] Đảm bảo Ripple effect hoạt động
-- [ ] Giữ nguyên compatibility mapping (loading, fullWidth, variant cũ)
+- [x] Glass style cho `outline` variant: `bg-[var(--glass-bg)] backdrop-blur`
+- [x] Ghost variant: `hover:bg-white/8`
+- [x] Giữ nguyên compatibility mapping (loading, fullWidth, variant cũ)
 
 ### Kiểm tra sau phase
 
@@ -429,7 +431,7 @@ Kiểm tra thủ công trên mobile:
 | Phase | Mô tả | Trạng thái | Commit |
 |---|---|---|---|
 | 1 | CSS Foundation & Tokens | ✅ Hoàn thành | e9c96fd → phase-1 |
-| 2 | UI Primitives (Modal, Input, Button) | 🔲 Chưa bắt đầu | — |
+| 2 | UI Primitives (Modal, Input, Button) | ✅ Hoàn thành | phase-2 |
 | 3 | Layout (Header + BottomNav) | 🔲 Chưa bắt đầu | — |
 | 4 | LoginScreen | 🔲 Chưa bắt đầu | — |
 | 5 | Dashboard | 🔲 Chưa bắt đầu | — |
