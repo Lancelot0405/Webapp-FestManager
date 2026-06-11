@@ -1,5 +1,6 @@
 import { useState, lazy, Suspense } from 'react';
 import { ArrowLeft, Trash2, Download, Copy } from 'lucide-react';
+import { Tooltip } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 // Lazy-load: @react-pdf/renderer rất nặng, chỉ tải khi mở chi tiết sự kiện.
@@ -108,32 +109,47 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
         </div>
         {isAdmin && (
           <div className="flex items-center gap-1 shrink-0">
-            <button
-              onClick={handleExport}
-              className="p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--primary)] hover:bg-[var(--primary)]/10 transition-colors"
-              aria-label="Xuất Excel" title="Xuất Excel"
-            >
-              <Download size={18} />
-            </button>
+            <Tooltip>
+              <Tooltip.Trigger>
+                <button
+                  onClick={handleExport}
+                  className="p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--primary)] hover:bg-[var(--primary)]/10 transition-colors"
+                  aria-label="Xuất Excel"
+                >
+                  <Download size={18} />
+                </button>
+              </Tooltip.Trigger>
+              <Tooltip.Content placement="bottom">Xuất Excel</Tooltip.Content>
+            </Tooltip>
             <Suspense fallback={
               <span className="px-3 py-1.5 text-sm text-[var(--text-muted)]">PDF…</span>
             }>
               <EventPDFExport event={event} />
             </Suspense>
-            <button
-              onClick={handleClone}
-              className="p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--success)] hover:bg-[var(--success)]/10 transition-colors"
-              aria-label="Nhân bản sự kiện" title="Nhân bản sự kiện"
-            >
-              <Copy size={18} />
-            </button>
-            <button
-              onClick={handleDelete}
-              className="p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 transition-colors"
-              aria-label="Xóa sự kiện" title="Xóa sự kiện"
-            >
-              <Trash2 size={18} />
-            </button>
+            <Tooltip>
+              <Tooltip.Trigger>
+                <button
+                  onClick={handleClone}
+                  className="p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--success)] hover:bg-[var(--success)]/10 transition-colors"
+                  aria-label="Nhân bản sự kiện"
+                >
+                  <Copy size={18} />
+                </button>
+              </Tooltip.Trigger>
+              <Tooltip.Content placement="bottom">Nhân bản sự kiện</Tooltip.Content>
+            </Tooltip>
+            <Tooltip>
+              <Tooltip.Trigger>
+                <button
+                  onClick={handleDelete}
+                  className="p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 transition-colors"
+                  aria-label="Xóa sự kiện"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </Tooltip.Trigger>
+              <Tooltip.Content placement="bottom">Xóa sự kiện</Tooltip.Content>
+            </Tooltip>
           </div>
         )}
       </div>

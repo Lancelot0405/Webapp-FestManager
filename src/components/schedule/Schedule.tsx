@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Plus, Trash2, Search } from 'lucide-react';
-import { Button } from '@heroui/react';
+import { Button, ScrollShadow } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
 import AddEventForm from './AddEventForm';
@@ -117,7 +117,7 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
       ) : sorted.length === 0 ? (
         <p className="text-sm text-[var(--text-muted)] text-center py-10">Chưa có sự kiện nào</p>
       ) : (
-        <div className="space-y-3">
+        <ScrollShadow className="space-y-3">
           {sorted.map(event => (
             <EventCard
               key={event.id}
@@ -131,7 +131,7 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
               }}
             />
           ))}
-        </div>
+        </ScrollShadow>
       )}
     </div>
   );

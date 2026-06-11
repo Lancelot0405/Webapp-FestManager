@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { LogOut, Bell, X, BellPlus, Download, Smartphone, UtensilsCrossed, Sun, Moon } from 'lucide-react';
-import { Button } from '@heroui/react';
+import { Button, Tooltip } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
@@ -83,29 +83,41 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
           </div>
 
           {/* Dark mode toggle */}
-          <Button
-            onPress={toggleTheme}
-            variant="ghost"
-            isIconOnly
-            size="sm"
-            className="rounded-full text-[var(--text-secondary)] hover:bg-[var(--glass-bg)] hover:text-[var(--text-primary)]"
-            aria-label={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
-          >
-            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-          </Button>
+          <Tooltip>
+            <Tooltip.Trigger>
+              <Button
+                onPress={toggleTheme}
+                variant="ghost"
+                isIconOnly
+                size="sm"
+                className="rounded-full text-[var(--text-secondary)] hover:bg-[var(--glass-bg)] hover:text-[var(--text-primary)]"
+                aria-label={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
+              >
+                {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+              </Button>
+            </Tooltip.Trigger>
+            <Tooltip.Content placement="bottom">
+              {theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
+            </Tooltip.Content>
+          </Tooltip>
 
           {/* Install */}
           <div className="relative" ref={installRef}>
-            <Button
-              onPress={handleInstallClick}
-              variant="ghost"
-              isIconOnly
-              size="sm"
-              className="rounded-full text-[var(--text-secondary)] hover:bg-[var(--glass-bg)] hover:text-[var(--text-primary)]"
-              aria-label="Cài đặt ứng dụng"
-            >
-              <Download size={16} />
-            </Button>
+            <Tooltip>
+              <Tooltip.Trigger>
+                <Button
+                  onPress={handleInstallClick}
+                  variant="ghost"
+                  isIconOnly
+                  size="sm"
+                  className="rounded-full text-[var(--text-secondary)] hover:bg-[var(--glass-bg)] hover:text-[var(--text-primary)]"
+                  aria-label="Cài đặt ứng dụng"
+                >
+                  <Download size={16} />
+                </Button>
+              </Tooltip.Trigger>
+              <Tooltip.Content placement="bottom">Cài đặt ứng dụng</Tooltip.Content>
+            </Tooltip>
             {showInstallModal && (
               <InstallDropdown isStandalone={isStandalone} isIos={isIos} onClose={() => setShowInstallModal(false)} />
             )}
@@ -114,21 +126,26 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
           {/* Notifications — admin/manager */}
           {(isAdmin || isManager) && (
             <div className="relative" ref={notifRef}>
-              <Button
-                onPress={() => setShowNotifDropdown(v => !v)}
-                variant="ghost"
-                isIconOnly
-                size="sm"
-                className="rounded-full relative text-[var(--text-secondary)] hover:bg-[var(--glass-bg)] hover:text-[var(--text-primary)]"
-                aria-label="Thông báo"
-              >
-                <Bell size={16} />
-                {notifications.length > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[var(--danger)] text-white text-[9px] font-bold rounded-full flex items-center justify-center border border-[var(--background)]">
-                    {notifications.length > 9 ? '9+' : notifications.length}
-                  </span>
-                )}
-              </Button>
+              <Tooltip>
+                <Tooltip.Trigger>
+                  <Button
+                    onPress={() => setShowNotifDropdown(v => !v)}
+                    variant="ghost"
+                    isIconOnly
+                    size="sm"
+                    className="rounded-full relative text-[var(--text-secondary)] hover:bg-[var(--glass-bg)] hover:text-[var(--text-primary)]"
+                    aria-label="Thông báo"
+                  >
+                    <Bell size={16} />
+                    {notifications.length > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[var(--danger)] text-white text-[9px] font-bold rounded-full flex items-center justify-center border border-[var(--background)]">
+                        {notifications.length > 9 ? '9+' : notifications.length}
+                      </span>
+                    )}
+                  </Button>
+                </Tooltip.Trigger>
+                <Tooltip.Content placement="bottom">Thông báo</Tooltip.Content>
+              </Tooltip>
               {showNotifDropdown && (
                 <NotifDropdown
                   notifications={notifications}
@@ -146,34 +163,44 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
                 <Bell size={16} />
               </div>
             ) : (
-              <Button
-                onPress={subscribe}
-                isDisabled={pushLoading}
-                variant="ghost"
-                isIconOnly
-                size="sm"
-                className="rounded-full relative text-[var(--text-secondary)] hover:bg-[var(--glass-bg)] hover:text-[var(--text-primary)]"
-                aria-label="Bật thông báo đẩy"
-              >
-                {pushLoading
-                  ? <span className="w-4 h-4 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
-                  : <><BellPlus size={16} /><span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-indigo-500 rounded-full border border-[var(--background)]" /></>
-                }
-              </Button>
+              <Tooltip>
+                <Tooltip.Trigger>
+                  <Button
+                    onPress={subscribe}
+                    isDisabled={pushLoading}
+                    variant="ghost"
+                    isIconOnly
+                    size="sm"
+                    className="rounded-full relative text-[var(--text-secondary)] hover:bg-[var(--glass-bg)] hover:text-[var(--text-primary)]"
+                    aria-label="Bật thông báo đẩy"
+                  >
+                    {pushLoading
+                      ? <span className="w-4 h-4 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
+                      : <><BellPlus size={16} /><span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-indigo-500 rounded-full border border-[var(--background)]" /></>
+                    }
+                  </Button>
+                </Tooltip.Trigger>
+                <Tooltip.Content placement="bottom">Bật thông báo đẩy</Tooltip.Content>
+              </Tooltip>
             )
           )}
 
           {/* Logout */}
-          <Button
-            onPress={onLogout}
-            variant="ghost"
-            isIconOnly
-            size="sm"
-            className="rounded-full text-[var(--danger)]/70 hover:bg-[var(--danger)]/10 hover:text-[var(--danger)]"
-            aria-label="Đăng xuất"
-          >
-            <LogOut size={16} />
-          </Button>
+          <Tooltip>
+            <Tooltip.Trigger>
+              <Button
+                onPress={onLogout}
+                variant="ghost"
+                isIconOnly
+                size="sm"
+                className="rounded-full text-[var(--danger)]/70 hover:bg-[var(--danger)]/10 hover:text-[var(--danger)]"
+                aria-label="Đăng xuất"
+              >
+                <LogOut size={16} />
+              </Button>
+            </Tooltip.Trigger>
+            <Tooltip.Content placement="bottom">Đăng xuất</Tooltip.Content>
+          </Tooltip>
         </div>
       </div>
     </header>

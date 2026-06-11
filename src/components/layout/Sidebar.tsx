@@ -42,6 +42,10 @@ const STAFF_TABS: { tab: ActiveTab; icon: React.ReactNode; label: string }[] = [
   { tab: 'profile',   icon: <User            size={20} />, label: 'Hồ sơ'      },
 ];
 
+const roleLabel: Record<string, string> = {
+  admin: 'Admin', manager: 'Quản lý', staff: 'Nhân viên',
+};
+
 export default function Sidebar({ activeTab, onTabChange, onLogoClick }: SidebarProps) {
   const { state }       = useApp();
   const { currentUser } = state;
@@ -53,17 +57,17 @@ export default function Sidebar({ activeTab, onTabChange, onLogoClick }: Sidebar
              : STAFF_TABS;
 
   return (
-    <aside className="hidden md:flex flex-col w-56 lg:w-64 bg-[var(--card-bg)] backdrop-blur-sm border-r border-[var(--border-color)] shrink-0 sticky top-0 h-screen animate-slide-left shadow-card">
+    <aside className="hidden md:flex flex-col w-56 lg:w-64 glass-card border-r border-[var(--glass-border)] shrink-0 sticky top-0 h-screen animate-slide-left">
 
       {/* Logo */}
       <button
         onClick={onLogoClick}
-        className="flex items-center gap-2.5 px-5 h-16 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 border-b border-[var(--border-color)]"
+        className="flex items-center gap-2.5 px-5 h-16 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]/40 border-b border-[var(--glass-border)]"
       >
-        <div className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center shadow-[0_2px_8px_0_rgb(124_58_237/0.35)]">
-          <UtensilsCrossed size={16} className="text-white" />
+        <div className="w-8 h-8 rounded-xl bg-[var(--primary)] flex items-center justify-center shadow-[var(--shadow-float)]">
+          <UtensilsCrossed size={16} className="text-[var(--background)]" />
         </div>
-        <span className="text-lg font-black tracking-tight text-brand-gradient select-none">
+        <span className="text-lg font-black tracking-tight text-[var(--text-primary)] select-none">
           FestManager
         </span>
       </button>
@@ -81,11 +85,11 @@ export default function Sidebar({ activeTab, onTabChange, onLogoClick }: Sidebar
               fullWidth
               className={`flex items-center gap-3 px-3 py-2.5 justify-start text-sm font-semibold h-auto rounded-xl ${
                 isActive
-                  ? 'bg-brand-gradient text-white shadow-[0_2px_8px_0_rgb(124_58_237/0.30)]'
-                  : 'text-[var(--text-muted)]'
+                  ? 'bg-[var(--primary)] text-[var(--background)]'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--glass-bg)]'
               }`}
             >
-              <span className={isActive ? 'text-white' : 'text-brand-400'}>
+              <span className={isActive ? 'text-[var(--background)]' : 'text-[var(--text-muted)]'}>
                 {icon}
               </span>
               {label}
@@ -95,17 +99,17 @@ export default function Sidebar({ activeTab, onTabChange, onLogoClick }: Sidebar
       </nav>
 
       {/* User info footer */}
-      <div className="px-4 py-4 border-t border-[var(--border-color)]">
+      <div className="px-4 py-4 border-t border-[var(--glass-border)]">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-brand-gradient flex items-center justify-center text-white text-xs font-bold shrink-0">
+          <div className="w-8 h-8 rounded-full bg-[var(--primary)] flex items-center justify-center text-[var(--background)] text-xs font-bold shrink-0">
             {currentUser.name.charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0">
             <p className="text-sm font-semibold text-[var(--text-primary)] truncate">
               {currentUser.name}
             </p>
-            <p className="text-[10px] font-medium text-brand-500 uppercase tracking-wide">
-              {currentUser.role === 'admin' ? 'Admin' : currentUser.role === 'manager' ? 'Quản lý' : 'Nhân viên'}
+            <p className="text-[10px] font-medium text-[var(--text-muted)] uppercase tracking-wide">
+              {roleLabel[currentUser.role]}
             </p>
           </div>
         </div>

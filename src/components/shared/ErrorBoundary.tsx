@@ -13,14 +13,14 @@ export default class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-[var(--muted)] flex items-center justify-center p-6">
-          <div className="bg-[var(--card-bg)] rounded-2xl p-6 shadow-lg max-w-sm w-full text-center space-y-4">
+        <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-6">
+          <div className="glass-card rounded-2xl p-6 max-w-sm w-full text-center space-y-4">
             <div className="text-4xl">⚠️</div>
             <h2 className="font-bold text-[var(--text-primary)] text-lg">Đã xảy ra lỗi</h2>
             <p className="text-sm text-[var(--text-muted)]">{this.state.error?.message ?? 'Lỗi không xác định'}</p>
             <button
               onClick={() => window.location.reload()}
-              className="w-full bg-blue-600 text-white font-semibold py-2.5 rounded-xl text-sm"
+              className="w-full bg-[var(--primary)] text-[var(--background)] font-semibold py-2.5 rounded-xl text-sm hover:opacity-90 transition-opacity"
             >
               Tải lại ứng dụng
             </button>

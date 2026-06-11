@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Plus, User, Trash2, ShieldCheck, Check, X } from 'lucide-react';
-import { Button } from '@heroui/react';
+import { Button, ScrollShadow } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import AddStaffForm from './AddStaffForm';
 import { Input } from '@/components/ui/input';
@@ -58,6 +58,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
   const partTime  = filtered.filter(s => s.staffType === 'part-time');
 
   const renderList = (list: StaffMember[]) => (
+    <ScrollShadow className="max-h-[60vh]">
     <div className="space-y-2">
       {list.map(s => (
         <div
@@ -95,6 +96,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
         </div>
       ))}
     </div>
+    </ScrollShadow>
   );
 
   return (
