@@ -1,7 +1,7 @@
 # Kế hoạch Nâng cấp Giao diện FestManager → HeroUI v3 Glass Preset
 
-> **Trạng thái tổng thái:** ✅ Hoàn thành (11/11 phases)  
-> **Cập nhật lần cuối:** 2026-06-11 (sau Phase 11)  
+> **Trạng thái tổng thái:** ✅ Hoàn thành (11/11 phases + Responsive PC/Tablet)  
+> **Cập nhật lần cuối:** 2026-06-11 (sau Responsive update)  
 > **Nhánh triển khai:** `claude/zealous-tesla-179zmi`
 
 ---
@@ -441,6 +441,34 @@ Kiểm tra thủ công trên mobile:
 | 9 | Inventory Page | ✅ Hoàn thành | `0551c7c` |
 | 10 | Schedule Pages | ✅ Hoàn thành | `5a055e2` |
 | 11 | Polish & Consistency | ✅ Hoàn thành | `b8b896e` |
+
+---
+
+## Responsive PC / Tablet — `fd93db5`
+
+> **Mục tiêu:** Tối ưu layout cho màn hình md (768px+) và lg (1024px+) mà không phá vỡ mobile.
+
+### Thay đổi chính
+
+| File | Mobile | Tablet (md) | PC (lg+) |
+|------|--------|-------------|----------|
+| `App.tsx` | Sidebar ẩn | Sidebar luôn hiện (kể cả trang detail), content `max-w-5xl` | — |
+| `Header.tsx` | Logo + actions | Logo ẩn (sidebar đã có) | — |
+| `Dashboard.tsx` — stat cards | 2 col | 4 col | 4 col |
+| `Dashboard.tsx` — event cards | 1 col | 2 col | 3 col |
+| `Dashboard.tsx` — chart/staff | stacked | 2 col side-by-side | — |
+| `Schedule.tsx` — events | 1 col | 2 col | 3 col |
+| `Finance.tsx` — summary | 1 col | 3 col | — |
+| `Finance.tsx` — per-event | 1 col | 2 col | — |
+| `HRGlobal.tsx` — staff | 1 col | 2 col | — |
+| `Inventory.tsx` — items | 1 col | 2 col | — |
+| `Clients.tsx` — cards | 1 col | 2 col | 3 col |
+
+### Nguyên tắc áp dụng
+
+- **Mobile-first:** Mọi thay đổi dùng prefix `md:` / `lg:` — không ảnh hưởng mobile
+- **Content width:** `max-w-5xl mx-auto` trong main để giữ readability trên màn hình rất rộng
+- **Sidebar:** Luôn render, CSS (`hidden md:flex`) tự ẩn/hiện — sidebar không bị ẩn khi vào trang detail trên desktop
 
 ---
 
