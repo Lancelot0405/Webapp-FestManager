@@ -1,7 +1,7 @@
 # Kế hoạch Nâng cấp Giao diện FestManager → HeroUI v3 Glass Preset
 
-> **Trạng thái tổng thể:** 🔄 Đang triển khai (8/11 phases)  
-> **Cập nhật lần cuối:** 2026-06-11 (sau Phase 8)  
+> **Trạng thái tổng thái:** 🔄 Đang triển khai (9/11 phases)  
+> **Cập nhật lần cuối:** 2026-06-11 (sau Phase 9)  
 > **Nhánh triển khai:** `claude/zealous-tesla-179zmi`
 
 ---
@@ -438,7 +438,7 @@ Kiểm tra thủ công trên mobile:
 | 6 | Clients Page | ✅ Hoàn thành | `ab9cf15` |
 | 7 | Finance Page | ✅ Hoàn thành | `35c06d2` |
 | 8 | HR Pages | ✅ Hoàn thành | `11ca36d` |
-| 9 | Inventory Page | 🔲 Chưa bắt đầu | — |
+| 9 | Inventory Page | ✅ Hoàn thành | `0551c7c` |
 | 10 | Schedule Pages | 🔲 Chưa bắt đầu | — |
 | 11 | Polish & Consistency | 🔲 Chưa bắt đầu | — |
 
