@@ -4,6 +4,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useApp } from './context/AppContext';
+import { useRealtimeNotifications } from './hooks/useRealtimeNotifications';
 import type { ActiveTab } from './types';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 
@@ -113,6 +114,8 @@ export default function App() {
   const canViewAll = isAdmin || isManager;
   const isInDetail = selectedEventId !== null || selectedStaffId !== null;
 
+  const { notifications, clearAll, clearOne } = useRealtimeNotifications(isAdmin || isManager);
+
   return (
     <div className="min-h-screen font-sans">
       <SpeedInsights />
@@ -135,6 +138,7 @@ export default function App() {
             onLogoClick={handleLogoClick}
             onOpenSheet={() => setShowUserSheet(true)}
             navVisible={navVisible}
+            notifCount={notifications.length}
           />
 
           <main ref={mainRef} className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 py-5 pb-24 md:pb-8 scroll-smooth-ios animate-fade-up">
@@ -206,6 +210,9 @@ export default function App() {
         <UserSheet
           onClose={() => setShowUserSheet(false)}
           onLogout={handleLogout}
+          notifications={notifications}
+          clearAll={clearAll}
+          clearOne={clearOne}
         />
       )}
     </div>

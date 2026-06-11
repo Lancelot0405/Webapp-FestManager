@@ -3,13 +3,17 @@ import { LogOut, Sun, Moon, Bell, BellPlus, Smartphone, X, Check } from 'lucide-
 import { Button } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
-import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
 import { usePushNotifications } from '../../hooks/usePushNotifications';
 import { useInstallPrompt } from '../../hooks/useInstallPrompt';
 
+interface Notification { id: string; message: string; timestamp: string; type: string }
+
 interface UserSheetProps {
-  onClose:  () => void;
-  onLogout: () => void;
+  onClose:      () => void;
+  onLogout:     () => void;
+  notifications: Notification[];
+  clearAll:     () => void;
+  clearOne:     (id: string) => void;
 }
 
 const roleBadgeStyle: Record<string, string> = {
@@ -21,13 +25,12 @@ const roleLabel: Record<string, string> = {
   admin: 'Admin', manager: 'Quản lý', staff: 'Nhân viên',
 };
 
-export default function UserSheet({ onClose, onLogout }: UserSheetProps) {
+export default function UserSheet({ onClose, onLogout, notifications, clearAll, clearOne }: UserSheetProps) {
   const { state }       = useApp();
   const { currentUser } = state;
   const { theme, toggleTheme } = useTheme();
   const isAdmin   = currentUser?.role === 'admin';
   const isManager = currentUser?.role === 'manager';
-  const { notifications, clearAll, clearOne } = useRealtimeNotifications(isAdmin || isManager);
   const { subscribed, loading: pushLoading, subscribe } = usePushNotifications();
   const { isStandalone, triggerInstall } = useInstallPrompt();
   const [showNotifs, setShowNotifs] = useState(false);

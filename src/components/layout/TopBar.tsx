@@ -1,19 +1,16 @@
 import { UtensilsCrossed } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
 
 interface TopBarProps {
-  onLogoClick:   () => void;
-  onOpenSheet:   () => void;
-  navVisible?:   boolean;
+  onLogoClick:      () => void;
+  onOpenSheet:      () => void;
+  navVisible?:      boolean;
+  notifCount?:      number;
 }
 
-export default function TopBar({ onLogoClick, onOpenSheet, navVisible = true }: TopBarProps) {
+export default function TopBar({ onLogoClick, onOpenSheet, navVisible = true, notifCount = 0 }: TopBarProps) {
   const { state }       = useApp();
   const { currentUser } = state;
-  const isAdmin         = currentUser?.role === 'admin';
-  const isManager       = currentUser?.role === 'manager';
-  const { notifications } = useRealtimeNotifications(isAdmin || isManager);
 
   if (!currentUser) return null;
 
@@ -45,9 +42,9 @@ export default function TopBar({ onLogoClick, onOpenSheet, navVisible = true }: 
           aria-label="Tài khoản"
         >
           <span className="text-[13px] font-bold text-[var(--background)]">{initials}</span>
-          {notifications.length > 0 && (
+          {notifCount > 0 && (
             <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[var(--danger)] text-white text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-[var(--background)]">
-              {notifications.length > 9 ? '9+' : notifications.length}
+              {notifCount > 9 ? '9+' : notifCount}
             </span>
           )}
         </button>
