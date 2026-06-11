@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LogOut, Sun, Moon, Bell, BellPlus, Smartphone, X, Check } from 'lucide-react';
+import { LogOut, Sun, Moon, Bell, BellPlus, Smartphone, X, Check, Info } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -32,15 +32,25 @@ export default function UserSheet({ onClose, onLogout, notifications, clearAll, 
   const isAdmin   = currentUser?.role === 'admin';
   const isManager = currentUser?.role === 'manager';
   const { subscribed, loading: pushLoading, subscribe } = usePushNotifications();
-  const { isStandalone, triggerInstall } = useInstallPrompt();
+  const { isIos, isStandalone, triggerInstall } = useInstallPrompt();
   const [showNotifs, setShowNotifs] = useState(false);
+  const [installMsg, setInstallMsg] = useState<string | null>(null);
 
   if (!currentUser) return null;
 
   const initials = currentUser.name.trim().split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
 
   const handleInstall = async () => {
-    await triggerInstall();
+    const result = await triggerInstall();
+    if (result === 'already') {
+      setInstallMsg('FestManager đã được cài trên thiết bị này.');
+    } else if (result === 'guide') {
+      if (isIos) {
+        setInstallMsg('Safari: bấm nút Chia sẻ ↑ → "Thêm vào màn hình chính"');
+      } else {
+        setInstallMsg('Dùng menu trình duyệt → "Cài đặt ứng dụng"');
+      }
+    }
   };
 
   return (
@@ -126,27 +136,31 @@ export default function UserSheet({ onClose, onLogout, notifications, clearAll, 
                       )}
                     </div>
                     <span className="flex-1 text-sm font-medium text-[var(--text-primary)] text-left">Thông báo</span>
-                    {notifications.length > 0 && (
-                      <span className="text-xs text-[var(--text-muted)]">{showNotifs ? '▲' : '▼'}</span>
-                    )}
+                    <span className="text-xs text-[var(--text-muted)]">{showNotifs ? '▲' : '▼'}</span>
                   </button>
-                  {showNotifs && notifications.length > 0 && (
+                  {showNotifs && (
                     <div className="mx-3 mb-2 glass-card overflow-hidden">
-                      <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--glass-border)]">
-                        <p className="text-xs font-semibold text-[var(--text-secondary)]">{notifications.length} thông báo</p>
-                        <button onClick={clearAll} className="text-xs text-[var(--danger)]">Xóa tất cả</button>
-                      </div>
-                      <div className="max-h-40 overflow-y-auto divide-y divide-[var(--glass-border)]">
-                        {notifications.map(n => (
-                          <div key={n.id} className="flex items-start gap-2 px-3 py-2.5">
-                            <div className={`mt-1 w-1.5 h-1.5 rounded-full shrink-0 ${n.type === 'expense' ? 'bg-indigo-400' : 'bg-[var(--primary)]'}`} />
-                            <p className="flex-1 text-xs text-[var(--text-primary)] leading-snug">{n.message}</p>
-                            <button onClick={() => clearOne(n.id)} className="text-[var(--text-muted)] hover:text-[var(--danger)]">
-                              <X size={12} />
-                            </button>
+                      {notifications.length === 0 ? (
+                        <p className="text-xs text-[var(--text-muted)] text-center py-3">Không có thông báo mới</p>
+                      ) : (
+                        <>
+                          <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--glass-border)]">
+                            <p className="text-xs font-semibold text-[var(--text-secondary)]">{notifications.length} thông báo</p>
+                            <button onClick={clearAll} className="text-xs text-[var(--danger)]">Xóa tất cả</button>
                           </div>
-                        ))}
-                      </div>
+                          <div className="max-h-40 overflow-y-auto divide-y divide-[var(--glass-border)]">
+                            {notifications.map(n => (
+                              <div key={n.id} className="flex items-start gap-2 px-3 py-2.5">
+                                <div className={`mt-1 w-1.5 h-1.5 rounded-full shrink-0 ${n.type === 'expense' ? 'bg-indigo-400' : 'bg-[var(--primary)]'}`} />
+                                <p className="flex-1 text-xs text-[var(--text-primary)] leading-snug">{n.message}</p>
+                                <button onClick={() => clearOne(n.id)} className="text-[var(--text-muted)] hover:text-[var(--danger)]">
+                                  <X size={12} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
@@ -173,17 +187,27 @@ export default function UserSheet({ onClose, onLogout, notifications, clearAll, 
               )}
 
               {/* Install PWA */}
-              <button
-                onClick={handleInstall}
-                className="w-full flex items-center gap-3.5 px-3 py-3 rounded-2xl hover:bg-[var(--primary)]/5 active:bg-[var(--primary)]/10 transition-colors"
-              >
-                <div className="w-9 h-9 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center shrink-0">
-                  <Smartphone size={17} className="text-[var(--primary)]" />
-                </div>
-                <span className="flex-1 text-sm font-medium text-[var(--text-primary)] text-left">
-                  {isStandalone ? 'Đã cài đặt ứng dụng' : 'Cài đặt ứng dụng'}
-                </span>
-              </button>
+              <div>
+                <button
+                  onClick={handleInstall}
+                  className="w-full flex items-center gap-3.5 px-3 py-3 rounded-2xl hover:bg-[var(--primary)]/5 active:bg-[var(--primary)]/10 transition-colors"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center shrink-0">
+                    <Smartphone size={17} className="text-[var(--primary)]" />
+                  </div>
+                  <span className="flex-1 text-sm font-medium text-[var(--text-primary)] text-left">
+                    {isStandalone ? 'Đã cài đặt ứng dụng' : 'Cài đặt ứng dụng'}
+                  </span>
+                  {isStandalone && <Check size={15} className="text-[var(--success)]" />}
+                </button>
+                {installMsg && (
+                  <div className="mx-3 mb-2 flex items-start gap-2 px-3 py-2.5 rounded-xl bg-[var(--primary)]/8">
+                    <Info size={13} className="text-[var(--primary)] mt-0.5 shrink-0" />
+                    <p className="text-xs text-[var(--text-secondary)] leading-snug">{installMsg}</p>
+                    <button onClick={() => setInstallMsg(null)} className="ml-auto text-[var(--text-muted)]"><X size={11} /></button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Divider + Logout */}
