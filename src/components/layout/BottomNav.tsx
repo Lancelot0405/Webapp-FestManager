@@ -72,7 +72,7 @@ export default function BottomNav({ activeTab, onTabChange, navVisible = true }:
 
   return (
     <nav
-      className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 pb-safe transition-transform duration-300 ease-out"
+      className="fixed bottom-4 left-1/2 z-20 pb-safe transition-transform duration-300 ease-out"
       style={{
         width: 'min(calc(100% - 32px), 440px)',
         transform: `translateX(-50%) translateY(${navVisible ? '0' : 'calc(100% + 2rem)'})`,
