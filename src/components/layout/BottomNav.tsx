@@ -18,28 +18,28 @@ interface BottomNavProps {
   navVisible?: boolean;
 }
 
-const ADMIN_TABS: { tab: ActiveTab; icon: React.ReactNode; label: string }[] = [
-  { tab: 'dashboard', icon: <LayoutDashboard size={20} />, label: 'Tổng quan'  },
-  { tab: 'schedule',  icon: <Calendar        size={20} />, label: 'Lịch trình' },
-  { tab: 'inventory', icon: <Package         size={20} />, label: 'Kho hàng'   },
-  { tab: 'finance',   icon: <DollarSign      size={20} />, label: 'Tài chính'  },
-  { tab: 'hr',        icon: <Users           size={20} />, label: 'Nhân sự'    },
-  { tab: 'clients',   icon: <Building2       size={20} />, label: 'Khách hàng' },
+const ADMIN_TABS: { tab: ActiveTab; icon: (compact: boolean) => React.ReactNode; label: string }[] = [
+  { tab: 'dashboard', icon: c => <LayoutDashboard size={c ? 18 : 20} />, label: 'Tổng quan'  },
+  { tab: 'schedule',  icon: c => <Calendar        size={c ? 18 : 20} />, label: 'Lịch trình' },
+  { tab: 'inventory', icon: c => <Package         size={c ? 18 : 20} />, label: 'Kho hàng'   },
+  { tab: 'finance',   icon: c => <DollarSign      size={c ? 18 : 20} />, label: 'Tài chính'  },
+  { tab: 'hr',        icon: c => <Users           size={c ? 18 : 20} />, label: 'Nhân sự'    },
+  { tab: 'clients',   icon: c => <Building2       size={c ? 18 : 20} />, label: 'Khách hàng' },
 ];
 
-const MANAGER_TABS: { tab: ActiveTab; icon: React.ReactNode; label: string }[] = [
-  { tab: 'dashboard', icon: <LayoutDashboard size={20} />, label: 'Tổng quan'  },
-  { tab: 'schedule',  icon: <Calendar        size={20} />, label: 'Lịch trình' },
-  { tab: 'inventory', icon: <Package         size={20} />, label: 'Kho hàng'   },
-  { tab: 'hr',        icon: <Users           size={20} />, label: 'Nhân sự'    },
-  { tab: 'profile',   icon: <User            size={20} />, label: 'Hồ sơ'      },
+const MANAGER_TABS: { tab: ActiveTab; icon: (compact: boolean) => React.ReactNode; label: string }[] = [
+  { tab: 'dashboard', icon: c => <LayoutDashboard size={c ? 18 : 20} />, label: 'Tổng quan'  },
+  { tab: 'schedule',  icon: c => <Calendar        size={c ? 18 : 20} />, label: 'Lịch trình' },
+  { tab: 'inventory', icon: c => <Package         size={c ? 18 : 20} />, label: 'Kho hàng'   },
+  { tab: 'hr',        icon: c => <Users           size={c ? 18 : 20} />, label: 'Nhân sự'    },
+  { tab: 'profile',   icon: c => <User            size={c ? 18 : 20} />, label: 'Hồ sơ'      },
 ];
 
-const STAFF_TABS: { tab: ActiveTab; icon: React.ReactNode; label: string }[] = [
-  { tab: 'dashboard', icon: <LayoutDashboard size={20} />, label: 'Tổng quan'  },
-  { tab: 'schedule',  icon: <Calendar        size={20} />, label: 'Lịch trình' },
-  { tab: 'inventory', icon: <Package         size={20} />, label: 'Kho hàng'   },
-  { tab: 'profile',   icon: <User            size={20} />, label: 'Hồ sơ'      },
+const STAFF_TABS: { tab: ActiveTab; icon: (compact: boolean) => React.ReactNode; label: string }[] = [
+  { tab: 'dashboard', icon: c => <LayoutDashboard size={c ? 18 : 20} />, label: 'Tổng quan'  },
+  { tab: 'schedule',  icon: c => <Calendar        size={c ? 18 : 20} />, label: 'Lịch trình' },
+  { tab: 'inventory', icon: c => <Package         size={c ? 18 : 20} />, label: 'Kho hàng'   },
+  { tab: 'profile',   icon: c => <User            size={c ? 18 : 20} />, label: 'Hồ sơ'      },
 ];
 
 export default function BottomNav({ activeTab, onTabChange, navVisible = true }: BottomNavProps) {
@@ -66,20 +66,21 @@ export default function BottomNav({ activeTab, onTabChange, navVisible = true }:
 
   if (!currentUser || keyboardOpen) return null;
 
-  const tabs = currentUser.role === 'admin'   ? ADMIN_TABS
-             : currentUser.role === 'manager' ? MANAGER_TABS
-             : STAFF_TABS;
+  const tabs    = currentUser.role === 'admin'   ? ADMIN_TABS
+               : currentUser.role === 'manager' ? MANAGER_TABS
+               : STAFF_TABS;
+  const compact = tabs.length >= 6;
 
   return (
     <nav
-      className="fixed bottom-4 left-1/2 z-20 pb-safe transition-transform duration-300 ease-out"
+      className="fixed bottom-3 left-1/2 z-20 pb-safe transition-transform duration-300 ease-out"
       style={{
-        width: 'min(calc(100% - 32px), 440px)',
+        width: 'min(calc(100% - 24px), 480px)',
         transform: `translateX(-50%) translateY(${navVisible ? '0' : 'calc(100% + 2rem)'})`,
       }}
     >
       <div
-        className="bottom-nav-pill flex justify-around items-center px-3 py-2 rounded-[28px]"
+        className="bottom-nav-pill flex justify-around items-center px-2 py-1.5 rounded-[26px]"
         style={{ backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
       >
         {tabs.map(({ tab, icon, label }) => {
@@ -91,24 +92,20 @@ export default function BottomNav({ activeTab, onTabChange, navVisible = true }:
               onPress={() => onTabChange(tab)}
               aria-current={isActive ? 'page' : undefined}
               aria-label={label}
-              className="flex flex-col items-center gap-1 px-2 py-1.5 min-w-0 flex-1 h-auto rounded-2xl"
+              className="flex flex-col items-center gap-0.5 px-1 py-1 min-w-0 flex-1 h-auto rounded-xl"
             >
-              <div className={`px-3 py-1.5 rounded-2xl transition-all duration-150 ${
-                isActive
-                  ? 'bg-[var(--primary)]/10 dark:bg-white/8'
-                  : ''
+              <div className={`px-2.5 py-1 rounded-xl transition-all duration-150 ${
+                isActive ? 'bg-[var(--primary)]/10' : ''
               }`}>
                 <span className={`block transition-colors duration-150 ${
-                  isActive
-                    ? 'text-[var(--primary)]'
-                    : 'text-[var(--text-muted)]'
+                  isActive ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'
                 }`}>
-                  {icon}
+                  {icon(compact)}
                 </span>
               </div>
-              <span className={`text-[10px] font-semibold leading-none transition-colors duration-150 ${
-                isActive ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'
-              }`}>
+              <span className={`leading-none font-semibold transition-colors duration-150 ${
+                compact ? 'text-[9px]' : 'text-[10px]'
+              } ${isActive ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'}`}>
                 {label}
               </span>
             </Button>

@@ -9,7 +9,8 @@ import { SpeedInsights } from '@vercel/speed-insights/react';
 
 // Layout
 import LoginScreen from './components/layout/LoginScreen';
-import Header      from './components/layout/Header';
+import TopBar      from './components/layout/TopBar';
+import UserSheet   from './components/layout/UserSheet';
 import BottomNav   from './components/layout/BottomNav';
 import Sidebar     from './components/layout/Sidebar';
 
@@ -39,6 +40,7 @@ export default function App() {
   const [selectedEventId,  setSelectedEventId]  = useState<number | null>(null);
   const [selectedStaffId,  setSelectedStaffId]  = useState<string | null>(null);
   const [navVisible,       setNavVisible]        = useState(true);
+  const [showUserSheet,    setShowUserSheet]     = useState(false);
 
   const mainRef    = useRef<HTMLElement>(null);
   const lastScrollY = useRef(0);
@@ -128,8 +130,12 @@ export default function App() {
         {/* Main column */}
         <div className="flex-1 flex flex-col min-h-screen min-w-0">
 
-          {/* Header */}
-          <Header onLogoClick={handleLogoClick} onLogout={handleLogout} navVisible={navVisible} />
+          {/* TopBar — mobile only */}
+          <TopBar
+            onLogoClick={handleLogoClick}
+            onOpenSheet={() => setShowUserSheet(true)}
+            navVisible={navVisible}
+          />
 
           <main ref={mainRef} className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 py-5 pb-24 md:pb-8 scroll-smooth-ios animate-fade-up">
             <div className="max-w-5xl mx-auto w-full">
@@ -194,6 +200,14 @@ export default function App() {
 
         </div>
       </div>
+
+      {/* UserSheet */}
+      {showUserSheet && (
+        <UserSheet
+          onClose={() => setShowUserSheet(false)}
+          onLogout={handleLogout}
+        />
+      )}
     </div>
   );
 }
