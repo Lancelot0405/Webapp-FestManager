@@ -59,14 +59,14 @@ export default function FoodNameSelect({
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
-        <label className="text-xs font-semibold text-brand-700 dark:text-brand-300">
+        <label className="text-xs font-semibold text-[var(--text-secondary)]">
           Tên {itemType === 'food' ? 'thực phẩm' : 'thiết bị'}
         </label>
         {canManage && (
           <button
             type="button"
             onClick={() => setShowManager(true)}
-            className="flex items-center gap-1 text-[11px] text-brand-400 hover:text-brand-600 dark:hover:text-brand-300 transition-colors font-medium"
+            className="flex items-center gap-1 text-[11px] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors font-medium"
           >
             <Settings size={11} /> Quản lý mẫu
           </button>
@@ -76,13 +76,13 @@ export default function FoodNameSelect({
       {/* Selected chip */}
       {!custom && value && (
         <div className="flex items-center gap-2">
-          <span className="flex-1 bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-700 text-brand-700 dark:text-brand-300 rounded-xl px-3 py-2 text-sm font-semibold truncate">
+          <span className="flex-1 bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-[var(--primary)] rounded-xl px-3 py-2 text-sm font-semibold truncate">
             {value}
           </span>
           <button
             type="button"
             onClick={() => { onChange(''); setOpenGroup(null); }}
-            className="text-xs text-brand-400 hover:text-red-500 px-3 py-2 rounded-xl border border-brand-200 dark:border-[var(--border-color)] bg-white dark:bg-[var(--card-bg)] font-medium transition-colors"
+            className="text-xs text-[var(--text-muted)] hover:text-[var(--danger)] px-3 py-2 rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] font-medium transition-colors"
           >
             Đổi
           </button>
@@ -93,30 +93,30 @@ export default function FoodNameSelect({
       {!custom && !value && (
         <div className="space-y-1.5">
           {loading ? (
-            <div className="h-9 bg-brand-50 dark:bg-[var(--card-bg)] rounded-xl shimmer" />
+            <div className="h-9 bg-[var(--glass-bg)] rounded-xl animate-pulse" />
           ) : (
             <>
               {Object.entries(groups).map(([group, items]) => (
-                <div key={group} className="border border-brand-100 dark:border-[var(--border-color)] rounded-xl overflow-hidden">
+                <div key={group} className="border border-[var(--glass-border)] rounded-xl overflow-hidden">
                   <button
                     type="button"
                     onClick={() => setOpenGroup(openGroup === group ? null : group)}
-                    className="w-full flex items-center justify-between px-3 py-2.5 bg-brand-50 dark:bg-[var(--card-bg)] text-xs font-bold text-brand-700 dark:text-brand-300 hover:bg-brand-100 dark:hover:bg-[var(--accent)] transition-colors"
+                    className="w-full flex items-center justify-between px-3 py-2.5 bg-[var(--glass-bg)] text-xs font-bold text-[var(--text-secondary)] hover:bg-[var(--glass-bg)] hover:text-[var(--text-primary)] transition-colors"
                   >
                     {group}
                     <ChevronDown
                       size={13}
-                      className={`text-brand-400 transition-transform ${openGroup === group ? 'rotate-180' : ''}`}
+                      className={`text-[var(--text-muted)] transition-transform ${openGroup === group ? 'rotate-180' : ''}`}
                     />
                   </button>
                   {openGroup === group && (
-                    <div className="flex flex-wrap gap-1.5 p-2.5 bg-white dark:bg-[var(--card-bg)]">
+                    <div className="flex flex-wrap gap-1.5 p-2.5 bg-[var(--glass-bg)]/50">
                       {items.map(t => (
                         <button
                           key={t.id}
                           type="button"
                           onClick={() => { onChange(t.name); setCustom(false); setOpenGroup(null); }}
-                          className="px-2.5 py-1 rounded-lg text-xs font-medium border border-brand-200 dark:border-[var(--border-color)] bg-brand-50 dark:bg-[var(--card-bg)] text-brand-700 dark:text-brand-300 hover:bg-brand-500 hover:text-white hover:border-brand-500 active:scale-95 transition-all"
+                          className="px-2.5 py-1 rounded-lg text-xs font-medium border border-[var(--glass-border)] bg-[var(--glass-bg)] text-[var(--text-secondary)] hover:bg-[var(--primary)] hover:text-[var(--background)] hover:border-[var(--primary)] active:scale-95 transition-all"
                         >
                           {t.name}
                         </button>
@@ -128,7 +128,7 @@ export default function FoodNameSelect({
               <button
                 type="button"
                 onClick={() => { setCustom(true); setOpenGroup(null); onChange(''); }}
-                className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-dashed border-brand-300 dark:border-brand-700 text-xs text-brand-500 dark:text-brand-400 hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors font-medium"
+                className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-dashed border-[var(--glass-border)] text-xs text-[var(--text-muted)] hover:border-[var(--primary)]/40 hover:text-[var(--text-primary)] transition-colors font-medium"
               >
                 <Pencil size={11} /> Nhập tên tùy chỉnh
               </button>
@@ -143,7 +143,7 @@ export default function FoodNameSelect({
           <input
             autoFocus
             required={required}
-            className="flex-1 border border-brand-300 dark:border-[var(--border-color)] bg-white dark:bg-[var(--card-bg)] text-[var(--text-primary)] rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-200 dark:focus:ring-brand-800 focus:border-brand-500 transition-all placeholder:text-[var(--text-muted)]"
+            className="flex-1 border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] text-[var(--text-primary)] rounded-xl px-3 py-2.5 focus:outline-none focus:border-[var(--primary)]/50 transition-all placeholder:text-[var(--text-muted)]"
             placeholder={placeholder ?? (itemType === 'food' ? 'VD: Thịt bò' : 'VD: Găng tay')}
             value={value}
             onChange={e => onChange(e.target.value)}
@@ -151,7 +151,7 @@ export default function FoodNameSelect({
           <button
             type="button"
             onClick={() => { setCustom(false); onChange(''); }}
-            className="px-3 py-2 rounded-xl border border-brand-200 dark:border-[var(--border-color)] bg-white dark:bg-[var(--card-bg)] text-xs text-brand-400 hover:text-red-500 font-medium transition-colors"
+            className="px-3 py-2 rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] text-xs text-[var(--text-muted)] hover:text-[var(--danger)] font-medium transition-colors"
           >
             Hủy
           </button>
@@ -162,7 +162,7 @@ export default function FoodNameSelect({
         <input type="text" required value="" onChange={() => {}} className="sr-only" aria-hidden />
       )}
       {!isFromTemplate && value && !custom && (
-        <p className="mt-1 text-[10px] text-brand-400 dark:text-brand-500">Tên tùy chỉnh</p>
+        <p className="mt-1 text-[10px] text-[var(--text-muted)]">Tên tùy chỉnh</p>
       )}
 
       {showManager && (

@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { Plus, X, Trash2, FileSpreadsheet, Upload, Check, ChevronDown, ChevronUp, History, Store, Tent, Package } from 'lucide-react';
-import { Button, Card } from '@heroui/react';
+import { Button } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import { getErrorMessage } from '../../lib/errors';
@@ -159,16 +159,15 @@ export default function Inventory() {
   const sectionLabel = mainTab === 'restaurant' ? 'Nhà hàng' : 'Festival';
   const itemLabel    = subTab === 'equipment' ? 'trang thiết bị' : 'thực phẩm';
 
-  // ── Item status helpers ────────────────────────────────────────────────────
-  const itemBg = (low: boolean, warn: boolean) =>
-    low  ? 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30' :
-    warn ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/30' :
-           'bg-[var(--card-bg)] border-[var(--border-color)]';
+  const itemCls = (low: boolean, warn: boolean) =>
+    low  ? 'bg-[var(--danger)]/5 border border-[var(--danger)]/30 backdrop-blur-[var(--glass-blur)]' :
+    warn ? 'bg-indigo-500/5 border border-indigo-500/30 backdrop-blur-[var(--glass-blur)]' :
+           'glass-card';
 
   const selectCls =
-    'mt-1 w-full border border-brand-200 dark:border-[var(--border-color)] bg-white dark:bg-[var(--card-bg)] ' +
+    'mt-1 w-full border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] ' +
     'text-[var(--text-primary)] rounded-xl px-3 py-2.5 focus:outline-none ' +
-    'focus:ring-2 focus:ring-brand-200 focus:border-brand-500 transition-all';
+    'focus:border-[var(--primary)]/50 transition-all';
 
   return (
     <div className="space-y-4 pb-20">
@@ -176,14 +175,14 @@ export default function Inventory() {
       {/* ── Page header ── */}
       <div className="flex justify-between items-center gap-2">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center shadow-[0_2px_8px_0_rgb(124_58_237/0.30)]">
-            <Package size={16} className="text-white" />
+          <div className="w-8 h-8 rounded-xl bg-[var(--primary)] flex items-center justify-center">
+            <Package size={16} className="text-[var(--background)]" />
           </div>
           <h1 className="text-xl font-black text-[var(--text-primary)]">Kho hàng</h1>
         </div>
         {subTab !== 'history' && (
           <div className="flex gap-2">
-            <label className={`flex items-center gap-1.5 bg-herb-500 text-white text-xs font-bold px-3 py-2 rounded-xl cursor-pointer shadow-[0_2px_6px_0_rgb(34_197_94/0.30)] active:scale-95 transition-all ${importing ? 'opacity-60 pointer-events-none' : ''}`}>
+            <label className={`flex items-center gap-1.5 bg-[var(--success)]/10 text-[var(--success)] border border-[var(--success)]/20 text-xs font-bold px-3 py-2 rounded-xl cursor-pointer hover:bg-[var(--success)]/20 active:scale-95 transition-all ${importing ? 'opacity-60 pointer-events-none' : ''}`}>
               <FileSpreadsheet size={14} />
               {importing ? 'Đang import...' : 'Import'}
               <input ref={importRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleImport} />
@@ -202,17 +201,17 @@ export default function Inventory() {
 
       {/* ── Main tabs ── */}
       {canSeeRestaurant && canSeeFestival && (
-        <div className="flex border-b border-[var(--border-color)]">
+        <div className="flex border-b border-[var(--glass-border)]">
           {([
-            { id: 'restaurant' as MainTab, icon: <Store size={14} />,  label: 'Nhà hàng', color: 'text-brand-600 border-brand-500' },
-            { id: 'festival'   as MainTab, icon: <Tent size={14} />,   label: 'Festival',  color: 'text-herb-600 border-herb-500' },
+            { id: 'restaurant' as MainTab, icon: <Store size={14} />,  label: 'Nhà hàng', activeClass: 'text-[var(--primary)] border-[var(--primary)]' },
+            { id: 'festival'   as MainTab, icon: <Tent size={14} />,   label: 'Festival',  activeClass: 'text-[var(--success)] border-[var(--success)]' },
           ]).map(t => (
             <Button
               key={t.id}
               onPress={() => handleMainTabChange(t.id)}
               variant="ghost"
               className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold border-b-2 rounded-none h-auto transition-colors ${
-                mainTab === t.id ? t.color : 'border-transparent text-[var(--text-muted)] hover:text-brand-500'
+                mainTab === t.id ? t.activeClass : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]'
               }`}
             >
               {t.icon} {t.label}
@@ -224,14 +223,14 @@ export default function Inventory() {
       {/* ── Section chip ── */}
       <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border ${
         mainTab === 'restaurant'
-          ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-200'
-          : 'bg-herb-500/10 dark:bg-herb-500/10 border-herb-500/30 dark:border-herb-500/30'
+          ? 'bg-[var(--primary)]/5 border-[var(--primary)]/20'
+          : 'bg-[var(--success)]/5 border-[var(--success)]/20'
       }`}>
         {mainTab === 'restaurant'
-          ? <Store size={13} className="text-brand-500" />
-          : <Tent  size={13} className="text-herb-500" />
+          ? <Store size={13} className="text-[var(--primary)]" />
+          : <Tent  size={13} className="text-[var(--success)]" />
         }
-        <span className={`text-xs font-bold ${mainTab === 'restaurant' ? 'text-brand-700' : 'text-herb-600'}`}>
+        <span className={`text-xs font-bold ${mainTab === 'restaurant' ? 'text-[var(--primary)]' : 'text-[var(--success)]'}`}>
           {sectionLabel}
         </span>
       </div>
@@ -250,11 +249,11 @@ export default function Inventory() {
               onPress={() => handleSubTabChange(id)}
               variant={isActive ? 'primary' : 'ghost'}
               size="sm"
-              className={`flex items-center gap-1.5 rounded-full ${isActive ? 'shadow-[0_2px_6px_0_rgb(124_58_237/0.30)]' : 'border border-brand-200 hover:border-brand-400'}`}
+              className={`flex items-center gap-1.5 rounded-full ${isActive ? '' : 'border border-[var(--glass-border)] hover:border-[var(--primary)]/30'}`}
             >
               {id === 'history' && <History size={11} />}
               {label}
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${isActive ? 'bg-white/25 text-white' : 'bg-brand-100 text-brand-600'}`}>
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${isActive ? 'bg-white/20 text-white' : 'bg-[var(--glass-bg)] text-[var(--text-muted)]'}`}>
                 {count}
               </span>
             </Button>
@@ -264,7 +263,7 @@ export default function Inventory() {
 
       {/* Import hint */}
       {subTab !== 'history' && (
-        <div className="flex items-start gap-2 bg-herb-500/10 dark:bg-herb-500/10 border border-herb-500/30 rounded-xl px-3 py-2 text-xs text-herb-600">
+        <div className="flex items-start gap-2 bg-[var(--success)]/5 border border-[var(--success)]/20 rounded-xl px-3 py-2 text-xs text-[var(--success)]">
           <Upload size={11} className="shrink-0 mt-0.5" />
           <span>File Excel: 2 cột <strong>Tên | Số lượng</strong> — đơn vị chỉnh trong app sau</span>
         </div>
@@ -272,8 +271,8 @@ export default function Inventory() {
 
       {/* ── Add form ── */}
       {showAddForm && (
-        <Card className="rounded-2xl">
-          <form onSubmit={handleAddItem} className="p-4 space-y-3 animate-fade-in">
+        <div className="glass-card rounded-2xl">
+          <form onSubmit={handleAddItem} className="p-4 space-y-3">
             <div className="flex justify-between items-center">
               <p className="font-bold text-[var(--text-primary)] text-sm">
                 Thêm {itemLabel} — {sectionLabel}
@@ -285,6 +284,7 @@ export default function Inventory() {
                 isIconOnly
                 size="sm"
                 aria-label="Đóng"
+                className="text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               >
                 <X size={15} />
               </Button>
@@ -295,7 +295,7 @@ export default function Inventory() {
             <NumberPicker label="Cảnh báo" value={newThreshold} onChange={setNewThreshold} min={0} step={0.1} placeholder="0" />
 
             <div>
-              <label className="text-xs font-semibold text-brand-700">Đơn vị</label>
+              <label className="text-xs font-semibold text-[var(--text-secondary)]">Đơn vị</label>
               <select className={selectCls} value={newUnit} onChange={e => setNewUnit(e.target.value as InventoryUnit)}>
                 {unitOptions.map(u => <option key={u} value={u}>{u}</option>)}
               </select>
@@ -305,7 +305,7 @@ export default function Inventory() {
               Thêm vào kho
             </Button>
           </form>
-        </Card>
+        </div>
       )}
 
       {/* ── Item list ── */}
@@ -326,37 +326,37 @@ export default function Inventory() {
           const currentUnitOpts = isEquip ? EQUIP_UNITS : FOOD_UNITS;
 
           return (
-            <div key={item.id} className={`rounded-2xl border shadow-card overflow-hidden transition-all ${itemBg(isLow, isWarn)}`}>
+            <div key={item.id} className={`rounded-2xl overflow-hidden transition-all ${itemCls(isLow, isWarn)}`}>
               {/* Row */}
               <Button
                 onPress={() => isExpanded ? setExpandedId(null) : openEdit(item)}
                 variant="ghost"
                 aria-label={isExpanded ? `Đóng chỉnh sửa ${item.name}` : `Chỉnh sửa ${item.name}`}
                 aria-expanded={isExpanded}
-                className="w-full flex items-center justify-between px-4 py-3 text-left h-auto rounded-none"
+                className="w-full flex items-center justify-between px-4 py-3 text-left h-auto rounded-none hover:bg-[var(--glass-bg)]"
               >
                 <div className="flex-1 min-w-0">
-                  <p className={`font-semibold text-sm ${isLow ? 'text-red-600' : 'text-[var(--text-primary)]'}`}>
+                  <p className={`font-semibold text-sm ${isLow ? 'text-[var(--danger)]' : 'text-[var(--text-primary)]'}`}>
                     {item.name}
                   </p>
-                  {isLow  && <p className="text-xs text-red-500 font-medium">⚠ Sắp hết hàng!</p>}
-                  {isWarn && <p className="text-xs text-indigo-600 font-medium">Sắp tới mức cảnh báo</p>}
+                  {isLow  && <p className="text-xs text-[var(--danger)] font-medium">⚠ Sắp hết hàng!</p>}
+                  {isWarn && <p className="text-xs text-indigo-400 font-medium">Sắp tới mức cảnh báo</p>}
                 </div>
                 <div className="flex items-center gap-2 shrink-0 ml-3">
-                  <span className={`text-sm font-black ${isLow ? 'text-red-500' : isWarn ? 'text-indigo-600' : 'text-brand-600'}`}>
+                  <span className={`text-sm font-black ${isLow ? 'text-[var(--danger)]' : isWarn ? 'text-indigo-400' : 'text-[var(--primary)]'}`}>
                     {item.current}
                   </span>
-                  <span className="text-xs text-brand-400">{item.unit}</span>
+                  <span className="text-xs text-[var(--text-muted)]">{item.unit}</span>
                   {isExpanded
-                    ? <ChevronUp size={14} className="text-brand-400" />
-                    : <ChevronDown size={14} className="text-brand-400" />
+                    ? <ChevronUp size={14} className="text-[var(--text-muted)]" />
+                    : <ChevronDown size={14} className="text-[var(--text-muted)]" />
                   }
                 </div>
               </Button>
 
               {/* Edit panel */}
               {isExpanded && (
-                <div className="px-4 pb-4 pt-2 border-t border-[var(--border-color)] space-y-3 animate-fade-in">
+                <div className="px-4 pb-4 pt-2 border-t border-[var(--glass-border)] space-y-3">
                   <FoodNameSelect
                     value={editName}
                     onChange={setEditName}
@@ -367,7 +367,7 @@ export default function Inventory() {
                   <NumberPicker label="Cảnh báo" value={editThreshold} onChange={setEditThreshold} min={0} step={0.1} placeholder="0" />
 
                   <div>
-                    <label className="text-xs font-semibold text-brand-700">Đơn vị</label>
+                    <label className="text-xs font-semibold text-[var(--text-secondary)]">Đơn vị</label>
                     <select className={selectCls} value={editUnit} onChange={e => setEditUnit(e.target.value as InventoryUnit)}>
                       {currentUnitOpts.map(u => <option key={u} value={u}>{u}</option>)}
                     </select>
@@ -384,7 +384,7 @@ export default function Inventory() {
                     <Button
                       onPress={() => setExpandedId(null)}
                       variant="ghost"
-                      className="flex-1 rounded-xl border border-brand-200"
+                      className="flex-1 rounded-xl border border-[var(--glass-border)]"
                     >
                       Hủy
                     </Button>
@@ -392,7 +392,7 @@ export default function Inventory() {
                       onPress={() => handleDelete(item)}
                       variant="ghost"
                       isIconOnly
-                      className="px-3 rounded-xl text-red-500 bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20"
+                      className="px-3 rounded-xl text-[var(--danger)] bg-[var(--danger)]/10 hover:bg-[var(--danger)]/20"
                       aria-label={`Xóa ${item.name}`}
                     >
                       <Trash2 size={15} />
