@@ -119,11 +119,11 @@ export default function App() {
   const isInDetail = selectedEventId !== null || selectedStaffId !== null;
 
   return (
-    <div className="min-h-screen font-sans">
+    <div className="h-screen font-sans overflow-hidden">
       <SpeedInsights />
 
       {/* ── Desktop/Tablet: sidebar + content side-by-side ─────────────────── */}
-      <div className="flex min-h-screen">
+      <div className="flex h-full">
 
         {/* Sidebar — always mounted, CSS handles hidden on mobile */}
         <Sidebar
@@ -133,7 +133,7 @@ export default function App() {
         />
 
         {/* Main column */}
-        <div className="flex-1 flex flex-col min-h-screen min-w-0">
+        <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
 
           {/* TopBar — mobile only */}
           <TopBar
