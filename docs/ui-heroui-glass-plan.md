@@ -1,6 +1,6 @@
 # Kế hoạch Nâng cấp Giao diện FestManager → HeroUI v3 Glass Preset
 
-> **Trạng thái tổng thể:** 🔄 Đang triển khai (3/11 phases)  
+> **Trạng thái tổng thể:** 🔄 Đang triển khai (4/11 phases)  
 > **Cập nhật lần cuối:** 2026-06-11  
 > **Nhánh triển khai:** `claude/zealous-tesla-179zmi`
 
@@ -178,7 +178,7 @@ Kiểm tra: Navbar hiển thị đúng mobile, Dropdown notifications mở/đón
 
 ## Phase 4 — LoginScreen
 
-**Trạng thái:** 🔲 Chưa bắt đầu  
+**Trạng thái:** ✅ Hoàn thành  
 **File:** `src/components/layout/LoginScreen.tsx`  
 **Độ khó:** Thấp  
 
