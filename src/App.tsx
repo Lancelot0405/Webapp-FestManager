@@ -84,6 +84,10 @@ export default function App() {
     setSelectedStaffId(null);
   };
 
+  // ── Realtime notifications — phải gọi trước mọi early return (Rules of Hooks) ──
+  const isAdminOrManager = currentUser?.role === 'admin' || currentUser?.role === 'manager';
+  const { notifications, clearAll, clearOne } = useRealtimeNotifications(!!currentUser && isAdminOrManager);
+
   // ── Đang khởi tạo (chờ onAuthStateChange) → hiện splash screen ──────────
   const { loading } = state;
   if (loading) {
@@ -113,8 +117,6 @@ export default function App() {
   const isManager  = currentUser.role === 'manager';
   const canViewAll = isAdmin || isManager;
   const isInDetail = selectedEventId !== null || selectedStaffId !== null;
-
-  const { notifications, clearAll, clearOne } = useRealtimeNotifications(isAdmin || isManager);
 
   return (
     <div className="min-h-screen font-sans">
