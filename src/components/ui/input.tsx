@@ -56,7 +56,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             placeholder={placeholder}
             type={type}
             className={cn(
-              "h-10 w-full rounded-lg border bg-[var(--glass-bg)] px-3 py-2 text-sm text-[var(--text-primary)] transition-colors",
+              "h-10 w-full rounded-2xl border bg-[var(--glass-bg)] px-3 py-2 text-sm text-[var(--text-primary)] transition-colors",
               "border-[var(--glass-border)] backdrop-blur-[var(--glass-blur)]",
               "placeholder:text-[var(--text-muted)]",
               "focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]/30",
