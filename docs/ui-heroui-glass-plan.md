@@ -1,6 +1,6 @@
 # Kế hoạch Nâng cấp Giao diện FestManager → HeroUI v3 Glass Preset
 
-> **Trạng thái tổng thể:** 🔲 Chưa bắt đầu  
+> **Trạng thái tổng thể:** 🔄 Đang triển khai (1/11 phases)  
 > **Cập nhật lần cuối:** 2026-06-11  
 > **Nhánh triển khai:** `claude/zealous-tesla-179zmi`
 
@@ -77,23 +77,24 @@ Border radius:    0.5rem (general)
 
 ## Phase 1 — CSS Foundation & Design Tokens
 
-**Trạng thái:** 🔲 Chưa bắt đầu  
+**Trạng thái:** ✅ Hoàn thành  
 **File:** `src/index.css`  
 **Độ khó:** Thấp  
 
 ### Việc cần làm
 
-- [ ] Đổi font import từ `Plus Jakarta Sans` → `Inter` (Google Fonts)
-- [ ] Redefine CSS variables theo Glass dark tokens:
+- [x] Đổi font import từ `Plus Jakarta Sans` → `Inter` (Google Fonts)
+- [x] Redefine CSS variables theo Glass dark tokens:
   - `--background: #09090b`
   - `--primary` light: `#2B2E31` / dark: `#F8F8F9`
   - `--glass-bg: rgba(255,255,255,0.05)`
   - `--glass-border: rgba(255,255,255,0.08)`
   - `--glass-blur: 36px`
-- [ ] Cập nhật dark mode variables trong `.dark` block
-- [ ] Giữ nguyên safe area utilities (`pb-safe`, `pt-safe`)
-- [ ] Giữ nguyên custom animations (fadeIn, fadeUp, shimmer...)
-- [ ] Xóa brand color cũ (`--color-brand-*`) nếu không còn dùng
+- [x] Cập nhật dark mode variables trong `.dark` block
+- [x] Giữ nguyên safe area utilities (`pb-safe`, `pt-safe`)
+- [x] Giữ nguyên custom animations (fadeIn, fadeUp, shimmer...)
+- [x] Cập nhật `--color-brand-*` sang dải neutral charcoal/white
+- [x] Thêm utilities: `.glass-card`, `.glow-success/danger/warning/primary`
 
 ### Kiểm tra sau phase
 
@@ -427,7 +428,7 @@ Kiểm tra thủ công trên mobile:
 
 | Phase | Mô tả | Trạng thái | Commit |
 |---|---|---|---|
-| 1 | CSS Foundation & Tokens | 🔲 Chưa bắt đầu | — |
+| 1 | CSS Foundation & Tokens | ✅ Hoàn thành | e9c96fd → phase-1 |
 | 2 | UI Primitives (Modal, Input, Button) | 🔲 Chưa bắt đầu | — |
 | 3 | Layout (Header + BottomNav) | 🔲 Chưa bắt đầu | — |
 | 4 | LoginScreen | 🔲 Chưa bắt đầu | — |
