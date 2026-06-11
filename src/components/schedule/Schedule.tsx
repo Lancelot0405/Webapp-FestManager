@@ -117,7 +117,7 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
       ) : sorted.length === 0 ? (
         <p className="text-sm text-[var(--text-muted)] text-center py-10">Chưa có sự kiện nào</p>
       ) : (
-        <ScrollShadow className="space-y-3">
+        <ScrollShadow className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {sorted.map(event => (
             <EventCard
               key={event.id}

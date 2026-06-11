@@ -153,7 +153,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
       )}
 
       {/* Summary cards */}
-      <div className="grid grid-cols-1 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <SummaryCard
           icon={<TrendingUp size={20} />}
           label="Tổng doanh thu"
@@ -242,7 +242,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
       {/* Per-event breakdown */}
       <div>
         <h2 className="text-sm font-semibold text-[var(--text-secondary)] mb-3">Theo sự kiện</h2>
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {filteredEvents.map(event => {
             const fixedExp = Object.values(event.financials.expenses).reduce<number>((s, v) => s + (v ?? 0), 0);
             const approvedReceiptsForEvent = event.receipts

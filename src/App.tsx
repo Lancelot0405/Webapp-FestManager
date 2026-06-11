@@ -91,22 +91,21 @@ export default function App() {
       {/* ── Desktop/Tablet: sidebar + content side-by-side ─────────────────── */}
       <div className="flex min-h-screen">
 
-        {/* Sidebar — visible md+ */}
-        {!isInDetail && (
-          <Sidebar
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            onLogoClick={handleLogoClick}
-          />
-        )}
+        {/* Sidebar — always mounted, CSS handles hidden on mobile */}
+        <Sidebar
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          onLogoClick={handleLogoClick}
+        />
 
         {/* Main column */}
-        <div className="flex-1 flex flex-col min-h-screen md:max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto w-full">
+        <div className="flex-1 flex flex-col min-h-screen min-w-0">
 
-          {/* Header — full-width on mobile, hidden logo on md+ (sidebar has it) */}
+          {/* Header */}
           <Header onLogoClick={handleLogoClick} onLogout={handleLogout} />
 
           <main className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 py-5 pb-24 md:pb-8 scroll-smooth-ios animate-fade-up">
+            <div className="max-w-5xl mx-auto w-full">
 
             {/* ── Màn hình chi tiết Event ──────────────────────────────────── */}
             {selectedEventId && (
@@ -154,6 +153,7 @@ export default function App() {
               </>
             )}
 
+            </div>
           </main>
 
           {/* BottomNav — mobile only, ẩn khi đang xem chi tiết */}

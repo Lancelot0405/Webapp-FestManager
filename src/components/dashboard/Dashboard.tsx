@@ -80,7 +80,7 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
 
       {/* ── Stat cards ── */}
       {canViewAll ? (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard
             icon={<Calendar size={18} />}
             label="Sự kiện sắp tới"
@@ -136,7 +136,7 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
         {displayEvents.length === 0 ? (
           <EmptyState text="Không có sự kiện nào" />
         ) : (
-          <div className="space-y-2.5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
             {displayEvents.map(event => (
               <button
                 key={event.id}
@@ -177,7 +177,7 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
 
       {/* ── Analytics — admin/manager ── */}
       {canViewAll && (
-        <div className="space-y-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
             <SectionHeader title="Doanh thu theo tháng" icon={<TrendingUp size={14} />} />
             <RevenueChart events={events} />

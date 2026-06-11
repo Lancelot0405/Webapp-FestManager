@@ -57,10 +57,10 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
     <header className="glass-card border-b border-[var(--glass-border)] px-4 sticky top-0 z-10 pt-safe shadow-[var(--shadow-card)]">
       <div className="flex justify-between items-center h-14">
 
-        {/* Logo */}
+        {/* Logo — hiện trên mobile, ẩn trên md+ (sidebar đã có) */}
         <button
           onClick={onLogoClick}
-          className="flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]/40 rounded-lg"
+          className="flex md:hidden items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]/40 rounded-lg"
         >
           <div className="w-8 h-8 rounded-xl bg-[var(--primary)] flex items-center justify-center shadow-[var(--shadow-float)]">
             <UtensilsCrossed size={16} className="text-[var(--background)]" />
