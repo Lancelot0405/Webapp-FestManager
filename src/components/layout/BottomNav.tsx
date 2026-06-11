@@ -70,8 +70,17 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
              : STAFF_TABS;
 
   return (
-    <nav className="glass-card border-t border-[var(--glass-border)] fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md pb-safe z-20">
-      <div className="flex justify-around items-center px-1 pt-1.5">
+    <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 pb-safe" style={{ width: 'min(calc(100% - 32px), 440px)' }}>
+      <div
+        className="flex justify-around items-center px-3 py-2 rounded-[28px] shadow-2xl"
+        style={{
+          background: 'var(--glass-bg)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          border: '1px solid var(--glass-border)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2)',
+        }}
+      >
         {tabs.map(({ tab, icon, label }) => {
           const isActive = activeTab === tab;
           return (
@@ -81,20 +90,20 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
               onPress={() => onTabChange(tab)}
               aria-current={isActive ? 'page' : undefined}
               aria-label={label}
-              className="flex flex-col items-center gap-0.5 px-2 py-1 min-w-0 flex-1 h-auto rounded-xl"
+              className="flex flex-col items-center gap-1 px-2 py-1.5 min-w-0 flex-1 h-auto rounded-2xl"
             >
-              <div className={`p-1.5 rounded-xl transition-all duration-150 ${
+              <div className={`px-3 py-1.5 rounded-2xl transition-all duration-200 ${
                 isActive
-                  ? 'bg-[var(--primary)] shadow-[var(--shadow-float)]'
-                  : 'text-[var(--text-muted)]'
+                  ? 'bg-[var(--glass-border)]'
+                  : ''
               }`}>
-                <span className={isActive ? 'text-[var(--background)]' : ''}>
+                <span className={`block transition-colors duration-200 ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}`}>
                   {icon}
                 </span>
               </div>
               <span
-                className="text-[10px] font-semibold leading-none transition-colors"
-                style={{ color: isActive ? 'var(--primary)' : 'var(--text-muted)' }}
+                className="text-[10px] font-semibold leading-none transition-colors duration-200"
+                style={{ color: isActive ? 'var(--text-primary)' : 'var(--text-muted)' }}
               >
                 {label}
               </span>
