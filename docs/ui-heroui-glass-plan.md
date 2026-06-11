@@ -1,6 +1,6 @@
 # Kế hoạch Nâng cấp Giao diện FestManager → HeroUI v3 Glass Preset
 
-> **Trạng thái tổng thể:** 🔄 Đang triển khai (5/11 phases)  
+> **Trạng thái tổng thể:** 🔄 Đang triển khai (6/11 phases)  
 > **Cập nhật lần cuối:** 2026-06-11  
 > **Nhánh triển khai:** `claude/zealous-tesla-179zmi`
 
@@ -229,7 +229,7 @@ npm run build && npm test
 
 ## Phase 6 — Clients Page
 
-**Trạng thái:** 🔲 Chưa bắt đầu  
+**Trạng thái:** ✅ Hoàn thành  
 **File:** `src/components/clients/Clients.tsx`  
 **Độ khó:** Thấp  
 
