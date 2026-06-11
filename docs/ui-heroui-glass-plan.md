@@ -1,6 +1,6 @@
 # Kế hoạch Nâng cấp Giao diện FestManager → HeroUI v3 Glass Preset
 
-> **Trạng thái tổng thể:** 🔄 Đang triển khai (6/11 phases)  
+> **Trạng thái tổng thể:** 🔄 Đang triển khai (7/11 phases)  
 > **Cập nhật lần cuối:** 2026-06-11  
 > **Nhánh triển khai:** `claude/zealous-tesla-179zmi`
 
@@ -253,7 +253,7 @@ Kiểm tra: Thêm/sửa/xóa khách hàng hoạt động đúng.
 
 ## Phase 7 — Finance Page
 
-**Trạng thái:** 🔲 Chưa bắt đầu  
+**Trạng thái:** ✅ Hoàn thành  
 **File:** `src/components/finance/Finance.tsx`  
 **Độ khó:** Trung bình  
 
