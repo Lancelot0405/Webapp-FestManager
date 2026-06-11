@@ -45,7 +45,6 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
   const { state }       = useApp();
   const { currentUser } = state;
 
-  // Ẩn nav khi bàn phím iOS mở — dùng rAF để tránh race condition
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   useEffect(() => {
     const vv = window.visualViewport;
@@ -71,7 +70,7 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
              : STAFF_TABS;
 
   return (
-    <nav className="bg-[var(--card-bg)]/95 backdrop-blur-sm border-t border-[var(--border-color)] fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md pb-safe z-20">
+    <nav className="glass-card border-t border-[var(--glass-border)] fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md pb-safe z-20">
       <div className="flex justify-around items-center px-1 pt-1.5">
         {tabs.map(({ tab, icon, label }) => {
           const isActive = activeTab === tab;
@@ -86,14 +85,17 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
             >
               <div className={`p-1.5 rounded-xl transition-all duration-150 ${
                 isActive
-                  ? 'bg-brand-gradient shadow-[0_2px_8px_0_rgb(0_111_238/0.35)]'
+                  ? 'bg-[var(--primary)] shadow-[var(--shadow-float)]'
                   : 'text-[var(--text-muted)]'
               }`}>
-                <span className={isActive ? 'text-white' : ''}>
+                <span className={isActive ? 'text-[var(--background)]' : ''}>
                   {icon}
                 </span>
               </div>
-              <span className="text-[10px] font-semibold leading-none transition-colors" style={{ color: isActive ? 'var(--primary)' : 'var(--text-muted)' }}>
+              <span
+                className="text-[10px] font-semibold leading-none transition-colors"
+                style={{ color: isActive ? 'var(--primary)' : 'var(--text-muted)' }}
+              >
                 {label}
               </span>
             </Button>
