@@ -47,29 +47,29 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
     <div className="space-y-5">
 
       {/* ── Hero banner ── */}
-      <div className="relative overflow-hidden rounded-2xl bg-brand-gradient p-5 text-white shadow-hero">
-        <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full bg-white/10" />
-        <div className="absolute -bottom-8 -right-2 w-20 h-20 rounded-full bg-white/10" />
+      <div className="relative overflow-hidden rounded-2xl glass-card p-5 shadow-[var(--shadow-hero)] border border-[var(--glass-border)]">
+        <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full bg-[var(--primary)]/5" />
+        <div className="absolute -bottom-8 -right-2 w-20 h-20 rounded-full bg-[var(--primary)]/5" />
 
         <div className="relative">
-          <p className="text-white/70 text-xs font-medium uppercase tracking-widest mb-1">
+          <p className="text-[var(--text-muted)] text-xs font-medium uppercase tracking-widest mb-1">
             {canViewAll ? 'Tổng quan' : 'Cá nhân'}
           </p>
-          <h1 className="text-xl font-black leading-tight">
+          <h1 className="text-xl font-black leading-tight text-[var(--text-primary)]">
             Xin chào, {currentUser.name} 👋
           </h1>
           {activeEvent ? (
             <Button
               onPress={() => onSelectEvent(activeEvent.id)}
               variant="ghost"
-              className="mt-3 flex items-center gap-1.5 bg-white/20 hover:bg-white/30 active:bg-white/40 rounded-xl px-3 py-1.5 text-sm font-semibold transition-all"
+              className="mt-3 flex items-center gap-1.5 bg-[var(--primary)]/10 hover:bg-[var(--primary)]/15 border border-[var(--primary)]/20 rounded-xl px-3 py-1.5 text-sm font-semibold text-[var(--primary)] transition-all"
             >
-              <span className="w-2 h-2 rounded-full bg-herb-400 animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-[var(--success)] animate-pulse" />
               Đang diễn ra: {activeEvent.name}
               <ChevronRight size={14} />
             </Button>
           ) : (
-            <p className="text-white/70 text-sm mt-1">
+            <p className="text-[var(--text-muted)] text-sm mt-1">
               {upcomingEvents.length > 0
                 ? `${upcomingEvents.length} sự kiện sắp tới`
                 : 'Không có sự kiện nào đang diễn ra'}
@@ -85,21 +85,19 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
             icon={<Calendar size={18} />}
             label="Sự kiện sắp tới"
             value={upcomingEvents.length}
-            color="brand"
             onClick={() => onNavigate('schedule')}
           />
           <StatCard
             icon={<Users size={18} />}
             label="Tổng nhân viên"
             value={staff.length}
-            color="indigo"
+            accentColor="indigo"
             onClick={() => onNavigate('hr')}
           />
           <StatCard
             icon={<Package size={18} />}
             label="Kho sắp hết"
             value={lowStockCount}
-            color={lowStockCount > 0 ? 'red' : 'herb'}
             alert={lowStockCount > 0}
             onClick={() => onNavigate('inventory')}
           />
@@ -107,7 +105,6 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
             icon={<Clock size={18} />}
             label="Chi phí chờ duyệt"
             value={pendingExpenses.length}
-            color={pendingExpenses.length > 0 ? 'red' : 'herb'}
             alert={pendingExpenses.length > 0}
             onClick={() => onNavigate('finance')}
           />
@@ -118,14 +115,12 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
             icon={<Calendar size={18} />}
             label="Sự kiện của tôi"
             value={myEvents.length}
-            color="brand"
             onClick={() => onNavigate('schedule')}
           />
           <StatCard
             icon={<Clock size={18} />}
             label="Chi phí chờ duyệt"
             value={myPendingExpenses.length}
-            color={myPendingExpenses.length > 0 ? 'red' : 'herb'}
             alert={myPendingExpenses.length > 0}
             onClick={() => onNavigate('profile')}
           />
@@ -146,12 +141,12 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
               <button
                 key={event.id}
                 onClick={() => onSelectEvent(event.id)}
-                className="w-full text-left bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-4 hover:border-brand-300 hover:shadow-card active:scale-[0.99] transition-all duration-150"
+                className="w-full text-left glass-card rounded-2xl p-4 hover:border-[var(--primary)]/30 hover:shadow-[var(--shadow-card)] active:scale-[0.99] transition-all duration-150"
               >
                 <div className="flex justify-between items-start gap-2">
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-[var(--text-primary)] truncate">{event.name}</p>
-                    <p className="text-xs text-brand-400 mt-0.5">{event.date} · {event.location}</p>
+                    <p className="text-xs text-[var(--text-secondary)] mt-0.5">{event.date} · {event.location}</p>
                     <p className="text-xs text-[var(--text-muted)] mt-0.5">{event.staff.length} nhân viên</p>
                   </div>
                   <StatusBadge status={event.status} />
@@ -168,12 +163,12 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
           <SectionHeader title="Chi phí chờ duyệt" />
           <div className="space-y-2">
             {myPendingExpenses.map(exp => (
-              <div key={exp.id} className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-3 flex justify-between items-center">
+              <div key={exp.id} className="glass-card rounded-2xl p-3 flex justify-between items-center">
                 <div>
                   <p className="text-sm font-semibold text-[var(--text-primary)]">{exp.type}</p>
                   <p className="text-xs text-[var(--text-muted)]">{exp.date}</p>
                 </div>
-                <span className="text-sm font-bold text-indigo-600">{exp.amount}€</span>
+                <span className="text-sm font-bold text-indigo-400">{exp.amount}€</span>
               </div>
             ))}
           </div>
@@ -199,34 +194,36 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
 
 // ── Sub-components ──────────────────────────────────────────────────────────
 
-type StatColor = 'brand' | 'indigo' | 'herb' | 'red';
-
-const colorMap: Record<StatColor, { bg: string; icon: string; value: string }> = {
-  brand:  { bg: 'bg-brand-50 dark:bg-brand-500/10',   icon: 'text-brand-500',  value: 'text-brand-600 dark:text-brand-400'  },
-  indigo: { bg: 'bg-indigo-50 dark:bg-indigo-500/10', icon: 'text-indigo-500', value: 'text-indigo-600 dark:text-indigo-400' },
-  herb:   { bg: 'bg-herb-500/10',                     icon: 'text-herb-500',   value: 'text-herb-600 dark:text-herb-400'    },
-  red:    { bg: 'bg-red-50 dark:bg-red-500/10',       icon: 'text-red-500',    value: 'text-red-600 dark:text-red-400'      },
-};
-
-function StatCard({ icon, label, value, color, alert, onClick }: {
-  icon:    React.ReactNode;
-  label:   string;
-  value:   number;
-  color:   StatColor;
-  alert?:  boolean;
-  onClick?: () => void;
+function StatCard({ icon, label, value, alert, accentColor, onClick }: {
+  icon:         React.ReactNode;
+  label:        string;
+  value:        number;
+  alert?:       boolean;
+  accentColor?: 'indigo';
+  onClick?:     () => void;
 }) {
-  const c = colorMap[color];
+  const glowClass = alert ? 'glow-danger border-[var(--danger)]/20' : '';
+  const iconColor = alert
+    ? 'text-[var(--danger)]'
+    : accentColor === 'indigo'
+      ? 'text-indigo-400'
+      : 'text-[var(--primary)]';
+  const valueColor = alert
+    ? 'text-[var(--danger)]'
+    : accentColor === 'indigo'
+      ? 'text-indigo-400'
+      : 'text-[var(--text-primary)]';
+
   return (
     <button
       onClick={onClick}
-      className={`${c.bg} rounded-2xl p-4 flex items-center gap-3 w-full text-left active:scale-[0.97] hover:brightness-95 transition-all cursor-pointer border border-transparent hover:border-brand-200 dark:hover:border-white/10`}
+      className={`glass-card rounded-2xl p-4 flex items-center gap-3 w-full text-left active:scale-[0.97] transition-all ${glowClass}`}
     >
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-white/60 dark:bg-white/10 ${c.icon}`}>
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[var(--glass-bg)] border border-[var(--glass-border)] ${iconColor}`}>
         {icon}
       </div>
       <div className="min-w-0">
-        <p className={`text-2xl font-black leading-none ${alert ? 'text-red-500' : c.value}`}>{value}</p>
+        <p className={`text-2xl font-black leading-none ${valueColor}`}>{value}</p>
         <p className="text-xs text-[var(--text-muted)] leading-tight mt-1">{label}</p>
       </div>
     </button>
@@ -236,11 +233,16 @@ function StatCard({ icon, label, value, color, alert, onClick }: {
 function SectionHeader({ title, onMore, icon }: { title: string; onMore?: () => void; icon?: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between mb-3">
-      <h2 className="flex items-center gap-1.5 text-xs font-bold text-brand-500 uppercase tracking-widest">
+      <h2 className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest">
         {icon} {title}
       </h2>
       {onMore && (
-        <Button onPress={onMore} variant="ghost" size="sm" className="flex items-center gap-0.5 text-xs text-[var(--text-muted)] hover:text-brand-600 font-medium transition-colors">
+        <Button
+          onPress={onMore}
+          variant="ghost"
+          size="sm"
+          className="flex items-center gap-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] font-medium transition-colors"
+        >
           Xem thêm <ChevronRight size={12} />
         </Button>
       )}
@@ -273,7 +275,7 @@ function RevenueChart({ events }: { events: FestivalEvent[] }) {
   const maxVal = Math.max(...entries.map(([, v]) => v), 100000);
 
   return (
-    <div className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-4">
+    <div className="glass-card rounded-2xl p-4">
       <div className="flex items-end gap-2 h-24">
         {entries.map(([month, val]) => (
           <div key={month} className="flex-1 flex flex-col items-center gap-1">
@@ -281,7 +283,7 @@ function RevenueChart({ events }: { events: FestivalEvent[] }) {
               className="w-full rounded-t-lg transition-all"
               style={{
                 height: `${Math.max((val / maxVal) * 80, 4)}px`,
-                background: 'linear-gradient(180deg, #8B5CF6, #6366F1)',
+                background: 'linear-gradient(180deg, var(--primary), color-mix(in srgb, var(--primary) 60%, transparent))',
               }}
             />
             <span className="text-[9px] text-[var(--text-muted)] leading-none">{month}</span>
@@ -304,24 +306,24 @@ function TopStaffList({ events, staff }: { events: FestivalEvent[]; staff: Staff
 
   if (top.length === 0) return <EmptyState text="Chưa có dữ liệu" />;
 
-  const rankStyle = [
-    'bg-indigo-100 text-indigo-600',
-    'bg-brand-100  text-brand-600',
-    'bg-herb-500/10 text-herb-600',
+  const rankColors = [
+    'bg-[var(--warning)]/15 text-[var(--warning)]',
+    'bg-[var(--glass-bg)] text-[var(--text-secondary)]',
+    'bg-[var(--success)]/10 text-[var(--success)]',
   ];
 
   return (
-    <div className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl divide-y divide-[var(--border-color)]">
+    <div className="glass-card rounded-2xl divide-y divide-[var(--glass-border)]">
       {top.map(({ member, count }, i) => (
         <div key={member!.id} className="flex items-center gap-3 px-4 py-3">
-          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${rankStyle[i]}`}>
+          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 border border-[var(--glass-border)] ${rankColors[i]}`}>
             {i + 1}
           </span>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{member!.name}</p>
             <p className="text-xs text-[var(--text-muted)]">{member!.city}</p>
           </div>
-          <span className="text-sm font-bold text-brand-500">{count} sự kiện</span>
+          <span className="text-sm font-bold text-[var(--text-secondary)]">{count} sự kiện</span>
         </div>
       ))}
     </div>
