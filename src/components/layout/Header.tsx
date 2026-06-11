@@ -10,6 +10,7 @@ import { useInstallPrompt } from '../../hooks/useInstallPrompt';
 interface HeaderProps {
   onLogoClick: () => void;
   onLogout:    () => void;
+  navVisible?: boolean;
 }
 
 const roleBadgeStyle: Record<string, string> = {
@@ -21,7 +22,7 @@ const roleLabel: Record<string, string> = {
   admin: 'Admin', manager: 'Quản lý', staff: 'Nhân viên',
 };
 
-export default function Header({ onLogoClick, onLogout }: HeaderProps) {
+export default function Header({ onLogoClick, onLogout, navVisible = true }: HeaderProps) {
   const { state }       = useApp();
   const { currentUser } = state;
   const isAdmin         = currentUser?.role === 'admin';
@@ -54,7 +55,10 @@ export default function Header({ onLogoClick, onLogout }: HeaderProps) {
   };
 
   return (
-    <header className="glass-card border-b border-[var(--glass-border)] px-4 sticky top-0 z-10 pt-safe shadow-[var(--shadow-card)]">
+    <header
+      className="glass-card border-b border-[var(--glass-border)] px-4 sticky z-10 pt-safe shadow-[var(--shadow-card)] transition-[top] duration-300 ease-out rounded-none"
+      style={{ top: navVisible ? 0 : '-3.75rem' }}
+    >
       <div className="flex justify-between items-center h-14">
 
         {/* Logo — hiện trên mobile, ẩn trên md+ (sidebar đã có) */}

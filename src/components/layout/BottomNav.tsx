@@ -15,6 +15,7 @@ import type { ActiveTab } from '../../types';
 interface BottomNavProps {
   activeTab:   ActiveTab;
   onTabChange: (tab: ActiveTab) => void;
+  navVisible?: boolean;
 }
 
 const ADMIN_TABS: { tab: ActiveTab; icon: React.ReactNode; label: string }[] = [
@@ -41,7 +42,7 @@ const STAFF_TABS: { tab: ActiveTab; icon: React.ReactNode; label: string }[] = [
   { tab: 'profile',   icon: <User            size={20} />, label: 'Hồ sơ'      },
 ];
 
-export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
+export default function BottomNav({ activeTab, onTabChange, navVisible = true }: BottomNavProps) {
   const { state }       = useApp();
   const { currentUser } = state;
 
@@ -70,7 +71,13 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
              : STAFF_TABS;
 
   return (
-    <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 pb-safe" style={{ width: 'min(calc(100% - 32px), 440px)' }}>
+    <nav
+      className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 pb-safe transition-transform duration-300 ease-out"
+      style={{
+        width: 'min(calc(100% - 32px), 440px)',
+        transform: `translateX(-50%) translateY(${navVisible ? '0' : 'calc(100% + 2rem)'})`,
+      }}
+    >
       <div
         className="bottom-nav-pill flex justify-around items-center px-3 py-2 rounded-[28px]"
         style={{ backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}

@@ -2,7 +2,7 @@
 // src/App.tsx  —  App shell (điều phối, không chứa business logic)
 // =============================================================================
 
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useApp } from './context/AppContext';
 import type { ActiveTab } from './types';
 import { SpeedInsights } from '@vercel/speed-insights/react';
@@ -38,6 +38,33 @@ export default function App() {
   const [activeTab,        setActiveTab]        = useState<ActiveTab>('dashboard');
   const [selectedEventId,  setSelectedEventId]  = useState<number | null>(null);
   const [selectedStaffId,  setSelectedStaffId]  = useState<string | null>(null);
+  const [navVisible,       setNavVisible]        = useState(true);
+
+  const mainRef    = useRef<HTMLElement>(null);
+  const lastScrollY = useRef(0);
+  const rafId       = useRef(0);
+
+  const showNav = useCallback(() => setNavVisible(true), []);
+
+  useEffect(() => {
+    const el = mainRef.current;
+    if (!el) return;
+    const handler = () => {
+      cancelAnimationFrame(rafId.current);
+      rafId.current = requestAnimationFrame(() => {
+        const y = el.scrollTop;
+        const delta = y - lastScrollY.current;
+        if (Math.abs(delta) < 4) return;
+        setNavVisible(delta < 0 || y < 60);
+        lastScrollY.current = y;
+      });
+    };
+    el.addEventListener('scroll', handler, { passive: true });
+    return () => { el.removeEventListener('scroll', handler); cancelAnimationFrame(rafId.current); };
+  }, []);
+
+  // Luôn hiện nav khi chuyển tab hoặc vào/ra detail
+  useEffect(() => { showNav(); }, [activeTab, selectedEventId, selectedStaffId, showNav]);
 
   // Reset về Dashboard + xóa mọi selection đang chọn
   const handleLogoClick = () => {
@@ -102,9 +129,9 @@ export default function App() {
         <div className="flex-1 flex flex-col min-h-screen min-w-0">
 
           {/* Header */}
-          <Header onLogoClick={handleLogoClick} onLogout={handleLogout} />
+          <Header onLogoClick={handleLogoClick} onLogout={handleLogout} navVisible={navVisible} />
 
-          <main className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 py-5 pb-24 md:pb-8 scroll-smooth-ios animate-fade-up">
+          <main ref={mainRef} className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 py-5 pb-24 md:pb-8 scroll-smooth-ios animate-fade-up">
             <div className="max-w-5xl mx-auto w-full">
 
             {/* ── Màn hình chi tiết Event ──────────────────────────────────── */}
@@ -156,11 +183,12 @@ export default function App() {
             </div>
           </main>
 
-          {/* BottomNav — mobile only, ẩn khi đang xem chi tiết */}
+          {/* BottomNav — mobile only */}
           {!isInDetail && (
             <BottomNav
               activeTab={activeTab}
               onTabChange={setActiveTab}
+              navVisible={navVisible}
             />
           )}
 
