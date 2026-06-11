@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Download, Smartphone, X, ShieldCheck, Store, Tent, UtensilsCrossed, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useTheme } from '../../context/ThemeContext';
 import { supabase } from '../../lib/supabase';
 import { adminApi } from '../../lib/adminApi';
@@ -124,85 +125,74 @@ export default function LoginScreen() {
     <div className="w-full max-w-md flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-[var(--background)]">
 
       {/* Card */}
-      <div className="w-full bg-[var(--card-bg)] rounded-3xl p-8 shadow-warm">
+      <div className="w-full glass-card rounded-3xl p-8 shadow-[var(--shadow-hero)]">
 
         {/* Logo */}
         <div className="flex flex-col items-center mb-7">
-          <div className="w-16 h-16 rounded-2xl bg-brand-gradient flex items-center justify-center mb-3 shadow-hero">
-            <UtensilsCrossed size={28} className="text-white" />
+          <div className="w-16 h-16 rounded-2xl bg-[var(--primary)] flex items-center justify-center mb-3 shadow-[var(--shadow-hero)]">
+            <UtensilsCrossed size={28} className="text-[var(--background)]" />
           </div>
           <h1 className="text-2xl font-black text-[var(--text-primary)] tracking-tight">FestManager</h1>
-          <p className="text-brand-400 text-sm mt-0.5">Hệ thống quản lý F&amp;B lưu động</p>
+          <p className="text-[var(--text-muted)] text-sm mt-0.5">Hệ thống quản lý F&amp;B lưu động</p>
         </div>
 
         {/* Tab */}
-        <div className="flex w-full bg-brand-50 rounded-xl p-1 mb-6">
+        <div className="flex w-full bg-[var(--glass-bg)] rounded-xl p-1 mb-6 border border-[var(--glass-border)]">
           {(['login', 'register'] as Mode[]).map(m => (
-            <Button
+            <button
               key={m}
               type="button"
-              onPress={() => reset(m)}
-              variant={mode === m ? 'default' : 'ghost'}
-              size="sm"
-              className={`flex-1 text-sm font-semibold rounded-lg transition-all ${
+              onClick={() => reset(m)}
+              className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
                 mode === m
-                  ? 'bg-white shadow text-brand-600'
-                  : 'text-[var(--text-muted)]'
+                  ? 'bg-[var(--card)] text-[var(--text-primary)] shadow-[var(--shadow-card)]'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
               }`}
             >
               {m === 'login' ? 'Đăng nhập' : 'Đăng ký'}
-            </Button>
+            </button>
           ))}
         </div>
 
         {/* ── LOGIN ── */}
         {mode === 'login' && (
           <form onSubmit={handleLogin} className="w-full space-y-4">
-            <Field label="Tên đăng nhập">
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-400 pointer-events-none"><User size={16} /></span>
-                <input
-                  type="text"
-                  required
-                  autoComplete="username"
-                  placeholder="Nhập tên đăng nhập"
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  value={username}
-                  onChange={e => setUsername(e.target.value)}
-                  className="w-full pl-9 pr-4 py-3 border border-brand-200 dark:border-[var(--border-color)] rounded-xl text-sm text-[var(--text-primary)] bg-[var(--card-bg)] focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 placeholder:text-[var(--text-muted)] transition-all"
-                />
-              </div>
-            </Field>
+            <Input
+              label="Tên đăng nhập"
+              value={username}
+              onChange={setUsername}
+              placeholder="Nhập tên đăng nhập"
+              autoComplete="username"
+              startContent={<User size={16} />}
+            />
 
-            <Field label="Mật khẩu">
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-400 pointer-events-none"><Lock size={16} /></span>
-                <input
-                  type={showPw ? 'text' : 'password'}
-                  required
-                  autoComplete="current-password"
-                  placeholder="Nhập mật khẩu"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  className="w-full pl-9 pr-10 py-3 border border-brand-200 dark:border-[var(--border-color)] rounded-xl text-sm text-[var(--text-primary)] bg-[var(--card-bg)] focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 placeholder:text-[var(--text-muted)] transition-all"
-                />
-                <button type="button" aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+            <Input
+              label="Mật khẩu"
+              value={password}
+              onChange={setPassword}
+              type={showPw ? 'text' : 'password'}
+              placeholder="Nhập mật khẩu"
+              autoComplete="current-password"
+              startContent={<Lock size={16} />}
+              endContent={
+                <button
+                  type="button"
+                  aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                   onClick={() => setShowPw(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-brand-500">
+                  className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                >
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
-              </div>
-            </Field>
+              }
+            />
 
-            {error && <ErrorMsg msg={error} />}
+            {error && <AlertBox msg={error} />}
 
             <Button
               type="submit"
               loading={loading}
               fullWidth
-              className="w-full bg-brand-gradient hover:opacity-90 text-white font-semibold py-3 rounded-xl shadow-warm active:scale-[0.98] transition-all"
+              className="w-full bg-[var(--primary)] text-[var(--background)] font-semibold py-3 rounded-xl active:scale-[0.98] transition-all hover:opacity-90"
             >
               {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
             </Button>
@@ -212,7 +202,7 @@ export default function LoginScreen() {
         {/* ── REGISTER ── */}
         {mode === 'register' && (
           <form onSubmit={handleRegister} className="w-full space-y-4">
-            <div className="bg-brand-50 border border-brand-200 rounded-xl px-3 py-2.5 text-xs text-brand-600">
+            <div className="bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-3 py-2.5 text-xs text-[var(--text-secondary)]">
               💡 Nếu admin đã tạo tài khoản cho bạn, hãy dùng thông tin do admin cung cấp.
             </div>
 
@@ -222,21 +212,20 @@ export default function LoginScreen() {
               <div className="grid grid-cols-2 gap-2">
                 <RoleBtn
                   active={registerRole === 'staff'}
-                  activeClass="bg-brand-gradient text-white shadow-warm"
                   onPress={() => setRegisterRole('staff')}
                   icon={<User size={14} />}
                   label="Nhân viên"
                 />
                 <RoleBtn
                   active={registerRole === 'manager'}
-                  activeClass="bg-indigo-500 text-white shadow-[0_2px_8px_0_rgb(99_102_241/0.35)]"
                   onPress={() => setRegisterRole('manager')}
                   icon={<ShieldCheck size={14} />}
                   label="Quản lý"
+                  activeColor="indigo"
                 />
               </div>
               {registerRole === 'manager' && (
-                <p className="mt-1.5 text-xs text-indigo-600">
+                <p className="mt-1.5 text-xs text-indigo-400">
                   ⏳ Tài khoản quản lý cần được admin duyệt trước khi đăng nhập.
                 </p>
               )}
@@ -249,88 +238,68 @@ export default function LoginScreen() {
                 <div className="grid grid-cols-2 gap-2">
                   <RoleBtn
                     active={registerDept === 'restaurant'}
-                    activeClass="bg-brand-gradient text-white shadow-warm"
                     onPress={() => setRegisterDept('restaurant')}
                     icon={<Store size={14} />}
                     label="Nhà hàng"
                   />
                   <RoleBtn
                     active={registerDept === 'festival'}
-                    activeClass="bg-herb-500 text-white shadow-[0_2px_8px_0_rgb(34_197_94/0.35)]"
                     onPress={() => setRegisterDept('festival')}
                     icon={<Tent size={14} />}
                     label="Festival"
+                    activeColor="success"
                   />
                 </div>
               </div>
             )}
 
-            <Field label="Tên đăng nhập">
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-400 pointer-events-none"><User size={16} /></span>
-                <input
-                  type="text"
-                  required
-                  placeholder="Không dấu, không khoảng trắng"
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  value={username}
-                  onChange={e => setUsername(e.target.value.replace(/\s/g, ''))}
-                  className="w-full pl-9 pr-4 py-3 border border-brand-200 dark:border-[var(--border-color)] rounded-xl text-sm text-[var(--text-primary)] bg-[var(--card-bg)] focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 placeholder:text-[var(--text-muted)] transition-all"
-                />
-              </div>
-            </Field>
+            <Input
+              label="Tên đăng nhập"
+              value={username}
+              onChange={val => setUsername(val.replace(/\s/g, ''))}
+              placeholder="Không dấu, không khoảng trắng"
+              startContent={<User size={16} />}
+            />
 
-            <Field label="Tên hiển thị">
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-400 pointer-events-none"><User size={16} /></span>
-                <input
-                  type="text"
-                  placeholder="Tên đầy đủ của bạn"
-                  value={displayName}
-                  onChange={e => setDisplayName(e.target.value)}
-                  className="w-full pl-9 pr-4 py-3 border border-brand-200 dark:border-[var(--border-color)] rounded-xl text-sm text-[var(--text-primary)] bg-[var(--card-bg)] focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 placeholder:text-[var(--text-muted)] transition-all"
-                />
-              </div>
-            </Field>
+            <Input
+              label="Tên hiển thị"
+              value={displayName}
+              onChange={setDisplayName}
+              placeholder="Tên đầy đủ của bạn"
+              startContent={<User size={16} />}
+            />
 
-            <Field label="Mật khẩu">
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-400 pointer-events-none"><Lock size={16} /></span>
-                <input
-                  type={showPw ? 'text' : 'password'}
-                  required
-                  placeholder="Tối thiểu 6 ký tự"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  className="w-full pl-9 pr-10 py-3 border border-brand-200 dark:border-[var(--border-color)] rounded-xl text-sm text-[var(--text-primary)] bg-[var(--card-bg)] focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 placeholder:text-[var(--text-muted)] transition-all"
-                />
-                <button type="button" aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+            <Input
+              label="Mật khẩu"
+              value={password}
+              onChange={setPassword}
+              type={showPw ? 'text' : 'password'}
+              placeholder="Tối thiểu 6 ký tự"
+              startContent={<Lock size={16} />}
+              endContent={
+                <button
+                  type="button"
+                  aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                   onClick={() => setShowPw(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-brand-500">
+                  className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                >
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
-              </div>
-            </Field>
+              }
+            />
 
-            <Field label="Xác nhận mật khẩu">
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-400 pointer-events-none"><Lock size={16} /></span>
-                <input
-                  type="password"
-                  required
-                  placeholder="Nhập lại mật khẩu"
-                  value={password2}
-                  onChange={e => setPassword2(e.target.value)}
-                  className="w-full pl-9 pr-4 py-3 border border-brand-200 dark:border-[var(--border-color)] rounded-xl text-sm text-[var(--text-primary)] bg-[var(--card-bg)] focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 placeholder:text-[var(--text-muted)] transition-all"
-                />
-              </div>
-            </Field>
+            <Input
+              label="Xác nhận mật khẩu"
+              value={password2}
+              onChange={setPassword2}
+              type="password"
+              placeholder="Nhập lại mật khẩu"
+              startContent={<Lock size={16} />}
+            />
 
-            {error   && <ErrorMsg msg={error} />}
+            {error   && <AlertBox msg={error} />}
             {success && (
-              <div className="flex items-center gap-2 text-herb-600 bg-herb-500/10 border border-herb-500/30 rounded-xl px-3 py-2.5 text-sm">
+              <div className="flex items-center gap-2 bg-[var(--success-light)] border border-[var(--success)]/30 rounded-xl px-3 py-2.5 text-sm text-[var(--success)]">
                 <CheckCircle size={15} className="shrink-0" /> {success}
               </div>
             )}
@@ -339,8 +308,10 @@ export default function LoginScreen() {
               type="submit"
               loading={loading}
               fullWidth
-              className={`w-full text-white font-semibold py-3 rounded-xl shadow-warm active:scale-[0.98] transition-all ${
-                registerRole === 'manager' ? 'bg-indigo-500 hover:bg-indigo-600' : 'bg-brand-gradient hover:opacity-90'
+              className={`w-full font-semibold py-3 rounded-xl active:scale-[0.98] transition-all hover:opacity-90 ${
+                registerRole === 'manager'
+                  ? 'bg-indigo-500 text-white'
+                  : 'bg-[var(--primary)] text-[var(--background)]'
               }`}
             >
               {loading ? 'Đang xử lý...' : registerRole === 'manager' ? 'Gửi yêu cầu đăng ký' : 'Tạo tài khoản'}
@@ -349,27 +320,27 @@ export default function LoginScreen() {
         )}
 
         {/* Footer */}
-        <div className="border-t border-[var(--border-color)] mt-6 pt-4 flex items-center justify-center gap-3">
+        <div className="border-t border-[var(--glass-border)] mt-6 pt-4 flex items-center justify-center gap-3">
           <div className="relative">
             <button
               onClick={handleInstallClick}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-600 text-xs font-medium transition-colors"
+              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--glass-bg)] hover:bg-[var(--muted)] border border-[var(--glass-border)] text-[var(--text-secondary)] text-xs font-medium transition-colors"
             >
               <Download size={14} /> Cài đặt app
             </button>
             {showInstallModal && (
-              <div className="absolute bottom-11 right-0 w-72 bg-[var(--card-bg)] rounded-2xl shadow-warm border border-[var(--border-color)] z-50 p-4 animate-fade-in">
+              <div className="absolute bottom-11 right-0 w-72 glass-card rounded-2xl shadow-[var(--shadow-warm)] z-50 p-4 animate-fade-in">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <Smartphone size={16} className="text-brand-500" />
+                    <Smartphone size={16} className="text-[var(--text-secondary)]" />
                     <p className="text-sm font-semibold text-[var(--text-primary)]">
                       {isStandalone ? 'Đã cài đặt' : 'Cài FestManager'}
                     </p>
                   </div>
-                  <button onClick={() => setShowInstallModal(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)]"><X size={15} /></button>
+                  <button onClick={() => setShowInstallModal(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"><X size={15} /></button>
                 </div>
                 {isStandalone ? (
-                  <p className="text-sm text-brand-500">FestManager đã được cài 🎉</p>
+                  <p className="text-sm text-[var(--text-secondary)]">FestManager đã được cài 🎉</p>
                 ) : isIos ? (
                   <div className="space-y-2.5">
                     <InstallStep n={1} text='Bấm nút Chia sẻ ↑ ở thanh dưới Safari' />
@@ -377,18 +348,17 @@ export default function LoginScreen() {
                     <InstallStep n={3} text='Bấm "Thêm" góc trên phải' />
                   </div>
                 ) : (
-                  <p className="text-sm text-brand-400">Dùng menu trình duyệt → "Cài đặt ứng dụng".</p>
+                  <p className="text-sm text-[var(--text-secondary)]">Dùng menu trình duyệt → "Cài đặt ứng dụng".</p>
                 )}
                 <p className="text-xs text-[var(--text-muted)] mt-3">Yêu cầu Safari iOS 16.4+ hoặc Chrome Android</p>
               </div>
             )}
           </div>
 
-          {/* Dark mode toggle */}
           <button
             onClick={toggleTheme}
             aria-label={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-brand-50 dark:bg-[var(--muted)] hover:bg-brand-100 dark:hover:bg-[var(--accent)] text-brand-600 dark:text-[var(--text-secondary)] text-xs font-medium transition-colors"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--glass-bg)] hover:bg-[var(--muted)] border border-[var(--glass-border)] text-[var(--text-secondary)] text-xs font-medium transition-colors"
           >
             {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
             {theme === 'dark' ? 'Sáng' : 'Tối'}
@@ -401,39 +371,37 @@ export default function LoginScreen() {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <label className="text-xs font-semibold text-[var(--text-secondary)] mb-1 block">{label}</label>
-      {children}
-    </div>
-  );
-}
-
-function RoleBtn({ active, activeClass, onPress, icon, label }: {
-  active: boolean; activeClass: string; onPress: () => void;
-  icon: React.ReactNode; label: string;
+function RoleBtn({ active, onPress, icon, label, activeColor = 'primary' }: {
+  active: boolean;
+  onPress: () => void;
+  icon: React.ReactNode;
+  label: string;
+  activeColor?: 'primary' | 'indigo' | 'success';
 }) {
+  const activeStyles: Record<string, string> = {
+    primary: 'bg-[var(--primary)] text-[var(--background)] border-[var(--primary)]',
+    indigo:  'bg-indigo-500 text-white border-indigo-500',
+    success: 'bg-[var(--success)] text-white border-[var(--success)]',
+  };
+
   return (
-    <Button
+    <button
       type="button"
-      onPress={onPress}
-      variant={active ? 'default' : 'outline'}
-      size="sm"
-      className={`py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-1.5 active:scale-[0.97] ${
+      onClick={onPress}
+      className={`py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-1.5 active:scale-[0.97] border ${
         active
-          ? `${activeClass} border-transparent`
-          : 'bg-white text-brand-500 border-brand-200 hover:border-brand-400'
+          ? activeStyles[activeColor]
+          : 'bg-[var(--glass-bg)] text-[var(--text-secondary)] border-[var(--glass-border)] hover:border-[var(--primary)]/40 hover:text-[var(--text-primary)]'
       }`}
     >
       {icon} {label}
-    </Button>
+    </button>
   );
 }
 
-function ErrorMsg({ msg }: { msg: string }) {
+function AlertBox({ msg }: { msg: string }) {
   return (
-    <div className="flex items-center gap-2 text-red-500 bg-red-50 border border-red-200 rounded-xl px-3 py-2.5 text-sm">
+    <div className="flex items-center gap-2 bg-[var(--danger-light)] border border-[var(--danger)]/30 rounded-xl px-3 py-2.5 text-sm text-[var(--danger)]">
       <AlertCircle size={15} className="shrink-0" /> {msg}
     </div>
   );
@@ -442,7 +410,7 @@ function ErrorMsg({ msg }: { msg: string }) {
 function InstallStep({ n, text }: { n: number; text: string }) {
   return (
     <div className="flex gap-2.5 items-start">
-      <span className="w-5 h-5 rounded-full bg-brand-gradient text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">{n}</span>
+      <span className="w-5 h-5 rounded-full bg-[var(--primary)] text-[var(--background)] text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">{n}</span>
       <p className="text-xs text-[var(--text-secondary)] leading-snug">{text}</p>
     </div>
   );
