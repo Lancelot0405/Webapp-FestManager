@@ -72,14 +72,8 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
   return (
     <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 pb-safe" style={{ width: 'min(calc(100% - 32px), 440px)' }}>
       <div
-        className="flex justify-around items-center px-3 py-2 rounded-[28px] shadow-2xl"
-        style={{
-          background: 'var(--glass-bg)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          border: '1px solid var(--glass-border)',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2)',
-        }}
+        className="bottom-nav-pill flex justify-around items-center px-3 py-2 rounded-[28px]"
+        style={{ backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
       >
         {tabs.map(({ tab, icon, label }) => {
           const isActive = activeTab === tab;
@@ -92,19 +86,22 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
               aria-label={label}
               className="flex flex-col items-center gap-1 px-2 py-1.5 min-w-0 flex-1 h-auto rounded-2xl"
             >
-              <div className={`px-3 py-1.5 rounded-2xl transition-all duration-200 ${
+              <div className={`px-3 py-1.5 rounded-2xl transition-all duration-150 ${
                 isActive
-                  ? 'bg-[var(--glass-border)]'
+                  ? 'bg-[var(--primary)]/10 dark:bg-white/8'
                   : ''
               }`}>
-                <span className={`block transition-colors duration-200 ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}`}>
+                <span className={`block transition-colors duration-150 ${
+                  isActive
+                    ? 'text-[var(--primary)]'
+                    : 'text-[var(--text-muted)]'
+                }`}>
                   {icon}
                 </span>
               </div>
-              <span
-                className="text-[10px] font-semibold leading-none transition-colors duration-200"
-                style={{ color: isActive ? 'var(--text-primary)' : 'var(--text-muted)' }}
-              >
+              <span className={`text-[10px] font-semibold leading-none transition-colors duration-150 ${
+                isActive ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'
+              }`}>
                 {label}
               </span>
             </Button>
