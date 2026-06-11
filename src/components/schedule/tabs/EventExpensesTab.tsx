@@ -15,6 +15,10 @@ interface Props {
 const CATEGORIES: ExpenseCategory[] = ['Vé tàu/xe', 'Uber/Taxi', 'Ăn uống', 'Khác'];
 const MAX_FILE_MB = 5;
 
+const inputCls =
+  'w-full border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] ' +
+  'text-[var(--text-primary)] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--primary)]/50 transition-all';
+
 export default function EventExpensesTab({ event }: Props) {
   const { state, addExpense, updateExpenseStatus } = useApp();
   const showToast = useToast();
@@ -33,8 +37,6 @@ export default function EventExpensesTab({ event }: Props) {
   const [uploading, setUploading]       = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Tìm staff member của user đang đăng nhập
-  // Thử match theo userId (UUID), sau đó fallback theo name
   const myStaffMember = currentUser
     ? (staff.find(s => s.userId === currentUser.id)
        ?? staff.find(s => s.name.toLowerCase() === currentUser.name.toLowerCase()))
@@ -81,7 +83,6 @@ export default function EventExpensesTab({ event }: Props) {
       addExpense(event.id, newExpense);
       resetForm();
       setShowFormForStaff(null);
-      // Giữ panel mở để thấy chi phí vừa nộp
       setExpandedStaff(myNumericStaffId);
     } catch (err) {
       showToast(getErrorMessage(err, 'Upload thất bại. Vui lòng thử lại.'), 'error');
@@ -90,7 +91,6 @@ export default function EventExpensesTab({ event }: Props) {
     }
   };
 
-  // Group expenses by staff
   const byStaff = event.receipts.reduce<Record<string, { name: string; expenses: Expense[] }>>(
     (acc, r) => {
       if (!acc[r.staffId]) acc[r.staffId] = { name: r.staffName, expenses: [] };
@@ -100,7 +100,6 @@ export default function EventExpensesTab({ event }: Props) {
     {}
   );
 
-  // Nếu staff chưa có chi phí nào, thêm entry rỗng để họ vẫn thấy tên mình
   if (!canViewAll && myNumericStaffId && currentUser && !byStaff[myNumericStaffId]) {
     byStaff[myNumericStaffId] = { name: currentUser.name, expenses: [] };
   }
@@ -115,14 +114,14 @@ export default function EventExpensesTab({ event }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <p className="text-sm text-brand-400 dark:text-brand-400">
+        <p className="text-sm text-[var(--text-muted)]">
           {event.receipts.length} chi phí
-          {totalAll > 0 && <span className="ml-2 font-semibold text-brand-600 dark:text-gray-200">· {totalAll.toLocaleString('vi-VN')}€</span>}
+          {totalAll > 0 && <span className="ml-2 font-semibold text-[var(--text-secondary)]">· {totalAll.toLocaleString('vi-VN')}€</span>}
         </p>
       </div>
 
       {Object.keys(byStaff).length === 0 ? (
-        <p className="text-sm text-brand-400 dark:text-brand-400 text-center py-8">Chưa có chi phí nào</p>
+        <p className="text-sm text-[var(--text-muted)] text-center py-8">Chưa có chi phí nào</p>
       ) : (
         <div className="space-y-2">
           {Object.entries(byStaff).map(([staffId, { name, expenses }]) => {
@@ -133,7 +132,7 @@ export default function EventExpensesTab({ event }: Props) {
             const showForm     = showFormForStaff === staffId;
 
             return (
-              <div key={staffId} className="bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] shadow-card overflow-hidden">
+              <div key={staffId} className="glass-card rounded-xl overflow-hidden">
                 {/* Header */}
                 <button
                   className="w-full flex justify-between items-center px-4 py-3 text-left"
@@ -142,26 +141,29 @@ export default function EventExpensesTab({ event }: Props) {
                   <div>
                     <p className="text-sm font-semibold text-[var(--text-primary)]">
                       {name}
-                      {isMe && <span className="ml-2 text-xs text-brand-500 font-normal">(bạn)</span>}
+                      {isMe && <span className="ml-2 text-xs text-[var(--primary)] font-normal">(bạn)</span>}
                     </p>
-                    <p className="text-xs text-brand-400 dark:text-brand-400">
+                    <p className="text-xs text-[var(--text-muted)]">
                       {expenses.length} chi phí{total > 0 && ` · ${total.toLocaleString('vi-VN')}€`}
                       {pendingCount > 0 && (
-                        <span className="ml-2 text-yellow-600 font-semibold">{pendingCount} chờ duyệt</span>
+                        <span className="ml-2 text-[var(--warning)] font-semibold">{pendingCount} chờ duyệt</span>
                       )}
                     </p>
                   </div>
-                  {isOpen ? <ChevronUp size={16} className="text-brand-400 dark:text-brand-400" /> : <ChevronDown size={16} className="text-brand-400 dark:text-brand-400" />}
+                  {isOpen
+                    ? <ChevronUp size={16} className="text-[var(--text-muted)]" />
+                    : <ChevronDown size={16} className="text-[var(--text-muted)]" />
+                  }
                 </button>
 
                 {isOpen && (
-                  <div className="border-t border-[var(--border-color)]">
-                    {/* Nút nộp chi phí — chỉ hiện cho chính nhân viên đó */}
+                  <div className="border-t border-[var(--glass-border)]">
+                    {/* Nút nộp chi phí */}
                     {isMe && !showForm && (
-                      <div className="px-4 py-2 bg-[var(--muted)] border-b border-[var(--border-color)]">
+                      <div className="px-4 py-2 bg-[var(--glass-bg)] border-b border-[var(--glass-border)]">
                         <button
                           onClick={() => setShowFormForStaff(staffId)}
-                          className="flex items-center gap-1 text-sm text-brand-600 font-semibold"
+                          className="flex items-center gap-1 text-sm text-[var(--primary)] font-semibold"
                         >
                           <Plus size={15} /> Nộp chi phí mới
                         </button>
@@ -170,66 +172,86 @@ export default function EventExpensesTab({ event }: Props) {
 
                     {/* Form nộp chi phí inline */}
                     {isMe && showForm && (
-                      <form onSubmit={handleSubmit} className="px-4 py-3 bg-brand-50 dark:bg-brand-900/20 border-b border-brand-200 dark:border-brand-800/50 space-y-3">
+                      <form onSubmit={handleSubmit} className="px-4 py-3 bg-[var(--glass-bg)] border-b border-[var(--glass-border)] space-y-3">
                         <div className="flex justify-between items-center">
-                          <p className="text-sm font-bold text-brand-700 dark:text-brand-400">Chi phí mới</p>
+                          <p className="text-sm font-bold text-[var(--text-secondary)]">Chi phí mới</p>
                           <button type="button" onClick={() => { setShowFormForStaff(null); resetForm(); }}>
-                            <X size={15} className="text-brand-400 dark:text-brand-400" />
+                            <X size={15} className="text-[var(--text-muted)]" />
                           </button>
                         </div>
 
                         <div className="grid grid-cols-2 gap-2">
                           <div>
-                            <label className="text-xs text-brand-600 dark:text-gray-300 font-semibold">Loại</label>
-                            <select className="mt-1 w-full border border-brand-200 dark:border-[var(--border-color)] rounded-lg px-2 py-2 text-sm bg-white dark:bg-[var(--card-bg)] text-[var(--text-primary)]"
-                              value={formCategory} onChange={e => setFormCategory(e.target.value as ExpenseCategory)}>
+                            <label className="text-xs text-[var(--text-secondary)] font-semibold">Loại</label>
+                            <select
+                              className={`mt-1 ${inputCls}`}
+                              value={formCategory}
+                              onChange={e => setFormCategory(e.target.value as ExpenseCategory)}
+                            >
                               {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                             </select>
                           </div>
                           <div>
-                            <label className="text-xs text-brand-600 dark:text-gray-300 font-semibold">Số tiền (€)</label>
-                            <input type="number" min="0" step="0.01" required
-                              className="mt-1 w-full border border-brand-200 dark:border-[var(--border-color)] dark:bg-[var(--card-bg)] text-[var(--text-primary)] rounded-lg px-2 py-2 text-sm"
-                              value={formAmount} onChange={e => setFormAmount(e.target.value)} />
+                            <label className="text-xs text-[var(--text-secondary)] font-semibold">Số tiền (€)</label>
+                            <input
+                              type="number" min="0" step="0.01" required
+                              className={`mt-1 ${inputCls}`}
+                              value={formAmount}
+                              onChange={e => setFormAmount(e.target.value)}
+                            />
                           </div>
                         </div>
 
                         <div>
-                          <label className="text-xs text-brand-600 dark:text-gray-300 font-semibold">Ngày</label>
-                          <input type="date" required
-                            className="mt-1 w-full border border-brand-200 dark:border-[var(--border-color)] dark:bg-[var(--card-bg)] text-[var(--text-primary)] dark:[color-scheme:dark] rounded-lg px-3 py-2 text-sm"
-                            value={formDate} onChange={e => setFormDate(e.target.value)} />
+                          <label className="text-xs text-[var(--text-secondary)] font-semibold">Ngày</label>
+                          <input
+                            type="date" required
+                            className={`mt-1 ${inputCls} [color-scheme:dark]`}
+                            value={formDate}
+                            onChange={e => setFormDate(e.target.value)}
+                          />
                         </div>
 
                         {/* Upload ảnh hóa đơn */}
                         <div>
-                          <label className="text-xs text-brand-600 dark:text-gray-300 font-semibold">Ảnh hóa đơn (không bắt buộc, tối đa 5MB)</label>
+                          <label className="text-xs text-[var(--text-secondary)] font-semibold">Ảnh hóa đơn (không bắt buộc, tối đa 5MB)</label>
                           {expenseFile ? (
-                            <div className="mt-1 flex items-center gap-2 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-lg px-3 py-2">
-                              <ImageIcon size={14} className="text-brand-500 shrink-0" />
-                              <span className="text-xs text-brand-600 text-[var(--text-primary)] truncate flex-1">{expenseFile.name}</span>
+                            <div className="mt-1 flex items-center gap-2 border border-[var(--glass-border)] bg-[var(--glass-bg)] rounded-xl px-3 py-2">
+                              <ImageIcon size={14} className="text-[var(--primary)] shrink-0" />
+                              <span className="text-xs text-[var(--text-primary)] truncate flex-1">{expenseFile.name}</span>
                               <button type="button" onClick={() => { setExpenseFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}>
-                                <X size={13} className="text-brand-400 hover:text-red-500" />
+                                <X size={13} className="text-[var(--text-muted)] hover:text-[var(--danger)]" />
                               </button>
                             </div>
                           ) : (
-                            <label className="mt-1 flex items-center gap-2 border border-dashed border-brand-200 dark:border-[var(--border-color)] rounded-lg px-3 py-2.5 cursor-pointer hover:border-brand-400 hover:bg-[var(--card-bg)] transition">
-                              <Upload size={14} className="text-brand-400" />
-                              <span className="text-xs text-brand-400 dark:text-brand-400">Chọn ảnh hoặc PDF</span>
-                              <input ref={fileInputRef} type="file" accept="image/*,.pdf" className="hidden"
-                                onChange={e => setExpenseFile(e.target.files?.[0] ?? null)} />
+                            <label className="mt-1 flex items-center gap-2 border border-dashed border-[var(--glass-border)] rounded-xl px-3 py-2.5 cursor-pointer hover:border-[var(--primary)]/40 hover:bg-[var(--glass-bg)] transition-colors">
+                              <Upload size={14} className="text-[var(--text-muted)]" />
+                              <span className="text-xs text-[var(--text-muted)]">Chọn ảnh hoặc PDF</span>
+                              <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*,.pdf"
+                                className="hidden"
+                                onChange={e => setExpenseFile(e.target.files?.[0] ?? null)}
+                              />
                             </label>
                           )}
                         </div>
 
                         <div className="flex gap-2">
-                          <button type="submit" disabled={uploading}
-                            className="flex-1 flex items-center justify-center gap-1.5 bg-brand-600 text-white text-sm font-semibold py-2 rounded-lg disabled:opacity-60">
+                          <button
+                            type="submit"
+                            disabled={uploading}
+                            className="flex-1 flex items-center justify-center gap-1.5 bg-[var(--primary)] text-[var(--background)] text-sm font-semibold py-2 rounded-xl disabled:opacity-60 transition-opacity"
+                          >
                             {uploading && <Loader size={13} className="animate-spin" />}
                             {uploading ? 'Đang gửi...' : 'Gửi'}
                           </button>
-                          <button type="button" onClick={() => { setShowFormForStaff(null); resetForm(); }}
-                            className="flex-1 bg-[var(--card-bg)] border border-[var(--border-color)] text-sm text-[var(--text-secondary)] py-2 rounded-lg">
+                          <button
+                            type="button"
+                            onClick={() => { setShowFormForStaff(null); resetForm(); }}
+                            className="flex-1 border border-[var(--glass-border)] bg-[var(--glass-bg)] text-sm text-[var(--text-secondary)] py-2 rounded-xl transition-colors"
+                          >
                             Huỷ
                           </button>
                         </div>
@@ -237,16 +259,16 @@ export default function EventExpensesTab({ event }: Props) {
                     )}
 
                     {/* Danh sách chi phí */}
-                    <div className="divide-y divide-[var(--border-color)]">
+                    <div className="divide-y divide-[var(--glass-border)]">
                       {expenses.length === 0 && (
-                        <p className="px-4 py-3 text-xs text-brand-400 dark:text-brand-400">Chưa có chi phí nào</p>
+                        <p className="px-4 py-3 text-xs text-[var(--text-muted)]">Chưa có chi phí nào</p>
                       )}
                       {expenses.map(r => (
                         <div key={r.id} className="px-4 py-3">
                           <div className="flex justify-between items-start">
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-semibold text-[var(--text-primary)]">{r.type}</p>
-                              <p className="text-xs text-brand-400 dark:text-brand-400">{r.date}</p>
+                              <p className="text-xs text-[var(--text-muted)]">{r.date}</p>
                             </div>
                             <div className="flex flex-col items-end gap-1 shrink-0 ml-2">
                               <span className="text-sm font-bold text-[var(--text-primary)]">{r.amount}€</span>
@@ -260,12 +282,16 @@ export default function EventExpensesTab({ event }: Props) {
                           )}
                           {isAdmin && r.status === 'pending' && (
                             <div className="flex gap-2 mt-2">
-                              <button onClick={() => updateExpenseStatus(event.id, r.id, 'approved')}
-                                className="flex-1 text-xs bg-herb-50 text-herb-700 font-semibold py-1.5 rounded-lg border border-herb-200 hover:bg-herb-100">
+                              <button
+                                onClick={() => updateExpenseStatus(event.id, r.id, 'approved')}
+                                className="flex-1 text-xs bg-[var(--success)]/10 text-[var(--success)] font-semibold py-1.5 rounded-xl border border-[var(--success)]/20 hover:bg-[var(--success)]/20 transition-colors"
+                              >
                                 Duyệt
                               </button>
-                              <button onClick={() => updateExpenseStatus(event.id, r.id, 'rejected')}
-                                className="flex-1 text-xs bg-red-50 text-red-600 font-semibold py-1.5 rounded-lg border border-red-200 hover:bg-red-100">
+                              <button
+                                onClick={() => updateExpenseStatus(event.id, r.id, 'rejected')}
+                                className="flex-1 text-xs bg-[var(--danger)]/10 text-[var(--danger)] font-semibold py-1.5 rounded-xl border border-[var(--danger)]/20 hover:bg-[var(--danger)]/20 transition-colors"
+                              >
                                 Từ chối
                               </button>
                             </div>

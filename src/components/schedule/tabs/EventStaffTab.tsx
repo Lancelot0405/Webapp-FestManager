@@ -1,7 +1,3 @@
-// =============================================================================
-// src/components/schedule/tabs/EventStaffTab.tsx
-// =============================================================================
-
 import { useState } from 'react';
 import { UserMinus, UserPlus, Check } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
@@ -14,7 +10,6 @@ interface Props {
 export default function EventStaffTab({ event }: Props) {
   const { state, addStaffToEvent, removeStaffFromEvent } = useApp();
   const isAdmin = state.currentUser?.role === 'admin';
-  // manager chỉ xem, không thêm/xóa nhân sự khỏi event
   const [showAdd, setShowAdd] = useState(false);
   const [selected, setSelected] = useState<Set<number>>(new Set());
 
@@ -40,11 +35,11 @@ export default function EventStaffTab({ event }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <p className="text-sm text-brand-400 dark:text-brand-300">{event.staff.length} nhân viên được phân công</p>
+        <p className="text-sm text-[var(--text-muted)]">{event.staff.length} nhân viên được phân công</p>
         {isAdmin && (
           <button
             onClick={() => { setShowAdd(!showAdd); setSelected(new Set()); }}
-            className="flex items-center gap-1 text-brand-600 text-sm font-medium"
+            className="flex items-center gap-1 text-[var(--primary)] text-sm font-semibold"
           >
             <UserPlus size={16} />
             Thêm
@@ -54,20 +49,20 @@ export default function EventStaffTab({ event }: Props) {
 
       {/* Multi-select staff panel */}
       {showAdd && isAdmin && (
-        <div className="bg-brand-50 dark:bg-brand-900/20 rounded-xl p-3 space-y-2">
-          <p className="text-xs font-medium text-brand-700 dark:text-brand-400">Chọn nhân viên để thêm</p>
+        <div className="glass-card rounded-xl p-3 space-y-2">
+          <p className="text-xs font-semibold text-[var(--text-secondary)]">Chọn nhân viên để thêm</p>
           {availableStaff.length === 0 ? (
-            <p className="text-xs text-brand-300 dark:text-brand-400 py-2 text-center">Tất cả nhân viên đã được phân công</p>
+            <p className="text-xs text-[var(--text-muted)] py-2 text-center">Tất cả nhân viên đã được phân công</p>
           ) : (
             <>
               {availableStaff.map(s => (
                 <button
                   key={s.id}
                   onClick={() => toggleSelect(s.id)}
-                  className={`w-full flex items-center justify-between text-left rounded-lg px-3 py-2 text-sm transition-colors border ${
+                  className={`w-full flex items-center justify-between text-left rounded-xl px-3 py-2 text-sm transition-all border ${
                     selected.has(s.id)
-                      ? 'bg-brand-500 text-white border-brand-200'
-                      : 'bg-[var(--card-bg)] text-[var(--text-primary)] border-[var(--border-color)] hover:bg-[var(--accent)]'
+                      ? 'bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]/30'
+                      : 'glass-card text-[var(--text-primary)] border-[var(--glass-border)] hover:border-[var(--primary)]/30'
                   }`}
                 >
                   <span>{s.name}{s.city ? ` — ${s.city}` : ''}</span>
@@ -77,7 +72,7 @@ export default function EventStaffTab({ event }: Props) {
               <button
                 onClick={handleConfirmAdd}
                 disabled={selected.size === 0}
-                className="w-full mt-1 bg-brand-500 disabled:opacity-40 text-white text-sm font-medium py-2 rounded-lg"
+                className="w-full mt-1 bg-[var(--primary)] text-[var(--background)] disabled:opacity-40 text-sm font-semibold py-2 rounded-xl transition-opacity"
               >
                 Thêm {selected.size > 0 ? `${selected.size} nhân viên` : ''}
               </button>
@@ -87,22 +82,22 @@ export default function EventStaffTab({ event }: Props) {
       )}
 
       {event.staff.length === 0 ? (
-        <p className="text-sm text-brand-300 dark:text-brand-400 text-center py-8">Chưa có nhân viên được phân công</p>
+        <p className="text-sm text-[var(--text-muted)] text-center py-8">Chưa có nhân viên được phân công</p>
       ) : (
         <div className="space-y-2">
           {event.staff.map(s => (
             <div
               key={s.id}
-              className="bg-[var(--card-bg)] rounded-xl p-3 flex justify-between items-center shadow-card border border-[var(--border-color)]"
+              className="glass-card rounded-xl p-3 flex justify-between items-center"
             >
               <div>
                 <p className="font-medium text-[var(--text-primary)] text-sm">{s.name}</p>
-                <p className="text-xs text-brand-300 dark:text-brand-400">{s.city}</p>
+                <p className="text-xs text-[var(--text-muted)]">{s.city}</p>
               </div>
               {isAdmin && (
                 <button
                   onClick={() => removeStaffFromEvent(event.id, s.id)}
-                  className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  className="p-1.5 text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 rounded-lg transition-colors"
                 >
                   <UserMinus size={16} />
                 </button>

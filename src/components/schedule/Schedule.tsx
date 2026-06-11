@@ -1,7 +1,3 @@
-// =============================================================================
-// src/components/schedule/Schedule.tsx
-// =============================================================================
-
 import { useState } from 'react';
 import { Plus, Trash2, Search } from 'lucide-react';
 import { Button } from '@heroui/react';
@@ -43,7 +39,6 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
   const [search,       setSearch]       = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('Tất cả');
 
-  // Staff chỉ thấy events được phân công; admin/manager thấy tất cả
   const myStaffMember = !canViewAll && currentUser
     ? (staff.find(s => s.userId === currentUser.id)
        ?? staff.find(s => s.name.toLowerCase() === currentUser.name.toLowerCase()))
@@ -53,7 +48,6 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
     ? events
     : events.filter(e => myStaffMember && e.staff.some(s => s.id === myStaffMember.id));
 
-  // Compute effective status for each event
   const withComputedStatus = visibleEvents.map(e => ({
     ...e,
     status: computeEventStatus(e.date, e.endDate),
@@ -73,7 +67,12 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold text-[var(--text-primary)]">Lịch sự kiện</h1>
         {isAdmin && (
-          <Button onPress={() => setShowAddForm(true)} variant="primary" size="sm" className="flex items-center gap-1 rounded-lg">
+          <Button
+            onPress={() => setShowAddForm(true)}
+            variant="primary"
+            size="sm"
+            className="flex items-center gap-1 rounded-xl font-semibold"
+          >
             <Plus size={16} />
             Thêm sự kiện
           </Button>
@@ -88,22 +87,24 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
           placeholder="Tìm theo tên hoặc địa điểm..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full pl-9 pr-3 py-2 border border-brand-200 dark:border-[var(--border-color)] rounded-xl text-sm focus:outline-none focus:border-brand-400 bg-white dark:bg-[var(--card-bg)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
+          className="w-full pl-9 pr-3 py-2 border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] rounded-xl text-sm focus:outline-none focus:border-[var(--primary)]/50 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] transition-all"
         />
       </div>
 
       {/* Status filter pills */}
       <div className="flex flex-wrap gap-1.5">
         {STATUS_FILTERS.map(s => (
-          <Button
+          <button
             key={s}
-            onPress={() => setStatusFilter(s)}
-            variant={statusFilter === s ? 'primary' : 'ghost'}
-            size="sm"
-            className="rounded-full"
+            onClick={() => setStatusFilter(s)}
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+              statusFilter === s
+                ? 'bg-[var(--primary)] text-[var(--background)] border-[var(--primary)]'
+                : 'glass-card border-[var(--glass-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+            }`}
           >
             {s}
-          </Button>
+          </button>
         ))}
       </div>
 
@@ -152,10 +153,10 @@ function EventCard({
     : event.date;
 
   return (
-    <div className="flex items-stretch bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl overflow-hidden shadow-card hover:border-brand-300 hover:shadow-warm transition-all duration-150">
+    <div className="glass-card rounded-xl overflow-hidden flex items-stretch active:bg-[var(--glass-bg)] transition-all">
       <button
         onClick={onSelect}
-        className="flex-1 text-left p-4 min-w-0 active:bg-brand-50/10"
+        className="flex-1 text-left p-4 min-w-0"
       >
         <div className="flex justify-between items-start gap-2">
           <div className="flex-1 min-w-0">
@@ -170,7 +171,7 @@ function EventCard({
       {isAdmin && (
         <button
           onClick={onDelete}
-          className="px-3 text-red-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 border-l border-[var(--border-color)] transition-colors"
+          className="px-3 text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 border-l border-[var(--glass-border)] transition-colors"
         >
           <Trash2 size={16} />
         </button>

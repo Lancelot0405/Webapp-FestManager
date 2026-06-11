@@ -70,7 +70,6 @@ export default function EventContractsTab({ event }: Props) {
     }
   };
 
-  // Lấy danh sách staff trong event, bổ sung thêm contracts từ state
   const staffWithContracts = event.staff.map(ref => {
     const fullMember = staff.find(s => s.id === ref.id);
     const eventContracts = (fullMember?.contracts ?? []).filter(
@@ -81,7 +80,7 @@ export default function EventContractsTab({ event }: Props) {
 
   if (staffWithContracts.length === 0) {
     return (
-      <p className="text-sm text-brand-300 text-center py-8">
+      <p className="text-sm text-[var(--text-muted)] text-center py-8">
         Chưa có nhân viên được phân công cho sự kiện này
       </p>
     );
@@ -89,7 +88,7 @@ export default function EventContractsTab({ event }: Props) {
 
   return (
     <div className="space-y-2">
-      <p className="text-sm text-brand-400 dark:text-brand-300 mb-3">
+      <p className="text-sm text-[var(--text-muted)] mb-3">
         Hợp đồng đã ký cho sự kiện này
       </p>
 
@@ -98,11 +97,10 @@ export default function EventContractsTab({ event }: Props) {
         const isOpen = expandedStaff === ref.id;
         const isBusy = uploading && uploadingFor === ref.id;
 
-        // Staff chỉ thấy section của mình; admin thấy tất cả
         if (!canViewAll && !isMe) return null;
 
         return (
-          <div key={ref.id} className="bg-[var(--card-bg)] rounded-xl border border-brand-100 dark:border-[var(--border-color)] shadow-card overflow-hidden">
+          <div key={ref.id} className="glass-card rounded-xl overflow-hidden">
             {/* Header */}
             <button
               className="w-full flex justify-between items-center px-4 py-3 text-left"
@@ -111,29 +109,31 @@ export default function EventContractsTab({ event }: Props) {
               <div>
                 <p className="text-sm font-semibold text-[var(--text-primary)]">
                   {ref.name}
-                  {isMe && <span className="ml-2 text-xs text-brand-500 font-normal">(bạn)</span>}
+                  {isMe && <span className="ml-2 text-xs text-[var(--primary)] font-normal">(bạn)</span>}
                 </p>
-                <p className="text-xs text-brand-400 dark:text-brand-300">
+                <p className="text-xs text-[var(--text-muted)]">
                   {eventContracts.length > 0
                     ? `${eventContracts.length} hợp đồng`
                     : 'Chưa có hợp đồng'}
                 </p>
               </div>
               {isOpen
-                ? <ChevronUp size={16} className="text-brand-300 dark:text-brand-400" />
-                : <ChevronDown size={16} className="text-brand-300 dark:text-brand-400" />}
+                ? <ChevronUp size={16} className="text-[var(--text-muted)]" />
+                : <ChevronDown size={16} className="text-[var(--text-muted)]" />
+              }
             </button>
 
             {isOpen && (
-              <div className="border-t border-brand-100 dark:border-[var(--border-color)]">
-                {/* Upload button — nhân viên tự upload, hoặc admin upload hộ */}
+              <div className="border-t border-[var(--glass-border)]">
+                {/* Upload button */}
                 {(isMe || isAdmin) && !isManager && (
-                  <div className="px-4 py-3 bg-[var(--muted)] border-b border-[var(--border-color)]">
+                  <div className="px-4 py-3 bg-[var(--glass-bg)] border-b border-[var(--glass-border)]">
                     <label className={`flex items-center gap-2 cursor-pointer w-fit ${isBusy ? 'opacity-60 pointer-events-none' : ''}`}>
                       {isBusy
-                        ? <Loader size={14} className="animate-spin text-brand-500" />
-                        : <Upload size={14} className="text-brand-500" />}
-                      <span className="text-sm text-brand-600 font-medium">
+                        ? <Loader size={14} className="animate-spin text-[var(--primary)]" />
+                        : <Upload size={14} className="text-[var(--primary)]" />
+                      }
+                      <span className="text-sm text-[var(--primary)] font-semibold">
                         {isBusy ? 'Đang tải lên...' : 'Upload hợp đồng đã ký'}
                       </span>
                       <input
@@ -147,24 +147,24 @@ export default function EventContractsTab({ event }: Props) {
                         }}
                       />
                     </label>
-                    <p className="text-xs text-brand-300 dark:text-brand-400 mt-0.5">Ảnh hoặc PDF, tối đa {MAX_FILE_MB}MB</p>
+                    <p className="text-xs text-[var(--text-muted)] mt-0.5">Ảnh hoặc PDF, tối đa {MAX_FILE_MB}MB</p>
                   </div>
                 )}
 
                 {/* Danh sách hợp đồng */}
-                <div className="divide-y divide-[var(--border-color)]">
+                <div className="divide-y divide-[var(--glass-border)]">
                   {eventContracts.length === 0 ? (
-                    <p className="px-4 py-3 text-xs text-brand-300 dark:text-brand-400">Chưa có hợp đồng nào được tải lên</p>
+                    <p className="px-4 py-3 text-xs text-[var(--text-muted)]">Chưa có hợp đồng nào được tải lên</p>
                   ) : (
                     eventContracts.map(c => (
                       <div key={c.id} className="px-4 py-3 space-y-2">
                         <div className="flex items-center gap-2">
-                          <FileText size={14} className="text-brand-400 shrink-0" />
+                          <FileText size={14} className="text-[var(--text-muted)] shrink-0" />
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-[var(--text-primary)] truncate">
                               {c.fileName ?? 'Hợp đồng'}
                             </p>
-                            <p className="text-xs text-brand-300 dark:text-brand-400">{c.date}</p>
+                            <p className="text-xs text-[var(--text-muted)]">{c.date}</p>
                           </div>
                         </div>
                         <DocThumbnail url={c.url} fileName={c.fileName ?? 'Hợp đồng'} />

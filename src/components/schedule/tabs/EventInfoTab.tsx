@@ -1,7 +1,3 @@
-// =============================================================================
-// src/components/schedule/tabs/EventInfoTab.tsx
-// =============================================================================
-
 import type { FestivalEvent } from '../../../types';
 import StatusBadge from '../../shared/StatusBadge';
 
@@ -16,13 +12,13 @@ export default function EventInfoTab({ event }: Props) {
   return (
     <div className="space-y-4">
       {/* Basic info */}
-      <div className="bg-[var(--card-bg)] rounded-xl p-4 shadow-card space-y-3">
+      <div className="glass-card rounded-xl p-4 space-y-3">
         <Row label="Tên sự kiện" value={event.name} />
         <Row label="Ngày bắt đầu" value={event.date} />
         {event.endDate && <Row label="Ngày kết thúc" value={event.endDate} />}
         <Row label="Địa điểm" value={event.location} />
         <div className="flex justify-between items-center">
-          <span className="text-sm text-brand-400 dark:text-brand-400">Trạng thái</span>
+          <span className="text-sm text-[var(--text-muted)]">Trạng thái</span>
           <StatusBadge status={event.status} />
         </div>
         {event.extra.booth && <Row label="Quầy hàng" value={event.extra.booth} />}
@@ -31,20 +27,20 @@ export default function EventInfoTab({ event }: Props) {
       </div>
 
       {/* Financials */}
-      <div className="bg-[var(--card-bg)] rounded-xl p-4 shadow-card">
+      <div className="glass-card rounded-xl p-4">
         <h2 className="font-semibold text-[var(--text-primary)] mb-3">Tài chính</h2>
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span className="text-brand-400 dark:text-brand-400">Doanh thu</span>
-            <span className="font-semibold text-herb-600">{event.financials.income.toLocaleString('fr-FR')}€</span>
+            <span className="text-[var(--text-muted)]">Doanh thu</span>
+            <span className="font-semibold text-[var(--success)]">{event.financials.income.toLocaleString('fr-FR')}€</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-brand-400 dark:text-brand-400">Chi phí</span>
-            <span className="font-semibold text-red-500">{totalExpense.toLocaleString('fr-FR')}€</span>
+            <span className="text-[var(--text-muted)]">Chi phí</span>
+            <span className="font-semibold text-[var(--danger)]">{totalExpense.toLocaleString('fr-FR')}€</span>
           </div>
-          <div className="border-t border-brand-200 dark:border-[var(--border-color)] pt-2 flex justify-between text-sm font-bold">
+          <div className="border-t border-[var(--glass-border)] pt-2 flex justify-between text-sm font-bold">
             <span className="text-[var(--text-primary)]">Lợi nhuận</span>
-            <span className={profit >= 0 ? 'text-herb-600' : 'text-red-600'}>
+            <span className={profit >= 0 ? 'text-[var(--success)]' : 'text-[var(--danger)]'}>
               {profit.toLocaleString('fr-FR')}€
             </span>
           </div>
@@ -52,10 +48,10 @@ export default function EventInfoTab({ event }: Props) {
 
         {/* Expense breakdown */}
         {Object.entries(event.financials.expenses ?? {}).length > 0 && (
-          <div className="mt-3 pt-3 border-t border-brand-200 dark:border-[var(--border-color)] space-y-1">
-            <p className="text-xs font-semibold text-brand-400 dark:text-brand-400 uppercase tracking-wide mb-2">Chi tiết chi phí</p>
+          <div className="mt-3 pt-3 border-t border-[var(--glass-border)] space-y-1">
+            <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-2">Chi tiết chi phí</p>
             {Object.entries(event.financials.expenses ?? {}).map(([key, val]) => (
-              <div key={key} className="flex justify-between text-xs text-brand-400 dark:text-brand-400">
+              <div key={key} className="flex justify-between text-xs text-[var(--text-muted)]">
                 <span>{key}</span>
                 <span>{(val ?? 0).toLocaleString('fr-FR')}€</span>
               </div>
@@ -70,7 +66,7 @@ export default function EventInfoTab({ event }: Props) {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between items-start gap-2">
-      <span className="text-sm text-brand-400 dark:text-brand-400 shrink-0">{label}</span>
+      <span className="text-sm text-[var(--text-muted)] shrink-0">{label}</span>
       <span className="text-sm text-[var(--text-primary)] text-right">{value}</span>
     </div>
   );
