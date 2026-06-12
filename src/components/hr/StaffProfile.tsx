@@ -271,22 +271,22 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                 <div>
                   <label className="text-xs text-[var(--text-muted)] font-medium mb-1 block">Loại nhân viên</label>
                   <div className="grid grid-cols-2 gap-2">
-                    <button type="button" onClick={() => setEditStaffType('permanent')}
-                      className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
+                    <Button variant="ghost" onPress={() => setEditStaffType('permanent')}
+                      className={`w-full h-auto min-w-0 py-2 rounded-lg text-sm font-medium border transition-colors ${
                         editStaffType === 'permanent'
                           ? 'bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]/30'
                           : 'bg-[var(--glass-bg)] text-[var(--text-secondary)] border-[var(--glass-border)] hover:border-[var(--primary)]/30'
                       }`}>
                       Nhân viên cứng
-                    </button>
-                    <button type="button" onClick={() => setEditStaffType('part-time')}
-                      className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
+                    </Button>
+                    <Button variant="ghost" onPress={() => setEditStaffType('part-time')}
+                      className={`w-full h-auto min-w-0 py-2 rounded-lg text-sm font-medium border transition-colors ${
                         editStaffType === 'part-time'
                           ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30'
                           : 'bg-[var(--glass-bg)] text-[var(--text-secondary)] border-[var(--glass-border)] hover:border-indigo-500/30'
                       }`}>
                       Part-time
-                    </button>
+                    </Button>
                   </div>
                 </div>
                 {member.userId && (
@@ -296,22 +296,22 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                         <ShieldCheck size={12} /> Quyền tài khoản
                       </label>
                       <div className="grid grid-cols-2 gap-2">
-                        <button type="button" onClick={() => setEditRole('staff')}
-                          className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
+                        <Button variant="ghost" onPress={() => setEditRole('staff')}
+                          className={`w-full h-auto min-w-0 py-2 rounded-lg text-sm font-medium border transition-colors ${
                             editRole === 'staff'
                               ? 'bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]/30'
                               : 'bg-[var(--glass-bg)] text-[var(--text-secondary)] border-[var(--glass-border)] hover:border-[var(--primary)]/30'
                           }`}>
                           Nhân viên
-                        </button>
-                        <button type="button" onClick={() => setEditRole('manager')}
-                          className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
+                        </Button>
+                        <Button variant="ghost" onPress={() => setEditRole('manager')}
+                          className={`w-full h-auto min-w-0 py-2 rounded-lg text-sm font-medium border transition-colors ${
                             editRole === 'manager'
                               ? 'bg-[var(--warning)]/10 text-[var(--warning)] border-[var(--warning)]/30'
                               : 'bg-[var(--glass-bg)] text-[var(--text-secondary)] border-[var(--glass-border)] hover:border-[var(--warning)]/30'
                           }`}>
                           Quản lý
-                        </button>
+                        </Button>
                       </div>
                     </div>
                     <div>
@@ -324,14 +324,14 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                           { id: 'festival'   as UserDepartment, label: 'Festival' },
                           { id: 'both'       as UserDepartment, label: 'Cả hai'  },
                         ]).map(({ id, label }) => (
-                          <button key={id} type="button" onClick={() => setEditDepartment(id)}
-                            className={`py-2 rounded-lg text-xs font-medium border transition-colors ${
+                          <Button key={id} variant="ghost" onPress={() => setEditDepartment(id)}
+                            className={`w-full h-auto min-w-0 py-2 rounded-lg text-xs font-medium border transition-colors ${
                               editDepartment === id
                                 ? 'bg-[var(--success)]/10 text-[var(--success)] border-[var(--success)]/30'
                                 : 'bg-[var(--glass-bg)] text-[var(--text-secondary)] border-[var(--glass-border)] hover:border-[var(--success)]/30'
                             }`}>
                             {label}
-                          </button>
+                          </Button>
                         ))}
                       </div>
                     </div>

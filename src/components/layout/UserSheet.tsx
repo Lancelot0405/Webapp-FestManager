@@ -104,9 +104,10 @@ export default function UserSheet({ onClose, onLogout, notifications, clearAll, 
             <div className="py-3 space-y-1">
 
               {/* Theme toggle */}
-              <button
-                onClick={toggleTheme}
-                className="w-full flex items-center gap-3.5 px-3 py-3 rounded-2xl hover:bg-[var(--primary)]/5 active:bg-[var(--primary)]/10 transition-colors"
+              <Button
+                variant="ghost"
+                onPress={() => toggleTheme()}
+                className="w-full h-auto justify-start flex items-center gap-3.5 px-3 py-3 rounded-2xl hover:bg-[var(--primary)]/5 active:bg-[var(--primary)]/10 transition-colors"
               >
                 <div className="w-9 h-9 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center shrink-0">
                   {theme === 'dark' ? <Sun size={17} className="text-[var(--primary)]" /> : <Moon size={17} className="text-[var(--primary)]" />}
@@ -117,14 +118,15 @@ export default function UserSheet({ onClose, onLogout, notifications, clearAll, 
                 <div className={`w-11 h-6 rounded-full flex items-center px-0.5 transition-colors ${theme === 'dark' ? 'bg-[var(--primary)]' : 'bg-[var(--text-muted)]/25'}`}>
                   <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${theme === 'dark' ? 'translate-x-5' : 'translate-x-0'}`} />
                 </div>
-              </button>
+              </Button>
 
               {/* Notifications — admin/manager */}
               {(isAdmin || isManager) && (
                 <div>
-                  <button
-                    onClick={() => setShowNotifs(v => !v)}
-                    className="w-full flex items-center gap-3.5 px-3 py-3 rounded-2xl hover:bg-[var(--primary)]/5 active:bg-[var(--primary)]/10 transition-colors"
+                  <Button
+                    variant="ghost"
+                    onPress={() => setShowNotifs(v => !v)}
+                    className="w-full h-auto justify-start flex items-center gap-3.5 px-3 py-3 rounded-2xl hover:bg-[var(--primary)]/5 active:bg-[var(--primary)]/10 transition-colors"
                   >
                     <div className="w-9 h-9 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center shrink-0 relative">
                       <Bell size={17} className="text-[var(--primary)]" />
@@ -136,7 +138,7 @@ export default function UserSheet({ onClose, onLogout, notifications, clearAll, 
                     </div>
                     <span className="flex-1 text-sm font-medium text-[var(--text-primary)] text-left">Thông báo</span>
                     <span className="text-xs text-[var(--text-muted)]">{showNotifs ? '▲' : '▼'}</span>
-                  </button>
+                  </Button>
                   {showNotifs && (
                     <div className="mx-3 mb-2 glass-card overflow-hidden">
                       {notifications.length === 0 ? (
@@ -145,16 +147,16 @@ export default function UserSheet({ onClose, onLogout, notifications, clearAll, 
                         <>
                           <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--glass-border)]">
                             <p className="text-xs font-semibold text-[var(--text-secondary)]">{notifications.length} thông báo</p>
-                            <button onClick={clearAll} className="text-xs text-[var(--danger)]">Xóa tất cả</button>
+                            <Button variant="ghost" onPress={clearAll} className="h-auto min-w-0 p-0 text-xs text-[var(--danger)]">Xóa tất cả</Button>
                           </div>
                           <div className="max-h-40 overflow-y-auto divide-y divide-[var(--glass-border)]">
                             {notifications.map(n => (
                               <div key={n.id} className="flex items-start gap-2 px-3 py-2.5">
                                 <div className={`mt-1 w-1.5 h-1.5 rounded-full shrink-0 ${n.type === 'expense' ? 'bg-indigo-400' : 'bg-[var(--primary)]'}`} />
                                 <p className="flex-1 text-xs text-[var(--text-primary)] leading-snug">{n.message}</p>
-                                <button onClick={() => clearOne(n.id)} className="text-[var(--text-muted)] hover:text-[var(--danger)]">
+                                <Button isIconOnly variant="ghost" onPress={() => clearOne(n.id)} aria-label="Xóa" className="h-auto min-w-0 p-0 text-[var(--text-muted)] hover:text-[var(--danger)]">
                                   <X size={12} />
-                                </button>
+                                </Button>
                               </div>
                             ))}
                           </div>
@@ -167,10 +169,11 @@ export default function UserSheet({ onClose, onLogout, notifications, clearAll, 
 
               {/* Push subscribe — staff */}
               {!isAdmin && !isManager && (
-                <button
-                  onClick={subscribed ? undefined : subscribe}
-                  disabled={pushLoading}
-                  className="w-full flex items-center gap-3.5 px-3 py-3 rounded-2xl hover:bg-[var(--primary)]/5 active:bg-[var(--primary)]/10 transition-colors"
+                <Button
+                  variant="ghost"
+                  onPress={subscribed ? undefined : subscribe}
+                  isDisabled={pushLoading}
+                  className="w-full h-auto justify-start flex items-center gap-3.5 px-3 py-3 rounded-2xl hover:bg-[var(--primary)]/5 active:bg-[var(--primary)]/10 transition-colors"
                 >
                   <div className="w-9 h-9 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center shrink-0">
                     {subscribed
@@ -182,14 +185,15 @@ export default function UserSheet({ onClose, onLogout, notifications, clearAll, 
                     {subscribed ? 'Thông báo đã bật' : 'Bật thông báo đẩy'}
                   </span>
                   {subscribed && <Check size={15} className="text-[var(--success)]" />}
-                </button>
+                </Button>
               )}
 
               {/* Install PWA */}
               <div>
-                <button
-                  onClick={handleInstall}
-                  className="w-full flex items-center gap-3.5 px-3 py-3 rounded-2xl hover:bg-[var(--primary)]/5 active:bg-[var(--primary)]/10 transition-colors"
+                <Button
+                  variant="ghost"
+                  onPress={handleInstall}
+                  className="w-full h-auto justify-start flex items-center gap-3.5 px-3 py-3 rounded-2xl hover:bg-[var(--primary)]/5 active:bg-[var(--primary)]/10 transition-colors"
                 >
                   <div className="w-9 h-9 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center shrink-0">
                     <Smartphone size={17} className="text-[var(--primary)]" />
@@ -198,12 +202,12 @@ export default function UserSheet({ onClose, onLogout, notifications, clearAll, 
                     {isStandalone ? 'Đã cài đặt ứng dụng' : 'Cài đặt ứng dụng'}
                   </span>
                   {isStandalone && <Check size={15} className="text-[var(--success)]" />}
-                </button>
+                </Button>
                 {installMsg && (
                   <div className="mx-3 mb-2 flex items-start gap-2 px-3 py-2.5 rounded-xl bg-[var(--primary)]/8">
                     <Info size={13} className="text-[var(--primary)] mt-0.5 shrink-0" />
                     <p className="text-xs text-[var(--text-secondary)] leading-snug">{installMsg}</p>
-                    <button onClick={() => setInstallMsg(null)} className="ml-auto text-[var(--text-muted)]"><X size={11} /></button>
+                    <Button isIconOnly variant="ghost" onPress={() => setInstallMsg(null)} aria-label="Đóng" className="ml-auto h-auto min-w-0 p-0 text-[var(--text-muted)]"><X size={11} /></Button>
                   </div>
                 )}
               </div>
@@ -211,15 +215,16 @@ export default function UserSheet({ onClose, onLogout, notifications, clearAll, 
 
             {/* Divider + Logout */}
             <div className="border-t border-[var(--glass-border)] pt-3 pb-2">
-              <button
-                onClick={() => { onClose(); onLogout(); }}
-                className="w-full flex items-center gap-3.5 px-3 py-3 rounded-2xl hover:bg-[var(--danger)]/8 active:bg-[var(--danger)]/12 transition-colors group"
+              <Button
+                variant="ghost"
+                onPress={() => { onClose(); onLogout(); }}
+                className="w-full h-auto justify-start flex items-center gap-3.5 px-3 py-3 rounded-2xl hover:bg-[var(--danger)]/8 active:bg-[var(--danger)]/12 transition-colors group"
               >
                 <div className="w-9 h-9 rounded-xl bg-[var(--danger)]/10 flex items-center justify-center shrink-0">
                   <LogOut size={17} className="text-[var(--danger)]" />
                 </div>
                 <span className="text-sm font-semibold text-[var(--danger)]">Đăng xuất</span>
-              </button>
+              </Button>
             </div>
           </div>
         </div>
