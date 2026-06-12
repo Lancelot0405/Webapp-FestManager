@@ -10,6 +10,7 @@ import InventoryLogList from './InventoryLogList';
 import NumberPicker from './NumberPicker';
 import FoodNameSelect from './FoodNameSelect';
 import { Select } from '@/components/ui/select';
+import { Fab } from '@/components/ui/fab';
 
 const FOOD_UNITS: InventoryUnit[]  = ['kg', 'g', 'lít', 'ml', 'cái', 'lon', 'hộp', 'túi', 'gói', 'lốc', 'xiên', 'thùng', 'phần', 'con', 'miếng', 'thanh', 'viên', 'lọ', 'bình'];
 const EQUIP_UNITS: InventoryUnit[] = ['cái', 'chiếc', 'đôi', 'bộ', 'chai', 'cuộn', 'hộp', 'thùng', 'tấm', 'ổ', 'gói'];
@@ -180,11 +181,18 @@ export default function Inventory() {
               onPress={() => { setShowAddForm(true); setExpandedId(null); }}
               variant="primary"
               size="sm"
-              className="flex items-center gap-1.5 rounded-xl"
+              className="hidden md:flex items-center gap-1.5 rounded-xl"
             >
               <Plus size={14} /> Thêm
             </Button>
         </div>
+      )}
+      {subTab !== 'history' && (
+        <Fab
+          onPress={() => { setShowAddForm(true); setExpandedId(null); }}
+          label="Thêm vào kho"
+          icon={<Plus size={24} />}
+        />
       )}
 
       {/* ── Main tabs ── */}

@@ -4,6 +4,7 @@ import { Button, ScrollShadow } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import AddStaffForm from './AddStaffForm';
 import { Input } from '@/components/ui/input';
+import { Fab } from '@/components/ui/fab';
 import { SkeletonList } from '@/components/ui/skeleton';
 import type { StaffMember } from '../../types';
 
@@ -102,16 +103,19 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
   return (
     <div className="space-y-4 pb-20">
       {isAdmin && (
-        <div className="flex justify-end">
-          <Button
-            size="sm"
-            onPress={() => setShowForm(true)}
-            variant="primary"
-            className="flex items-center gap-1.5 rounded-xl font-semibold"
-          >
-            <Plus size={16} /> Thêm nhân viên
-          </Button>
-        </div>
+        <>
+          <div className="hidden md:flex justify-end">
+            <Button
+              size="sm"
+              onPress={() => setShowForm(true)}
+              variant="primary"
+              className="flex items-center gap-1.5 rounded-xl font-semibold"
+            >
+              <Plus size={16} /> Thêm nhân viên
+            </Button>
+          </div>
+          <Fab onPress={() => setShowForm(true)} label="Thêm nhân viên" icon={<Plus size={24} />} />
+        </>
       )}
 
       {/* Pending registrations — admin only */}

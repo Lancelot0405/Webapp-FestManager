@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, Trash2, Search } from 'lucide-react';
 import { Button, ScrollShadow } from '@heroui/react';
 import { Input } from '@/components/ui/input';
+import { Fab } from '@/components/ui/fab';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
 import AddEventForm from './AddEventForm';
@@ -66,17 +67,20 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
   return (
     <div className="space-y-4 pb-20">
       {isAdmin && (
-        <div className="flex justify-end">
-          <Button
-            onPress={() => setShowAddForm(true)}
-            variant="primary"
-            size="sm"
-            className="flex items-center gap-1 rounded-xl font-semibold"
-          >
-            <Plus size={16} />
-            Thêm sự kiện
-          </Button>
-        </div>
+        <>
+          <div className="hidden md:flex justify-end">
+            <Button
+              onPress={() => setShowAddForm(true)}
+              variant="primary"
+              size="sm"
+              className="flex items-center gap-1 rounded-xl font-semibold"
+            >
+              <Plus size={16} />
+              Thêm sự kiện
+            </Button>
+          </div>
+          <Fab onPress={() => setShowAddForm(true)} label="Thêm sự kiện" icon={<Plus size={24} />} />
+        </>
       )}
 
       {/* Search input */}

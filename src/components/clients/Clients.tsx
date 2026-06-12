@@ -3,6 +3,7 @@ import { Plus, X, Pencil, Trash2, Phone, Mail, MapPin, Building2, Check, Search 
 import { Button } from '@heroui/react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Fab } from '@/components/ui/fab';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import type { Client } from '../../types';
@@ -71,11 +72,12 @@ export default function Clients() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-end">
+      <div className="hidden md:flex items-center justify-end">
         <Button onPress={openAdd} variant="primary" size="sm" className="flex items-center gap-1.5 rounded-xl">
           <Plus size={15} /> Thêm
         </Button>
       </div>
+      <Fab onPress={openAdd} label="Thêm khách hàng" icon={<Plus size={24} />} />
 
       <Input
         value={search}
