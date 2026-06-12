@@ -1,6 +1,6 @@
 import { useState, lazy, Suspense } from 'react';
 import { ArrowLeft, Trash2, Download, Copy } from 'lucide-react';
-import { Tooltip, Tabs, TabList, Tab, ScrollShadow } from '@heroui/react';
+import { Tooltip, ScrollShadow } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 // Lazy-load: @react-pdf/renderer rất nặng, chỉ tải khi mở chi tiết sự kiện.
@@ -155,25 +155,23 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
       </div>
 
       {/* Tabs */}
-      <Tabs
-        selectedKey={activeTab}
-        onSelectionChange={(key) => setActiveTab(key as Tab)}
-        className="mb-4 w-full"
-      >
-        <ScrollShadow orientation="horizontal" className="md:[&>*]:overflow-visible">
-          <TabList className="flex border-b border-[var(--glass-border)]">
-            {TABS.map(tab => (
-              <Tab
-                key={tab.id}
-                id={tab.id}
-                className="-mb-px cursor-pointer whitespace-nowrap border-b-2 border-transparent px-4 py-2 text-sm font-semibold outline-none transition-colors text-[var(--text-muted)] data-[hovered]:text-[var(--text-primary)] data-[selected]:border-[var(--primary)] data-[selected]:text-[var(--primary)]"
-              >
-                {tab.label}
-              </Tab>
-            ))}
-          </TabList>
-        </ScrollShadow>
-      </Tabs>
+      <ScrollShadow orientation="horizontal" className="mb-4">
+        <div className="flex border-b border-[var(--glass-border)]">
+          {TABS.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`-mb-px whitespace-nowrap border-b-2 px-4 py-2 text-sm font-semibold transition-colors ${
+                activeTab === tab.id
+                  ? 'border-[var(--primary)] text-[var(--primary)]'
+                  : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </ScrollShadow>
 
       {/* Tab content */}
       {activeTab === 'info'      && <EventInfoTab event={event} />}
