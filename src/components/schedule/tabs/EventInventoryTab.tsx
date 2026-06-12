@@ -2,15 +2,13 @@ import { useState } from 'react';
 import { Check, X, ChevronDown, Plus, Trash2 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import type { FestivalEvent, InventoryUnit } from '../../../types';
 
 const UNITS: InventoryUnit[] = ['kg', 'g', 'lít', 'ml', 'cái', 'lon', 'hộp', 'túi', 'xiên', 'thùng', 'phần'];
+const UNIT_OPTIONS = UNITS.map(u => ({ value: u, label: u }));
 
 interface Props { event: FestivalEvent; }
-
-const inputCls =
-  'border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] ' +
-  'text-[var(--text-primary)] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--primary)]/50 transition-all';
 
 export default function EventInventoryTab({ event }: Props) {
   const { state, setInventoryItem, updateInventoryUnit, addInventoryLog,
@@ -119,16 +117,12 @@ export default function EventInventoryTab({ event }: Props) {
               value={newThreshold}
               onChange={setNewThreshold}
             />
-            <div>
-              <label className="text-xs text-[var(--text-secondary)] font-semibold">Đơn vị</label>
-              <select
-                className={`mt-1 w-full ${inputCls}`}
-                value={newUnit}
-                onChange={e => setNewUnit(e.target.value as InventoryUnit)}
-              >
-                {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
-              </select>
-            </div>
+            <Select
+              label="Đơn vị"
+              value={newUnit}
+              onChange={(v) => setNewUnit(v as InventoryUnit)}
+              options={UNIT_OPTIONS}
+            />
           </div>
           <button
             type="submit"
@@ -178,13 +172,13 @@ export default function EventInventoryTab({ event }: Props) {
                             value={editQty}
                             onChange={setEditQty}
                           />
-                          <select
-                            className="border border-[var(--glass-border)] bg-[var(--glass-bg)] text-[var(--text-primary)] rounded-lg px-1 py-1 text-sm focus:outline-none"
+                          <Select
+                            size="sm"
+                            className="w-20"
                             value={editUnit}
-                            onChange={e => setEditUnit(e.target.value as InventoryUnit)}
-                          >
-                            {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
-                          </select>
+                            onChange={(v) => setEditUnit(v as InventoryUnit)}
+                            options={UNIT_OPTIONS}
+                          />
                           <button
                             onClick={() => handleSave(item.id, item.name)}
                             className="p-1 text-[var(--success)] hover:bg-[var(--success)]/10 rounded transition-colors"

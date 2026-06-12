@@ -5,6 +5,7 @@ import { useApp } from '../../../context/AppContext';
 import { useToast } from '../../../context/ToastContext';
 import { ExpenseStatusBadge } from '../../shared/StatusBadge';
 import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { supabase } from '../../../lib/supabase';
 import { getErrorMessage } from '../../../lib/errors';
 import type { FestivalEvent, ExpenseCategory, Expense } from '../../../types';
@@ -14,11 +15,8 @@ interface Props {
 }
 
 const CATEGORIES: ExpenseCategory[] = ['Vé tàu/xe', 'Uber/Taxi', 'Ăn uống', 'Khác'];
+const CATEGORY_OPTIONS = CATEGORIES.map(c => ({ value: c, label: c }));
 const MAX_FILE_MB = 5;
-
-const inputCls =
-  'w-full border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] ' +
-  'text-[var(--text-primary)] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--primary)]/50 transition-all';
 
 export default function EventExpensesTab({ event }: Props) {
   const { state, addExpense, updateExpenseStatus } = useApp();
@@ -182,16 +180,12 @@ export default function EventExpensesTab({ event }: Props) {
                         </div>
 
                         <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <label className="text-xs text-[var(--text-secondary)] font-semibold">Loại</label>
-                            <select
-                              className={`mt-1 ${inputCls}`}
-                              value={formCategory}
-                              onChange={e => setFormCategory(e.target.value as ExpenseCategory)}
-                            >
-                              {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                            </select>
-                          </div>
+                          <Select
+                            label="Loại"
+                            value={formCategory}
+                            onChange={(v) => setFormCategory(v as ExpenseCategory)}
+                            options={CATEGORY_OPTIONS}
+                          />
                           <Input
                             type="number" min={0} step={0.01} isRequired
                             label="Số tiền (€)"

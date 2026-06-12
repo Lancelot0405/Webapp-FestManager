@@ -9,6 +9,7 @@ import type { InventoryUnit, InventoryCategory, InventoryItem } from '../../type
 import InventoryLogList from './InventoryLogList';
 import NumberPicker from './NumberPicker';
 import FoodNameSelect from './FoodNameSelect';
+import { Select } from '@/components/ui/select';
 
 const FOOD_UNITS: InventoryUnit[]  = ['kg', 'g', 'lít', 'ml', 'cái', 'lon', 'hộp', 'túi', 'gói', 'lốc', 'xiên', 'thùng', 'phần', 'con', 'miếng', 'thanh', 'viên', 'lọ', 'bình'];
 const EQUIP_UNITS: InventoryUnit[] = ['cái', 'chiếc', 'đôi', 'bộ', 'chai', 'cuộn', 'hộp', 'thùng', 'tấm', 'ổ', 'gói'];
@@ -164,11 +165,6 @@ export default function Inventory() {
     warn ? 'bg-indigo-500/5 border border-indigo-500/30 backdrop-blur-[var(--glass-blur)]' :
            'glass-card';
 
-  const selectCls =
-    'mt-1 w-full border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] ' +
-    'text-[var(--text-primary)] rounded-xl px-3 py-2.5 focus:outline-none ' +
-    'focus:border-[var(--primary)]/50 transition-all';
-
   return (
     <div className="space-y-4 pb-20">
 
@@ -294,12 +290,12 @@ export default function Inventory() {
             <NumberPicker label="Số lượng" value={newCurrent} onChange={setNewCurrent} required min={0} step={0.1} />
             <NumberPicker label="Cảnh báo" value={newThreshold} onChange={setNewThreshold} min={0} step={0.1} placeholder="0" />
 
-            <div>
-              <label className="text-xs font-semibold text-[var(--text-secondary)]">Đơn vị</label>
-              <select className={selectCls} value={newUnit} onChange={e => setNewUnit(e.target.value as InventoryUnit)}>
-                {unitOptions.map(u => <option key={u} value={u}>{u}</option>)}
-              </select>
-            </div>
+            <Select
+              label="Đơn vị"
+              value={newUnit}
+              onChange={(v) => setNewUnit(v as InventoryUnit)}
+              options={unitOptions.map(u => ({ value: u, label: u }))}
+            />
 
             <Button type="submit" variant="primary" fullWidth className="rounded-xl">
               Thêm vào kho
@@ -366,12 +362,12 @@ export default function Inventory() {
                   <NumberPicker label="Số lượng" value={editQty} onChange={setEditQty} required min={0} step={0.1} />
                   <NumberPicker label="Cảnh báo" value={editThreshold} onChange={setEditThreshold} min={0} step={0.1} placeholder="0" />
 
-                  <div>
-                    <label className="text-xs font-semibold text-[var(--text-secondary)]">Đơn vị</label>
-                    <select className={selectCls} value={editUnit} onChange={e => setEditUnit(e.target.value as InventoryUnit)}>
-                      {currentUnitOpts.map(u => <option key={u} value={u}>{u}</option>)}
-                    </select>
-                  </div>
+                  <Select
+                    label="Đơn vị"
+                    value={editUnit}
+                    onChange={(v) => setEditUnit(v as InventoryUnit)}
+                    options={currentUnitOpts.map(u => ({ value: u, label: u }))}
+                  />
 
                   <div className="flex gap-2">
                     <Button

@@ -4,6 +4,7 @@ import { Button } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { ExpenseStatusBadge } from '../shared/StatusBadge';
 import DocThumbnail from '../shared/DocThumbnail';
 import { supabase } from '../../lib/supabase';
@@ -555,29 +556,21 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                 <X size={15} />
               </Button>
             </div>
-            <div>
-              <label className="text-xs text-[var(--text-secondary)] font-medium block mb-1">Sự kiện</label>
-              <select
-                required
-                className="w-full border border-[var(--glass-border)] rounded-lg px-3 py-2 text-sm bg-[var(--glass-bg)] text-[var(--text-primary)] backdrop-blur-[var(--glass-blur)] focus:outline-none focus:border-[var(--primary)]/50 transition-all"
-                value={formEventId}
-                onChange={e => setFormEventId(Number(e.target.value))}
-              >
-                <option value="">Chọn sự kiện</option>
-                {myEvents.map(ev => <option key={ev.id} value={ev.id}>{ev.name}</option>)}
-              </select>
-            </div>
+            <Select
+              label="Sự kiện"
+              required
+              placeholder="Chọn sự kiện"
+              value={formEventId ? String(formEventId) : ''}
+              onChange={(v) => setFormEventId(Number(v))}
+              options={myEvents.map(ev => ({ value: String(ev.id), label: ev.name }))}
+            />
             <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="text-xs text-[var(--text-secondary)] font-medium block mb-1">Loại chi phí</label>
-                <select
-                  className="w-full border border-[var(--glass-border)] rounded-lg px-3 py-2 text-sm bg-[var(--glass-bg)] text-[var(--text-primary)] backdrop-blur-[var(--glass-blur)] focus:outline-none focus:border-[var(--primary)]/50 transition-all"
-                  value={formCategory}
-                  onChange={e => setFormCategory(e.target.value as ExpenseCategory)}
-                >
-                  {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
+              <Select
+                label="Loại chi phí"
+                value={formCategory}
+                onChange={(v) => setFormCategory(v as ExpenseCategory)}
+                options={CATEGORIES.map(c => ({ value: c, label: c }))}
+              />
               <Input
                 label="Số tiền (€)"
                 type="number"

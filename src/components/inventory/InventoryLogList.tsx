@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import type { InventoryLogEntry } from '../../types';
 
 interface Props { logs: InventoryLogEntry[] }
@@ -55,14 +56,16 @@ export default function InventoryLogList({ logs }: Props) {
           startContent={<Search size={13} />}
           className="flex-1 min-w-[140px]"
         />
-        <select
-          value={festivalFilter}
-          onChange={e => setFestivalFilter(e.target.value)}
-          className="border border-[var(--glass-border)] rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[var(--primary)]/50 bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] text-[var(--text-primary)] transition-all"
-        >
-          <option value="">Tất cả sự kiện</option>
-          {festivalNames.map(name => <option key={name} value={name}>{name}</option>)}
-        </select>
+        <Select
+          size="sm"
+          className="min-w-[150px]"
+          value={festivalFilter || '__all__'}
+          onChange={(v) => setFestivalFilter(v === '__all__' ? '' : v)}
+          options={[
+            { value: '__all__', label: 'Tất cả sự kiện' },
+            ...festivalNames.map(name => ({ value: name, label: name })),
+          ]}
+        />
       </div>
 
       {/* Log list */}
