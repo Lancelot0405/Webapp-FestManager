@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, X, Pencil, Trash2, Phone, Mail, MapPin, Building2, Check, Search } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import type { Client } from '../../types';
@@ -98,15 +99,14 @@ export default function Clients() {
               <Input label="Email" value={fEmail} onChange={setFEmail} type="email" placeholder="email@..." />
             </div>
             <Input label="Thành phố" value={fCity} onChange={setFCity} placeholder="Paris" />
-            <div>
-              <label className="text-xs font-medium text-[var(--text-secondary)] mb-1 block">Ghi chú</label>
-              <textarea
-                className="w-full resize-none h-16 rounded-lg border bg-[var(--glass-bg)] px-3 py-2 text-sm text-[var(--text-primary)] transition-colors border-[var(--glass-border)] backdrop-blur-[var(--glass-blur)] placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]/30"
-                placeholder="Thông tin thêm..."
-                value={fNotes}
-                onChange={e => setFNotes(e.target.value)}
-              />
-            </div>
+            <Textarea
+              label="Ghi chú"
+              value={fNotes}
+              onChange={setFNotes}
+              placeholder="Thông tin thêm..."
+              minRows={2}
+              maxRows={4}
+            />
             <Button type="submit" variant="primary" fullWidth className="rounded-lg">
               {editingId ? 'Lưu thay đổi' : 'Thêm khách hàng'}
             </Button>
