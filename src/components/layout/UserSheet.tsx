@@ -61,24 +61,23 @@ export default function UserSheet({ onClose, onLogout, notifications, clearAll, 
         onClick={onClose}
       />
 
-      {/* Sheet */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 animate-slide-up">
+      {/* Sheet (mobile) / Popover cạnh Sidebar (md+) */}
+      <div className="fixed inset-x-0 bottom-0 z-50 animate-slide-up md:inset-x-auto md:bottom-3 md:left-3 md:w-72">
         <div
-          className="mx-auto max-w-md rounded-t-[2rem] overflow-hidden"
+          className="mx-auto max-w-md rounded-t-[2rem] overflow-hidden md:mx-0 md:max-w-none md:rounded-2xl md:shadow-[var(--shadow-warm)]"
           style={{
             background: 'var(--glass-bg)',
             backdropFilter: 'blur(32px)',
             WebkitBackdropFilter: 'blur(32px)',
             border: '1px solid var(--glass-border)',
-            borderBottom: 'none',
           }}
         >
-          {/* Drag handle */}
-          <div className="flex justify-center pt-3 pb-1">
+          {/* Drag handle — chỉ mobile */}
+          <div className="flex justify-center pt-3 pb-1 md:hidden">
             <div className="w-10 h-1 rounded-full bg-[var(--text-muted)]/30" />
           </div>
 
-          <div className="px-5 pb-[calc(env(safe-area-inset-bottom,16px)+80px)]">
+          <div className="px-5 pb-[calc(env(safe-area-inset-bottom,16px)+80px)] md:pb-4 md:pt-4">
             {/* User info */}
             <div className="flex items-center gap-4 py-5 border-b border-[var(--glass-border)]">
               <div className="w-14 h-14 rounded-full bg-[var(--primary)] flex items-center justify-center shadow-[var(--shadow-float)] shrink-0">
