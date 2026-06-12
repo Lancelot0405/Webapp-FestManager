@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Download, Smartphone, X, ShieldCheck, Store, Tent, UtensilsCrossed, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabList, Tab, TabIndicator } from '@heroui/react';
+import { Tabs, TabList, Tab } from '@heroui/react';
 import { useTheme } from '../../context/ThemeContext';
 import { supabase } from '../../lib/supabase';
 import { adminApi } from '../../lib/adminApi';
@@ -143,13 +143,12 @@ export default function LoginScreen() {
           onSelectionChange={(key) => reset(key as Mode)}
           className="mb-6 w-full"
         >
-          <TabList className="relative flex w-full rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-1">
-            <TabIndicator className="absolute inset-y-1 rounded-lg bg-[var(--card)] shadow-[var(--shadow-card)]" />
+          <TabList className="flex w-full rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-1">
             {(['login', 'register'] as Mode[]).map(m => (
               <Tab
                 key={m}
                 id={m}
-                className="relative z-10 flex-1 cursor-pointer rounded-lg py-2 text-center text-sm font-semibold outline-none transition-colors text-[var(--text-muted)] data-[hovered]:text-[var(--text-secondary)] data-[selected]:text-[var(--text-primary)]"
+                className="flex-1 cursor-pointer rounded-lg py-2 text-center text-sm font-semibold outline-none transition-all text-[var(--text-muted)] data-[hovered]:text-[var(--text-secondary)] data-[selected]:bg-[var(--card)] data-[selected]:text-[var(--text-primary)] data-[selected]:shadow-[var(--shadow-card)]"
               >
                 {m === 'login' ? 'Đăng nhập' : 'Đăng ký'}
               </Tab>
