@@ -7,6 +7,9 @@
 /* ── HeroUI v3 Styles ─────────────────────────────────────────────────── */
 @import "@heroui/styles";
 
+/* ── Dark mode qua class `.dark` (không dùng media query mặc định) ─────── */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ── Design Tokens (Tailwind v4 @theme) ──────────────────────────────── */
 @theme {
   /* Font */
