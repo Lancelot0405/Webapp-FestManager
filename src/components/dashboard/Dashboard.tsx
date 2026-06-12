@@ -1,9 +1,9 @@
 import React from 'react';
 import { Calendar, Users, Package, Clock, TrendingUp, ChevronRight } from 'lucide-react';
-import { Button } from '@heroui/react';
+import { Button, Avatar } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
-import type { ActiveTab, FestivalEvent, StaffMember } from '../../types';
+import type { ActiveTab, FestivalEvent, StaffMember, StaffRef } from '../../types';
 
 interface DashboardProps {
   onSelectEvent: (id: number) => void;
@@ -147,7 +147,7 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-[var(--text-primary)] truncate">{event.name}</p>
                     <p className="text-xs text-[var(--text-secondary)] mt-0.5">{event.date} · {event.location}</p>
-                    <p className="text-xs text-[var(--text-muted)] mt-0.5">{event.staff.length} nhân viên</p>
+                    <StaffAvatars members={event.staff} />
                   </div>
                   <StatusBadge status={event.status} />
                 </div>
@@ -227,6 +227,42 @@ function StatCard({ icon, label, value, alert, accentColor, onClick }: {
         <p className="text-xs text-[var(--text-muted)] leading-tight mt-1">{label}</p>
       </div>
     </button>
+  );
+}
+
+function initials(name: string) {
+  const parts = name.trim().split(/\s+/);
+  const last = parts[parts.length - 1] ?? '';
+  return (last[0] ?? name[0] ?? '?').toUpperCase();
+}
+
+function StaffAvatars({ members }: { members: StaffRef[] }) {
+  if (members.length === 0) {
+    return <p className="text-xs text-[var(--text-muted)] mt-1">Chưa có nhân viên</p>;
+  }
+  const shown = members.slice(0, 4);
+  const extra = members.length - shown.length;
+  return (
+    <div className="flex items-center mt-1.5">
+      <div className="flex -space-x-2">
+        {shown.map(m => (
+          <Avatar
+            key={m.id}
+            className="w-6 h-6 ring-2 ring-[var(--card)]"
+          >
+            <Avatar.Fallback className="bg-[var(--primary)]/15 text-[var(--primary)] text-[10px] font-semibold">
+              {initials(m.name)}
+            </Avatar.Fallback>
+          </Avatar>
+        ))}
+        {extra > 0 && (
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--glass-bg)] text-[10px] font-semibold text-[var(--text-muted)] ring-2 ring-[var(--card)]">
+            +{extra}
+          </span>
+        )}
+      </div>
+      <span className="ml-2 text-xs text-[var(--text-muted)]">{members.length} nhân viên</span>
+    </div>
   );
 }
 

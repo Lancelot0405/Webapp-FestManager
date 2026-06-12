@@ -37,10 +37,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 function ToastContainer({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id: string) => void }) {
   if (toasts.length === 0) return null;
   const colors: Record<ToastType, string> = {
-    success: 'bg-green-600',
-    error: 'bg-red-600',
-    info: 'bg-blue-600',
-    warning: 'bg-yellow-500',
+    success: 'bg-[var(--success-light)]/90 text-[var(--success)] border border-[var(--success)]/20',
+    error: 'bg-[var(--danger-light)]/90 text-[var(--danger)] border border-[var(--danger)]/20',
+    warning: 'bg-[var(--warning)]/10 text-[var(--warning)] border border-[var(--warning)]/20',
+    info: 'bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/20',
   };
   return (
     <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-[calc(100%-2rem)] max-w-sm">
@@ -48,10 +48,10 @@ function ToastContainer({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id
         <div
           key={t.id}
           onClick={() => onDismiss(t.id)}
-          className={`${colors[t.type]} text-white text-sm font-medium px-4 py-3 rounded-xl shadow-lg flex items-center justify-between gap-3 cursor-pointer animate-fade-in`}
+          className={`${colors[t.type]} text-sm font-medium px-4 py-3 rounded-2xl shadow-[var(--shadow-warm)] backdrop-blur-[var(--glass-blur)] flex items-center justify-between gap-3 cursor-pointer animate-fade-in`}
         >
           <span>{t.message}</span>
-          <span className="text-white/70 text-xs shrink-0">✕</span>
+          <span className="opacity-70 text-xs shrink-0">✕</span>
         </div>
       ))}
     </div>

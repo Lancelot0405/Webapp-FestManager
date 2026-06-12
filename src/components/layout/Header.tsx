@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { LogOut, Bell, X, BellPlus, Download, Smartphone, UtensilsCrossed, Sun, Moon } from 'lucide-react';
-import { Button, Tooltip } from '@heroui/react';
+import { Button, Tooltip, Switch } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
@@ -87,23 +87,23 @@ export default function Header({ onLogoClick, onLogout, navVisible = true }: Hea
           </div>
 
           {/* Dark mode toggle */}
-          <Tooltip>
-            <Tooltip.Trigger>
-              <Button
-                onPress={toggleTheme}
-                variant="ghost"
-                isIconOnly
-                size="sm"
-                className="rounded-full text-[var(--text-secondary)] hover:bg-[var(--glass-bg)] hover:text-[var(--text-primary)]"
-                aria-label={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
-              >
-                {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-              </Button>
-            </Tooltip.Trigger>
-            <Tooltip.Content placement="bottom">
-              {theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
-            </Tooltip.Content>
-          </Tooltip>
+          <div className="flex items-center gap-1.5 mr-1">
+            {theme === 'dark'
+              ? <Moon size={14} className="text-[var(--text-muted)]" />
+              : <Sun size={14} className="text-[var(--warning)]" />
+            }
+            <Switch
+              isSelected={theme === 'dark'}
+              onChange={() => toggleTheme()}
+              size="sm"
+              aria-label={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
+              className="cursor-pointer"
+            >
+              <Switch.Control>
+                <Switch.Thumb />
+              </Switch.Control>
+            </Switch>
+          </div>
 
           {/* Install */}
           <div className="relative" ref={installRef}>
