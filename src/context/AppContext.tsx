@@ -15,6 +15,8 @@ import {
   type ReactNode,
 } from 'react';
 
+import { useQueryClient } from '@tanstack/react-query';
+
 import { useToast } from './ToastContext';
 
 import type {
@@ -47,7 +49,7 @@ import { appReducer, initialState, type AppState } from './appReducer';
 // 4. TẠO CONTEXT
 // =============================================================================
 
-interface AppContextValue {
+export interface AppContextValue {
   state: AppState;
 
   // --- Auth ---
@@ -94,7 +96,8 @@ interface AppContextValue {
   rejectRegistration:  (userId: string) => void;
 }
 
-const AppContext = createContext<AppContextValue | null>(null);
+// eslint-disable-next-line react-refresh/only-export-components
+export const AppContext = createContext<AppContextValue | null>(null);
 
 // =============================================================================
 // 5. PROVIDER
@@ -104,6 +107,7 @@ const AppContext = createContext<AppContextValue | null>(null);
 type WriteResult = PromiseLike<{ error: { message: string } | null }>;
 
 export function AppProvider({ children }: { children: ReactNode }) {
+  const queryClient = useQueryClient();
   const [state, dispatch] = useReducer(appReducer, initialState);
   const showToast = useToast();
 
@@ -207,33 +211,41 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const channel = supabase
       .channel('festmanager-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'staff_members' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['staff'] });
         fetchStaff().then(staff => dispatch({ type: 'INIT_DATA', payload: { staff } }));
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['events'] });
         fetchEvents().then(events => dispatch({ type: 'INIT_DATA', payload: { events } }));
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'event_staff' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['events'] });
         fetchEvents().then(events => dispatch({ type: 'INIT_DATA', payload: { events } }));
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['events'] });
         fetchEvents().then(events => dispatch({ type: 'INIT_DATA', payload: { events } }));
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'contracts' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['staff'] });
         fetchStaff().then(staff => dispatch({ type: 'INIT_DATA', payload: { staff } }));
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_items' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['inventory'] });
         fetchInventory().then(inventory => dispatch({ type: 'INIT_DATA', payload: { inventory } }));
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_logs' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['inventory', 'logs'] });
         fetchInventoryLogs().then(inventoryLogs => dispatch({ type: 'INIT_DATA', payload: { inventoryLogs } }));
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'clients' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['clients'] });
         fetchClients().then(clients => dispatch({ type: 'INIT_DATA', payload: { clients } }));
       })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, []);
+  }, [queryClient]);
 
   // --- Auth ---
   const login  = useCallback((user: CurrentUser) =>

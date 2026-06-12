@@ -1,21 +1,26 @@
 import { UtensilsCrossed } from 'lucide-react';
 import { Button } from '@heroui/react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 
 interface TopBarProps {
-  onLogoClick:      () => void;
   onOpenSheet:      () => void;
   navVisible?:      boolean;
   notifCount?:      number;
 }
 
-export default function TopBar({ onLogoClick, onOpenSheet, navVisible = true, notifCount = 0 }: TopBarProps) {
+export default function TopBar({ onOpenSheet, navVisible = true, notifCount = 0 }: TopBarProps) {
   const { state }       = useApp();
   const { currentUser } = state;
+  const navigate = useNavigate();
 
   if (!currentUser) return null;
 
   const initials = currentUser.name.trim().split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+
+  const handleLogoClick = () => {
+    navigate('/dashboard');
+  };
 
   return (
     <header
@@ -26,7 +31,7 @@ export default function TopBar({ onLogoClick, onOpenSheet, navVisible = true, no
         {/* Logo */}
         <Button
           variant="ghost"
-          onPress={onLogoClick}
+          onPress={handleLogoClick}
           className="h-auto min-w-0 p-0 bg-transparent flex items-center gap-2 focus:outline-none"
         >
           <div className="w-8 h-8 rounded-xl bg-[var(--primary)] flex items-center justify-center shadow-[var(--shadow-float)]">

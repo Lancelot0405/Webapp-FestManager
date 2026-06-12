@@ -1,11 +1,18 @@
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { X, ShieldCheck, Building2 } from 'lucide-react';
 import { Button } from '@heroui/react';
+import { useCreateStaffMutation } from '../../hooks/queries/useMutations';
 import { useApp } from '../../context/AppContext';
 import { adminApi } from '../../lib/adminApi';
 import { useToast } from '../../context/ToastContext';
 import { Input } from '@/components/ui/input';
+import { staffFormSchema } from '../../lib/validations';
 import type { StaffMember, StaffType, UserRole, UserDepartment } from '../../types';
+import { z } from 'zod';
+
+type StaffFormInputs = z.infer<typeof staffFormSchema>;
 
 const DOMAIN = '@fm.com';
 
@@ -14,58 +21,73 @@ interface Props {
 }
 
 export default function AddStaffForm({ onClose }: Props) {
-  const { addStaff, state: { currentUser } } = useApp();
+  const { state: { currentUser } } = useApp();
+  const createStaffMutation = useCreateStaffMutation();
   const showToast = useToast();
-  const [name,       setName]       = useState('');
-  const [dob,        setDob]        = useState('');
-  const [city,       setCity]       = useState('');
-  const [staffType,  setStaffType]  = useState<StaffType>('permanent');
-  const [username,   setUsername]   = useState('');
-  const [role,       setRole]       = useState<UserRole>('staff');
-  const [department, setDepartment] = useState<UserDepartment>('restaurant');
-  const [loading,    setLoading]    = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<StaffFormInputs>({
+    resolver: zodResolver(staffFormSchema),
+    defaultValues: {
+      name: '',
+      username: '',
+      dob: '',
+      city: '',
+      role: 'staff',
+      department: 'restaurant',
+      staffType: 'permanent',
+    },
+  });
+
+  const role = watch('role');
+  const department = watch('department');
+  const staffType = watch('staffType');
 
   const isAdmin   = currentUser?.role === 'admin';
   const isManager = currentUser?.role === 'manager';
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim() || !city.trim()) return;
+  const onSubmit = async (data: StaffFormInputs) => {
     setLoading(true);
 
-    const dobFormatted = dob
-      ? (() => { const [yyyy, mm, dd] = dob.split('-'); return `${dd}-${mm}-${yyyy}`; })()
+    const dobFormatted = data.dob
+      ? (() => { const [yyyy, mm, dd] = data.dob.split('-'); return `${dd}-${mm}-${yyyy}`; })()
       : '';
 
     let userId: string | undefined;
 
-    if (username.trim()) {
-      const email = username.trim().toLowerCase() + DOMAIN;
-      const { data, error } = await adminApi.createStaff({
+    if (data.username && data.username.trim()) {
+      const email = data.username.trim().toLowerCase() + DOMAIN;
+      const { data: resData, error } = await adminApi.createStaff({
         email,
         password: 'fest1234',
-        name: name.trim(),
-        role: isAdmin ? role : 'staff',
-        department,
+        name: data.name.trim(),
+        role: isAdmin ? data.role : 'staff',
+        department: data.department,
       });
       if (error) {
         showToast(`Lỗi tạo tài khoản: ${error}`, 'error');
         setLoading(false);
         return;
       }
-      userId = data?.userId;
+      userId = resData?.userId;
     }
 
     const newStaff: StaffMember = {
       id: Date.now(),
       userId,
-      name: name.trim(),
+      name: data.name.trim(),
       dob: dobFormatted,
-      city: city.trim(),
-      staffType,
+      city: data.city.trim(),
+      staffType: data.staffType,
       contracts: [],
     };
-    addStaff(newStaff, userId);
+    createStaffMutation.mutate({ staff: newStaff, userId });
     showToast('Đã thêm nhân viên', 'success');
     setLoading(false);
     onClose();
@@ -86,27 +108,46 @@ export default function AddStaffForm({ onClose }: Props) {
           <X size={16} />
         </Button>
       </div>
-      <form onSubmit={handleSubmit} className="space-y-2.5">
-        <Input
-          label="Tên *"
-          isRequired
-          value={name}
-          onChange={setName}
-          placeholder="Nguyễn Văn A"
-        />
-
-        <div>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <Input
-            label="Tên đăng nhập (để tạo tài khoản)"
-            placeholder="nguyenvana"
-            value={username}
-            onChange={(v) => setUsername(v.replace(/\s/g, '').toLowerCase())}
-            autoComplete="off"
-            endContent={<span className="font-mono text-xs">@fm.com</span>}
+            label="Tên *"
+            error={errors.name?.message}
+            {...register('name')}
+            onChange={(v) => setValue('name', v, { shouldValidate: true })}
+            placeholder="Nguyễn Văn A"
           />
-          <p className="text-xs text-[var(--text-muted)] mt-1">
-            Mật khẩu mặc định: <span className="font-semibold text-[var(--text-primary)]">fest1234</span>
-          </p>
+
+          <div>
+            <Input
+              label="Tên đăng nhập (để tạo tài khoản)"
+              placeholder="nguyenvana"
+              error={errors.username?.message}
+              {...register('username')}
+              onChange={(v) => setValue('username', v.replace(/\s/g, '').toLowerCase(), { shouldValidate: true })}
+              autoComplete="off"
+              endContent={<span className="font-mono text-xs">@fm.com</span>}
+            />
+            <p className="text-xs text-[var(--text-muted)] mt-1">
+              Mật khẩu mặc định: <span className="font-semibold text-[var(--text-primary)]">fest1234</span>
+            </p>
+          </div>
+
+          <Input
+            type="date"
+            label="Ngày sinh"
+            error={errors.dob?.message}
+            {...register('dob')}
+            onChange={(v) => setValue('dob', v, { shouldValidate: true })}
+          />
+
+          <Input
+            label="Thành phố *"
+            error={errors.city?.message}
+            {...register('city')}
+            onChange={(v) => setValue('city', v, { shouldValidate: true })}
+            placeholder="Paris"
+          />
         </div>
 
         {(isAdmin || isManager) && (
@@ -122,7 +163,7 @@ export default function AddStaffForm({ onClose }: Props) {
                     <Button
                       key={r}
                       variant="ghost"
-                      onPress={() => setRole(r)}
+                      onPress={() => setValue('role', r)}
                       className={`w-full h-auto min-w-0 py-2 rounded-xl text-xs font-semibold border transition-colors ${
                         role === r
                           ? r === 'admin'
@@ -155,7 +196,7 @@ export default function AddStaffForm({ onClose }: Props) {
                     <Button
                       key={id}
                       variant="ghost"
-                      onPress={() => setDepartment(id)}
+                      onPress={() => setValue('department', id)}
                       className={`w-full h-auto min-w-0 py-2 rounded-xl text-xs font-semibold border transition-colors ${
                         department === id
                           ? 'bg-[var(--success)]/10 text-[var(--success)] border-[var(--success)]/30'
@@ -171,21 +212,6 @@ export default function AddStaffForm({ onClose }: Props) {
           </div>
         )}
 
-        <Input
-          type="date"
-          label="Ngày sinh"
-          value={dob}
-          onChange={setDob}
-        />
-
-        <Input
-          label="Thành phố *"
-          isRequired
-          value={city}
-          onChange={setCity}
-          placeholder="Paris"
-        />
-
         <div>
           <label className="text-xs font-medium text-[var(--text-secondary)] mb-1 block">Loại nhân viên</label>
           <div className="grid grid-cols-2 gap-2">
@@ -196,7 +222,7 @@ export default function AddStaffForm({ onClose }: Props) {
               <Button
                 key={id}
                 variant="ghost"
-                onPress={() => setStaffType(id)}
+                onPress={() => setValue('staffType', id)}
                 className={`w-full h-auto min-w-0 py-2.5 rounded-xl text-xs font-semibold border transition-colors ${
                   staffType === id
                     ? id === 'part-time'

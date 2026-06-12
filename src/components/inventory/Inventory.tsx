@@ -1,27 +1,17 @@
 import { useState, useRef } from 'react';
-import { Plus, X, Trash2, FileSpreadsheet, Upload, Check, ChevronDown, ChevronUp, History, Store, Tent } from 'lucide-react';
+import { Plus, FileSpreadsheet, Upload, History, Store, Tent } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import { getErrorMessage } from '../../lib/errors';
-import { SkeletonList } from '@/components/ui/skeleton';
-import type { InventoryUnit, InventoryCategory, InventoryItem } from '../../types';
+import ListSkeleton from '../shared/skeletons/ListSkeleton';
+import type { InventoryItem, InventoryCategory } from '../../types';
 import InventoryLogList from './InventoryLogList';
-import NumberPicker from './NumberPicker';
-import FoodNameSelect from './FoodNameSelect';
-import { Select } from '@/components/ui/select';
-import { Fab } from '@/components/ui/fab';
-
-const FOOD_UNITS: InventoryUnit[]  = ['kg', 'g', 'lít', 'ml', 'cái', 'lon', 'hộp', 'túi', 'gói', 'lốc', 'xiên', 'thùng', 'phần', 'con', 'miếng', 'thanh', 'viên', 'lọ', 'bình'];
-const EQUIP_UNITS: InventoryUnit[] = ['cái', 'chiếc', 'đôi', 'bộ', 'chai', 'cuộn', 'hộp', 'thùng', 'tấm', 'ổ', 'gói'];
+import InventoryItemRow from './InventoryItemRow';
+import InventoryAddForm from './InventoryAddForm';
 
 type MainTab = 'restaurant' | 'festival';
 type SubTab  = 'food' | 'equipment' | 'history';
-
-function getCategory(main: MainTab, sub: SubTab): InventoryCategory {
-  if (main === 'restaurant') return sub === 'food' ? 'restaurant-food' : 'restaurant-equipment';
-  return sub === 'food' ? 'festival-food' : 'festival-equipment';
-}
 
 function matchCategory(item: InventoryItem, main: MainTab, sub: SubTab): boolean {
   const c = item.category;
@@ -34,10 +24,24 @@ function matchCategory(item: InventoryItem, main: MainTab, sub: SubTab): boolean
   return c === 'festival-equipment';
 }
 
+function getCategory(main: MainTab, sub: SubTab): InventoryCategory {
+  if (main === 'restaurant') return sub === 'food' ? 'restaurant-food' : 'restaurant-equipment';
+  return sub === 'food' ? 'festival-food' : 'festival-equipment';
+}
+
+import { useInventoryQuery } from '../../hooks/queries/useInventoryQuery';
+import { useInventoryLogsQuery } from '../../hooks/queries/useInventoryLogsQuery';
+import {
+  useCreateInventoryItemMutation,
+} from '../../hooks/queries/useMutations';
+
 export default function Inventory() {
-  const { state, createInventoryItem, deleteInventoryItem, updateInventoryItem, addInventoryLog } = useApp();
+  const { state } = useApp();
+  const { data: inventory = [], isLoading } = useInventoryQuery();
+  const { data: inventoryLogs = [] } = useInventoryLogsQuery();
+  const createInventoryItemMutation = useCreateInventoryItemMutation();
   const showToast = useToast();
-  const { inventory, inventoryLogs, currentUser } = state;
+  const { currentUser } = state;
 
   const dept             = currentUser?.role === 'admin' ? 'both' : (currentUser?.department ?? 'both');
   const canSeeRestaurant = dept === 'restaurant' || dept === 'both';
@@ -46,21 +50,10 @@ export default function Inventory() {
 
   const [mainTab,       setMainTab]       = useState<MainTab>(defaultTab);
   const [subTab,        setSubTab]        = useState<SubTab>('food');
-  const [expandedId,    setExpandedId]    = useState<number | null>(null);
-  const [editName,      setEditName]      = useState('');
-  const [editQty,       setEditQty]       = useState('');
-  const [editThreshold, setEditThreshold] = useState('');
-  const [editUnit,      setEditUnit]      = useState<InventoryUnit>('kg');
   const [showAddForm,   setShowAddForm]   = useState(false);
-  const [newName,       setNewName]       = useState('');
-  const [newCurrent,    setNewCurrent]    = useState('');
-  const [newThreshold,  setNewThreshold]  = useState('');
-  const [newUnit,       setNewUnit]       = useState<InventoryUnit>('kg');
   const [importing,     setImporting]     = useState(false);
   const importRef = useRef<HTMLInputElement>(null);
 
-  const unitOptions  = subTab === 'equipment' ? EQUIP_UNITS : FOOD_UNITS;
-  const defaultUnit: InventoryUnit = subTab === 'equipment' ? 'cái' : 'kg';
   const filteredItems = subTab !== 'history' ? inventory.filter(item => matchCategory(item, mainTab, subTab as 'food' | 'equipment')) : [];
   const countFor = (m: MainTab, s: 'food' | 'equipment') => inventory.filter(item => matchCategory(item, m, s)).length;
 
@@ -72,52 +65,6 @@ export default function Inventory() {
     return log.festivalName === 'Festival' ||
       inventory.find(i => i.id === log.itemId && (i.category === 'festival-food' || i.category === 'festival-equipment'));
   });
-
-  const openEdit = (item: InventoryItem) => {
-    setExpandedId(item.id); setEditName(item.name);
-    setEditQty(String(item.current)); setEditThreshold(String(item.threshold)); setEditUnit(item.unit);
-  };
-
-  const handleSaveEdit = (item: InventoryItem) => {
-    const qty = parseFloat(editQty);
-    const thr = parseFloat(editThreshold) || 0;
-    if (isNaN(qty) || qty < 0 || !editName.trim()) return;
-    updateInventoryItem(item.id, editName.trim(), qty, thr, editUnit);
-    if (currentUser && (qty !== item.current || editUnit !== item.unit)) {
-      addInventoryLog({
-        id: Date.now(), itemId: item.id, itemName: editName.trim(), qty, unit: editUnit,
-        action: 'set', festivalId: null, festivalName: 'Kiểm kho tổng',
-        timestamp: new Date().toLocaleString('vi-VN', { hour12: false }),
-        submittedBy: currentUser.name,
-      });
-    }
-    setExpandedId(null);
-  };
-
-  const handleAddItem = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newName.trim() || !newCurrent) return;
-    const category = getCategory(mainTab, subTab);
-    createInventoryItem({ name: newName.trim(), current: parseFloat(newCurrent), threshold: parseFloat(newThreshold) || 0, unit: newUnit, category });
-    if (currentUser) {
-      addInventoryLog({
-        id: Date.now(), itemId: Date.now() + 1, itemName: newName.trim(),
-        qty: parseFloat(newCurrent), unit: newUnit, action: 'created',
-        festivalId: null, festivalName: mainTab === 'restaurant' ? 'Nhà hàng' : 'Festival',
-        timestamp: new Date().toLocaleString('vi-VN', { hour12: false }),
-        submittedBy: currentUser.name,
-      });
-    }
-    setNewName(''); setNewCurrent(''); setNewThreshold(''); setNewUnit(defaultUnit);
-    setShowAddForm(false);
-  };
-
-  const handleDelete = (item: InventoryItem) => {
-    if (window.confirm(`Xóa "${item.name}"?\nThao tác này không thể hoàn tác.`)) {
-      deleteInventoryItem(item.id);
-      if (expandedId === item.id) setExpandedId(null);
-    }
-  };
 
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -135,7 +82,7 @@ export default function Inventory() {
         rows.forEach((row, i) => {
           const nameRaw = String(row[0] ?? '').trim();
           if (!nameRaw || (i === 0 && isNaN(Number(row[1])))) return;
-          createInventoryItem({ name: nameRaw, current: parseFloat(String(row[1] ?? '0')) || 0, threshold: 0, unit: 'cái', category });
+          createInventoryItemMutation.mutate({ name: nameRaw, current: parseFloat(String(row[1] ?? '0')) || 0, threshold: 0, unit: 'cái', category });
           imported++;
         });
         showToast(`Đã import ${imported} mặt hàng thành công.`, 'success');
@@ -151,20 +98,14 @@ export default function Inventory() {
   };
 
   const handleMainTabChange = (tab: MainTab) => {
-    setMainTab(tab); setSubTab('food'); setShowAddForm(false); setExpandedId(null); setNewUnit('kg');
+    setMainTab(tab); setSubTab('food'); setShowAddForm(false);
   };
   const handleSubTabChange = (tab: SubTab) => {
-    setSubTab(tab); setShowAddForm(false); setExpandedId(null);
-    if (tab !== 'history') setNewUnit(tab === 'equipment' ? 'cái' : 'kg');
+    setSubTab(tab); setShowAddForm(false);
   };
 
   const sectionLabel = mainTab === 'restaurant' ? 'Nhà hàng' : 'Festival';
   const itemLabel    = subTab === 'equipment' ? 'trang thiết bị' : 'thực phẩm';
-
-  const itemCls = (low: boolean, warn: boolean) =>
-    low  ? 'bg-[var(--danger)]/5 border border-[var(--danger)]/30 backdrop-blur-[var(--glass-blur)]' :
-    warn ? 'bg-indigo-500/5 border border-indigo-500/30 backdrop-blur-[var(--glass-blur)]' :
-           'glass-card';
 
   return (
     <div className="space-y-4 pb-20">
@@ -178,7 +119,7 @@ export default function Inventory() {
               <input ref={importRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleImport} />
             </label>
             <Button
-              onPress={() => { setShowAddForm(true); setExpandedId(null); }}
+              onPress={() => { setShowAddForm(true); }}
               variant="primary"
               size="sm"
               className="hidden md:flex items-center gap-1.5 rounded-xl"
@@ -188,11 +129,14 @@ export default function Inventory() {
         </div>
       )}
       {subTab !== 'history' && (
-        <Fab
-          onPress={() => { setShowAddForm(true); setExpandedId(null); }}
-          label="Thêm vào kho"
-          icon={<Plus size={24} />}
-        />
+        <Button
+          onPress={() => { setShowAddForm(true); }}
+          isIconOnly
+          aria-label="Thêm vào kho"
+          className="md:hidden fixed bottom-24 right-4 z-30 h-14 w-14 rounded-full bg-[var(--primary)] text-[var(--background)] shadow-[var(--shadow-hero)] active:scale-95 transition-transform"
+        >
+          <Plus size={24} />
+        </Button>
       )}
 
       {/* ── Main tabs ── */}
@@ -267,138 +211,27 @@ export default function Inventory() {
 
       {/* ── Add form ── */}
       {showAddForm && (
-        <div className="glass-card rounded-2xl">
-          <form onSubmit={handleAddItem} className="p-4 space-y-3">
-            <div className="flex justify-between items-center">
-              <p className="font-bold text-[var(--text-primary)] text-sm">
-                Thêm {itemLabel} — {sectionLabel}
-              </p>
-              <Button
-                type="button"
-                onPress={() => setShowAddForm(false)}
-                variant="ghost"
-                isIconOnly
-                size="sm"
-                aria-label="Đóng"
-                className="text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-              >
-                <X size={15} />
-              </Button>
-            </div>
-
-            <FoodNameSelect value={newName} onChange={setNewName} itemType={subTab === 'equipment' ? 'equipment' : 'food'} required />
-            <NumberPicker label="Số lượng" value={newCurrent} onChange={setNewCurrent} required min={0} step={0.1} />
-            <NumberPicker label="Cảnh báo" value={newThreshold} onChange={setNewThreshold} min={0} step={0.1} placeholder="0" />
-
-            <Select
-              label="Đơn vị"
-              value={newUnit}
-              onChange={(v) => setNewUnit(v as InventoryUnit)}
-              options={unitOptions.map(u => ({ value: u, label: u }))}
-            />
-
-            <Button type="submit" variant="primary" fullWidth className="rounded-xl">
-              Thêm vào kho
-            </Button>
-          </form>
-        </div>
+        <InventoryAddForm
+          mainTab={mainTab}
+          subTab={subTab}
+          currentUser={currentUser}
+          onClose={() => setShowAddForm(false)}
+        />
       )}
 
       {/* ── Item list ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-        {state.loading ? (
-          <SkeletonList count={3} variant="row" />
+        {isLoading ? (
+          <ListSkeleton />
         ) : filteredItems.length === 0 && subTab !== 'history' ? (
           <p className="text-sm text-[var(--text-muted)] text-center py-10">
             Chưa có {itemLabel} nào trong kho {sectionLabel}
           </p>
         ) : null}
 
-        {filteredItems.map((item: InventoryItem) => {
-          const isLow      = item.current < item.threshold;
-          const isWarn     = !isLow && item.threshold > 0 && item.current < item.threshold * 1.5;
-          const isExpanded = expandedId === item.id;
-          const isEquip    = item.category === 'equipment' || item.category === 'restaurant-equipment' || item.category === 'festival-equipment';
-          const currentUnitOpts = isEquip ? EQUIP_UNITS : FOOD_UNITS;
-
-          return (
-            <div key={item.id} className={`rounded-2xl overflow-hidden transition-all ${itemCls(isLow, isWarn)}`}>
-              {/* Row */}
-              <Button
-                onPress={() => isExpanded ? setExpandedId(null) : openEdit(item)}
-                variant="ghost"
-                aria-label={isExpanded ? `Đóng chỉnh sửa ${item.name}` : `Chỉnh sửa ${item.name}`}
-                aria-expanded={isExpanded}
-                className="w-full flex items-center justify-between px-4 py-3 text-left h-auto rounded-none hover:bg-[var(--glass-bg)]"
-              >
-                <div className="flex-1 min-w-0">
-                  <p className={`font-semibold text-sm ${isLow ? 'text-[var(--danger)]' : 'text-[var(--text-primary)]'}`}>
-                    {item.name}
-                  </p>
-                  {isLow  && <p className="text-xs text-[var(--danger)] font-medium">⚠ Sắp hết hàng!</p>}
-                  {isWarn && <p className="text-xs text-indigo-400 font-medium">Sắp tới mức cảnh báo</p>}
-                </div>
-                <div className="flex items-center gap-2 shrink-0 ml-3">
-                  <span className={`text-sm font-black ${isLow ? 'text-[var(--danger)]' : isWarn ? 'text-indigo-400' : 'text-[var(--primary)]'}`}>
-                    {item.current}
-                  </span>
-                  <span className="text-xs text-[var(--text-muted)]">{item.unit}</span>
-                  {isExpanded
-                    ? <ChevronUp size={14} className="text-[var(--text-muted)]" />
-                    : <ChevronDown size={14} className="text-[var(--text-muted)]" />
-                  }
-                </div>
-              </Button>
-
-              {/* Edit panel */}
-              {isExpanded && (
-                <div className="px-4 pb-4 pt-2 border-t border-[var(--glass-border)] space-y-3">
-                  <FoodNameSelect
-                    value={editName}
-                    onChange={setEditName}
-                    itemType={isEquip ? 'equipment' : 'food'}
-                    required
-                  />
-                  <NumberPicker label="Số lượng" value={editQty} onChange={setEditQty} required min={0} step={0.1} />
-                  <NumberPicker label="Cảnh báo" value={editThreshold} onChange={setEditThreshold} min={0} step={0.1} placeholder="0" />
-
-                  <Select
-                    label="Đơn vị"
-                    value={editUnit}
-                    onChange={(v) => setEditUnit(v as InventoryUnit)}
-                    options={currentUnitOpts.map(u => ({ value: u, label: u }))}
-                  />
-
-                  <div className="flex gap-2">
-                    <Button
-                      onPress={() => handleSaveEdit(item)}
-                      variant="primary"
-                      className="flex-1 flex items-center justify-center gap-1.5 rounded-xl"
-                    >
-                      <Check size={14} /> Lưu
-                    </Button>
-                    <Button
-                      onPress={() => setExpandedId(null)}
-                      variant="ghost"
-                      className="flex-1 rounded-xl border border-[var(--glass-border)]"
-                    >
-                      Hủy
-                    </Button>
-                    <Button
-                      onPress={() => handleDelete(item)}
-                      variant="ghost"
-                      isIconOnly
-                      className="px-3 rounded-xl text-[var(--danger)] bg-[var(--danger)]/10 hover:bg-[var(--danger)]/20"
-                      aria-label={`Xóa ${item.name}`}
-                    >
-                      <Trash2 size={15} />
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
+        {filteredItems.map((item: InventoryItem) => (
+          <InventoryItemRow key={item.id} item={item} currentUser={currentUser} />
+        ))}
       </div>
 
       {/* ── History tab ── */}
@@ -406,3 +239,4 @@ export default function Inventory() {
     </div>
   );
 }
+

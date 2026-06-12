@@ -1,4 +1,6 @@
 import { useState, useRef } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, ChevronDown, ChevronUp, Upload, X, Loader, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@heroui/react';
 import DocThumbnail from '../../shared/DocThumbnail';
@@ -9,7 +11,11 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { supabase } from '../../../lib/supabase';
 import { getErrorMessage } from '../../../lib/errors';
+import { expenseFormSchema } from '../../../lib/validations';
 import type { FestivalEvent, ExpenseCategory, Expense } from '../../../types';
+import { z } from 'zod';
+
+type ExpenseFormInputs = z.infer<typeof expenseFormSchema>;
 
 interface Props {
   event: FestivalEvent;
@@ -30,9 +36,23 @@ export default function EventExpensesTab({ event }: Props) {
   const [expandedStaff, setExpandedStaff] = useState<string | null>(null);
   const [showFormForStaff, setShowFormForStaff] = useState<string | null>(null);
 
-  const [formCategory, setFormCategory] = useState<ExpenseCategory>('Vé tàu/xe');
-  const [formAmount, setFormAmount]     = useState('');
-  const [formDate, setFormDate]         = useState('');
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm<ExpenseFormInputs>({
+    resolver: zodResolver(expenseFormSchema),
+    defaultValues: {
+      type: 'Vé tàu/xe',
+      amount: '',
+      date: '',
+    },
+  });
+
+  const formCategory = watch('type');
   const [expenseFile, setExpenseFile]   = useState<File | null>(null);
   const [uploading, setUploading]       = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -44,22 +64,24 @@ export default function EventExpensesTab({ event }: Props) {
   const myNumericStaffId = myStaffMember ? String(myStaffMember.id) : null;
 
   const resetForm = () => {
-    setFormCategory('Vé tàu/xe');
-    setFormAmount('');
-    setFormDate('');
+    reset({
+      type: 'Vé tàu/xe',
+      amount: '',
+      date: '',
+    });
     setExpenseFile(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!currentUser || !formAmount || !formDate) return;
+  const onSubmit = async (data: ExpenseFormInputs) => {
+    if (!currentUser) return;
     setUploading(true);
     try {
       let imageUrl = '';
       if (expenseFile) {
         if (expenseFile.size > MAX_FILE_MB * 1024 * 1024) {
           showToast(`File quá lớn. Vui lòng chọn file dưới ${MAX_FILE_MB}MB.`, 'warning');
+          setUploading(false);
           return;
         }
         const ext  = expenseFile.name.split('.').pop();
@@ -68,14 +90,14 @@ export default function EventExpensesTab({ event }: Props) {
         if (error) throw error;
         imageUrl = supabase.storage.from('expenses').getPublicUrl(path).data.publicUrl;
       }
-      const [yyyy, mm, dd] = formDate.split('-');
+      const [yyyy, mm, dd] = data.date.split('-');
       const newExpense: Expense = {
         id: Date.now(),
         staffId: myNumericStaffId ?? currentUser.id,
         staffName: currentUser.name,
         festivalId: event.id,
-        type: formCategory,
-        amount: parseFloat(formAmount),
+        type: data.type,
+        amount: parseFloat(data.amount),
         date: `${dd}-${mm}-${yyyy}`,
         imageUrl,
         status: 'pending',
@@ -174,7 +196,7 @@ export default function EventExpensesTab({ event }: Props) {
 
                     {/* Form nộp chi phí inline */}
                     {isMe && showForm && (
-                      <form onSubmit={handleSubmit} className="px-4 py-3 bg-[var(--glass-bg)] border-b border-[var(--glass-border)] space-y-3">
+                      <form onSubmit={handleSubmit(onSubmit)} className="px-4 py-3 bg-[var(--glass-bg)] border-b border-[var(--glass-border)] space-y-3">
                         <div className="flex justify-between items-center">
                           <p className="text-sm font-bold text-[var(--text-secondary)]">Chi phí mới</p>
                           <Button isIconOnly variant="ghost" onPress={() => { setShowFormForStaff(null); resetForm(); }} aria-label="Đóng" className="h-auto min-w-0 p-0">
@@ -186,22 +208,24 @@ export default function EventExpensesTab({ event }: Props) {
                           <Select
                             label="Loại"
                             value={formCategory}
-                            onChange={(v) => setFormCategory(v as ExpenseCategory)}
+                            onChange={(v) => setValue('type', v as ExpenseCategory, { shouldValidate: true })}
                             options={CATEGORY_OPTIONS}
                           />
                           <Input
-                            type="number" min={0} step={0.01} isRequired
+                            type="number" min={0} step={0.01}
                             label="Số tiền (€)"
-                            value={formAmount}
-                            onChange={setFormAmount}
+                            error={errors.amount?.message}
+                            {...register('amount')}
+                            onChange={(v) => setValue('amount', v, { shouldValidate: true })}
                           />
                         </div>
 
                         <Input
-                          type="date" isRequired
+                          type="date"
                           label="Ngày"
-                          value={formDate}
-                          onChange={setFormDate}
+                          error={errors.date?.message}
+                          {...register('date')}
+                          onChange={(v) => setValue('date', v, { shouldValidate: true })}
                         />
 
                         {/* Upload ảnh hóa đơn */}

@@ -11,10 +11,6 @@ import EventExpensesTab   from './tabs/EventExpensesTab';
 import EventInventoryTab  from './tabs/EventInventoryTab';
 import EventContractsTab  from './tabs/EventContractsTab';
 
-interface EventDetailProps {
-  eventId: number;
-  onBack: () => void;
-}
 
 type Tab = 'info' | 'staff' | 'expenses' | 'inventory' | 'contracts';
 
@@ -26,10 +22,20 @@ const TABS: { id: Tab; label: string }[] = [
   { id: 'contracts', label: 'Hợp đồng'  },
 ];
 
-export default function EventDetail({ eventId, onBack }: EventDetailProps) {
-  const { state, deleteEvent, cloneEvent } = useApp();
+import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
+import { useDeleteEventMutation, useCloneEventMutation } from '../../hooks/queries/useMutations';
+import { useParams, useNavigate } from 'react-router-dom';
+
+export default function EventDetail() {
+  const { eventId } = useParams<{ eventId: string }>();
+  const navigate = useNavigate();
+  const { state } = useApp();
+  const { data: events = [] } = useEventsQuery();
+  const deleteEventMutation = useDeleteEventMutation();
+  const cloneEventMutation = useCloneEventMutation();
+  const eventIdNum = Number(eventId);
+  const event = events.find(e => e.id === eventIdNum);
   const showToast = useToast();
-  const event = state.events.find(e => e.id === eventId);
   const [activeTab, setActiveTab] = useState<Tab>('info');
   const isAdmin   = state.currentUser?.role === 'admin';
   const isManager = state.currentUser?.role === 'manager';
@@ -37,16 +43,16 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
 
   const handleClone = () => {
     if (!event) return;
-    cloneEvent(event);
+    cloneEventMutation.mutate(event);
     showToast(`Đã nhân bản "${event.name}"`, 'success');
-    onBack();
+    navigate('/schedule');
   };
 
   const handleDelete = () => {
     if (!event) return;
     if (window.confirm(`Xóa sự kiện "${event.name}"?\nThao tác này không thể hoàn tác.`)) {
-      deleteEvent(event.id);
-      onBack();
+      deleteEventMutation.mutate(event.id);
+      navigate('/schedule');
     }
   };
 
@@ -87,7 +93,7 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
     return (
       <div className="text-center py-20 text-[var(--text-muted)]">
         <p>Không tìm thấy sự kiện</p>
-        <Button variant="ghost" onPress={onBack} className="mt-4 h-auto min-w-0 p-0 text-[var(--primary)] text-sm">Quay lại</Button>
+        <Button variant="ghost" onPress={() => navigate('/schedule')} className="mt-4 h-auto min-w-0 p-0 text-[var(--primary)] text-sm">Quay lại</Button>
       </div>
     );
   }
@@ -99,7 +105,7 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
         <Button
           isIconOnly
           variant="ghost"
-          onPress={onBack}
+          onPress={() => navigate(-1)}
           aria-label="Quay lại"
           className="h-auto min-w-0 p-1.5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
         >

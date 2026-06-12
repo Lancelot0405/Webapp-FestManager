@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, FileText, Plus, Upload, Image, X, Loader, Pencil, Check, CreditCard, ShieldCheck, KeyRound, Copy, CheckCheck, Building2 } from 'lucide-react';
 import { Button } from '@heroui/react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import { Input } from '@/components/ui/input';
@@ -13,17 +14,35 @@ import { getErrorMessage } from '../../lib/errors';
 import type { ExpenseCategory, Expense, StaffDocument, UserRole, UserDepartment } from '../../types';
 
 interface StaffProfileProps {
-  staffId: string;
+  staffId?: string;
   onBack?: () => void;
 }
 
 const CATEGORIES: ExpenseCategory[] = ['Vé tàu/xe', 'Uber/Taxi', 'Ăn uống', 'Khác'];
 const MAX_FILE_MB = 5;
 
-export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
-  const { state, addExpense, addContract, updateStaff } = useApp();
+import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
+import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
+import {
+  useAddExpenseMutation,
+  useAddContractMutation,
+  useUpdateStaffMutation,
+} from '../../hooks/queries/useMutations';
+
+export default function StaffProfile({ staffId: propStaffId, onBack }: StaffProfileProps) {
+  const { staffId: paramStaffId } = useParams<{ staffId: string }>();
+  const staffId = propStaffId || paramStaffId;
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const { state } = useApp();
+  const { data: staff = [] } = useStaffQuery();
+  const { data: events = [] } = useEventsQuery();
+  const addExpenseMutation = useAddExpenseMutation();
+  const addContractMutation = useAddContractMutation();
+  const updateStaffMutation = useUpdateStaffMutation();
   const showToast = useToast();
-  const { staff, events, currentUser } = state;
+  const { currentUser } = state;
 
   const member = staff.find(s => String(s.id) === staffId);
   const isOwnProfile = currentUser && member?.userId === currentUser.id;
@@ -80,11 +99,20 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
   const [expenseFile,  setExpenseFile]  = useState<File | null>(null);
   const [uploadingExp, setUploadingExp] = useState(false);
 
+  const showBackButton = !!onBack || location.pathname.startsWith('/hr/');
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      navigate('/hr');
+    }
+  };
+
   if (!member) return (
     <div className="text-center py-20 text-[var(--text-muted)]">
       <p>Không tìm thấy nhân viên</p>
-      {onBack && (
-        <Button variant="ghost" size="sm" className="mt-4 text-sm" onPress={onBack}>
+      {showBackButton && (
+        <Button variant="ghost" size="sm" className="mt-4 text-sm" onPress={handleBack}>
           Quay lại
         </Button>
       )}
@@ -130,7 +158,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
   };
 
   const saveEdit = async () => {
-    updateStaff({
+    updateStaffMutation.mutate({
       ...member,
       name: editName.trim(),
       dob: editDob.trim(),
@@ -183,7 +211,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
     setUploadingContract(true);
     try {
       const url = await uploadFile(file, 'contracts', `staff-${member.id}`);
-      addContract(member.id, { id: Date.now(), date: nowStr(), url, fileName: file.name });
+      addContractMutation.mutate({ staffId: member.id, contract: { date: nowStr(), url, fileName: file.name } });
     } catch (err) { showToast(getErrorMessage(err, 'Upload thất bại.'), 'error'); }
     finally { setUploadingContract(false); if (contractFileRef.current) contractFileRef.current.value = ''; }
   };
@@ -199,7 +227,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
     try {
       const url = await uploadFile(file, 'documents', `staff-${member.id}/${docType}`);
       const doc: StaffDocument = { url, fileName: file.name, uploadedAt: nowStr() };
-      updateStaff({ ...member, [docType]: doc });
+      updateStaffMutation.mutate({ ...member, [docType]: doc });
     } catch (err) { showToast(getErrorMessage(err, 'Upload thất bại.'), 'error'); }
     finally { setUploading(false); if (ref.current) ref.current.value = ''; }
   };
@@ -212,10 +240,13 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
       let imageUrl = '';
       if (expenseFile) imageUrl = await uploadFile(expenseFile, 'expenses', `staff-${member.id}`);
       const [yyyy, mm, dd] = formDate.split('-');
-      addExpense(formEventId as number, {
-        id: Date.now(), staffId: String(member.id), staffName: member.name,
-        festivalId: formEventId as number, type: formCategory,
-        amount: parseFloat(formAmount), date: `${dd}-${mm}-${yyyy}`, imageUrl, status: 'pending',
+      addExpenseMutation.mutate({
+        eventId: formEventId as number,
+        expense: {
+          staffId: String(member.id), staffName: member.name,
+          festivalId: formEventId as number, type: formCategory,
+          amount: parseFloat(formAmount), date: `${dd}-${mm}-${yyyy}`, imageUrl, status: 'pending',
+        }
       });
       setShowExpenseForm(false);
       setFormAmount(''); setFormDate(''); setFormEventId(''); setExpenseFile(null);
@@ -225,9 +256,9 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
 
   return (
     <div className="space-y-5 pb-20">
-      {onBack && (
+      {showBackButton && (
         <div className="flex items-center gap-2">
-          <Button isIconOnly variant="ghost" size="sm" className="text-[var(--text-muted)] hover:text-[var(--text-primary)]" onPress={onBack}>
+          <Button isIconOnly variant="ghost" size="sm" className="text-[var(--text-muted)] hover:text-[var(--text-primary)]" onPress={handleBack}>
             <ArrowLeft size={22} />
           </Button>
           <h1 className="text-lg font-bold text-[var(--text-primary)]">Hồ sơ nhân viên</h1>

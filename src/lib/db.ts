@@ -9,11 +9,7 @@ import { supabase } from './supabase';
 import { toISODate, fromISODate } from './dateHelpers';
 export { toISODate, fromISODate };
 
-// Hàng dữ liệu thô từ Supabase: `select('*')` + join động nên shape không cố
-// định ở compile-time. Khoanh vùng `any` tại đúng một nơi (ranh giới DB) thay
-// vì rải khắp file — runtime không đổi, chỉ gom type lại cho rõ chủ đích.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type DbRow = Record<string, any>;
+import type { Database } from '../types/database.types';
 
 import type {
   StaffMember,
@@ -36,6 +32,11 @@ import type {
 // STAFF
 // -----------------------------------------------------------------------------
 
+type StaffWithRelationsRow = Database['public']['Tables']['staff_members']['Row'] & {
+  contracts: Database['public']['Tables']['contracts']['Row'][] | null;
+  users: { role: string | null } | null;
+};
+
 export async function fetchStaff(): Promise<StaffMember[]> {
   const { data, error } = await supabase
     .from('staff_members')
@@ -46,38 +47,50 @@ export async function fetchStaff(): Promise<StaffMember[]> {
     return [];
   }
 
-  return data
-    .filter((row: DbRow) => row.users?.role !== 'admin')
-    .map((row: DbRow): StaffMember => ({
-    id: row.id,
-    userId: row.user_id ?? undefined,
-    name: row.name ?? '',
-    dob: row.dob ?? '',
-    city: row.city ?? '',
-    phone: row.phone ?? undefined,
-    staffType: row.staff_type === 'part-time' ? 'part-time' : 'permanent',
-    contracts: (row.contracts ?? []).map((c: DbRow) => ({
-      id: c.id,
-      date: fromISODate(c.date ?? ''),
-      url: c.url ?? '',
-      fileName: c.file_name ?? undefined,
-      festivalId: c.festival_id ?? undefined,
-    })),
-    carteVitale: row.carte_vitale_url
-      ? { url: row.carte_vitale_url, fileName: row.carte_vitale_name ?? '', uploadedAt: row.carte_vitale_uploaded_at ?? '' }
-      : undefined,
-    titreSejour: row.titre_sejour_url
-      ? { url: row.titre_sejour_url, fileName: row.titre_sejour_name ?? '', uploadedAt: row.titre_sejour_uploaded_at ?? '' }
-      : undefined,
-    carteVitaleNumber: row.carte_vitale_number ?? undefined,
-    titreSejeurNumber: row.titre_sejour_number ?? undefined,
-  }));
+  return (data as StaffWithRelationsRow[])
+    .filter((row) => row.users?.role !== 'admin')
+    .map((row): StaffMember => ({
+      id: row.id,
+      userId: row.user_id ?? undefined,
+      name: row.name ?? '',
+      dob: row.dob ?? '',
+      city: row.city ?? '',
+      phone: row.phone ?? undefined,
+      staffType: row.staff_type === 'part-time' ? 'part-time' : 'permanent',
+      contracts: (row.contracts ?? []).map((c) => ({
+        id: c.id,
+        date: fromISODate(c.date ?? ''),
+        url: c.url ?? '',
+        fileName: c.file_name ?? undefined,
+        festivalId: c.festival_id ?? undefined,
+      })),
+      carteVitale: row.carte_vitale_url
+        ? { url: row.carte_vitale_url, fileName: row.carte_vitale_name ?? '', uploadedAt: row.carte_vitale_uploaded_at ?? '' }
+        : undefined,
+      titreSejour: row.titre_sejour_url
+        ? { url: row.titre_sejour_url, fileName: row.titre_sejour_name ?? '', uploadedAt: row.titre_sejour_uploaded_at ?? '' }
+        : undefined,
+      carteVitaleNumber: row.carte_vitale_number ?? undefined,
+      titreSejeurNumber: row.titre_sejour_number ?? undefined,
+    }));
 }
 
 
 // -----------------------------------------------------------------------------
 // EVENTS
 // -----------------------------------------------------------------------------
+
+type EventWithStaffRow = Database['public']['Tables']['events']['Row'] & {
+  event_staff: {
+    staff_id: number;
+    staff_members: {
+      id: number;
+      name: string;
+      city: string | null;
+      users: { role: string | null } | null;
+    } | null;
+  }[] | null;
+};
 
 export async function fetchEvents(): Promise<FestivalEvent[]> {
   // Fetch events + staff separately to avoid FK dependency on expenses
@@ -92,21 +105,21 @@ export async function fetchEvents(): Promise<FestivalEvent[]> {
   if (!data || data.length === 0) return [];
 
   // Fetch expenses separately (FK was dropped to allow flexible inserts)
-  const eventIds = data.map((e: DbRow) => e.id);
+  const eventIds = data.map((e) => e.id);
   const { data: expensesData } = await supabase
     .from('expenses')
     .select('*')
     .in('festival_id', eventIds);
 
-  const expensesByEvent: Record<number, DbRow[]> = {};
+  const expensesByEvent: Record<number, Database['public']['Tables']['expenses']['Row'][]> = {};
   for (const r of expensesData ?? []) {
     if (r.festival_id == null) continue;
     if (!expensesByEvent[r.festival_id]) expensesByEvent[r.festival_id] = [];
     expensesByEvent[r.festival_id].push(r);
   }
 
-  return data.map((row: DbRow): FestivalEvent => {
-    const staff: StaffRef[] = (row.event_staff ?? []).map((es: DbRow) => {
+  return (data as EventWithStaffRow[]).map((row): FestivalEvent => {
+    const staff: StaffRef[] = (row.event_staff ?? []).map((es) => {
       const sm = es.staff_members;
       return {
         id: sm?.id ?? es.staff_id,
@@ -116,9 +129,9 @@ export async function fetchEvents(): Promise<FestivalEvent[]> {
     });
 
     // expenses jsonb column = financial breakdown
-    const breakdown = row.expenses ?? {};
+    const breakdown = (row.expenses as Record<string, number> | null) ?? {};
 
-    const receipts: Expense[] = (expensesByEvent[row.id] ?? []).map((r: DbRow): Expense => ({
+    const receipts: Expense[] = (expensesByEvent[row.id] ?? []).map((r): Expense => ({
       id: r.id,
       staffId: String(r.staff_id ?? ''),
       staffName: r.staff_name ?? '',
@@ -148,7 +161,7 @@ export async function fetchEvents(): Promise<FestivalEvent[]> {
           ...breakdown,
         },
       },
-      inventoryReported: (row.inventory_reported ?? []).map((item: DbRow) => ({
+      inventoryReported: ((row.inventory_reported as { name?: string; current?: number; unit?: string }[]) ?? []).map((item) => ({
         name: item.name ?? '',
         current: item.current ?? 0,
         unit: (item.unit ?? 'cái') as InventoryUnit,
@@ -177,7 +190,9 @@ export async function fetchInventory(): Promise<InventoryItem[]> {
     return [];
   }
 
-  return data.map((row: DbRow): InventoryItem => ({
+  type InventoryItemRow = Database['public']['Tables']['inventory_items']['Row'];
+
+  return (data as InventoryItemRow[]).map((row): InventoryItem => ({
     id: row.id,
     name: row.name ?? '',
     current: row.current ?? 0,
@@ -202,7 +217,9 @@ export async function fetchInventoryLogs(): Promise<InventoryLogEntry[]> {
     return [];
   }
 
-  return data.map((row: DbRow): InventoryLogEntry => ({
+  type InventoryLogRow = Database['public']['Tables']['inventory_logs']['Row'];
+
+  return (data as InventoryLogRow[]).map((row): InventoryLogEntry => ({
     id: row.id,
     itemId: row.item_id,
     itemName: row.item_name ?? '',
@@ -229,7 +246,9 @@ export async function fetchPendingRegistrations(): Promise<RegistrationRequest[]
 
   if (error || !data) return [];
 
-  return data.map((row: DbRow): RegistrationRequest => ({
+  type UserPendingRow = Pick<Database['public']['Tables']['users']['Row'], 'id' | 'name' | 'role' | 'status' | 'created_at'>;
+
+  return (data as UserPendingRow[]).map((row): RegistrationRequest => ({
     id: row.id,
     userId: row.id,
     username: '',
@@ -247,7 +266,10 @@ export async function fetchPendingRegistrations(): Promise<RegistrationRequest[]
 export async function fetchClients(): Promise<Client[]> {
   const { data, error } = await supabase.from('clients').select('*');
   if (error || !data) return [];
-  return data.map((row: DbRow): Client => ({
+
+  type ClientRow = Database['public']['Tables']['clients']['Row'];
+
+  return (data as ClientRow[]).map((row): Client => ({
     id: row.id,
     name: row.name ?? '',
     contactName: row.contact_name ?? '',

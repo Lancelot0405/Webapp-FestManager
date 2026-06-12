@@ -1,41 +1,58 @@
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { X } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { Input } from '@/components/ui/input';
-import { useApp } from '../../context/AppContext';
+import { useCreateEventMutation } from '../../hooks/queries/useMutations';
 import { computeEventStatus } from '../../lib/eventStatus';
+import { eventFormSchema } from '../../lib/validations';
 import type { FestivalEvent } from '../../types';
+import { z } from 'zod';
+
+type EventFormInputs = z.infer<typeof eventFormSchema>;
 
 interface AddEventFormProps {
   onClose: () => void;
 }
 
 export default function AddEventForm({ onClose }: AddEventFormProps) {
-  const { addEvent } = useApp();
-  const [name,      setName]     = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate,   setEndDate]   = useState('');
-  const [location,  setLocation] = useState('');
+  const createEventMutation = useCreateEventMutation();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim() || !startDate || !location.trim()) return;
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<EventFormInputs>({
+    resolver: zodResolver(eventFormSchema),
+    defaultValues: {
+      name: '',
+      startDate: '',
+      endDate: '',
+      location: '',
+    },
+  });
 
+  const startDate = watch('startDate');
+  const endDate = watch('endDate');
+
+  const onSubmit = (data: EventFormInputs) => {
     const toDisplay = (iso: string) => {
       const [yyyy, mm, dd] = iso.split('-');
       return `${dd}-${mm}-${yyyy}`;
     };
 
-    const formattedStart = toDisplay(startDate);
-    const formattedEnd   = endDate ? toDisplay(endDate) : undefined;
+    const formattedStart = toDisplay(data.startDate);
+    const formattedEnd   = data.endDate ? toDisplay(data.endDate) : undefined;
     const status = computeEventStatus(formattedStart, formattedEnd);
 
     const newEvent: FestivalEvent = {
       id: Date.now(),
-      name: name.trim(),
+      name: data.name.trim(),
       date: formattedStart,
       endDate: formattedEnd,
-      location: location.trim(),
+      location: data.location.trim(),
       status,
       staff: [],
       financials: { income: 0, expenses: {} },
@@ -43,7 +60,7 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
       receipts: [],
       extra: { booth: '', hygienePermit: 'Chưa có', organizerContact: '' },
     };
-    addEvent(newEvent);
+    createEventMutation.mutate(newEvent);
     onClose();
   };
 
@@ -62,40 +79,41 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
           <X size={16} />
         </Button>
       </div>
-      <form onSubmit={handleSubmit} className="space-y-2.5">
-        <Input
-          label="Tên sự kiện *"
-          placeholder="Nhập tên sự kiện..."
-          value={name}
-          onChange={setName}
-          isRequired
-        />
-        <div className="grid grid-cols-2 gap-2">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <Input
+            label="Tên sự kiện *"
+            placeholder="Nhập tên sự kiện..."
+            error={errors.name?.message}
+            {...register('name')}
+            onChange={(v) => setValue('name', v, { shouldValidate: true })}
+          />
+          <Input
+            label="Địa điểm *"
+            placeholder="Nhập địa điểm..."
+            error={errors.location?.message}
+            {...register('location')}
+            onChange={(v) => setValue('location', v, { shouldValidate: true })}
+          />
           <Input
             type="date"
             label="Ngày bắt đầu *"
-            value={startDate}
+            error={errors.startDate?.message}
+            {...register('startDate')}
             onChange={(v) => {
-              setStartDate(v);
-              if (endDate && v > endDate) setEndDate('');
+              setValue('startDate', v, { shouldValidate: true });
+              if (endDate && v > endDate) setValue('endDate', '');
             }}
-            isRequired
           />
           <Input
             type="date"
             label="Ngày kết thúc"
-            value={endDate}
+            error={errors.endDate?.message}
             min={startDate}
-            onChange={setEndDate}
+            {...register('endDate')}
+            onChange={(v) => setValue('endDate', v, { shouldValidate: true })}
           />
         </div>
-        <Input
-          label="Địa điểm *"
-          placeholder="Nhập địa điểm..."
-          value={location}
-          onChange={setLocation}
-          isRequired
-        />
         <Button type="submit" variant="primary" fullWidth className="rounded-lg">
           Tạo sự kiện
         </Button>

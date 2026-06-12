@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Download, Smartphone, X, ShieldCheck, Store, Tent, UtensilsCrossed, Sun, Moon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@heroui/react';
 import { Input } from '@/components/ui/input';
 import { useTheme } from '../../context/ThemeContext';
 import { supabase } from '../../lib/supabase';
@@ -191,10 +191,11 @@ export default function LoginScreen() {
 
             <Button
               type="submit"
-              loading={loading}
+              isDisabled={loading}
               fullWidth
-              className="w-full bg-[var(--primary)] text-[var(--background)] font-semibold py-3 rounded-xl active:scale-[0.98] transition-all hover:opacity-90"
+              className="w-full bg-[var(--primary)] text-[var(--background)] font-semibold py-3 rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2 hover:opacity-90"
             >
+              {loading && <span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent inline-block align-middle" />}
               {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
             </Button>
           </form>
@@ -308,14 +309,15 @@ export default function LoginScreen() {
 
             <Button
               type="submit"
-              loading={loading}
+              isDisabled={loading}
               fullWidth
-              className={`w-full font-semibold py-3 rounded-xl active:scale-[0.98] transition-all hover:opacity-90 ${
+              className={`w-full font-semibold py-3 rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2 hover:opacity-90 ${
                 registerRole === 'manager'
                   ? 'bg-indigo-500 text-white'
                   : 'bg-[var(--primary)] text-[var(--background)]'
               }`}
             >
+              {loading && <span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent inline-block align-middle" />}
               {loading ? 'Đang xử lý...' : registerRole === 'manager' ? 'Gửi yêu cầu đăng ký' : 'Tạo tài khoản'}
             </Button>
           </form>

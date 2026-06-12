@@ -1,18 +1,16 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Trash2, Search } from 'lucide-react';
 import { Button, ScrollShadow } from '@heroui/react';
 import { Input } from '@/components/ui/input';
-import { Fab } from '@/components/ui/fab';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
 import AddEventForm from './AddEventForm';
-import { SkeletonList } from '@/components/ui/skeleton';
+import CardSkeleton from '../shared/skeletons/CardSkeleton';
 import { computeEventStatus } from '../../lib/eventStatus';
 import type { EventStatus, FestivalEvent } from '../../types';
-
-interface ScheduleProps {
-  onSelectEvent: (id: number) => void;
-}
+import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
+import { useDeleteEventMutation } from '../../hooks/queries/useMutations';
 
 function parseDate(d: string): number {
   if (!d) return 0;
@@ -30,56 +28,58 @@ const STATUS_FILTERS: StatusFilter[] = [
   'Lên kế hoạch',
 ];
 
-export default function Schedule({ onSelectEvent }: ScheduleProps) {
-  const { state, deleteEvent } = useApp();
-  const { events, currentUser, staff } = state;
-  const isAdmin   = currentUser?.role === 'admin';
-  const isManager = currentUser?.role === 'manager';
-  const canViewAll = isAdmin || isManager;
+export default function Schedule() {
+  const { state } = useApp();
+  const navigate = useNavigate();
+  const { data: events = [], isLoading } = useEventsQuery();
+  const deleteEventMutation = useDeleteEventMutation();
 
-  const [showAddForm,  setShowAddForm]  = useState(false);
-  const [search,       setSearch]       = useState('');
+  const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('Tất cả');
+  const [showAddForm, setShowAddForm] = useState(false);
 
-  const myStaffMember = !canViewAll && currentUser
-    ? (staff.find(s => s.userId === currentUser.id)
-       ?? staff.find(s => s.name.toLowerCase() === currentUser.name.toLowerCase()))
-    : null;
+  const isAdmin = state.currentUser?.role === 'admin';
 
-  const visibleEvents = canViewAll
-    ? events
-    : events.filter(e => myStaffMember && e.staff.some(s => s.id === myStaffMember.id));
-
-  const withComputedStatus = visibleEvents.map(e => ({
+  const processed = events.map(e => ({
     ...e,
     status: computeEventStatus(e.date, e.endDate),
   }));
 
-  const q = search.trim().toLowerCase();
-  const filtered = withComputedStatus.filter(e => {
-    const matchSearch = !q || e.name.toLowerCase().includes(q) || e.location.toLowerCase().includes(q);
-    const matchStatus = statusFilter === 'Tất cả' || e.status === statusFilter;
-    return matchSearch && matchStatus;
+  const filtered = processed.filter(e => {
+    const term = search.toLowerCase();
+    const nameMatch = e.name.toLowerCase().includes(term);
+    const locMatch  = e.location.toLowerCase().includes(term);
+    if (!nameMatch && !locMatch) return false;
+
+    if (statusFilter !== 'Tất cả' && e.status !== statusFilter) return false;
+    return true;
   });
 
   const sorted = [...filtered].sort((a, b) => parseDate(a.date) - parseDate(b.date));
 
   return (
     <div className="space-y-4 pb-20">
+      {/* Page header */}
       {isAdmin && (
         <>
           <div className="hidden md:flex justify-end">
             <Button
               onPress={() => setShowAddForm(true)}
               variant="primary"
-              size="sm"
               className="flex items-center gap-1 rounded-xl font-semibold"
             >
               <Plus size={16} />
               Thêm sự kiện
             </Button>
           </div>
-          <Fab onPress={() => setShowAddForm(true)} label="Thêm sự kiện" icon={<Plus size={24} />} />
+          <Button
+            onPress={() => setShowAddForm(true)}
+            isIconOnly
+            aria-label="Thêm sự kiện"
+            className="md:hidden fixed bottom-24 right-4 z-30 h-14 w-14 rounded-full bg-[var(--primary)] text-[var(--background)] shadow-[var(--shadow-hero)] active:scale-95 transition-transform"
+          >
+            <Plus size={24} />
+          </Button>
         </>
       )}
 
@@ -114,8 +114,12 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
         <AddEventForm onClose={() => setShowAddForm(false)} />
       )}
 
-      {state.loading ? (
-        <SkeletonList count={3} variant="card" />
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
+        </div>
       ) : sorted.length === 0 ? (
         <p className="text-sm text-[var(--text-muted)] text-center py-10">Chưa có sự kiện nào</p>
       ) : (
@@ -125,10 +129,10 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
               key={event.id}
               event={event}
               isAdmin={isAdmin}
-              onSelect={() => onSelectEvent(event.id)}
+              onSelect={() => navigate('/schedule/' + event.id)}
               onDelete={() => {
                 if (window.confirm(`Xóa sự kiện "${event.name}"?\nThao tác này không thể hoàn tác.`)) {
-                  deleteEvent(event.id);
+                  deleteEventMutation.mutate(event.id);
                 }
               }}
             />

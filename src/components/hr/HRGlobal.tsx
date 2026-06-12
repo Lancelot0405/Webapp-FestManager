@@ -4,22 +4,37 @@ import { Button, ScrollShadow } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import AddStaffForm from './AddStaffForm';
 import { Input } from '@/components/ui/input';
-import { Fab } from '@/components/ui/fab';
-import { SkeletonList } from '@/components/ui/skeleton';
+import ListSkeleton from '../shared/skeletons/ListSkeleton';
 import type { StaffMember } from '../../types';
 
-interface HRGlobalProps {
-  onSelectStaff: (id: string) => void;
-}
 
 type TypeFilter = 'Tất cả' | 'Nhân viên cứng' | 'Part-time';
 
-export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
-  const { state, deleteStaff, approveRegistration, rejectRegistration } = useApp();
-  const { staff, events, currentUser, pendingRegistrations } = state;
+import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
+import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
+import { usePendingRegistrationsQuery } from '../../hooks/queries/usePendingRegistrationsQuery';
+import {
+  useDeleteStaffMutation,
+  useApproveRegistrationMutation,
+  useRejectRegistrationMutation,
+} from '../../hooks/queries/useMutations';
+import { useNavigate } from 'react-router-dom';
+
+export default function HRGlobal() {
+  const navigate = useNavigate();
+  const { state } = useApp();
+  const { currentUser } = state;
   const isAdmin   = currentUser?.role === 'admin';
   const isManager = currentUser?.role === 'manager';
   const canViewAll = isAdmin || isManager;
+
+  const { data: staff = [], isLoading } = useStaffQuery();
+  const { data: events = [] } = useEventsQuery();
+  const { data: pendingRegistrations = [] } = usePendingRegistrationsQuery(isAdmin);
+
+  const deleteStaffMutation = useDeleteStaffMutation();
+  const approveRegistrationMutation = useApproveRegistrationMutation();
+  const rejectRegistrationMutation = useRejectRegistrationMutation();
 
   const [showForm,    setShowForm]    = useState(false);
   const [search,      setSearch]      = useState('');
@@ -36,7 +51,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
   const handleDelete = (e: React.MouseEvent, staffId: number, staffName: string) => {
     e.stopPropagation();
     if (window.confirm(`Xóa nhân viên "${staffName}"?\nThao tác này không thể hoàn tác.`)) {
-      deleteStaff(staffId);
+      deleteStaffMutation.mutate(staffId);
     }
   };
 
@@ -68,7 +83,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
         >
           <Button
             variant="ghost"
-            onPress={() => onSelectStaff(String(s.id))}
+            onPress={() => navigate('/hr/' + s.id)}
             className="flex-1 h-auto min-w-0 justify-start rounded-none p-4 text-left active:bg-[var(--glass-bg)]"
           >
             <div className="flex w-full items-center gap-3">
@@ -115,7 +130,14 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
               <Plus size={16} /> Thêm nhân viên
             </Button>
           </div>
-          <Fab onPress={() => setShowForm(true)} label="Thêm nhân viên" icon={<Plus size={24} />} />
+          <Button
+            onPress={() => setShowForm(true)}
+            isIconOnly
+            aria-label="Thêm nhân viên"
+            className="md:hidden fixed bottom-24 right-4 z-30 h-14 w-14 rounded-full bg-[var(--primary)] text-[var(--background)] shadow-[var(--shadow-hero)] active:scale-95 transition-transform"
+          >
+            <Plus size={24} />
+          </Button>
         </>
       )}
 
@@ -162,14 +184,14 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
                     <div className="flex gap-1.5 shrink-0">
                       <Button
                         size="sm"
-                        onPress={() => approveRegistration(req.userId)}
+                        onPress={() => approveRegistrationMutation.mutate(req.userId)}
                         className="text-xs font-medium bg-[var(--success)]/10 text-[var(--success)] border border-[var(--success)]/20 rounded-lg flex items-center gap-1 hover:bg-[var(--success)]/20 transition-colors"
                       >
                         <Check size={12} /> Duyệt
                       </Button>
                       <Button
                         size="sm"
-                        onPress={() => rejectRegistration(req.userId)}
+                        onPress={() => rejectRegistrationMutation.mutate(req.userId)}
                         className="text-xs font-medium bg-[var(--danger)]/10 text-[var(--danger)] border border-[var(--danger)]/20 rounded-lg flex items-center gap-1 hover:bg-[var(--danger)]/20 transition-colors"
                       >
                         <X size={12} /> Từ chối
@@ -214,8 +236,8 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
         <AddStaffForm onClose={() => setShowForm(false)} />
       )}
 
-      {state.loading ? (
-        <SkeletonList count={4} variant="row" />
+      {isLoading ? (
+        <ListSkeleton />
       ) : filtered.length === 0 ? (
         <p className="text-sm text-[var(--text-muted)] text-center py-10">Chưa có nhân viên</p>
       ) : typeFilter === 'Tất cả' && canViewAll ? (

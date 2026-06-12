@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@heroui/react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Calendar,
@@ -13,8 +14,6 @@ import { useApp } from '../../context/AppContext';
 import type { ActiveTab } from '../../types';
 
 interface BottomNavProps {
-  activeTab:   ActiveTab;
-  onTabChange: (tab: ActiveTab) => void;
   navVisible?: boolean;
 }
 
@@ -42,9 +41,11 @@ const STAFF_TABS: { tab: ActiveTab; icon: (compact: boolean) => React.ReactNode;
   { tab: 'profile',   icon: c => <User            size={c ? 18 : 20} />, label: 'Hồ sơ'      },
 ];
 
-export default function BottomNav({ activeTab, onTabChange, navVisible = true }: BottomNavProps) {
+export default function BottomNav({ navVisible = true }: BottomNavProps) {
   const { state }       = useApp();
   const { currentUser } = state;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   useEffect(() => {
@@ -71,6 +72,20 @@ export default function BottomNav({ activeTab, onTabChange, navVisible = true }:
                : STAFF_TABS;
   const compact = tabs.length >= 6;
 
+  const getActiveTab = (): ActiveTab => {
+    const path = location.pathname;
+    if (path.startsWith('/dashboard')) return 'dashboard';
+    if (path.startsWith('/schedule')) return 'schedule';
+    if (path.startsWith('/inventory')) return 'inventory';
+    if (path.startsWith('/finance')) return 'finance';
+    if (path.startsWith('/hr')) return 'hr';
+    if (path.startsWith('/profile')) return 'profile';
+    if (path.startsWith('/clients')) return 'clients';
+    return 'dashboard';
+  };
+
+  const activeTab = getActiveTab();
+
   return (
     <nav
       className="fixed bottom-3 left-1/2 z-20 pb-safe transition-transform duration-300 ease-out"
@@ -89,7 +104,7 @@ export default function BottomNav({ activeTab, onTabChange, navVisible = true }:
             <Button
               key={tab}
               variant="ghost"
-              onPress={() => onTabChange(tab)}
+              onPress={() => navigate('/' + tab)}
               aria-current={isActive ? 'page' : undefined}
               aria-label={label}
               className="flex flex-col items-center gap-0.5 px-1 py-1 min-w-0 flex-1 h-auto rounded-xl"
