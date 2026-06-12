@@ -1,5 +1,6 @@
 import * as React from "react"
 import { X } from "lucide-react"
+import { Button } from "@heroui/react"
 import { cn } from "@/lib/utils"
 import {
   ModalRoot,
@@ -53,14 +54,15 @@ const DialogContent = ({
   const { onOpenChange } = React.useContext(DialogContext)
 
   const closeBtn = !hideClose && (
-    <button
-      type="button"
-      onClick={() => onOpenChange?.(false)}
-      className="absolute right-4 top-4 z-10 rounded-full p-1.5 text-[var(--text-muted)] opacity-60 transition-opacity hover:bg-white/10 hover:opacity-100 focus:outline-none"
+    <Button
+      isIconOnly
+      variant="ghost"
+      onPress={() => onOpenChange?.(false)}
+      className="absolute right-4 top-4 z-10 h-auto min-w-0 rounded-full p-1.5 text-[var(--text-muted)] opacity-60 transition-opacity hover:bg-white/10 hover:opacity-100 focus:outline-none"
       aria-label="Đóng"
     >
       <X className="size-4" />
-    </button>
+    </Button>
   )
 
   if (position === "bottom") {

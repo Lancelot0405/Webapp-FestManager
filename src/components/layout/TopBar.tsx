@@ -1,4 +1,5 @@
 import { UtensilsCrossed } from 'lucide-react';
+import { Button } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 
 interface TopBarProps {
@@ -23,9 +24,10 @@ export default function TopBar({ onLogoClick, onOpenSheet, navVisible = true, no
     >
       <div className="flex justify-between items-center h-14">
         {/* Logo */}
-        <button
-          onClick={onLogoClick}
-          className="flex items-center gap-2 focus:outline-none"
+        <Button
+          variant="ghost"
+          onPress={onLogoClick}
+          className="h-auto min-w-0 p-0 bg-transparent flex items-center gap-2 focus:outline-none"
         >
           <div className="w-8 h-8 rounded-xl bg-[var(--primary)] flex items-center justify-center shadow-[var(--shadow-float)]">
             <UtensilsCrossed size={15} className="text-[var(--background)]" />
@@ -33,12 +35,14 @@ export default function TopBar({ onLogoClick, onOpenSheet, navVisible = true, no
           <span className="text-lg font-black tracking-tight text-[var(--text-primary)] select-none">
             FestManager
           </span>
-        </button>
+        </Button>
 
         {/* Avatar button */}
-        <button
-          onClick={onOpenSheet}
-          className="relative w-9 h-9 rounded-full bg-[var(--primary)] flex items-center justify-center shadow-sm focus:outline-none active:scale-95 transition-transform"
+        <Button
+          isIconOnly
+          variant="ghost"
+          onPress={onOpenSheet}
+          className="relative h-auto w-9 h-9 min-w-0 rounded-full bg-[var(--primary)] flex items-center justify-center shadow-sm focus:outline-none active:scale-95 transition-transform"
           aria-label="Tài khoản"
         >
           <span className="text-[13px] font-bold text-[var(--background)]">{initials}</span>
@@ -47,7 +51,7 @@ export default function TopBar({ onLogoClick, onOpenSheet, navVisible = true, no
               {notifCount > 9 ? '9+' : notifCount}
             </span>
           )}
-        </button>
+        </Button>
       </div>
     </header>
   );

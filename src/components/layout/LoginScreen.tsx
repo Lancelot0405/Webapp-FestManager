@@ -139,18 +139,18 @@ export default function LoginScreen() {
         {/* Tab */}
         <div className="flex w-full bg-[var(--glass-bg)] rounded-xl p-1 mb-6 border border-[var(--glass-border)]">
           {(['login', 'register'] as Mode[]).map(m => (
-            <button
+            <Button
               key={m}
-              type="button"
-              onClick={() => reset(m)}
-              className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+              variant="ghost"
+              onPress={() => reset(m)}
+              className={`flex-1 h-auto min-w-0 py-2 text-sm font-semibold rounded-lg transition-all ${
                 mode === m
                   ? 'bg-[var(--card)] text-[var(--text-primary)] shadow-[var(--shadow-card)]'
                   : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
               }`}
             >
               {m === 'login' ? 'Đăng nhập' : 'Đăng ký'}
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -175,14 +175,15 @@ export default function LoginScreen() {
               autoComplete="current-password"
               startContent={<Lock size={16} />}
               endContent={
-                <button
-                  type="button"
+                <Button
+                  isIconOnly
+                  variant="ghost"
                   aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-                  onClick={() => setShowPw(v => !v)}
-                  className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                  onPress={() => setShowPw(v => !v)}
+                  className="h-auto min-w-0 p-0 bg-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                 >
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
+                </Button>
               }
             />
 
@@ -277,14 +278,15 @@ export default function LoginScreen() {
               placeholder="Tối thiểu 6 ký tự"
               startContent={<Lock size={16} />}
               endContent={
-                <button
-                  type="button"
+                <Button
+                  isIconOnly
+                  variant="ghost"
                   aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-                  onClick={() => setShowPw(v => !v)}
-                  className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                  onPress={() => setShowPw(v => !v)}
+                  className="h-auto min-w-0 p-0 bg-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                 >
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
+                </Button>
               }
             />
 
@@ -322,12 +324,13 @@ export default function LoginScreen() {
         {/* Footer */}
         <div className="border-t border-[var(--glass-border)] mt-6 pt-4 flex items-center justify-center gap-3">
           <div className="relative">
-            <button
-              onClick={handleInstallClick}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--glass-bg)] hover:bg-[var(--muted)] border border-[var(--glass-border)] text-[var(--text-secondary)] text-xs font-medium transition-colors"
+            <Button
+              variant="ghost"
+              onPress={handleInstallClick}
+              className="h-auto min-w-0 flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--glass-bg)] hover:bg-[var(--muted)] border border-[var(--glass-border)] text-[var(--text-secondary)] text-xs font-medium transition-colors"
             >
               <Download size={14} /> Cài đặt app
-            </button>
+            </Button>
             {showInstallModal && (
               <div className="absolute bottom-11 right-0 w-72 glass-card rounded-2xl shadow-[var(--shadow-warm)] z-50 p-4 animate-fade-in">
                 <div className="flex items-center justify-between mb-3">
@@ -337,7 +340,7 @@ export default function LoginScreen() {
                       {isStandalone ? 'Đã cài đặt' : 'Cài FestManager'}
                     </p>
                   </div>
-                  <button onClick={() => setShowInstallModal(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"><X size={15} /></button>
+                  <Button isIconOnly variant="ghost" onPress={() => setShowInstallModal(false)} aria-label="Đóng" className="h-auto min-w-0 p-0 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"><X size={15} /></Button>
                 </div>
                 {isStandalone ? (
                   <p className="text-sm text-[var(--text-secondary)]">FestManager đã được cài 🎉</p>
@@ -355,14 +358,15 @@ export default function LoginScreen() {
             )}
           </div>
 
-          <button
-            onClick={toggleTheme}
+          <Button
+            variant="ghost"
+            onPress={() => toggleTheme()}
             aria-label={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--glass-bg)] hover:bg-[var(--muted)] border border-[var(--glass-border)] text-[var(--text-secondary)] text-xs font-medium transition-colors"
+            className="h-auto min-w-0 flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--glass-bg)] hover:bg-[var(--muted)] border border-[var(--glass-border)] text-[var(--text-secondary)] text-xs font-medium transition-colors"
           >
             {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
             {theme === 'dark' ? 'Sáng' : 'Tối'}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -385,17 +389,17 @@ function RoleBtn({ active, onPress, icon, label, activeColor = 'primary' }: {
   };
 
   return (
-    <button
-      type="button"
-      onClick={onPress}
-      className={`py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-1.5 active:scale-[0.97] border ${
+    <Button
+      variant="ghost"
+      onPress={onPress}
+      className={`w-full h-auto min-w-0 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-1.5 active:scale-[0.97] border ${
         active
           ? activeStyles[activeColor]
           : 'bg-[var(--glass-bg)] text-[var(--text-secondary)] border-[var(--glass-border)] hover:border-[var(--primary)]/40 hover:text-[var(--text-primary)]'
       }`}
     >
       {icon} {label}
-    </button>
+    </Button>
   );
 }
 
