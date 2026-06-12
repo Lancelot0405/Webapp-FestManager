@@ -130,6 +130,8 @@ export default function App() {
           activeTab={activeTab}
           onTabChange={setActiveTab}
           onLogoClick={handleLogoClick}
+          onOpenSheet={() => setShowUserSheet(true)}
+          notifCount={notifications.length}
         />
 
         {/* Main column */}

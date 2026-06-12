@@ -8,6 +8,7 @@ import {
   User,
   Building2,
   UtensilsCrossed,
+  ChevronUp,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import type { ActiveTab } from '../../types';
@@ -16,6 +17,8 @@ interface SidebarProps {
   activeTab:    ActiveTab;
   onTabChange:  (tab: ActiveTab) => void;
   onLogoClick:  () => void;
+  onOpenSheet?: () => void;
+  notifCount?:  number;
 }
 
 const ADMIN_TABS: { tab: ActiveTab; icon: React.ReactNode; label: string }[] = [
@@ -46,7 +49,7 @@ const roleLabel: Record<string, string> = {
   admin: 'Admin', manager: 'Quản lý', staff: 'Nhân viên',
 };
 
-export default function Sidebar({ activeTab, onTabChange, onLogoClick }: SidebarProps) {
+export default function Sidebar({ activeTab, onTabChange, onLogoClick, onOpenSheet, notifCount = 0 }: SidebarProps) {
   const { state }       = useApp();
   const { currentUser } = state;
 
@@ -113,13 +116,22 @@ export default function Sidebar({ activeTab, onTabChange, onLogoClick }: Sidebar
         })}
       </nav>
 
-      {/* User info footer */}
-      <div className="px-4 py-4 border-t border-[var(--glass-border)]">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-[var(--primary)] flex items-center justify-center text-[var(--background)] text-xs font-bold shrink-0">
+      {/* User info footer — mở UserSheet (theme, thông báo, đăng xuất...) */}
+      <div className="px-3 py-3 border-t border-[var(--glass-border)]">
+        <button
+          onClick={onOpenSheet}
+          className="w-full flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-[var(--glass-bg)] transition-colors"
+          aria-label="Mở tài khoản và cài đặt"
+        >
+          <div className="relative w-8 h-8 rounded-full bg-[var(--primary)] flex items-center justify-center text-[var(--background)] text-xs font-bold shrink-0">
             {currentUser.name.charAt(0).toUpperCase()}
+            {notifCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[var(--danger)] text-white text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-[var(--card)]">
+                {notifCount > 9 ? '9+' : notifCount}
+              </span>
+            )}
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1 text-left">
             <p className="text-sm font-semibold text-[var(--text-primary)] truncate">
               {currentUser.name}
             </p>
@@ -127,7 +139,8 @@ export default function Sidebar({ activeTab, onTabChange, onLogoClick }: Sidebar
               {roleLabel[currentUser.role]}
             </p>
           </div>
-        </div>
+          <ChevronUp size={16} className="text-[var(--text-muted)] shrink-0" />
+        </button>
       </div>
     </aside>
   );
