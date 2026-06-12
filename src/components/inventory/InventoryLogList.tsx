@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Search } from 'lucide-react';
+import { Button } from '@heroui/react';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import type { InventoryLogEntry } from '../../types';
@@ -37,12 +38,13 @@ export default function InventoryLogList({ logs }: Props) {
           Lịch sử ({filtered.length})
         </h2>
         {filtered.length > COLLAPSED_COUNT && (
-          <button
-            onClick={() => setExpanded(v => !v)}
-            className="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] font-semibold transition-colors"
+          <Button
+            variant="ghost"
+            onPress={() => setExpanded(v => !v)}
+            className="h-auto min-w-0 p-0 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] font-semibold transition-colors"
           >
             {expanded ? 'Thu gọn' : 'Xem tất cả'}
-          </button>
+          </Button>
         )}
       </div>
 

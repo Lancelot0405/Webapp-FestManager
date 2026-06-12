@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Pencil, ChevronDown, Settings } from 'lucide-react';
+import { Button } from '@heroui/react';
 import { supabase } from '../../lib/supabase';
 import { useApp } from '../../context/AppContext';
+import { Input } from '@/components/ui/input';
 import FoodTemplateManager from './FoodTemplateManager';
 
 interface FoodTemplate {
@@ -63,13 +65,13 @@ export default function FoodNameSelect({
           Tên {itemType === 'food' ? 'thực phẩm' : 'thiết bị'}
         </label>
         {canManage && (
-          <button
-            type="button"
-            onClick={() => setShowManager(true)}
-            className="flex items-center gap-1 text-[11px] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors font-medium"
+          <Button
+            variant="ghost"
+            onPress={() => setShowManager(true)}
+            className="h-auto min-w-0 p-0 flex items-center gap-1 text-[11px] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors font-medium"
           >
             <Settings size={11} /> Quản lý mẫu
-          </button>
+          </Button>
         )}
       </div>
 
@@ -79,13 +81,13 @@ export default function FoodNameSelect({
           <span className="flex-1 bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-[var(--primary)] rounded-xl px-3 py-2 text-sm font-semibold truncate">
             {value}
           </span>
-          <button
-            type="button"
-            onClick={() => { onChange(''); setOpenGroup(null); }}
-            className="text-xs text-[var(--text-muted)] hover:text-[var(--danger)] px-3 py-2 rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] font-medium transition-colors"
+          <Button
+            variant="ghost"
+            onPress={() => { onChange(''); setOpenGroup(null); }}
+            className="h-auto min-w-0 text-xs text-[var(--text-muted)] hover:text-[var(--danger)] px-3 py-2 rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] font-medium transition-colors"
           >
             Đổi
-          </button>
+          </Button>
         </div>
       )}
 
@@ -98,40 +100,40 @@ export default function FoodNameSelect({
             <>
               {Object.entries(groups).map(([group, items]) => (
                 <div key={group} className="border border-[var(--glass-border)] rounded-xl overflow-hidden">
-                  <button
-                    type="button"
-                    onClick={() => setOpenGroup(openGroup === group ? null : group)}
-                    className="w-full flex items-center justify-between px-3 py-2.5 bg-[var(--glass-bg)] text-xs font-bold text-[var(--text-secondary)] hover:bg-[var(--glass-bg)] hover:text-[var(--text-primary)] transition-colors"
+                  <Button
+                    variant="ghost"
+                    onPress={() => setOpenGroup(openGroup === group ? null : group)}
+                    className="w-full h-auto justify-between rounded-none px-3 py-2.5 bg-[var(--glass-bg)] text-xs font-bold text-[var(--text-secondary)] hover:bg-[var(--glass-bg)] hover:text-[var(--text-primary)] transition-colors"
                   >
                     {group}
                     <ChevronDown
                       size={13}
                       className={`text-[var(--text-muted)] transition-transform ${openGroup === group ? 'rotate-180' : ''}`}
                     />
-                  </button>
+                  </Button>
                   {openGroup === group && (
                     <div className="flex flex-wrap gap-1.5 p-2.5 bg-[var(--glass-bg)]/50">
                       {items.map(t => (
-                        <button
+                        <Button
                           key={t.id}
-                          type="button"
-                          onClick={() => { onChange(t.name); setCustom(false); setOpenGroup(null); }}
-                          className="px-2.5 py-1 rounded-lg text-xs font-medium border border-[var(--glass-border)] bg-[var(--glass-bg)] text-[var(--text-secondary)] hover:bg-[var(--primary)] hover:text-[var(--background)] hover:border-[var(--primary)] active:scale-95 transition-all"
+                          variant="ghost"
+                          onPress={() => { onChange(t.name); setCustom(false); setOpenGroup(null); }}
+                          className="h-auto min-w-0 px-2.5 py-1 rounded-lg text-xs font-medium border border-[var(--glass-border)] bg-[var(--glass-bg)] text-[var(--text-secondary)] hover:bg-[var(--primary)] hover:text-[var(--background)] hover:border-[var(--primary)] active:scale-95 transition-all"
                         >
                           {t.name}
-                        </button>
+                        </Button>
                       ))}
                     </div>
                   )}
                 </div>
               ))}
-              <button
-                type="button"
-                onClick={() => { setCustom(true); setOpenGroup(null); onChange(''); }}
-                className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-dashed border-[var(--glass-border)] text-xs text-[var(--text-muted)] hover:border-[var(--primary)]/40 hover:text-[var(--text-primary)] transition-colors font-medium"
+              <Button
+                variant="ghost"
+                onPress={() => { setCustom(true); setOpenGroup(null); onChange(''); }}
+                className="w-full h-auto flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-dashed border-[var(--glass-border)] text-xs text-[var(--text-muted)] hover:border-[var(--primary)]/40 hover:text-[var(--text-primary)] transition-colors font-medium"
               >
                 <Pencil size={11} /> Nhập tên tùy chỉnh
-              </button>
+              </Button>
             </>
           )}
         </div>
@@ -140,21 +142,21 @@ export default function FoodNameSelect({
       {/* Custom input */}
       {custom && (
         <div className="flex gap-2">
-          <input
+          <Input
             autoFocus
-            required={required}
-            className="flex-1 border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] text-[var(--text-primary)] rounded-xl px-3 py-2.5 focus:outline-none focus:border-[var(--primary)]/50 transition-all placeholder:text-[var(--text-muted)]"
+            isRequired={required}
+            className="flex-1"
             placeholder={placeholder ?? (itemType === 'food' ? 'VD: Thịt bò' : 'VD: Găng tay')}
             value={value}
-            onChange={e => onChange(e.target.value)}
+            onChange={onChange}
           />
-          <button
-            type="button"
-            onClick={() => { setCustom(false); onChange(''); }}
-            className="px-3 py-2 rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] text-xs text-[var(--text-muted)] hover:text-[var(--danger)] font-medium transition-colors"
+          <Button
+            variant="ghost"
+            onPress={() => { setCustom(false); onChange(''); }}
+            className="h-auto min-w-0 px-3 py-2 rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] text-xs text-[var(--text-muted)] hover:text-[var(--danger)] font-medium transition-colors"
           >
             Hủy
-          </button>
+          </Button>
         </div>
       )}
 
