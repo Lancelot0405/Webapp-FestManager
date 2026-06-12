@@ -65,9 +65,8 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
 
   return (
     <div className="space-y-4 pb-20">
-      <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold text-[var(--text-primary)]">Lịch sự kiện</h1>
-        {isAdmin && (
+      {isAdmin && (
+        <div className="flex justify-end">
           <Button
             onPress={() => setShowAddForm(true)}
             variant="primary"
@@ -77,8 +76,8 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
             <Plus size={16} />
             Thêm sự kiện
           </Button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Search input */}
       <Input

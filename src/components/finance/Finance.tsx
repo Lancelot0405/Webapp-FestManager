@@ -112,8 +112,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
   return (
     <div className="space-y-6 pb-20">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-[var(--text-primary)]">Tài chính</h1>
+      <div className="flex items-center justify-end">
         <Button
           onPress={handleExport}
           variant="ghost"

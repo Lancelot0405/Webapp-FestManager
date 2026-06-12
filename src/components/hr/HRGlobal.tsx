@@ -101,9 +101,8 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
 
   return (
     <div className="space-y-4 pb-20">
-      <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold text-[var(--text-primary)]">Nhân sự</h1>
-        {isAdmin && (
+      {isAdmin && (
+        <div className="flex justify-end">
           <Button
             size="sm"
             onPress={() => setShowForm(true)}
@@ -112,8 +111,8 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
           >
             <Plus size={16} /> Thêm nhân viên
           </Button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Pending registrations — admin only */}
       {isAdmin && (

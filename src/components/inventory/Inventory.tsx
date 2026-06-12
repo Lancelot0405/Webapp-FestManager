@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Plus, X, Trash2, FileSpreadsheet, Upload, Check, ChevronDown, ChevronUp, History, Store, Tent, Package } from 'lucide-react';
+import { Plus, X, Trash2, FileSpreadsheet, Upload, Check, ChevronDown, ChevronUp, History, Store, Tent } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
@@ -169,15 +169,8 @@ export default function Inventory() {
     <div className="space-y-4 pb-20">
 
       {/* ── Page header ── */}
-      <div className="flex justify-between items-center gap-2">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-[var(--primary)] flex items-center justify-center">
-            <Package size={16} className="text-[var(--background)]" />
-          </div>
-          <h1 className="text-xl font-black text-[var(--text-primary)]">Kho hàng</h1>
-        </div>
-        {subTab !== 'history' && (
-          <div className="flex gap-2">
+      {subTab !== 'history' && (
+        <div className="flex justify-end gap-2">
             <label className={`flex items-center gap-1.5 bg-[var(--success)]/10 text-[var(--success)] border border-[var(--success)]/20 text-xs font-bold px-3 py-2 rounded-xl cursor-pointer hover:bg-[var(--success)]/20 active:scale-95 transition-all ${importing ? 'opacity-60 pointer-events-none' : ''}`}>
               <FileSpreadsheet size={14} />
               {importing ? 'Đang import...' : 'Import'}
@@ -191,9 +184,8 @@ export default function Inventory() {
             >
               <Plus size={14} /> Thêm
             </Button>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* ── Main tabs ── */}
       {canSeeRestaurant && canSeeFestival && (

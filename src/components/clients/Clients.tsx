@@ -71,8 +71,7 @@ export default function Clients() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-bold text-[var(--text-primary)]">Khách hàng</h1>
+      <div className="flex items-center justify-end">
         <Button onPress={openAdd} variant="primary" size="sm" className="flex items-center gap-1.5 rounded-xl">
           <Plus size={15} /> Thêm
         </Button>
