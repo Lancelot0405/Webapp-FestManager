@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { ChevronDown, ChevronUp, Upload, Loader, FileText } from 'lucide-react';
+import { Button } from '@heroui/react';
 import DocThumbnail from '../../shared/DocThumbnail';
 import { useApp } from '../../../context/AppContext';
 import { useToast } from '../../../context/ToastContext';
@@ -102,9 +103,10 @@ export default function EventContractsTab({ event }: Props) {
         return (
           <div key={ref.id} className="glass-card rounded-xl overflow-hidden">
             {/* Header */}
-            <button
-              className="w-full flex justify-between items-center px-4 py-3 text-left"
-              onClick={() => toggle(ref.id)}
+            <Button
+              variant="ghost"
+              className="w-full h-auto justify-between rounded-none px-4 py-3 text-left"
+              onPress={() => toggle(ref.id)}
             >
               <div>
                 <p className="text-sm font-semibold text-[var(--text-primary)]">
@@ -121,7 +123,7 @@ export default function EventContractsTab({ event }: Props) {
                 ? <ChevronUp size={16} className="text-[var(--text-muted)]" />
                 : <ChevronDown size={16} className="text-[var(--text-muted)]" />
               }
-            </button>
+            </Button>
 
             {isOpen && (
               <div className="border-t border-[var(--glass-border)]">

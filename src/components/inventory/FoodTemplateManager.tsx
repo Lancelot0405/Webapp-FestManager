@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Plus, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { Button } from '@heroui/react';
 import { supabase } from '../../lib/supabase';
 import { Input } from '@/components/ui/input';
 
@@ -96,13 +97,15 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
           <h2 className="font-bold text-[var(--text-primary)] text-sm">
             Quản lý mẫu — {itemType === 'food' ? 'Thực phẩm' : 'Thiết bị'}
           </h2>
-          <button
-            onClick={onClose}
+          <Button
+            isIconOnly
+            variant="ghost"
+            onPress={onClose}
             aria-label="Đóng"
-            className="w-7 h-7 rounded-full flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--glass-bg)] transition-colors"
+            className="w-7 h-7 min-w-0 h-auto rounded-full flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--glass-bg)] transition-colors"
           >
             <X size={16} />
-          </button>
+          </Button>
         </div>
 
         {/* Body */}
@@ -115,17 +118,17 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
             <>
               {Object.entries(groups).map(([group, items]) => (
                 <div key={group} className="border border-[var(--glass-border)] rounded-xl overflow-hidden">
-                  <button
-                    type="button"
-                    onClick={() => setOpenGroup(openGroup === group ? null : group)}
-                    className="w-full flex items-center justify-between px-3 py-2.5 bg-[var(--glass-bg)] text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                  <Button
+                    variant="ghost"
+                    onPress={() => setOpenGroup(openGroup === group ? null : group)}
+                    className="w-full h-auto justify-between rounded-none px-3 py-2.5 bg-[var(--glass-bg)] text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                   >
                     <span>{group} <span className="font-normal text-[var(--text-muted)]">({items.length})</span></span>
                     {openGroup === group
                       ? <ChevronUp size={13} className="text-[var(--text-muted)]" />
                       : <ChevronDown size={13} className="text-[var(--text-muted)]" />
                     }
-                  </button>
+                  </Button>
 
                   {openGroup === group && (
                     <div className="p-3 space-y-2">
@@ -133,18 +136,19 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
                         {items.map(t => (
                           <div key={t.id} className="flex items-center gap-1 pl-2.5 pr-1 py-1 rounded-lg border border-[var(--glass-border)] bg-[var(--glass-bg)] text-xs text-[var(--text-secondary)] font-medium">
                             {t.name}
-                            <button
-                              type="button"
+                            <Button
+                              isIconOnly
+                              variant="ghost"
                               aria-label={`Xóa ${t.name}`}
-                              onClick={() => handleDelete(t.id)}
-                              disabled={deletingId === t.id}
-                              className="ml-0.5 text-[var(--text-muted)] hover:text-[var(--danger)] disabled:opacity-40 transition-colors"
+                              onPress={() => handleDelete(t.id)}
+                              isDisabled={deletingId === t.id}
+                              className="h-auto min-w-0 p-0 ml-0.5 text-[var(--text-muted)] hover:text-[var(--danger)] disabled:opacity-40 transition-colors"
                             >
                               {deletingId === t.id
                                 ? <Loader2 size={11} className="animate-spin" />
                                 : <X size={11} />
                               }
-                            </button>
+                            </Button>
                           </div>
                         ))}
                       </div>
@@ -163,30 +167,31 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
                               if (e.key === 'Escape') { setNewItemGroup(''); setNewItemName(''); }
                             }}
                           />
-                          <button
-                            type="button"
-                            onClick={() => handleAddItem(group)}
-                            disabled={saving || !newItemName.trim()}
-                            className="px-3 py-1.5 bg-[var(--primary)] text-[var(--background)] rounded-xl text-xs font-semibold disabled:opacity-50 transition-opacity"
+                          <Button
+                            onPress={() => handleAddItem(group)}
+                            isDisabled={saving || !newItemName.trim()}
+                            className="h-auto min-w-0 px-3 py-1.5 bg-[var(--primary)] text-[var(--background)] rounded-xl text-xs font-semibold disabled:opacity-50 transition-opacity"
                           >
                             {saving ? <Loader2 size={12} className="animate-spin" /> : 'Thêm'}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => { setNewItemGroup(''); setNewItemName(''); }}
-                            className="px-2 py-1.5 rounded-xl border border-[var(--glass-border)] text-xs text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors"
+                          </Button>
+                          <Button
+                            isIconOnly
+                            variant="ghost"
+                            onPress={() => { setNewItemGroup(''); setNewItemName(''); }}
+                            aria-label="Hủy"
+                            className="h-auto min-w-0 px-2 py-1.5 rounded-xl border border-[var(--glass-border)] text-xs text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors"
                           >
                             <X size={12} />
-                          </button>
+                          </Button>
                         </div>
                       ) : (
-                        <button
-                          type="button"
-                          onClick={() => { setNewItemGroup(group); setNewItemName(''); setShowAddGroup(false); }}
-                          className="flex items-center gap-1 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] font-medium mt-1 transition-colors"
+                        <Button
+                          variant="ghost"
+                          onPress={() => { setNewItemGroup(group); setNewItemName(''); setShowAddGroup(false); }}
+                          className="h-auto min-w-0 p-0 flex items-center gap-1 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] font-medium mt-1 transition-colors"
                         >
                           <Plus size={11} /> Thêm vào nhóm này
-                        </button>
+                        </Button>
                       )}
                     </div>
                   )}
@@ -212,31 +217,30 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
                     onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddGroup(); } }}
                   />
                   <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={handleAddGroup}
-                      disabled={saving || !newGroupName.trim() || !newItemName.trim()}
-                      className="flex-1 py-2 bg-[var(--primary)] text-[var(--background)] rounded-xl text-xs font-semibold disabled:opacity-50 transition-opacity"
+                    <Button
+                      onPress={handleAddGroup}
+                      isDisabled={saving || !newGroupName.trim() || !newItemName.trim()}
+                      className="flex-1 h-auto py-2 bg-[var(--primary)] text-[var(--background)] rounded-xl text-xs font-semibold disabled:opacity-50 transition-opacity"
                     >
                       {saving ? <Loader2 size={12} className="animate-spin mx-auto" /> : 'Tạo nhóm'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { setShowAddGroup(false); setNewGroupName(''); setNewItemName(''); }}
-                      className="px-3 py-2 rounded-xl border border-[var(--glass-border)] text-xs text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors"
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onPress={() => { setShowAddGroup(false); setNewGroupName(''); setNewItemName(''); }}
+                      className="h-auto min-w-0 px-3 py-2 rounded-xl border border-[var(--glass-border)] text-xs text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors"
                     >
                       Hủy
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ) : (
-                <button
-                  type="button"
-                  onClick={() => { setShowAddGroup(true); setNewItemGroup(''); setNewItemName(''); }}
-                  className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-dashed border-[var(--glass-border)] text-xs text-[var(--text-muted)] hover:border-[var(--primary)]/40 hover:text-[var(--text-primary)] transition-colors font-medium"
+                <Button
+                  variant="ghost"
+                  onPress={() => { setShowAddGroup(true); setNewItemGroup(''); setNewItemName(''); }}
+                  className="w-full h-auto flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-dashed border-[var(--glass-border)] text-xs text-[var(--text-muted)] hover:border-[var(--primary)]/40 hover:text-[var(--text-primary)] transition-colors font-medium"
                 >
                   <Plus size={12} /> Thêm nhóm mới
-                </button>
+                </Button>
               )}
             </>
           )}
@@ -244,13 +248,12 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
 
         {/* Footer */}
         <div className="px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] border-t border-[var(--glass-border)] shrink-0">
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-full py-2.5 rounded-xl bg-[var(--primary)] text-[var(--background)] text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all"
+          <Button
+            onPress={onClose}
+            className="w-full h-auto py-2.5 rounded-xl bg-[var(--primary)] text-[var(--background)] text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all"
           >
             Xong
-          </button>
+          </Button>
         </div>
       </div>
     </div>

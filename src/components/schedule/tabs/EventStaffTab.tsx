@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { UserMinus, UserPlus, Check } from 'lucide-react';
+import { Button } from '@heroui/react';
 import { useApp } from '../../../context/AppContext';
 import type { FestivalEvent } from '../../../types';
 
@@ -37,13 +38,14 @@ export default function EventStaffTab({ event }: Props) {
       <div className="flex justify-between items-center">
         <p className="text-sm text-[var(--text-muted)]">{event.staff.length} nhân viên được phân công</p>
         {isAdmin && (
-          <button
-            onClick={() => { setShowAdd(!showAdd); setSelected(new Set()); }}
-            className="flex items-center gap-1 text-[var(--primary)] text-sm font-semibold"
+          <Button
+            variant="ghost"
+            onPress={() => { setShowAdd(!showAdd); setSelected(new Set()); }}
+            className="h-auto min-w-0 p-0 flex items-center gap-1 text-[var(--primary)] text-sm font-semibold"
           >
             <UserPlus size={16} />
             Thêm
-          </button>
+          </Button>
         )}
       </div>
 
@@ -56,10 +58,11 @@ export default function EventStaffTab({ event }: Props) {
           ) : (
             <>
               {availableStaff.map(s => (
-                <button
+                <Button
                   key={s.id}
-                  onClick={() => toggleSelect(s.id)}
-                  className={`w-full flex items-center justify-between text-left rounded-xl px-3 py-2 text-sm transition-all border ${
+                  variant="ghost"
+                  onPress={() => toggleSelect(s.id)}
+                  className={`w-full h-auto flex items-center justify-between text-left rounded-xl px-3 py-2 text-sm transition-all border ${
                     selected.has(s.id)
                       ? 'bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]/30'
                       : 'glass-card text-[var(--text-primary)] border-[var(--glass-border)] hover:border-[var(--primary)]/30'
@@ -67,15 +70,15 @@ export default function EventStaffTab({ event }: Props) {
                 >
                   <span>{s.name}{s.city ? ` — ${s.city}` : ''}</span>
                   {selected.has(s.id) && <Check size={15} className="shrink-0" />}
-                </button>
+                </Button>
               ))}
-              <button
-                onClick={handleConfirmAdd}
-                disabled={selected.size === 0}
-                className="w-full mt-1 bg-[var(--primary)] text-[var(--background)] disabled:opacity-40 text-sm font-semibold py-2 rounded-xl transition-opacity"
+              <Button
+                onPress={handleConfirmAdd}
+                isDisabled={selected.size === 0}
+                className="w-full h-auto mt-1 bg-[var(--primary)] text-[var(--background)] disabled:opacity-40 text-sm font-semibold py-2 rounded-xl transition-opacity"
               >
                 Thêm {selected.size > 0 ? `${selected.size} nhân viên` : ''}
-              </button>
+              </Button>
             </>
           )}
         </div>
@@ -95,12 +98,15 @@ export default function EventStaffTab({ event }: Props) {
                 <p className="text-xs text-[var(--text-muted)]">{s.city}</p>
               </div>
               {isAdmin && (
-                <button
-                  onClick={() => removeStaffFromEvent(event.id, s.id)}
-                  className="p-1.5 text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 rounded-lg transition-colors"
+                <Button
+                  isIconOnly
+                  variant="ghost"
+                  onPress={() => removeStaffFromEvent(event.id, s.id)}
+                  aria-label="Gỡ nhân viên"
+                  className="h-auto min-w-0 p-1.5 text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 rounded-lg transition-colors"
                 >
                   <UserMinus size={16} />
-                </button>
+                </Button>
               )}
             </div>
           ))}
