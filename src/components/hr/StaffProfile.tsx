@@ -141,7 +141,7 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
       titreSejeurNumber: editTitreNum.trim() || undefined,
     });
     if (isAdmin && member.userId) {
-      const updates: Record<string, string> = {};
+      const updates: { name?: string; role?: string; status?: string; department?: string | null } = {};
       if (editUsername.trim()) updates.name = editUsername.trim();
       if (editRole !== memberCurrentRole) {
         updates.role   = editRole;

@@ -63,7 +63,7 @@ export default function LoginScreen() {
         setError('Yêu cầu đăng ký quản lý đã bị từ chối. Vui lòng liên hệ admin.');
         setLoading(false); return;
       }
-      login({ id: profile.id, name: profile.name, role: profile.role, department: profile.department ?? null });
+      login({ id: profile.id, name: profile.name, role: profile.role as import('../../types').UserRole, department: (profile.department ?? null) as import('../../types').UserDepartment | null });
     } else {
       await supabase.auth.signOut();
       setError('Không tìm thấy tài khoản. Vui lòng liên hệ admin.');

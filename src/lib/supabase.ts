@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import type { Database } from '../types/database.types';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
 const anonKey     = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
@@ -10,4 +11,4 @@ if (!supabaseUrl || !anonKey) {
 // Client thông thường (anon key) — dùng cho MỌI thao tác phía client.
 // Các thao tác cần quyền admin được xử lý qua Edge Function "admin"
 // (xem src/lib/adminApi.ts) để KHÔNG lộ service-role key trên frontend.
-export const supabase = createClient(supabaseUrl, anonKey);
+export const supabase = createClient<Database>(supabaseUrl, anonKey);

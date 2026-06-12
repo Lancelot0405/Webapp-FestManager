@@ -173,7 +173,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             await supabase.auth.signOut();
             return;
           }
-          dispatch({ type: 'LOGIN', payload: { id: profile.id, name: profile.name, role: profile.role } });
+          dispatch({ type: 'LOGIN', payload: { id: profile.id, name: profile.name, role: profile.role as import('../types').UserRole } });
           loadData(profile.role);
         } else {
           // Không tìm thấy profile (race condition khi đăng ký) — không cho login
