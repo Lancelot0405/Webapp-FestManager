@@ -1,6 +1,6 @@
 import { useState, lazy, Suspense } from 'react';
 import { ArrowLeft, Trash2, Download, Copy } from 'lucide-react';
-import { Tooltip, ScrollShadow } from '@heroui/react';
+import { Tooltip, ScrollShadow, Button } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 // Lazy-load: @react-pdf/renderer rất nặng, chỉ tải khi mở chi tiết sự kiện.
@@ -87,7 +87,7 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
     return (
       <div className="text-center py-20 text-[var(--text-muted)]">
         <p>Không tìm thấy sự kiện</p>
-        <button onClick={onBack} className="mt-4 text-[var(--primary)] text-sm">Quay lại</button>
+        <Button variant="ghost" onPress={onBack} className="mt-4 h-auto min-w-0 p-0 text-[var(--primary)] text-sm">Quay lại</Button>
       </div>
     );
   }
@@ -96,13 +96,15 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
     <div className="pb-6">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
-        <button
-          onClick={onBack}
+        <Button
+          isIconOnly
+          variant="ghost"
+          onPress={onBack}
           aria-label="Quay lại"
-          className="p-1.5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+          className="h-auto min-w-0 p-1.5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
         >
           <ArrowLeft size={20} />
-        </button>
+        </Button>
         <div className="min-w-0 flex-1">
           <h1 className="font-bold text-[var(--text-primary)] text-lg truncate">{event.name}</h1>
           <p className="text-xs text-[var(--text-muted)]">{event.date} · {event.location}</p>
@@ -111,13 +113,15 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
           <div className="flex items-center gap-1 shrink-0">
             <Tooltip>
               <Tooltip.Trigger>
-                <button
-                  onClick={handleExport}
-                  className="p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--primary)] hover:bg-[var(--primary)]/10 transition-colors"
+                <Button
+                  isIconOnly
+                  variant="ghost"
+                  onPress={handleExport}
+                  className="h-auto min-w-0 p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--primary)] hover:bg-[var(--primary)]/10 transition-colors"
                   aria-label="Xuất Excel"
                 >
                   <Download size={18} />
-                </button>
+                </Button>
               </Tooltip.Trigger>
               <Tooltip.Content placement="bottom">Xuất Excel</Tooltip.Content>
             </Tooltip>
@@ -128,25 +132,29 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
             </Suspense>
             <Tooltip>
               <Tooltip.Trigger>
-                <button
-                  onClick={handleClone}
-                  className="p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--success)] hover:bg-[var(--success)]/10 transition-colors"
+                <Button
+                  isIconOnly
+                  variant="ghost"
+                  onPress={handleClone}
+                  className="h-auto min-w-0 p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--success)] hover:bg-[var(--success)]/10 transition-colors"
                   aria-label="Nhân bản sự kiện"
                 >
                   <Copy size={18} />
-                </button>
+                </Button>
               </Tooltip.Trigger>
               <Tooltip.Content placement="bottom">Nhân bản sự kiện</Tooltip.Content>
             </Tooltip>
             <Tooltip>
               <Tooltip.Trigger>
-                <button
-                  onClick={handleDelete}
-                  className="p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 transition-colors"
+                <Button
+                  isIconOnly
+                  variant="ghost"
+                  onPress={handleDelete}
+                  className="h-auto min-w-0 p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 transition-colors"
                   aria-label="Xóa sự kiện"
                 >
                   <Trash2 size={18} />
-                </button>
+                </Button>
               </Tooltip.Trigger>
               <Tooltip.Content placement="bottom">Xóa sự kiện</Tooltip.Content>
             </Tooltip>
@@ -158,17 +166,18 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
       <ScrollShadow orientation="horizontal" className="mb-4">
         <div className="flex border-b border-[var(--glass-border)]">
           {TABS.map(tab => (
-            <button
+            <Button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`-mb-px whitespace-nowrap border-b-2 px-4 py-2 text-sm font-semibold transition-colors ${
+              variant="ghost"
+              onPress={() => setActiveTab(tab.id)}
+              className={`h-auto min-w-0 -mb-px whitespace-nowrap rounded-none border-b-2 px-4 py-2 text-sm font-semibold transition-colors ${
                 activeTab === tab.id
                   ? 'border-[var(--primary)] text-[var(--primary)]'
                   : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]'
               }`}
             >
               {tab.label}
-            </button>
+            </Button>
           ))}
         </div>
       </ScrollShadow>

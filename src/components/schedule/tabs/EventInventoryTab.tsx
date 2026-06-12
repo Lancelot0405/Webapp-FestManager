@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Check, X, ChevronDown, Plus, Trash2 } from 'lucide-react';
+import { Button } from '@heroui/react';
 import { useApp } from '../../../context/AppContext';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
@@ -75,12 +76,13 @@ export default function EventInventoryTab({ event }: Props) {
       {/* Header */}
       <div className="flex justify-between items-center">
         <p className="text-sm text-[var(--text-muted)]">Tồn kho — bấm số lượng để chỉnh sửa</p>
-        <button
-          onClick={e => { e.stopPropagation(); setShowAdd(true); }}
-          className="flex items-center gap-1 text-[var(--primary)] text-sm font-semibold"
+        <Button
+          variant="ghost"
+          onPress={() => setShowAdd(true)}
+          className="h-auto min-w-0 p-0 flex items-center gap-1 text-[var(--primary)] text-sm font-semibold"
         >
           <Plus size={15} /> Thêm
-        </button>
+        </Button>
       </div>
 
       {/* Form thêm */}
@@ -92,9 +94,9 @@ export default function EventInventoryTab({ event }: Props) {
         >
           <div className="flex justify-between items-center">
             <p className="font-semibold text-[var(--text-primary)] text-sm">Thêm mặt hàng mới</p>
-            <button type="button" onClick={() => setShowAdd(false)} className="text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors">
+            <Button isIconOnly variant="ghost" onPress={() => setShowAdd(false)} aria-label="Đóng" className="h-auto min-w-0 p-0 text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors">
               <X size={16} />
-            </button>
+            </Button>
           </div>
           <Input
             label="Tên mặt hàng"
@@ -124,12 +126,12 @@ export default function EventInventoryTab({ event }: Props) {
               options={UNIT_OPTIONS}
             />
           </div>
-          <button
+          <Button
             type="submit"
-            className="w-full bg-[var(--primary)] text-[var(--background)] font-semibold py-2 rounded-xl text-sm hover:opacity-90 transition-opacity"
+            className="w-full h-auto bg-[var(--primary)] text-[var(--background)] font-semibold py-2 rounded-xl text-sm hover:opacity-90 transition-opacity"
           >
             Thêm
-          </button>
+          </Button>
         </form>
       )}
 
@@ -179,44 +181,53 @@ export default function EventInventoryTab({ event }: Props) {
                             onChange={(v) => setEditUnit(v as InventoryUnit)}
                             options={UNIT_OPTIONS}
                           />
-                          <button
-                            onClick={() => handleSave(item.id, item.name)}
-                            className="p-1 text-[var(--success)] hover:bg-[var(--success)]/10 rounded transition-colors"
+                          <Button
+                            isIconOnly
+                            variant="ghost"
+                            onPress={() => handleSave(item.id, item.name)}
+                            aria-label="Lưu"
+                            className="h-auto min-w-0 p-1 text-[var(--success)] hover:bg-[var(--success)]/10 rounded transition-colors"
                           >
                             <Check size={15} />
-                          </button>
-                          <button
-                            onClick={() => setEditingId(null)}
-                            className="p-1 text-[var(--text-muted)] hover:bg-[var(--glass-bg)] rounded transition-colors"
+                          </Button>
+                          <Button
+                            isIconOnly
+                            variant="ghost"
+                            onPress={() => setEditingId(null)}
+                            aria-label="Hủy"
+                            className="h-auto min-w-0 p-1 text-[var(--text-muted)] hover:bg-[var(--glass-bg)] rounded transition-colors"
                           >
                             <X size={15} />
-                          </button>
+                          </Button>
                         </>
                       ) : (
                         <>
-                          <button
-                            className={`text-sm font-bold ${isLow ? 'text-[var(--danger)]' : isWarn ? 'text-indigo-400' : 'text-[var(--primary)]'}`}
-                            onClick={() => startEdit(item.id, item.current, item.unit)}
+                          <Button
+                            variant="ghost"
+                            className={`h-auto min-w-0 p-0 text-sm font-bold ${isLow ? 'text-[var(--danger)]' : isWarn ? 'text-indigo-400' : 'text-[var(--primary)]'}`}
+                            onPress={() => startEdit(item.id, item.current, item.unit)}
                           >
                             {item.current}
-                          </button>
+                          </Button>
                           <div className="relative">
-                            <button
-                              className="flex items-center gap-0.5 text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] px-1 py-0.5 rounded transition-colors"
-                              onClick={e => { e.stopPropagation(); setUnitMenuId(unitMenuId === item.id ? null : item.id); }}
+                            <Button
+                              variant="ghost"
+                              className="h-auto min-w-0 flex items-center gap-0.5 text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] px-1 py-0.5 rounded transition-colors"
+                              onPress={() => setUnitMenuId(unitMenuId === item.id ? null : item.id)}
                             >
                               {item.unit}<ChevronDown size={11} />
-                            </button>
+                            </Button>
                             {unitMenuId === item.id && (
                               <div className="absolute right-0 top-7 z-20 bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] border border-[var(--glass-border)] rounded-xl shadow-lg py-1 min-w-[80px]">
                                 {UNITS.map(u => (
-                                  <button
+                                  <Button
                                     key={u}
-                                    className={`w-full text-left px-3 py-1.5 text-sm hover:bg-[var(--glass-bg)] transition-colors ${u === item.unit ? 'text-[var(--primary)] font-semibold' : 'text-[var(--text-primary)]'}`}
-                                    onClick={() => { updateInventoryUnit(item.id, u); setUnitMenuId(null); }}
+                                    variant="ghost"
+                                    className={`w-full h-auto min-w-0 justify-start rounded-none text-left px-3 py-1.5 text-sm hover:bg-[var(--glass-bg)] transition-colors ${u === item.unit ? 'text-[var(--primary)] font-semibold' : 'text-[var(--text-primary)]'}`}
+                                    onPress={() => { updateInventoryUnit(item.id, u); setUnitMenuId(null); }}
                                   >
                                     {u}
-                                  </button>
+                                  </Button>
                                 ))}
                               </div>
                             )}
@@ -228,12 +239,15 @@ export default function EventInventoryTab({ event }: Props) {
                 </div>
 
                 {editingId !== item.id && (
-                  <button
-                    onClick={() => handleDelete(item.id, item.name)}
-                    className="px-3 text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 border-l border-[var(--glass-border)] transition-colors rounded-r-xl"
+                  <Button
+                    isIconOnly
+                    variant="ghost"
+                    onPress={() => handleDelete(item.id, item.name)}
+                    aria-label="Xóa"
+                    className="h-auto min-w-0 px-3 text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 border-l border-[var(--glass-border)] transition-colors rounded-r-xl rounded-l-none"
                   >
                     <Trash2 size={15} />
-                  </button>
+                  </Button>
                 )}
               </div>
             );

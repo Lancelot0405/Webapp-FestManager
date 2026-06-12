@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { Plus, ChevronDown, ChevronUp, Upload, X, Loader, Image as ImageIcon } from 'lucide-react';
+import { Button } from '@heroui/react';
 import DocThumbnail from '../../shared/DocThumbnail';
 import { useApp } from '../../../context/AppContext';
 import { useToast } from '../../../context/ToastContext';
@@ -133,9 +134,10 @@ export default function EventExpensesTab({ event }: Props) {
             return (
               <div key={staffId} className="glass-card rounded-xl overflow-hidden">
                 {/* Header */}
-                <button
-                  className="w-full flex justify-between items-center px-4 py-3 text-left"
-                  onClick={() => toggle(staffId)}
+                <Button
+                  variant="ghost"
+                  className="w-full h-auto justify-between rounded-none px-4 py-3 text-left"
+                  onPress={() => toggle(staffId)}
                 >
                   <div>
                     <p className="text-sm font-semibold text-[var(--text-primary)]">
@@ -153,19 +155,20 @@ export default function EventExpensesTab({ event }: Props) {
                     ? <ChevronUp size={16} className="text-[var(--text-muted)]" />
                     : <ChevronDown size={16} className="text-[var(--text-muted)]" />
                   }
-                </button>
+                </Button>
 
                 {isOpen && (
                   <div className="border-t border-[var(--glass-border)]">
                     {/* Nút nộp chi phí */}
                     {isMe && !showForm && (
                       <div className="px-4 py-2 bg-[var(--glass-bg)] border-b border-[var(--glass-border)]">
-                        <button
-                          onClick={() => setShowFormForStaff(staffId)}
-                          className="flex items-center gap-1 text-sm text-[var(--primary)] font-semibold"
+                        <Button
+                          variant="ghost"
+                          onPress={() => setShowFormForStaff(staffId)}
+                          className="h-auto min-w-0 p-0 flex items-center gap-1 text-sm text-[var(--primary)] font-semibold"
                         >
                           <Plus size={15} /> Nộp chi phí mới
-                        </button>
+                        </Button>
                       </div>
                     )}
 
@@ -174,9 +177,9 @@ export default function EventExpensesTab({ event }: Props) {
                       <form onSubmit={handleSubmit} className="px-4 py-3 bg-[var(--glass-bg)] border-b border-[var(--glass-border)] space-y-3">
                         <div className="flex justify-between items-center">
                           <p className="text-sm font-bold text-[var(--text-secondary)]">Chi phí mới</p>
-                          <button type="button" onClick={() => { setShowFormForStaff(null); resetForm(); }}>
+                          <Button isIconOnly variant="ghost" onPress={() => { setShowFormForStaff(null); resetForm(); }} aria-label="Đóng" className="h-auto min-w-0 p-0">
                             <X size={15} className="text-[var(--text-muted)]" />
-                          </button>
+                          </Button>
                         </div>
 
                         <div className="grid grid-cols-2 gap-2">
@@ -208,9 +211,9 @@ export default function EventExpensesTab({ event }: Props) {
                             <div className="mt-1 flex items-center gap-2 border border-[var(--glass-border)] bg-[var(--glass-bg)] rounded-xl px-3 py-2">
                               <ImageIcon size={14} className="text-[var(--primary)] shrink-0" />
                               <span className="text-xs text-[var(--text-primary)] truncate flex-1">{expenseFile.name}</span>
-                              <button type="button" onClick={() => { setExpenseFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}>
+                              <Button isIconOnly variant="ghost" onPress={() => { setExpenseFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }} aria-label="Xóa ảnh" className="h-auto min-w-0 p-0">
                                 <X size={13} className="text-[var(--text-muted)] hover:text-[var(--danger)]" />
-                              </button>
+                              </Button>
                             </div>
                           ) : (
                             <label className="mt-1 flex items-center gap-2 border border-dashed border-[var(--glass-border)] rounded-xl px-3 py-2.5 cursor-pointer hover:border-[var(--primary)]/40 hover:bg-[var(--glass-bg)] transition-colors">
@@ -228,21 +231,21 @@ export default function EventExpensesTab({ event }: Props) {
                         </div>
 
                         <div className="flex gap-2">
-                          <button
+                          <Button
                             type="submit"
-                            disabled={uploading}
-                            className="flex-1 flex items-center justify-center gap-1.5 bg-[var(--primary)] text-[var(--background)] text-sm font-semibold py-2 rounded-xl disabled:opacity-60 transition-opacity"
+                            isDisabled={uploading}
+                            className="flex-1 h-auto flex items-center justify-center gap-1.5 bg-[var(--primary)] text-[var(--background)] text-sm font-semibold py-2 rounded-xl disabled:opacity-60 transition-opacity"
                           >
                             {uploading && <Loader size={13} className="animate-spin" />}
                             {uploading ? 'Đang gửi...' : 'Gửi'}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => { setShowFormForStaff(null); resetForm(); }}
-                            className="flex-1 border border-[var(--glass-border)] bg-[var(--glass-bg)] text-sm text-[var(--text-secondary)] py-2 rounded-xl transition-colors"
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            onPress={() => { setShowFormForStaff(null); resetForm(); }}
+                            className="flex-1 h-auto border border-[var(--glass-border)] bg-[var(--glass-bg)] text-sm text-[var(--text-secondary)] py-2 rounded-xl transition-colors"
                           >
                             Huỷ
-                          </button>
+                          </Button>
                         </div>
                       </form>
                     )}
@@ -271,18 +274,20 @@ export default function EventExpensesTab({ event }: Props) {
                           )}
                           {isAdmin && r.status === 'pending' && (
                             <div className="flex gap-2 mt-2">
-                              <button
-                                onClick={() => updateExpenseStatus(event.id, r.id, 'approved')}
-                                className="flex-1 text-xs bg-[var(--success)]/10 text-[var(--success)] font-semibold py-1.5 rounded-xl border border-[var(--success)]/20 hover:bg-[var(--success)]/20 transition-colors"
+                              <Button
+                                variant="ghost"
+                                onPress={() => updateExpenseStatus(event.id, r.id, 'approved')}
+                                className="flex-1 h-auto text-xs bg-[var(--success)]/10 text-[var(--success)] font-semibold py-1.5 rounded-xl border border-[var(--success)]/20 hover:bg-[var(--success)]/20 transition-colors"
                               >
                                 Duyệt
-                              </button>
-                              <button
-                                onClick={() => updateExpenseStatus(event.id, r.id, 'rejected')}
-                                className="flex-1 text-xs bg-[var(--danger)]/10 text-[var(--danger)] font-semibold py-1.5 rounded-xl border border-[var(--danger)]/20 hover:bg-[var(--danger)]/20 transition-colors"
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                onPress={() => updateExpenseStatus(event.id, r.id, 'rejected')}
+                                className="flex-1 h-auto text-xs bg-[var(--danger)]/10 text-[var(--danger)] font-semibold py-1.5 rounded-xl border border-[var(--danger)]/20 hover:bg-[var(--danger)]/20 transition-colors"
                               >
                                 Từ chối
-                              </button>
+                              </Button>
                             </div>
                           )}
                         </div>
