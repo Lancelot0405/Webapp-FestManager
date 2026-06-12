@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, Plus, Upload, Image, X, Loader, Pencil, Check, CreditCard, ShieldCheck, KeyRound, Copy, CheckCheck, Building2 } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
@@ -12,18 +13,22 @@ import { adminApi } from '../../lib/adminApi';
 import { getErrorMessage } from '../../lib/errors';
 import type { ExpenseCategory, Expense, StaffDocument, UserRole, UserDepartment } from '../../types';
 
-interface StaffProfileProps {
-  staffId: string;
-  onBack?: () => void;
-}
-
 const CATEGORIES: ExpenseCategory[] = ['Vé tàu/xe', 'Uber/Taxi', 'Ăn uống', 'Khác'];
 const MAX_FILE_MB = 5;
 
-export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
+export default function StaffProfile() {
+  const { staffId: paramStaffId } = useParams<{ staffId?: string }>();
+  const navigate = useNavigate();
   const { state, addExpense, addContract, updateStaff } = useApp();
   const showToast = useToast();
   const { staff, events, currentUser } = state;
+
+  // Khi ở /hr/:staffId → dùng params; khi ở /profile → tìm staff của chính mình
+  const staffId = paramStaffId ?? (() => {
+    const mine = staff.find(s => s.userId === currentUser?.id)
+              ?? staff.find(s => s.name.toLowerCase() === currentUser?.name.toLowerCase());
+    return mine ? String(mine.id) : '';
+  })();
 
   const member = staff.find(s => String(s.id) === staffId);
   const isOwnProfile = currentUser && member?.userId === currentUser.id;
@@ -83,8 +88,8 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
   if (!member) return (
     <div className="text-center py-20 text-[var(--text-muted)]">
       <p>Không tìm thấy nhân viên</p>
-      {onBack && (
-        <Button variant="ghost" size="sm" className="mt-4 text-sm" onPress={onBack}>
+      {paramStaffId && (
+        <Button variant="ghost" size="sm" className="mt-4 text-sm" onPress={() => navigate(-1)}>
           Quay lại
         </Button>
       )}
@@ -225,9 +230,9 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
 
   return (
     <div className="space-y-5 pb-20">
-      {onBack && (
+      {paramStaffId && (
         <div className="flex items-center gap-2">
-          <Button isIconOnly variant="ghost" size="sm" className="text-[var(--text-muted)] hover:text-[var(--text-primary)]" onPress={onBack}>
+          <Button isIconOnly variant="ghost" size="sm" className="text-[var(--text-muted)] hover:text-[var(--text-primary)]" onPress={() => navigate(-1)}>
             <ArrowLeft size={22} />
           </Button>
           <h1 className="text-lg font-bold text-[var(--text-primary)]">Hồ sơ nhân viên</h1>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { TrendingUp, TrendingDown, DollarSign, FileSpreadsheet, Pencil, Check, X } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { Input } from '@/components/ui/input';
@@ -6,11 +7,8 @@ import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
 import type { ExpenseStatus, FestivalEvent } from '../../types';
 
-interface FinanceProps {
-  onSelectEvent: (id: number) => void;
-}
-
-export default function Finance({ onSelectEvent }: FinanceProps) {
+export default function Finance() {
+  const navigate = useNavigate();
   const { state, updateEvent, updateExpenseStatus } = useApp();
   const { events } = state;
 
@@ -260,7 +258,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
                 <div className="flex justify-between items-start mb-3">
                   <Button
                     variant="ghost"
-                    onPress={() => onSelectEvent(event.id)}
+                    onPress={() => navigate('/schedule/' + event.id)}
                     className="h-auto min-w-0 flex-1 justify-start rounded-none p-0 text-left"
                   >
                     <div className="min-w-0">

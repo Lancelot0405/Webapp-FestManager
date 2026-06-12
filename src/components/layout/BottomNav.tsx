@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@heroui/react';
 import {
   LayoutDashboard,
@@ -10,41 +11,40 @@ import {
   Building2,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import type { ActiveTab } from '../../types';
 
 interface BottomNavProps {
-  activeTab:   ActiveTab;
-  onTabChange: (tab: ActiveTab) => void;
   navVisible?: boolean;
 }
 
-const ADMIN_TABS: { tab: ActiveTab; icon: (compact: boolean) => React.ReactNode; label: string }[] = [
-  { tab: 'dashboard', icon: c => <LayoutDashboard size={c ? 18 : 20} />, label: 'Tổng quan'  },
-  { tab: 'schedule',  icon: c => <Calendar        size={c ? 18 : 20} />, label: 'Lịch trình' },
-  { tab: 'inventory', icon: c => <Package         size={c ? 18 : 20} />, label: 'Kho hàng'   },
-  { tab: 'finance',   icon: c => <DollarSign      size={c ? 18 : 20} />, label: 'Tài chính'  },
-  { tab: 'hr',        icon: c => <Users           size={c ? 18 : 20} />, label: 'Nhân sự'    },
-  { tab: 'clients',   icon: c => <Building2       size={c ? 18 : 20} />, label: 'Khách hàng' },
+const ADMIN_TABS = [
+  { path: 'dashboard', icon: (c: boolean) => <LayoutDashboard size={c ? 18 : 20} />, label: 'Tổng quan'  },
+  { path: 'schedule',  icon: (c: boolean) => <Calendar        size={c ? 18 : 20} />, label: 'Lịch trình' },
+  { path: 'inventory', icon: (c: boolean) => <Package         size={c ? 18 : 20} />, label: 'Kho hàng'   },
+  { path: 'finance',   icon: (c: boolean) => <DollarSign      size={c ? 18 : 20} />, label: 'Tài chính'  },
+  { path: 'hr',        icon: (c: boolean) => <Users           size={c ? 18 : 20} />, label: 'Nhân sự'    },
+  { path: 'clients',   icon: (c: boolean) => <Building2       size={c ? 18 : 20} />, label: 'Khách hàng' },
 ];
 
-const MANAGER_TABS: { tab: ActiveTab; icon: (compact: boolean) => React.ReactNode; label: string }[] = [
-  { tab: 'dashboard', icon: c => <LayoutDashboard size={c ? 18 : 20} />, label: 'Tổng quan'  },
-  { tab: 'schedule',  icon: c => <Calendar        size={c ? 18 : 20} />, label: 'Lịch trình' },
-  { tab: 'inventory', icon: c => <Package         size={c ? 18 : 20} />, label: 'Kho hàng'   },
-  { tab: 'hr',        icon: c => <Users           size={c ? 18 : 20} />, label: 'Nhân sự'    },
-  { tab: 'profile',   icon: c => <User            size={c ? 18 : 20} />, label: 'Hồ sơ'      },
+const MANAGER_TABS = [
+  { path: 'dashboard', icon: (c: boolean) => <LayoutDashboard size={c ? 18 : 20} />, label: 'Tổng quan'  },
+  { path: 'schedule',  icon: (c: boolean) => <Calendar        size={c ? 18 : 20} />, label: 'Lịch trình' },
+  { path: 'inventory', icon: (c: boolean) => <Package         size={c ? 18 : 20} />, label: 'Kho hàng'   },
+  { path: 'hr',        icon: (c: boolean) => <Users           size={c ? 18 : 20} />, label: 'Nhân sự'    },
+  { path: 'profile',   icon: (c: boolean) => <User            size={c ? 18 : 20} />, label: 'Hồ sơ'      },
 ];
 
-const STAFF_TABS: { tab: ActiveTab; icon: (compact: boolean) => React.ReactNode; label: string }[] = [
-  { tab: 'dashboard', icon: c => <LayoutDashboard size={c ? 18 : 20} />, label: 'Tổng quan'  },
-  { tab: 'schedule',  icon: c => <Calendar        size={c ? 18 : 20} />, label: 'Lịch trình' },
-  { tab: 'inventory', icon: c => <Package         size={c ? 18 : 20} />, label: 'Kho hàng'   },
-  { tab: 'profile',   icon: c => <User            size={c ? 18 : 20} />, label: 'Hồ sơ'      },
+const STAFF_TABS = [
+  { path: 'dashboard', icon: (c: boolean) => <LayoutDashboard size={c ? 18 : 20} />, label: 'Tổng quan'  },
+  { path: 'schedule',  icon: (c: boolean) => <Calendar        size={c ? 18 : 20} />, label: 'Lịch trình' },
+  { path: 'inventory', icon: (c: boolean) => <Package         size={c ? 18 : 20} />, label: 'Kho hàng'   },
+  { path: 'profile',   icon: (c: boolean) => <User            size={c ? 18 : 20} />, label: 'Hồ sơ'      },
 ];
 
-export default function BottomNav({ activeTab, onTabChange, navVisible = true }: BottomNavProps) {
+export default function BottomNav({ navVisible = true }: BottomNavProps) {
   const { state }       = useApp();
   const { currentUser } = state;
+  const navigate        = useNavigate();
+  const location        = useLocation();
 
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   useEffect(() => {
@@ -71,6 +71,9 @@ export default function BottomNav({ activeTab, onTabChange, navVisible = true }:
                : STAFF_TABS;
   const compact = tabs.length >= 6;
 
+  // Detect active tab from current path segment
+  const activeSegment = location.pathname.split('/')[1] || 'dashboard';
+
   return (
     <nav
       className="fixed bottom-3 left-1/2 z-20 pb-safe transition-transform duration-300 ease-out"
@@ -83,13 +86,13 @@ export default function BottomNav({ activeTab, onTabChange, navVisible = true }:
         className="bottom-nav-pill flex justify-around items-center px-2 py-1.5 rounded-[26px]"
         style={{ backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
       >
-        {tabs.map(({ tab, icon, label }) => {
-          const isActive = activeTab === tab;
+        {tabs.map(({ path, icon, label }) => {
+          const isActive = activeSegment === path;
           return (
             <Button
-              key={tab}
+              key={path}
               variant="ghost"
-              onPress={() => onTabChange(tab)}
+              onPress={() => navigate('/' + path)}
               aria-current={isActive ? 'page' : undefined}
               aria-label={label}
               className="flex flex-col items-center gap-0.5 px-1 py-1 min-w-0 flex-1 h-auto rounded-xl"

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, User, Trash2, ShieldCheck, Check, X } from 'lucide-react';
 import { Button, ScrollShadow } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
@@ -8,13 +9,10 @@ import { Fab } from '@/components/ui/fab';
 import { SkeletonList } from '@/components/ui/skeleton';
 import type { StaffMember } from '../../types';
 
-interface HRGlobalProps {
-  onSelectStaff: (id: string) => void;
-}
-
 type TypeFilter = 'Tất cả' | 'Nhân viên cứng' | 'Part-time';
 
-export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
+export default function HRGlobal() {
+  const navigate = useNavigate();
   const { state, deleteStaff, approveRegistration, rejectRegistration } = useApp();
   const { staff, events, currentUser, pendingRegistrations } = state;
   const isAdmin   = currentUser?.role === 'admin';
@@ -68,7 +66,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
         >
           <Button
             variant="ghost"
-            onPress={() => onSelectStaff(String(s.id))}
+            onPress={() => navigate('/hr/' + s.id)}
             className="flex-1 h-auto min-w-0 justify-start rounded-none p-4 text-left active:bg-[var(--glass-bg)]"
           >
             <div className="flex w-full items-center gap-3">

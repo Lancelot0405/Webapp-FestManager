@@ -1,17 +1,18 @@
+import { useNavigate } from 'react-router-dom';
 import { UtensilsCrossed } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 
 interface TopBarProps {
-  onLogoClick:      () => void;
-  onOpenSheet:      () => void;
-  navVisible?:      boolean;
-  notifCount?:      number;
+  onOpenSheet:  () => void;
+  navVisible?:  boolean;
+  notifCount?:  number;
 }
 
-export default function TopBar({ onLogoClick, onOpenSheet, navVisible = true, notifCount = 0 }: TopBarProps) {
+export default function TopBar({ onOpenSheet, navVisible = true, notifCount = 0 }: TopBarProps) {
   const { state }       = useApp();
   const { currentUser } = state;
+  const navigate        = useNavigate();
 
   if (!currentUser) return null;
 
@@ -23,10 +24,9 @@ export default function TopBar({ onLogoClick, onOpenSheet, navVisible = true, no
       style={{ top: navVisible ? 0 : '-3.75rem' }}
     >
       <div className="flex justify-between items-center h-14">
-        {/* Logo */}
         <Button
           variant="ghost"
-          onPress={onLogoClick}
+          onPress={() => navigate('/dashboard')}
           className="h-auto min-w-0 p-0 bg-transparent flex items-center gap-2 focus:outline-none"
         >
           <div className="w-8 h-8 rounded-xl bg-[var(--primary)] flex items-center justify-center shadow-[var(--shadow-float)]">
@@ -37,7 +37,6 @@ export default function TopBar({ onLogoClick, onOpenSheet, navVisible = true, no
           </span>
         </Button>
 
-        {/* Avatar button */}
         <Button
           isIconOnly
           variant="ghost"

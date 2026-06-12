@@ -1,16 +1,13 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Calendar, Users, Package, Clock, TrendingUp, ChevronRight } from 'lucide-react';
 import { Button, Avatar } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
-import type { ActiveTab, FestivalEvent, StaffMember, StaffRef } from '../../types';
+import type { FestivalEvent, StaffMember, StaffRef } from '../../types';
 
-interface DashboardProps {
-  onSelectEvent: (id: number) => void;
-  onNavigate:    (tab: ActiveTab) => void;
-}
-
-export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps) {
+export default function Dashboard() {
+  const navigate = useNavigate();
   const { state } = useApp();
   const { currentUser, events, inventory, staff } = state;
 
@@ -60,7 +57,7 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
           </h1>
           {activeEvent ? (
             <Button
-              onPress={() => onSelectEvent(activeEvent.id)}
+              onPress={() => navigate("/schedule/" + activeEvent.id)}
               variant="ghost"
               className="mt-3 flex items-center gap-1.5 bg-[var(--primary)]/10 hover:bg-[var(--primary)]/15 border border-[var(--primary)]/20 rounded-xl px-3 py-1.5 text-sm font-semibold text-[var(--primary)] transition-all"
             >
@@ -85,28 +82,28 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
             icon={<Calendar size={18} />}
             label="Sự kiện sắp tới"
             value={upcomingEvents.length}
-            onClick={() => onNavigate('schedule')}
+            onClick={() => navigate("/schedule")}
           />
           <StatCard
             icon={<Users size={18} />}
             label="Tổng nhân viên"
             value={staff.length}
             accentColor="indigo"
-            onClick={() => onNavigate('hr')}
+            onClick={() => navigate("/hr")}
           />
           <StatCard
             icon={<Package size={18} />}
             label="Kho sắp hết"
             value={lowStockCount}
             alert={lowStockCount > 0}
-            onClick={() => onNavigate('inventory')}
+            onClick={() => navigate("/inventory")}
           />
           <StatCard
             icon={<Clock size={18} />}
             label="Chi phí chờ duyệt"
             value={pendingExpenses.length}
             alert={pendingExpenses.length > 0}
-            onClick={() => onNavigate('finance')}
+            onClick={() => navigate("/finance")}
           />
         </div>
       ) : (
@@ -115,14 +112,14 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
             icon={<Calendar size={18} />}
             label="Sự kiện của tôi"
             value={myEvents.length}
-            onClick={() => onNavigate('schedule')}
+            onClick={() => navigate("/schedule")}
           />
           <StatCard
             icon={<Clock size={18} />}
             label="Chi phí chờ duyệt"
             value={myPendingExpenses.length}
             alert={myPendingExpenses.length > 0}
-            onClick={() => onNavigate('profile')}
+            onClick={() => navigate("/profile")}
           />
         </div>
       )}
@@ -131,7 +128,7 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
       <div>
         <SectionHeader
           title={canViewAll ? 'Sự kiện sắp tới' : 'Sự kiện của tôi'}
-          onMore={canViewAll ? () => onNavigate('schedule') : undefined}
+          onMore={canViewAll ? () => navigate("/schedule") : undefined}
         />
         {displayEvents.length === 0 ? (
           <EmptyState text="Không có sự kiện nào" />
@@ -141,7 +138,7 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
               <Button
                 key={event.id}
                 variant="ghost"
-                onPress={() => onSelectEvent(event.id)}
+                onPress={() => navigate("/schedule/" + event.id)}
                 className="w-full h-auto justify-start text-left glass-card rounded-2xl p-4 hover:border-[var(--primary)]/30 hover:shadow-[var(--shadow-card)] active:scale-[0.99] transition-all duration-150"
               >
                 <div className="flex w-full justify-between items-start gap-2">
@@ -184,7 +181,7 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
             <RevenueChart events={events} />
           </div>
           <div>
-            <SectionHeader title="Top nhân viên" onMore={() => onNavigate('hr')} />
+            <SectionHeader title="Top nhân viên" onMore={() => navigate('/hr')} />
             <TopStaffList events={events} staff={staff} />
           </div>
         </div>

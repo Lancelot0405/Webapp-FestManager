@@ -1,3 +1,4 @@
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@heroui/react';
 import {
   LayoutDashboard,
@@ -11,47 +12,45 @@ import {
   ChevronUp,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import type { ActiveTab } from '../../types';
 
 interface SidebarProps {
-  activeTab:    ActiveTab;
-  onTabChange:  (tab: ActiveTab) => void;
-  onLogoClick:  () => void;
   onOpenSheet?: () => void;
   notifCount?:  number;
 }
 
-const ADMIN_TABS: { tab: ActiveTab; icon: React.ReactNode; label: string }[] = [
-  { tab: 'dashboard', icon: <LayoutDashboard size={20} />, label: 'Tổng quan'  },
-  { tab: 'schedule',  icon: <Calendar        size={20} />, label: 'Lịch trình' },
-  { tab: 'inventory', icon: <Package         size={20} />, label: 'Kho hàng'   },
-  { tab: 'finance',   icon: <DollarSign      size={20} />, label: 'Tài chính'  },
-  { tab: 'hr',        icon: <Users           size={20} />, label: 'Nhân sự'    },
-  { tab: 'clients',   icon: <Building2       size={20} />, label: 'Khách hàng' },
+const ADMIN_TABS = [
+  { path: 'dashboard', icon: <LayoutDashboard size={20} />, label: 'Tổng quan'  },
+  { path: 'schedule',  icon: <Calendar        size={20} />, label: 'Lịch trình' },
+  { path: 'inventory', icon: <Package         size={20} />, label: 'Kho hàng'   },
+  { path: 'finance',   icon: <DollarSign      size={20} />, label: 'Tài chính'  },
+  { path: 'hr',        icon: <Users           size={20} />, label: 'Nhân sự'    },
+  { path: 'clients',   icon: <Building2       size={20} />, label: 'Khách hàng' },
 ];
 
-const MANAGER_TABS: { tab: ActiveTab; icon: React.ReactNode; label: string }[] = [
-  { tab: 'dashboard', icon: <LayoutDashboard size={20} />, label: 'Tổng quan'  },
-  { tab: 'schedule',  icon: <Calendar        size={20} />, label: 'Lịch trình' },
-  { tab: 'inventory', icon: <Package         size={20} />, label: 'Kho hàng'   },
-  { tab: 'hr',        icon: <Users           size={20} />, label: 'Nhân sự'    },
-  { tab: 'profile',   icon: <User            size={20} />, label: 'Hồ sơ'      },
+const MANAGER_TABS = [
+  { path: 'dashboard', icon: <LayoutDashboard size={20} />, label: 'Tổng quan'  },
+  { path: 'schedule',  icon: <Calendar        size={20} />, label: 'Lịch trình' },
+  { path: 'inventory', icon: <Package         size={20} />, label: 'Kho hàng'   },
+  { path: 'hr',        icon: <Users           size={20} />, label: 'Nhân sự'    },
+  { path: 'profile',   icon: <User            size={20} />, label: 'Hồ sơ'      },
 ];
 
-const STAFF_TABS: { tab: ActiveTab; icon: React.ReactNode; label: string }[] = [
-  { tab: 'dashboard', icon: <LayoutDashboard size={20} />, label: 'Tổng quan'  },
-  { tab: 'schedule',  icon: <Calendar        size={20} />, label: 'Lịch trình' },
-  { tab: 'inventory', icon: <Package         size={20} />, label: 'Kho hàng'   },
-  { tab: 'profile',   icon: <User            size={20} />, label: 'Hồ sơ'      },
+const STAFF_TABS = [
+  { path: 'dashboard', icon: <LayoutDashboard size={20} />, label: 'Tổng quan'  },
+  { path: 'schedule',  icon: <Calendar        size={20} />, label: 'Lịch trình' },
+  { path: 'inventory', icon: <Package         size={20} />, label: 'Kho hàng'   },
+  { path: 'profile',   icon: <User            size={20} />, label: 'Hồ sơ'      },
 ];
 
 const roleLabel: Record<string, string> = {
   admin: 'Admin', manager: 'Quản lý', staff: 'Nhân viên',
 };
 
-export default function Sidebar({ activeTab, onTabChange, onLogoClick, onOpenSheet, notifCount = 0 }: SidebarProps) {
+export default function Sidebar({ onOpenSheet, notifCount = 0 }: SidebarProps) {
   const { state }       = useApp();
   const { currentUser } = state;
+  const navigate        = useNavigate();
+  const location        = useLocation();
 
   if (!currentUser) return null;
 
@@ -63,8 +62,10 @@ export default function Sidebar({ activeTab, onTabChange, onLogoClick, onOpenShe
     (sum, e) => sum + e.receipts.filter(r => r.status === 'pending').length,
     0
   );
-  const badgeFor = (tab: ActiveTab) =>
-    tab === 'finance' && pendingExpenses > 0 ? pendingExpenses : 0;
+  const badgeFor = (path: string) =>
+    path === 'finance' && pendingExpenses > 0 ? pendingExpenses : 0;
+
+  const activeSegment = location.pathname.split('/')[1] || 'dashboard';
 
   return (
     <aside className="hidden md:flex flex-col w-56 lg:w-64 glass-card border-r border-[var(--glass-border)] shrink-0 sticky top-0 h-screen animate-slide-left">
@@ -72,7 +73,7 @@ export default function Sidebar({ activeTab, onTabChange, onLogoClick, onOpenShe
       {/* Logo */}
       <Button
         variant="ghost"
-        onPress={onLogoClick}
+        onPress={() => navigate('/dashboard')}
         className="h-16 min-w-0 justify-start rounded-none flex items-center gap-2.5 px-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]/40 border-b border-[var(--glass-border)]"
       >
         <div className="w-8 h-8 rounded-xl bg-[var(--primary)] flex items-center justify-center shadow-[var(--shadow-float)]">
@@ -85,14 +86,14 @@ export default function Sidebar({ activeTab, onTabChange, onLogoClick, onOpenShe
 
       {/* Nav items */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {tabs.map(({ tab, icon, label }) => {
-          const isActive = activeTab === tab;
-          const badge = badgeFor(tab);
+        {tabs.map(({ path, icon, label }) => {
+          const isActive = activeSegment === path;
+          const badge    = badgeFor(path);
           return (
             <Button
-              key={tab}
+              key={path}
               variant={isActive ? 'primary' : 'ghost'}
-              onPress={() => onTabChange(tab)}
+              onPress={() => navigate('/' + path)}
               aria-current={isActive ? 'page' : undefined}
               fullWidth
               className={`flex items-center gap-3 px-3 py-2.5 justify-start text-sm md:text-base font-semibold h-auto rounded-xl ${
@@ -117,7 +118,7 @@ export default function Sidebar({ activeTab, onTabChange, onLogoClick, onOpenShe
         })}
       </nav>
 
-      {/* User info footer — mở UserSheet (theme, thông báo, đăng xuất...) */}
+      {/* User info footer */}
       <div className="px-3 py-3 border-t border-[var(--glass-border)]">
         <Button
           variant="ghost"

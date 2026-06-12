@@ -1,4 +1,5 @@
 import { useState, lazy, Suspense } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trash2, Download, Copy } from 'lucide-react';
 import { Tooltip, ScrollShadow, Button } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
@@ -11,11 +12,6 @@ import EventExpensesTab   from './tabs/EventExpensesTab';
 import EventInventoryTab  from './tabs/EventInventoryTab';
 import EventContractsTab  from './tabs/EventContractsTab';
 
-interface EventDetailProps {
-  eventId: number;
-  onBack: () => void;
-}
-
 type Tab = 'info' | 'staff' | 'expenses' | 'inventory' | 'contracts';
 
 const TABS: { id: Tab; label: string }[] = [
@@ -26,9 +22,12 @@ const TABS: { id: Tab; label: string }[] = [
   { id: 'contracts', label: 'Hợp đồng'  },
 ];
 
-export default function EventDetail({ eventId, onBack }: EventDetailProps) {
+export default function EventDetail() {
+  const { eventId: eventIdParam } = useParams<{ eventId: string }>();
+  const navigate = useNavigate();
   const { state, deleteEvent, cloneEvent } = useApp();
   const showToast = useToast();
+  const eventId = Number(eventIdParam);
   const event = state.events.find(e => e.id === eventId);
   const [activeTab, setActiveTab] = useState<Tab>('info');
   const isAdmin   = state.currentUser?.role === 'admin';
@@ -39,14 +38,14 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
     if (!event) return;
     cloneEvent(event);
     showToast(`Đã nhân bản "${event.name}"`, 'success');
-    onBack();
+    navigate('/schedule');
   };
 
   const handleDelete = () => {
     if (!event) return;
     if (window.confirm(`Xóa sự kiện "${event.name}"?\nThao tác này không thể hoàn tác.`)) {
       deleteEvent(event.id);
-      onBack();
+      navigate('/schedule');
     }
   };
 
@@ -87,7 +86,7 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
     return (
       <div className="text-center py-20 text-[var(--text-muted)]">
         <p>Không tìm thấy sự kiện</p>
-        <Button variant="ghost" onPress={onBack} className="mt-4 h-auto min-w-0 p-0 text-[var(--primary)] text-sm">Quay lại</Button>
+        <Button variant="ghost" onPress={() => navigate(-1)} className="mt-4 h-auto min-w-0 p-0 text-[var(--primary)] text-sm">Quay lại</Button>
       </div>
     );
   }
@@ -99,7 +98,7 @@ export default function EventDetail({ eventId, onBack }: EventDetailProps) {
         <Button
           isIconOnly
           variant="ghost"
-          onPress={onBack}
+          onPress={() => navigate(-1)}
           aria-label="Quay lại"
           className="h-auto min-w-0 p-1.5 rounded-xl bg-[var(--glass-bg)] border border-[var(--glass-border)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
         >

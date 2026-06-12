@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Trash2, Search } from 'lucide-react';
 import { Button, ScrollShadow } from '@heroui/react';
 import { Input } from '@/components/ui/input';
@@ -9,10 +10,6 @@ import AddEventForm from './AddEventForm';
 import { SkeletonList } from '@/components/ui/skeleton';
 import { computeEventStatus } from '../../lib/eventStatus';
 import type { EventStatus, FestivalEvent } from '../../types';
-
-interface ScheduleProps {
-  onSelectEvent: (id: number) => void;
-}
 
 function parseDate(d: string): number {
   if (!d) return 0;
@@ -30,7 +27,8 @@ const STATUS_FILTERS: StatusFilter[] = [
   'Lên kế hoạch',
 ];
 
-export default function Schedule({ onSelectEvent }: ScheduleProps) {
+export default function Schedule() {
+  const navigate = useNavigate();
   const { state, deleteEvent } = useApp();
   const { events, currentUser, staff } = state;
   const isAdmin   = currentUser?.role === 'admin';
@@ -125,7 +123,7 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
               key={event.id}
               event={event}
               isAdmin={isAdmin}
-              onSelect={() => onSelectEvent(event.id)}
+              onSelect={() => navigate('/schedule/' + event.id)}
               onDelete={() => {
                 if (window.confirm(`Xóa sự kiện "${event.name}"?\nThao tác này không thể hoàn tác.`)) {
                   deleteEvent(event.id);
