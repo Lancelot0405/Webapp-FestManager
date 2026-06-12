@@ -126,7 +126,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
 
       {/* Month filter */}
       {allMonths.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto pb-1">
+        <div className="flex gap-2 overflow-x-auto pb-1 lg:flex-wrap lg:overflow-x-visible">
           <button
             onClick={() => setSelectedMonth('all')}
             className={`shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
@@ -243,7 +243,7 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
       {/* Per-event breakdown */}
       <div>
         <h2 className="text-sm font-semibold text-[var(--text-secondary)] mb-3">Theo sự kiện</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {filteredEvents.map(event => {
             const fixedExp = Object.values(event.financials.expenses).reduce<number>((s, v) => s + (v ?? 0), 0);
             const approvedReceiptsForEvent = event.receipts

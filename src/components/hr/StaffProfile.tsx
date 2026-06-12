@@ -234,6 +234,9 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
         </div>
       )}
 
+      <div className="space-y-5 md:grid md:grid-cols-2 md:gap-5 md:space-y-0 md:items-start">
+      {/* ── CỘT TRÁI: Thông tin + Tài khoản ──────────────────────────── */}
+      <div className="space-y-5">
       {/* ── THÔNG TIN CÁ NHÂN ──────────────────────────────────────────── */}
       <div className="glass-card rounded-xl p-4">
         <div className="flex justify-between items-center mb-3">
@@ -461,6 +464,9 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
           )}
         </div>
       )}
+      </div>
+      {/* ── CỘT PHẢI: Tài liệu + Hợp đồng + Chi phí ──────────────────── */}
+      <div className="space-y-5">
 
       {/* ── TÀI LIỆU CÁ NHÂN ───────────────────────────────────────────── */}
       {canEdit && (
@@ -655,6 +661,8 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
             ))}
           </div>
         )}
+      </div>
+      </div>
       </div>
     </div>
   );

@@ -56,6 +56,13 @@ export default function Sidebar({ activeTab, onTabChange, onLogoClick }: Sidebar
              : currentUser.role === 'manager' ? MANAGER_TABS
              : STAFF_TABS;
 
+  const pendingExpenses = state.events.reduce(
+    (sum, e) => sum + e.receipts.filter(r => r.status === 'pending').length,
+    0
+  );
+  const badgeFor = (tab: ActiveTab) =>
+    tab === 'finance' && pendingExpenses > 0 ? pendingExpenses : 0;
+
   return (
     <aside className="hidden md:flex flex-col w-56 lg:w-64 glass-card border-r border-[var(--glass-border)] shrink-0 sticky top-0 h-screen animate-slide-left">
 
@@ -76,6 +83,7 @@ export default function Sidebar({ activeTab, onTabChange, onLogoClick }: Sidebar
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {tabs.map(({ tab, icon, label }) => {
           const isActive = activeTab === tab;
+          const badge = badgeFor(tab);
           return (
             <Button
               key={tab}
@@ -83,7 +91,7 @@ export default function Sidebar({ activeTab, onTabChange, onLogoClick }: Sidebar
               onPress={() => onTabChange(tab)}
               aria-current={isActive ? 'page' : undefined}
               fullWidth
-              className={`flex items-center gap-3 px-3 py-2.5 justify-start text-sm font-semibold h-auto rounded-xl ${
+              className={`flex items-center gap-3 px-3 py-2.5 justify-start text-sm md:text-base font-semibold h-auto rounded-xl ${
                 isActive
                   ? 'bg-[var(--primary)] text-[var(--background)]'
                   : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--glass-bg)]'
@@ -93,6 +101,13 @@ export default function Sidebar({ activeTab, onTabChange, onLogoClick }: Sidebar
                 {icon}
               </span>
               {label}
+              {badge > 0 && (
+                <span className={`ml-auto min-w-5 px-1.5 py-0.5 rounded-full text-[10px] font-bold text-center ${
+                  isActive ? 'bg-[var(--background)]/20 text-[var(--background)]' : 'bg-[var(--danger)] text-white'
+                }`}>
+                  {badge > 9 ? '9+' : badge}
+                </span>
+              )}
             </Button>
           );
         })}
