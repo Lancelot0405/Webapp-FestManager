@@ -20,6 +20,11 @@ export interface InputProps extends Omit<TextFieldRootProps, "children"> {
   className?: string
   inputClassName?: string
   autoComplete?: string
+  min?: number | string
+  max?: number | string
+  step?: number | string
+  minLength?: number
+  autoFocus?: boolean
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -33,8 +38,13 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     inputClassName,
     placeholder,
     type,
+    min,
+    max,
+    step,
+    minLength,
+    autoFocus,
     ...props
-  }) => {
+  }, ref) => {
     return (
       <TextField
         isInvalid={!!error}
@@ -53,14 +63,21 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             </span>
           )}
           <InputRoot
+            ref={ref}
             placeholder={placeholder}
             type={type}
+            min={min}
+            max={max}
+            step={step}
+            minLength={minLength}
+            autoFocus={autoFocus}
             className={cn(
               "h-10 w-full rounded-2xl border bg-[var(--glass-bg)] px-3 py-2 text-sm text-[var(--text-primary)] transition-colors",
               "border-[var(--glass-border)] backdrop-blur-[var(--glass-blur)]",
               "placeholder:text-[var(--text-muted)]",
               "focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]/30",
               "disabled:cursor-not-allowed disabled:opacity-50",
+              type === "date" && "[color-scheme:light] dark:[color-scheme:dark]",
               startContent && "pl-9",
               endContent && "pr-9",
               error && "border-[var(--danger)] focus:border-[var(--danger)] focus:ring-[var(--danger)]/30",
