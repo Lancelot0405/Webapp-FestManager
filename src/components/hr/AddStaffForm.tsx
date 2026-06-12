@@ -119,11 +119,11 @@ export default function AddStaffForm({ onClose }: Props) {
                 </div>
                 <div className="grid grid-cols-3 gap-2">
                   {(['staff', 'manager', 'admin'] as UserRole[]).map(r => (
-                    <button
+                    <Button
                       key={r}
-                      type="button"
-                      onClick={() => setRole(r)}
-                      className={`py-2 rounded-xl text-xs font-semibold border transition-colors ${
+                      variant="ghost"
+                      onPress={() => setRole(r)}
+                      className={`w-full h-auto min-w-0 py-2 rounded-xl text-xs font-semibold border transition-colors ${
                         role === r
                           ? r === 'admin'
                             ? 'bg-[var(--danger)]/10 text-[var(--danger)] border-[var(--danger)]/30'
@@ -134,7 +134,7 @@ export default function AddStaffForm({ onClose }: Props) {
                       }`}
                     >
                       {r === 'staff' ? 'Nhân viên' : r === 'manager' ? 'Quản lý' : 'Admin'}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -152,18 +152,18 @@ export default function AddStaffForm({ onClose }: Props) {
                     { id: 'festival'   as UserDepartment, label: 'Festival' },
                     { id: 'both'       as UserDepartment, label: 'Cả hai'   },
                   ]).map(({ id, label }) => (
-                    <button
+                    <Button
                       key={id}
-                      type="button"
-                      onClick={() => setDepartment(id)}
-                      className={`py-2 rounded-xl text-xs font-semibold border transition-colors ${
+                      variant="ghost"
+                      onPress={() => setDepartment(id)}
+                      className={`w-full h-auto min-w-0 py-2 rounded-xl text-xs font-semibold border transition-colors ${
                         department === id
                           ? 'bg-[var(--success)]/10 text-[var(--success)] border-[var(--success)]/30'
                           : 'bg-[var(--glass-bg)] text-[var(--text-secondary)] border-[var(--glass-border)] hover:border-[var(--success)]/30'
                       }`}
                     >
                       {label}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -193,11 +193,11 @@ export default function AddStaffForm({ onClose }: Props) {
               { id: 'permanent' as StaffType, label: 'Nhân viên cứng' },
               { id: 'part-time' as StaffType, label: 'Part-time'       },
             ]).map(({ id, label }) => (
-              <button
+              <Button
                 key={id}
-                type="button"
-                onClick={() => setStaffType(id)}
-                className={`py-2.5 rounded-xl text-xs font-semibold border transition-colors ${
+                variant="ghost"
+                onPress={() => setStaffType(id)}
+                className={`w-full h-auto min-w-0 py-2.5 rounded-xl text-xs font-semibold border transition-colors ${
                   staffType === id
                     ? id === 'part-time'
                       ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30'
@@ -206,7 +206,7 @@ export default function AddStaffForm({ onClose }: Props) {
                 }`}
               >
                 {label}
-              </button>
+              </Button>
             ))}
           </div>
         </div>

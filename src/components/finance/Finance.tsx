@@ -126,28 +126,30 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
       {/* Month filter */}
       {allMonths.length > 0 && (
         <div className="flex gap-2 overflow-x-auto pb-1 lg:flex-wrap lg:overflow-x-visible">
-          <button
-            onClick={() => setSelectedMonth('all')}
-            className={`shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+          <Button
+            variant="ghost"
+            onPress={() => setSelectedMonth('all')}
+            className={`h-auto min-w-0 shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
               selectedMonth === 'all'
                 ? 'bg-[var(--primary)] text-[var(--background)]'
                 : 'bg-[var(--glass-bg)] border border-[var(--glass-border)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
             }`}
           >
             Tất cả
-          </button>
+          </Button>
           {allMonths.map(m => (
-            <button
+            <Button
               key={m}
-              onClick={() => setSelectedMonth(m)}
-              className={`shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+              variant="ghost"
+              onPress={() => setSelectedMonth(m)}
+              className={`h-auto min-w-0 shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
                 selectedMonth === m
                   ? 'bg-[var(--primary)] text-[var(--background)]'
                   : 'bg-[var(--glass-bg)] border border-[var(--glass-border)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
               }`}
             >
               {m}
-            </button>
+            </Button>
           ))}
         </div>
       )}
@@ -256,13 +258,16 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
             return (
               <div key={event.id} className="glass-card rounded-xl p-4">
                 <div className="flex justify-between items-start mb-3">
-                  <button
-                    onClick={() => onSelectEvent(event.id)}
-                    className="min-w-0 flex-1 text-left"
+                  <Button
+                    variant="ghost"
+                    onPress={() => onSelectEvent(event.id)}
+                    className="h-auto min-w-0 flex-1 justify-start rounded-none p-0 text-left"
                   >
-                    <p className="font-semibold text-[var(--text-primary)] truncate">{event.name}</p>
-                    <p className="text-xs text-[var(--text-muted)] mt-0.5">{event.date}</p>
-                  </button>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-[var(--text-primary)] truncate">{event.name}</p>
+                      <p className="text-xs text-[var(--text-muted)] mt-0.5">{event.date}</p>
+                    </div>
+                  </Button>
                   <div className="flex items-center gap-2 shrink-0 ml-2">
                     <StatusBadge status={event.status} />
                     <Button

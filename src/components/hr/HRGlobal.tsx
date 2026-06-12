@@ -66,11 +66,12 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
           key={s.id}
           className="glass-card rounded-xl overflow-hidden flex flex-row items-stretch"
         >
-          <button
-            onClick={() => onSelectStaff(String(s.id))}
-            className="flex-1 text-left p-4 min-w-0 active:bg-[var(--glass-bg)]"
+          <Button
+            variant="ghost"
+            onPress={() => onSelectStaff(String(s.id))}
+            className="flex-1 h-auto min-w-0 justify-start rounded-none p-4 text-left active:bg-[var(--glass-bg)]"
           >
-            <div className="flex items-center gap-3">
+            <div className="flex w-full items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-[var(--primary)]/10 flex items-center justify-center shrink-0">
                 <User size={18} className="text-[var(--primary)]" />
               </div>
@@ -83,7 +84,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
                 <p className="text-xs text-[var(--text-muted)]">{s.contracts.length} hợp đồng</p>
               </div>
             </div>
-          </button>
+          </Button>
           {isAdmin && (
             <Button
               isIconOnly
@@ -121,9 +122,10 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
       {/* Pending registrations — admin only */}
       {isAdmin && (
         <div className="bg-indigo-500/10 border border-indigo-500/30 rounded-xl overflow-hidden">
-          <button
-            onClick={() => setShowPending(v => !v)}
-            className="w-full flex items-center justify-between px-4 py-3"
+          <Button
+            variant="ghost"
+            onPress={() => setShowPending(v => !v)}
+            className="w-full h-auto justify-between rounded-none px-4 py-3"
           >
             <div className="flex items-center gap-2">
               <ShieldCheck size={16} className="text-indigo-400" />
@@ -135,7 +137,7 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
               </span>
             </div>
             <span className="text-indigo-400/60 text-xs">{showPending ? '▲' : '▼'}</span>
-          </button>
+          </Button>
 
           {showPending && (
             <div className="px-4 pb-4 space-y-2">
@@ -192,17 +194,18 @@ export default function HRGlobal({ onSelectStaff }: HRGlobalProps) {
       {canViewAll && (
         <div className="flex gap-1.5">
           {(['Tất cả', 'Nhân viên cứng', 'Part-time'] as TypeFilter[]).map(t => (
-            <button
+            <Button
               key={t}
-              onClick={() => setTypeFilter(t)}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+              variant="ghost"
+              onPress={() => setTypeFilter(t)}
+              className={`h-auto min-w-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
                 typeFilter === t
                   ? 'bg-[var(--primary)] text-[var(--background)] border-[var(--primary)]'
                   : 'bg-[var(--glass-bg)] text-[var(--text-secondary)] border-[var(--glass-border)] hover:border-[var(--primary)]/30'
               }`}
             >
               {t}
-            </button>
+            </Button>
           ))}
         </div>
       )}

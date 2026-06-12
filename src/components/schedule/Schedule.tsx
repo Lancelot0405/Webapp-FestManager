@@ -95,17 +95,18 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
       {/* Status filter pills */}
       <div className="flex flex-wrap gap-1.5">
         {STATUS_FILTERS.map(s => (
-          <button
+          <Button
             key={s}
-            onClick={() => setStatusFilter(s)}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+            variant="ghost"
+            onPress={() => setStatusFilter(s)}
+            className={`h-auto min-w-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
               statusFilter === s
                 ? 'bg-[var(--primary)] text-[var(--background)] border-[var(--primary)]'
                 : 'glass-card border-[var(--glass-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
             }`}
           >
             {s}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -155,11 +156,12 @@ function EventCard({
 
   return (
     <div className="glass-card rounded-xl overflow-hidden flex items-stretch active:bg-[var(--glass-bg)] transition-all">
-      <button
-        onClick={onSelect}
-        className="flex-1 text-left p-4 min-w-0"
+      <Button
+        variant="ghost"
+        onPress={onSelect}
+        className="flex-1 h-auto min-w-0 justify-start rounded-none p-4 text-left"
       >
-        <div className="flex justify-between items-start gap-2">
+        <div className="flex w-full justify-between items-start gap-2">
           <div className="flex-1 min-w-0">
             <p className="font-semibold text-[var(--text-primary)] truncate">{event.name}</p>
             <p className="text-xs text-[var(--text-muted)] mt-0.5">{dateDisplay}</p>
@@ -168,14 +170,17 @@ function EventCard({
           </div>
           <StatusBadge status={event.status} />
         </div>
-      </button>
+      </Button>
       {isAdmin && (
-        <button
-          onClick={onDelete}
-          className="px-3 text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 border-l border-[var(--glass-border)] transition-colors"
+        <Button
+          isIconOnly
+          variant="ghost"
+          onPress={onDelete}
+          aria-label="Xóa sự kiện"
+          className="h-auto rounded-none px-3 text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 border-l border-[var(--glass-border)] transition-colors"
         >
           <Trash2 size={16} />
-        </button>
+        </Button>
       )}
     </div>
   );

@@ -138,12 +138,13 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
             {displayEvents.map(event => (
-              <button
+              <Button
                 key={event.id}
-                onClick={() => onSelectEvent(event.id)}
-                className="w-full text-left glass-card rounded-2xl p-4 hover:border-[var(--primary)]/30 hover:shadow-[var(--shadow-card)] active:scale-[0.99] transition-all duration-150"
+                variant="ghost"
+                onPress={() => onSelectEvent(event.id)}
+                className="w-full h-auto justify-start text-left glass-card rounded-2xl p-4 hover:border-[var(--primary)]/30 hover:shadow-[var(--shadow-card)] active:scale-[0.99] transition-all duration-150"
               >
-                <div className="flex justify-between items-start gap-2">
+                <div className="flex w-full justify-between items-start gap-2">
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-[var(--text-primary)] truncate">{event.name}</p>
                     <p className="text-xs text-[var(--text-secondary)] mt-0.5">{event.date} · {event.location}</p>
@@ -151,7 +152,7 @@ export default function Dashboard({ onSelectEvent, onNavigate }: DashboardProps)
                   </div>
                   <StatusBadge status={event.status} />
                 </div>
-              </button>
+              </Button>
             ))}
           </div>
         )}
@@ -215,9 +216,10 @@ function StatCard({ icon, label, value, alert, accentColor, onClick }: {
       : 'text-[var(--text-primary)]';
 
   return (
-    <button
-      onClick={onClick}
-      className={`glass-card rounded-2xl p-4 flex items-center gap-3 w-full text-left active:scale-[0.97] transition-all ${glowClass}`}
+    <Button
+      variant="ghost"
+      onPress={onClick}
+      className={`glass-card rounded-2xl p-4 flex items-center gap-3 w-full h-auto justify-start text-left active:scale-[0.97] transition-all ${glowClass}`}
     >
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[var(--glass-bg)] border border-[var(--glass-border)] ${iconColor}`}>
         {icon}
@@ -226,7 +228,7 @@ function StatCard({ icon, label, value, alert, accentColor, onClick }: {
         <p className={`text-2xl font-black leading-none ${valueColor}`}>{value}</p>
         <p className="text-xs text-[var(--text-muted)] leading-tight mt-1">{label}</p>
       </div>
-    </button>
+    </Button>
   );
 }
 
