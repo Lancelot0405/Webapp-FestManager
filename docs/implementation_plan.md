@@ -14,6 +14,7 @@
 5. [Đề xuất bổ sung nâng cao](#5-đề-xuất-bổ-sung-nâng-cao)
 6. [Quy trình xác minh & kiểm thử](#6-quy-trình-xác-minh--kiểm-thử)
 7. [Quy trình test components](#7-quy-trình-test-components)
+8. [Tối ưu responsive — Tablet & PC](#8-tối-ưu-responsive--tablet--pc)
 
 ---
 
@@ -1548,3 +1549,435 @@ export const queryKeys = {
 - Server-side rendering / Next.js migration — out of scope
 - Offline mutation queue — chỉ làm khi có yêu cầu business cụ thể
 - Tách Schedule.tsx và EventDetail.tsx — kích thước hiện tại hợp lý
+
+---
+
+## 8. Tối Ưu Responsive — Tablet & PC
+
+### 8.1 Hiện Trạng & Vấn Đề
+
+**Layout hiện tại (đã xác nhận từ code):**
+
+| Màn hình | Navigation | Content |
+|----------|-----------|---------|
+| Mobile < 768px | TopBar + BottomNav pill | Vertical stack — ✅ tốt |
+| Tablet 768–1023px | Sidebar `w-56` | Vertical stack — ❌ lãng phí không gian |
+| Desktop ≥ 1024px | Sidebar `w-64` | Vertical stack — ❌ lãng phí không gian |
+
+**Vấn đề cụ thể:**
+1. **Content không dùng CSS Grid** — dashboard cards, finance cards, staff list, inventory items đều xếp 1 cột dù màn hình có đủ chỗ cho 2–4 cột
+2. **Drawer luôn `placement="bottom"`** — trên desktop, bottom drawer mở từ dưới lên trông giống app mobile — không phù hợp
+3. **Sidebar tablet chưa tối ưu** — ở 768px, sidebar `w-56` chiếm nhiều chỗ trong khi màn hình tablet không rộng bằng desktop
+4. **Form layout 1 cột** — form thêm event, thêm nhân viên dùng 1 cột kể cả khi có đủ không gian cho 2 cột
+5. **Content `max-w-5xl`** — ổn cho desktop thường, nhưng trên màn hình rất rộng (≥ 1440px) có thể nâng lên `max-w-7xl`
+6. **Thiếu hover states** — desktop có chuột nhưng nhiều interactive elements chưa có hover feedback rõ ràng
+7. **Data density** — bảng danh sách có thể hiện thêm cột trên desktop (ví dụ: bảng chi phí ẩn cột "ngày" trên mobile nhưng hiện trên desktop)
+
+---
+
+### 8.2 Chiến Lược Breakpoint (3 Tầng)
+
+Hiện tại chỉ dùng `md` (768px) làm điểm phân chia duy nhất. Cần định nghĩa rõ 3 tầng:
+
+```
+Mobile:  0px – 767px      → < md
+Tablet:  768px – 1023px   → md to < lg
+Desktop: 1024px+          → ≥ lg
+Wide:    1280px+          → ≥ xl  (bonus density)
+```
+
+**Quy tắc viết class Tailwind:**
+```
+base (mobile-first)   → class
+Tablet override       → md:class
+Desktop override      → lg:class
+Wide desktop          → xl:class
+```
+
+---
+
+### 8.3 Sidebar — Collapsible cho Tablet
+
+**Vấn đề:** Ở 768px (iPad mini), sidebar `w-56` (224px) chiếm ~29% màn hình — quá nhiều cho content management app.
+
+**Giải pháp: Icon-only mode ở `md`, full text ở `lg`:**
+
+```tsx
+// src/components/layout/Sidebar.tsx — thay đổi
+
+// Trước
+<aside className="hidden md:flex flex-col w-56 lg:w-64 ...">
+
+// Sau — thêm collapsed state cho tablet
+<aside className="hidden md:flex flex-col w-16 lg:w-64 ...">
+  {/* Logo — icon only on tablet, full on desktop */}
+  <Button className="h-16 ... px-3 lg:px-5">
+    <div className="w-8 h-8 rounded-xl bg-[var(--primary)] ...">
+      <UtensilsCrossed size={16} />
+    </div>
+    <span className="hidden lg:block text-lg font-black ...">FestManager</span>
+  </Button>
+
+  {/* Nav items — icon only on tablet, icon + label on desktop */}
+  <Button className="flex items-center gap-3 px-3 justify-center lg:justify-start ...">
+    <span>{icon}</span>
+    <span className="hidden lg:block">{label}</span>
+    {/* Badge chỉ hiện trên desktop hoặc dùng dot indicator trên tablet */}
+    {badge > 0 && (
+      <>
+        <span className="hidden lg:block ml-auto ...">{badge}</span>
+        <span className="lg:hidden absolute top-1 right-1 w-2 h-2 bg-[var(--danger)] rounded-full" />
+      </>
+    )}
+  </Button>
+
+  {/* User footer — avatar only on tablet, full info on desktop */}
+  <div className="px-2 lg:px-3 py-3 ...">
+    <Button className="justify-center lg:justify-start ...">
+      <div className="w-8 h-8 rounded-full ...">
+        {currentUser.name.charAt(0)}
+      </div>
+      <div className="hidden lg:block min-w-0 flex-1 text-left">
+        <p className="text-sm font-semibold truncate">{currentUser.name}</p>
+        <p className="text-[10px] ...">{roleLabel[currentUser.role]}</p>
+      </div>
+      <ChevronUp className="hidden lg:block ..." />
+    </Button>
+  </div>
+</aside>
+```
+
+**Kết quả:**
+- Tablet (768–1023px): Sidebar `w-16` (64px) — chỉ icon + dot badge
+- Desktop (≥ 1024px): Sidebar `w-64` (256px) — icon + label + số badge
+
+---
+
+### 8.4 Content Grid System — Per Module
+
+Tất cả grid classes thêm vào file component, không thay đổi cấu trúc logic.
+
+#### Dashboard
+
+```tsx
+// Stats summary cards: 2 cột mobile → 4 cột desktop
+<div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+  <StatCard ... />  {/* Tổng sự kiện */}
+  <StatCard ... />  {/* Doanh thu */}
+  <StatCard ... />  {/* Chi phí */}
+  <StatCard ... />  {/* Lợi nhuận */}
+</div>
+
+// Danh sách sự kiện gần nhất + chart: 1 cột mobile → 2 cột desktop
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+  <RecentEventsList />
+  <RevenueChart />
+</div>
+```
+
+#### Finance
+
+```tsx
+// Summary cards: 1 cột mobile → 3 cột desktop
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <SummaryCard title="Tổng thu" ... />
+  <SummaryCard title="Tổng chi" ... />
+  <SummaryCard title="Lợi nhuận" ... />
+</div>
+
+// Event finance cards: 1 cột mobile → 2 cột desktop
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+  {events.map(e => <EventFinanceCard key={e.id} event={e} />)}
+</div>
+
+// Expense list — hiện thêm cột "Ngày" và "Event" trên desktop
+<table>
+  <thead>
+    <tr>
+      <th>Nhân viên</th>
+      <th>Loại</th>
+      <th className="hidden md:table-cell">Ngày</th>    {/* ẩn mobile */}
+      <th className="hidden lg:table-cell">Sự kiện</th> {/* ẩn mobile + tablet */}
+      <th>Số tiền</th>
+      <th>Trạng thái</th>
+    </tr>
+  </thead>
+</table>
+```
+
+#### Schedule (Event List)
+
+```tsx
+// 1 cột mobile → 2 cột desktop
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+  {filteredEvents.map(e => <EventCard key={e.id} event={e} />)}
+</div>
+```
+
+#### Inventory
+
+```tsx
+// Item list: 1 cột mobile → 2 cột tablet → 3 cột desktop
+<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+  {filteredItems.map(item => <InventoryItemRow key={item.id} item={item} />)}
+</div>
+```
+
+#### HR (Staff List)
+
+```tsx
+// Staff cards: 1 cột mobile → 2 cột tablet → 3 cột desktop
+<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+  {staff.map(s => <StaffCard key={s.id} staff={s} />)}
+</div>
+```
+
+#### EventDetail — Layout thay đổi trên desktop
+
+EventDetail hiện là full-width single column. Trên desktop có thể tận dụng không gian hơn:
+
+```tsx
+// Mobile: tabs xếp ngang, content bên dưới
+// Desktop: info panel bên trái, tabs + content bên phải
+<div className="lg:grid lg:grid-cols-[320px_1fr] lg:gap-6">
+  {/* Panel trái: thông tin cơ bản sự kiện — luôn hiện trên desktop */}
+  <aside className="hidden lg:block space-y-4">
+    <EventInfoSummary event={event} />
+  </aside>
+
+  {/* Tabs + content — full width mobile, right column desktop */}
+  <div>
+    <Tabs ...>
+      <Tab key="info" title="Thông tin">...</Tab>  {/* ẩn trên desktop vì đã có panel trái */}
+      <Tab key="staff" title="Nhân sự">...</Tab>
+      <Tab key="inventory" title="Kho">...</Tab>
+      <Tab key="expenses" title="Chi phí">...</Tab>
+    </Tabs>
+  </div>
+</div>
+```
+
+---
+
+### 8.5 Drawer & Modal — Responsive Placement
+
+HeroUI `<Drawer>` chấp nhận prop `placement` — dùng `useBreakpoint` hook để đổi placement theo màn hình.
+
+**Tạo hook `useIsDesktop`:**
+
+```typescript
+// src/hooks/useIsDesktop.ts
+import { useState, useEffect } from 'react';
+
+export function useIsDesktop(breakpoint = 1024) {
+  const [isDesktop, setIsDesktop] = useState(
+    () => typeof window !== 'undefined' && window.innerWidth >= breakpoint
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia(`(min-width: ${breakpoint}px)`);
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, [breakpoint]);
+
+  return isDesktop;
+}
+```
+
+**Dùng trong Drawer components:**
+
+```tsx
+// src/components/inventory/InventoryItemDrawer.tsx
+import { useIsDesktop } from '@/hooks/useIsDesktop';
+
+export function InventoryItemDrawer({ isOpen, onClose, item }) {
+  const isDesktop = useIsDesktop();
+
+  return (
+    <Drawer
+      isOpen={isOpen}
+      onClose={onClose}
+      placement={isDesktop ? 'right' : 'bottom'}  // ← key change
+      size={isDesktop ? 'md' : 'full'}
+    >
+      <DrawerContent>
+        ...
+      </DrawerContent>
+    </Drawer>
+  );
+}
+```
+
+**Quy tắc chung cho tất cả Drawer/Modal:**
+
+| Loại | Mobile | Tablet | Desktop |
+|------|--------|--------|---------|
+| Drawer chỉnh sửa item | `bottom` full | `bottom` full | `right` `md` size |
+| Drawer thêm mới | `bottom` full | `bottom` `lg` | `right` `md` size |
+| Modal xác nhận (xóa...) | center | center | center |
+| Modal form phức tạp | full-screen | center `xl` | center `xl` |
+
+---
+
+### 8.6 Form Layout — 2 Cột trên Desktop
+
+Các form lớn (thêm sự kiện, thêm nhân viên) nên dùng grid 2 cột trên desktop:
+
+```tsx
+// AddEventForm.tsx — responsive form grid
+<form className="space-y-4">
+  {/* 2-column grid chỉ trên desktop */}
+  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <Input label="Tên sự kiện" {...register('name')} />
+    <Input label="Địa điểm" {...register('location')} />
+    <Input label="Ngày bắt đầu" {...register('startDate')} />
+    <Input label="Ngày kết thúc" {...register('endDate')} />
+  </div>
+  {/* Full-width fields */}
+  <Textarea label="Ghi chú" {...register('notes')} />
+  <div className="flex justify-end gap-3">
+    <Button variant="flat" onPress={onClose}>Hủy</Button>
+    <Button color="primary" type="submit">Lưu</Button>
+  </div>
+</form>
+```
+
+---
+
+### 8.7 Typography & Spacing Scale theo Viewport
+
+Bổ sung vào `src/index.css`:
+
+```css
+/* Heading tự scale theo breakpoint */
+.page-title {
+  font-size: clamp(1.25rem, 2.5vw, 1.875rem);  /* 20px → 30px */
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.section-title {
+  font-size: clamp(1rem, 2vw, 1.25rem);  /* 16px → 20px */
+  font-weight: 700;
+}
+```
+
+**Padding content area** (đã có, kiểm tra lại):
+```
+px-4          → mobile (16px)
+md:px-6       → tablet (24px)
+lg:px-8       → desktop (32px)
+pb-24 md:pb-8 → bottom padding (có BottomNav trên mobile, không có trên desktop)
+```
+
+---
+
+### 8.8 Hover States cho Desktop
+
+Desktop có chuột — cần hover states rõ ràng hơn. Bổ sung vào các interactive list items:
+
+```tsx
+// Pattern cho list item có hover
+<div className="
+  group
+  flex items-center gap-3 p-3 rounded-xl
+  cursor-pointer
+  transition-colors duration-150
+  hover:bg-[var(--glass-bg)]    ← hover background
+  active:scale-[0.99]            ← press feedback
+">
+  <div className="shrink-0">
+    {icon}
+  </div>
+  <div className="flex-1 min-w-0">
+    {content}
+  </div>
+  {/* Arrow chỉ hiện khi hover trên desktop */}
+  <ChevronRight
+    size={16}
+    className="
+      shrink-0 text-[var(--text-muted)]
+      opacity-0 group-hover:opacity-100
+      translate-x-1 group-hover:translate-x-0
+      transition-all duration-150
+    "
+  />
+</div>
+```
+
+---
+
+### 8.9 Content Max-Width
+
+Hiện tại: `max-w-5xl` (~1024px) — ổn cho hầu hết màn hình.
+
+Trên màn hình ≥ 1440px (wide desktop + sidebar), có thể mở rộng:
+
+```tsx
+// Layout.tsx — content wrapper
+<div className="max-w-5xl xl:max-w-7xl mx-auto w-full">
+  <Outlet />
+</div>
+```
+
+**`max-w-7xl` = 1280px** — đủ rộng cho grid 4 cột mà không quá rộng đến mức khó đọc.
+
+---
+
+### 8.10 Checklist Triển Khai
+
+Responsive optimization nên làm **song song với Pha 4** (HeroUI refactor) vì cùng chạm vào layout components.
+
+#### Sidebar
+- [ ] Tablet `w-16` icon-only (ẩn label + full badge, thêm dot indicator)
+- [ ] Desktop `w-64` full text (giữ nguyên như hiện tại, chỉ update tablet)
+- [ ] User footer: chỉ avatar trên tablet, full info trên desktop
+
+#### Navigation Logic (sau khi có React Router)
+- [ ] Sidebar `NavLink` dùng `isActive` từ React Router thay vì `activeTab` prop
+- [ ] Detail routes (`/schedule/:id`, `/hr/:id`) ẩn BottomNav đúng cách
+
+#### Content Grids
+- [ ] Dashboard: stats 2→4 col, section 1→2 col
+- [ ] Finance: summary cards 1→3 col, expense table thêm cột ẩn/hiện
+- [ ] Schedule: event list 1→2 col
+- [ ] Inventory: item grid 1→2→3 col
+- [ ] HR: staff cards 1→2→3 col
+- [ ] EventDetail: 2-panel layout trên desktop
+
+#### Drawer/Modal
+- [ ] Tạo `useIsDesktop` hook
+- [ ] Tất cả Drawer: `placement="bottom"` mobile → `placement="right"` desktop
+- [ ] Modal form: `size="full"` mobile → `size="xl"` desktop
+
+#### Form
+- [ ] AddEventForm: 2-cột grid trên `lg`
+- [ ] AddStaffForm: 2-cột grid trên `lg`
+- [ ] AddExpenseDrawer: 2-cột grid trên `lg`
+
+#### Typography & Spacing
+- [ ] Thêm `.page-title` và `.section-title` CSS classes
+- [ ] Kiểm tra padding content area đúng ở cả 3 breakpoint
+
+#### Hover States
+- [ ] Event cards (Schedule)
+- [ ] Staff cards (HR)
+- [ ] Inventory item rows
+- [ ] Expense list rows
+
+---
+
+### 8.11 Thứ Tự Ưu Tiên Trong Pha 4
+
+Không cần tách thành pha riêng — làm song song với Pha 4 (HeroUI refactor), theo thứ tự:
+
+```
+1. Sidebar collapse (ảnh hưởng toàn app — làm đầu tiên)
+2. useIsDesktop hook + Drawer placement
+3. Content grids theo module (Finance → Dashboard → Schedule → Inventory → HR)
+4. Form 2-cột
+5. Hover states
+6. Typography classes
+7. max-width adjustment
+```
