@@ -13,6 +13,7 @@
 4. [Lộ trình triển khai theo pha](#4-lộ-trình-triển-khai-theo-pha)
 5. [Đề xuất bổ sung nâng cao](#5-đề-xuất-bổ-sung-nâng-cao)
 6. [Quy trình xác minh & kiểm thử](#6-quy-trình-xác-minh--kiểm-thử)
+7. [Quy trình test components](#7-quy-trình-test-components)
 
 ---
 
@@ -919,6 +920,590 @@ npm run test     # Unit tests — phải pass
 - [ ] Submit form rỗng → tất cả required fields hiện error
 - [ ] Error message biến mất khi user nhập đúng (real-time validation)
 - [ ] Keyboard navigation hoạt động (Tab giữa các fields)
+
+---
+
+## 7. Quy Trình Test Components
+
+### 7.1 Hiện Trạng & Những Gì Còn Thiếu
+
+| Hạng mục | Hiện có | Thiếu |
+|----------|---------|-------|
+| Vitest v2.1.9 | ✅ | — |
+| Unit tests (lib/, reducer) | ✅ 3 files | Cần mở rộng thêm |
+| DOM environment (jsdom) | ❌ | Cần cài |
+| @testing-library/react | ❌ | Cần cài |
+| @testing-library/user-event | ❌ | Cần cài |
+| @testing-library/jest-dom | ❌ | Cần cài |
+| MSW (mock Supabase API) | ❌ | Cần cài |
+| Component tests | ❌ | Cần viết |
+| Integration tests | ❌ | Cần viết |
+| vitest.config.ts | ❌ | Cần tạo |
+
+---
+
+### 7.2 Cài Đặt
+
+```bash
+npm install --save-dev \
+  @testing-library/react@^16 \
+  @testing-library/user-event@^14 \
+  @testing-library/jest-dom@^6 \
+  jsdom \
+  msw@^2
+```
+
+**Lý do chọn jsdom thay vì happy-dom:** Tương thích tốt hơn với HeroUI v3 và các thư viện DOM-heavy. happy-dom nhanh hơn nhưng thiếu một số Web API mà HeroUI dùng.
+
+---
+
+### 7.3 Cấu Hình
+
+#### vitest.config.ts (tạo mới — tách khỏi vite.config.ts)
+
+```typescript
+// vitest.config.ts
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
+    globals: true,
+    css: false,         // bỏ qua CSS — không cần thiết cho logic tests
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+});
+```
+
+> **Lý do tách vitest.config.ts:** vite.config.ts hiện có `tailwindcss()` plugin — plugin này không tương thích với môi trường test. Tách riêng tránh confict và giữ cấu hình rõ ràng.
+
+#### src/test/setup.ts
+
+```typescript
+// src/test/setup.ts
+import '@testing-library/jest-dom';
+import { afterAll, afterEach, beforeAll } from 'vitest';
+import { server } from './mocks/server';
+
+// Khởi động MSW server trước tất cả tests
+beforeAll(() => server.listen({ onUnhandledRequest: 'warn' }));
+// Reset handlers sau mỗi test (tránh state leak giữa tests)
+afterEach(() => server.resetHandlers());
+// Đóng server sau tất cả tests
+afterAll(() => server.close());
+```
+
+---
+
+### 7.4 Cấu Trúc Thư Mục Test
+
+```
+src/
+├── test/
+│   ├── setup.ts                    ← Global setup (jest-dom + MSW)
+│   ├── utils/
+│   │   └── render.tsx              ← Custom render với tất cả providers
+│   └── mocks/
+│       ├── server.ts               ← MSW Node server
+│       ├── handlers.ts             ← MSW request handlers (Supabase REST)
+│       └── fixtures.ts             ← Mock data dùng chung (tái sử dụng từ appReducer.test.ts)
+│
+├── components/
+│   ├── shared/
+│   │   └── StatusBadge.test.tsx    ← Component thuần, không cần context
+│   ├── schedule/
+│   │   ├── Schedule.test.tsx       ← Filter, search logic
+│   │   └── EventDetail.test.tsx    ← Tab navigation
+│   ├── finance/
+│   │   ├── ExpenseList.test.tsx    ← Danh sách, approve action
+│   │   └── AddExpenseDrawer.test.tsx ← Form validation
+│   ├── inventory/
+│   │   ├── InventoryItemList.test.tsx
+│   │   └── InventoryItemDrawer.test.tsx ← Drawer open/close + form
+│   └── hr/
+│       └── HRGlobal.test.tsx
+│
+└── hooks/
+    └── queries/
+        ├── useEventsQuery.test.ts  ← Query hook với MSW
+        └── useInventoryFilters.test.ts ← Pure hook, không cần DOM
+```
+
+---
+
+### 7.5 Custom Render Helper (Quan Trọng Nhất)
+
+Tất cả components của FestManager dùng `useApp()`, `useQueryClient()`, và `useNavigate()` — cần wrap đủ providers khi render trong test.
+
+```tsx
+// src/test/utils/render.tsx
+import { ReactNode } from 'react';
+import { render, RenderOptions } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { AppContext } from '@/context/AppContext';
+import type { AppContextValue } from '@/context/AppContext';
+import { mockAppContextValue } from '../mocks/fixtures';
+
+interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
+  contextOverrides?: Partial<AppContextValue>;
+  initialRoute?: string;
+}
+
+function createTestQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: { retry: false, gcTime: Infinity },
+      mutations: { retry: false },
+    },
+  });
+}
+
+export function renderWithProviders(
+  ui: ReactNode,
+  { contextOverrides = {}, initialRoute = '/', ...renderOptions }: CustomRenderOptions = {}
+) {
+  const queryClient = createTestQueryClient();
+  const contextValue = { ...mockAppContextValue, ...contextOverrides };
+
+  function Wrapper({ children }: { children: ReactNode }) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <AppContext.Provider value={contextValue}>
+          <MemoryRouter initialEntries={[initialRoute]}>
+            <Routes>
+              <Route path="*" element={children} />
+            </Routes>
+          </MemoryRouter>
+        </AppContext.Provider>
+      </QueryClientProvider>
+    );
+  }
+
+  return { queryClient, ...render(ui, { wrapper: Wrapper, ...renderOptions }) };
+}
+
+// Re-export thường dùng để import 1 chỗ
+export * from '@testing-library/react';
+export { userEvent } from '@testing-library/user-event';
+```
+
+```typescript
+// src/test/mocks/fixtures.ts — mock data + context dùng chung
+import type { AppContextValue } from '@/context/AppContext';
+import type { FestivalEvent, StaffMember, CurrentUser } from '@/types';
+
+export const mockAdminUser: CurrentUser = {
+  id: 'user-1', name: 'Admin Test', role: 'admin',
+};
+
+export const mockEvents: FestivalEvent[] = [
+  {
+    id: 1, name: 'Festival Mùa Hè', date: '15-07-2026', location: 'Paris',
+    status: 'Lên kế hoạch', staff: [], financials: { income: 5000000, expenses: {} },
+    inventoryReported: [], receipts: [], extra: { booth: '', hygienePermit: '', organizerContact: '' },
+  },
+  {
+    id: 2, name: 'Hội Chợ Thu', date: '20-09-2026', location: 'Lyon',
+    status: 'Đang diễn ra', staff: [], financials: { income: 3000000, expenses: {} },
+    inventoryReported: [], receipts: [], extra: { booth: '', hygienePermit: '', organizerContact: '' },
+  },
+];
+
+// Mock AppContext value — tất cả actions là vi.fn() để assert được
+export const mockAppContextValue: AppContextValue = {
+  state: {
+    currentUser: mockAdminUser,
+    loading: false,
+    events: mockEvents,
+    staff: [],
+    inventory: [],
+    inventoryLogs: [],
+    clients: [],
+    pendingRegistrations: [],
+  },
+  login: vi.fn(),
+  logout: vi.fn(),
+  addEvent: vi.fn(),
+  updateEvent: vi.fn(),
+  deleteEvent: vi.fn(),
+  // ... các actions khác
+} as unknown as AppContextValue;
+```
+
+---
+
+### 7.6 MSW — Mock Supabase REST API
+
+Supabase dùng REST API chuẩn: `https://[project].supabase.co/rest/v1/{table}`. MSW intercept ở network layer — không cần thay đổi code production.
+
+```typescript
+// src/test/mocks/handlers.ts
+import { http, HttpResponse } from 'msw';
+import { mockEvents, mockInventory, mockExpenses } from './fixtures';
+
+// Supabase REST URL dùng wildcard cho project ID
+const supabaseUrl = 'https://*/rest/v1';
+
+export const handlers = [
+  // Events
+  http.get(`${supabaseUrl}/events`, () => {
+    return HttpResponse.json(mockEvents);
+  }),
+  http.post(`${supabaseUrl}/events`, async ({ request }) => {
+    const body = await request.json() as Record<string, unknown>;
+    return HttpResponse.json({ ...body, id: 999 }, { status: 201 });
+  }),
+  http.patch(`${supabaseUrl}/events`, async ({ request }) => {
+    const body = await request.json() as Record<string, unknown>;
+    return HttpResponse.json(body);
+  }),
+
+  // Inventory
+  http.get(`${supabaseUrl}/inventory_items`, () => {
+    return HttpResponse.json(mockInventory);
+  }),
+
+  // Expenses
+  http.get(`${supabaseUrl}/expenses`, () => {
+    return HttpResponse.json(mockExpenses);
+  }),
+  http.patch(`${supabaseUrl}/expenses`, () => {
+    return HttpResponse.json({ status: 'approved' });
+  }),
+];
+```
+
+```typescript
+// src/test/mocks/server.ts
+import { setupServer } from 'msw/node';
+import { handlers } from './handlers';
+
+export const server = setupServer(...handlers);
+```
+
+---
+
+### 7.7 Các Loại Test & Ví Dụ
+
+#### Loại 1: Component Thuần (Không cần Context)
+
+Dùng cho các component không có side effects — render đơn giản với props.
+
+```tsx
+// src/components/shared/StatusBadge.test.tsx
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import StatusBadge from './StatusBadge';
+
+describe('StatusBadge', () => {
+  it('hiển thị đúng nhãn cho từng trạng thái', () => {
+    const { rerender } = render(<StatusBadge status="Lên kế hoạch" />);
+    expect(screen.getByText('Lên kế hoạch')).toBeInTheDocument();
+
+    rerender(<StatusBadge status="Đang diễn ra" />);
+    expect(screen.getByText('Đang diễn ra')).toBeInTheDocument();
+  });
+
+  it('áp dụng màu đúng theo trạng thái', () => {
+    render(<StatusBadge status="Hoàn thành" />);
+    const badge = screen.getByText('Hoàn thành');
+    // Kiểm tra class màu xanh lá (completed)
+    expect(badge).toHaveClass('text-green');  // điều chỉnh theo class thực tế
+  });
+});
+```
+
+#### Loại 2: Hook Thuần (Không cần DOM)
+
+Dùng cho custom hooks chỉ xử lý logic — không render UI.
+
+```typescript
+// src/hooks/queries/useInventoryFilters.test.ts
+import { describe, it, expect } from 'vitest';
+import { renderHook, act } from '@testing-library/react';
+import { useInventoryFilters } from './useInventoryFilters';
+import type { InventoryItem } from '@/types';
+
+const mockItems: InventoryItem[] = [
+  { id: 1, name: 'Gạo', current: 50, threshold: 10, unit: 'kg', category: 'food' },
+  { id: 2, name: 'Máy xay', current: 2, threshold: 1, unit: 'cái', category: 'equipment' },
+  { id: 3, name: 'Đường', current: 5, threshold: 10, unit: 'kg', category: 'food' },
+];
+
+describe('useInventoryFilters', () => {
+  it('trả toàn bộ items khi không có filter', () => {
+    const { result } = renderHook(() => useInventoryFilters(mockItems));
+    expect(result.current.filteredItems).toHaveLength(3);
+  });
+
+  it('lọc đúng theo category', () => {
+    const { result } = renderHook(() => useInventoryFilters(mockItems));
+    act(() => result.current.setCategory('food'));
+    expect(result.current.filteredItems).toHaveLength(2);
+    expect(result.current.filteredItems.every(i => i.category === 'food')).toBe(true);
+  });
+
+  it('lọc theo search query (không phân biệt hoa thường)', () => {
+    const { result } = renderHook(() => useInventoryFilters(mockItems));
+    act(() => result.current.setSearch('gạo'));
+    expect(result.current.filteredItems).toHaveLength(1);
+    expect(result.current.filteredItems[0].name).toBe('Gạo');
+  });
+
+  it('hiển thị items dưới threshold khi bật filter cảnh báo', () => {
+    const { result } = renderHook(() => useInventoryFilters(mockItems));
+    act(() => result.current.setShowLowStock(true));
+    // Chỉ "Đường" (current=5 < threshold=10) là low stock
+    expect(result.current.filteredItems).toHaveLength(1);
+    expect(result.current.filteredItems[0].name).toBe('Đường');
+  });
+});
+```
+
+#### Loại 3: Component Tương Tác với Context
+
+Dùng `renderWithProviders` cho components cần AppContext hoặc TanStack Query.
+
+```tsx
+// src/components/schedule/Schedule.test.tsx
+import { describe, it, expect } from 'vitest';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { renderWithProviders } from '@/test/utils/render';
+import Schedule from './Schedule';
+import { mockEvents } from '@/test/mocks/fixtures';
+
+describe('Schedule — hiển thị danh sách sự kiện', () => {
+  it('render tên tất cả sự kiện', () => {
+    renderWithProviders(<Schedule />);
+    expect(screen.getByText('Festival Mùa Hè')).toBeInTheDocument();
+    expect(screen.getByText('Hội Chợ Thu')).toBeInTheDocument();
+  });
+
+  it('lọc sự kiện theo trạng thái', async () => {
+    renderWithProviders(<Schedule />);
+    const user = userEvent.setup();
+
+    // Click filter "Đang diễn ra"
+    await user.click(screen.getByRole('button', { name: /đang diễn ra/i }));
+
+    expect(screen.getByText('Hội Chợ Thu')).toBeInTheDocument();
+    expect(screen.queryByText('Festival Mùa Hè')).not.toBeInTheDocument();
+  });
+
+  it('tìm kiếm theo tên sự kiện', async () => {
+    renderWithProviders(<Schedule />);
+    const user = userEvent.setup();
+
+    const searchInput = screen.getByPlaceholderText(/tìm sự kiện/i);
+    await user.type(searchInput, 'mùa hè');
+
+    expect(screen.getByText('Festival Mùa Hè')).toBeInTheDocument();
+    expect(screen.queryByText('Hội Chợ Thu')).not.toBeInTheDocument();
+  });
+});
+```
+
+#### Loại 4: Drawer / Modal Interaction
+
+Test quan trọng nhất sau Pha 4 — đảm bảo Drawer mở/đóng đúng.
+
+```tsx
+// src/components/inventory/InventoryItemDrawer.test.tsx
+import { describe, it, expect, vi } from 'vitest';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { renderWithProviders } from '@/test/utils/render';
+import InventoryItemDrawer from './InventoryItemDrawer';
+
+const mockItem = { id: 1, name: 'Gạo', current: 50, threshold: 10, unit: 'kg', category: 'food' as const };
+
+describe('InventoryItemDrawer', () => {
+  it('Drawer đóng khi nhấn nút Hủy', async () => {
+    const onClose = vi.fn();
+    renderWithProviders(<InventoryItemDrawer item={mockItem} isOpen onClose={onClose} />);
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole('button', { name: /hủy/i }));
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
+  it('hiển thị lỗi khi submit số lượng âm', async () => {
+    renderWithProviders(<InventoryItemDrawer item={mockItem} isOpen onClose={vi.fn()} />);
+    const user = userEvent.setup();
+
+    const qtyInput = screen.getByLabelText(/số lượng/i);
+    await user.clear(qtyInput);
+    await user.type(qtyInput, '-5');
+    await user.click(screen.getByRole('button', { name: /lưu/i }));
+
+    expect(screen.getByText(/số lượng không được âm/i)).toBeInTheDocument();
+  });
+
+  it('gọi mutation khi submit hợp lệ', async () => {
+    const mockUpdateInventory = vi.fn().mockResolvedValue({});
+    // Override mutation trong context hoặc mock module
+    renderWithProviders(<InventoryItemDrawer item={mockItem} isOpen onClose={vi.fn()} />);
+    const user = userEvent.setup();
+
+    const qtyInput = screen.getByLabelText(/số lượng/i);
+    await user.clear(qtyInput);
+    await user.type(qtyInput, '75');
+    await user.click(screen.getByRole('button', { name: /lưu/i }));
+
+    await waitFor(() => {
+      expect(mockUpdateInventory).toHaveBeenCalledWith({ id: 1, quantity: 75 });
+    });
+  });
+});
+```
+
+#### Loại 5: Integration Test với MSW
+
+Test cả flow: component render → fetch data → hiển thị. MSW mock Supabase ở network layer.
+
+```tsx
+// src/components/finance/ExpenseList.test.tsx
+import { describe, it, expect, vi } from 'vitest';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { server } from '@/test/mocks/server';
+import { http, HttpResponse } from 'msw';
+import { renderWithProviders } from '@/test/utils/render';
+import ExpenseList from './ExpenseList';
+
+describe('ExpenseList — integration', () => {
+  it('hiển thị danh sách chi phí sau khi load', async () => {
+    renderWithProviders(<ExpenseList />);
+
+    // Chờ loading xong — MSW trả dữ liệu mock
+    await waitFor(() => {
+      expect(screen.getByText('Tiền taxi về sân bay')).toBeInTheDocument();
+    });
+  });
+
+  it('cập nhật UI ngay khi duyệt chi phí (optimistic update)', async () => {
+    renderWithProviders(<ExpenseList />);
+    const user = userEvent.setup();
+
+    await waitFor(() => screen.getByText('Tiền taxi về sân bay'));
+
+    const approveButton = screen.getByRole('button', { name: /duyệt/i });
+    await user.click(approveButton);
+
+    // UI cập nhật ngay — không chờ API response
+    expect(screen.getByText(/đã duyệt/i)).toBeInTheDocument();
+  });
+
+  it('rollback UI khi API lỗi', async () => {
+    // Override handler cho test này: API trả lỗi
+    server.use(
+      http.patch('https://*/rest/v1/expenses', () => {
+        return HttpResponse.json({ message: 'Lỗi server' }, { status: 500 });
+      })
+    );
+
+    renderWithProviders(<ExpenseList />);
+    const user = userEvent.setup();
+
+    await waitFor(() => screen.getByText('Tiền taxi về sân bay'));
+    await user.click(screen.getByRole('button', { name: /duyệt/i }));
+
+    // Sau khi API lỗi, UI rollback về "pending"
+    await waitFor(() => {
+      expect(screen.getByText(/chờ duyệt/i)).toBeInTheDocument();
+    });
+  });
+});
+```
+
+#### Loại 6: Validation Schema Tests (Pha 5)
+
+Test schemas Zod độc lập — nhanh, không cần DOM.
+
+```typescript
+// src/lib/validations.test.ts
+import { describe, it, expect } from 'vitest';
+import { eventSchema, expenseSchema, staffSchema } from './validations';
+
+describe('eventSchema', () => {
+  it('pass khi dữ liệu hợp lệ', () => {
+    const result = eventSchema.safeParse({
+      name: 'Festival Mùa Hè', date: '15-07-2026', location: 'Paris',
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('lỗi khi tên rỗng', () => {
+    const result = eventSchema.safeParse({ name: '', date: '15-07-2026', location: 'Paris' });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0].message).toBe('Tên sự kiện là bắt buộc');
+  });
+
+  it('lỗi khi ngày sai định dạng (không phải DD-MM-YYYY)', () => {
+    const result = eventSchema.safeParse({ name: 'Test', date: '2026-07-15', location: 'Paris' });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0].message).toMatch(/DD-MM-YYYY/);
+  });
+});
+
+describe('expenseSchema', () => {
+  it('lỗi khi số tiền âm', () => {
+    const result = expenseSchema.safeParse({ amount: -100, description: 'Test', category: 'food' });
+    expect(result.success).toBe(false);
+  });
+});
+```
+
+---
+
+### 7.8 Gắn Test Vào Từng Pha Triển Khai
+
+| Pha | Tests phải viết kèm | Loại |
+|-----|---------------------|------|
+| **Pha 0** | Setup vitest.config.ts, fixtures.ts, render.tsx — chạy `npm run test` phải pass | Setup |
+| **Pha 1** | Kiểm tra navigation: click link → URL đúng; ProtectedRoute redirect đúng role | Loại 3 |
+| **Pha 2** | Mỗi query hook: data load đúng; Mỗi mutation: optimistic update + rollback | Loại 5 |
+| **Pha 3** | Mỗi component mới tách ra: render đúng data; filter logic hoạt động | Loại 2 & 3 |
+| **Pha 4** | Mỗi Drawer/Modal: mở đúng, đóng đúng, focus trap | Loại 4 |
+| **Pha 5** | Tất cả Zod schemas; form hiển thị error đúng field | Loại 6 & 3 |
+
+**Nguyên tắc:** Viết test **cùng lúc** với code, không viết sau. Một component mới phải có ít nhất 1 test trước khi merge.
+
+---
+
+### 7.9 Script & Coverage
+
+Bổ sung vào `package.json`:
+
+```json
+{
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui"
+  }
+}
+```
+
+**Coverage target thực tế (không cần 100%):**
+
+| Loại | Target coverage |
+|------|----------------|
+| `src/lib/` (utilities, validations) | ≥ 90% |
+| `src/hooks/queries/` (query hooks) | ≥ 80% |
+| `src/components/` (UI components) | ≥ 60% |
+| `src/context/` (AppContext — chỉ còn auth sau migrate) | ≥ 70% |
+
+**Lý do không đặt 100%:** Một số code chỉ chạy trong production environment (service worker, push notifications) — không nên test bằng jsdom.
 
 ---
 
