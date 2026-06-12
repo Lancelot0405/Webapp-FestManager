@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import type { InventoryLogEntry } from '../../types';
 
 interface Props { logs: InventoryLogEntry[] }
@@ -46,16 +47,14 @@ export default function InventoryLogList({ logs }: Props) {
 
       {/* Filters */}
       <div className="flex gap-2 flex-wrap">
-        <div className="relative flex-1 min-w-[140px]">
-          <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
-          <input
-            type="text"
-            placeholder="Tìm mặt hàng..."
-            value={itemSearch}
-            onChange={e => setItemSearch(e.target.value)}
-            className="w-full pl-7 pr-2 py-2 border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] text-[var(--text-primary)] rounded-xl text-xs focus:outline-none focus:border-[var(--primary)]/50 transition-all placeholder:text-[var(--text-muted)]"
-          />
-        </div>
+        <Input
+          type="text"
+          placeholder="Tìm mặt hàng..."
+          value={itemSearch}
+          onChange={setItemSearch}
+          startContent={<Search size={13} />}
+          className="flex-1 min-w-[140px]"
+        />
         <select
           value={festivalFilter}
           onChange={e => setFestivalFilter(e.target.value)}

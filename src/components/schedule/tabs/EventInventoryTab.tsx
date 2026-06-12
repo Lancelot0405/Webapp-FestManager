@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Check, X, ChevronDown, Plus, Trash2 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
+import { Input } from '@/components/ui/input';
 import type { FestivalEvent, InventoryUnit } from '../../../types';
 
 const UNITS: InventoryUnit[] = ['kg', 'g', 'lít', 'ml', 'cái', 'lon', 'hộp', 'túi', 'xiên', 'thùng', 'phần'];
@@ -97,36 +98,27 @@ export default function EventInventoryTab({ event }: Props) {
               <X size={16} />
             </button>
           </div>
-          <div>
-            <label className="text-xs text-[var(--text-secondary)] font-semibold">Tên mặt hàng</label>
-            <input
-              required
-              className={`mt-1 w-full ${inputCls}`}
-              placeholder="VD: Thịt bò"
-              value={newName}
-              onChange={e => setNewName(e.target.value)}
-            />
-          </div>
+          <Input
+            label="Tên mặt hàng"
+            isRequired
+            placeholder="VD: Thịt bò"
+            value={newName}
+            onChange={setNewName}
+          />
           <div className="grid grid-cols-3 gap-2">
-            <div>
-              <label className="text-xs text-[var(--text-secondary)] font-semibold">Số lượng</label>
-              <input
-                type="number" min="0" step="0.1" required
-                className={`mt-1 w-full ${inputCls}`}
-                value={newCurrent}
-                onChange={e => setNewCurrent(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="text-xs text-[var(--text-secondary)] font-semibold">Cảnh báo</label>
-              <input
-                type="number" min="0" step="0.1"
-                className={`mt-1 w-full ${inputCls}`}
-                placeholder="0"
-                value={newThreshold}
-                onChange={e => setNewThreshold(e.target.value)}
-              />
-            </div>
+            <Input
+              type="number" min={0} step={0.1} isRequired
+              label="Số lượng"
+              value={newCurrent}
+              onChange={setNewCurrent}
+            />
+            <Input
+              type="number" min={0} step={0.1}
+              label="Cảnh báo"
+              placeholder="0"
+              value={newThreshold}
+              onChange={setNewThreshold}
+            />
             <div>
               <label className="text-xs text-[var(--text-secondary)] font-semibold">Đơn vị</label>
               <select
@@ -179,11 +171,12 @@ export default function EventInventoryTab({ event }: Props) {
                     <div className="flex items-center gap-1 shrink-0">
                       {editingId === item.id ? (
                         <>
-                          <input
-                            type="number" min="0" step="0.1" autoFocus
-                            className="w-16 border border-[var(--glass-border)] bg-[var(--glass-bg)] text-[var(--text-primary)] rounded-lg px-2 py-1 text-sm text-right focus:outline-none"
+                          <Input
+                            type="number" min={0} step={0.1} autoFocus
+                            className="w-16"
+                            inputClassName="h-8 rounded-lg px-2 py-1 text-right"
                             value={editQty}
-                            onChange={e => setEditQty(e.target.value)}
+                            onChange={setEditQty}
                           />
                           <select
                             className="border border-[var(--glass-border)] bg-[var(--glass-bg)] text-[var(--text-primary)] rounded-lg px-1 py-1 text-sm focus:outline-none"

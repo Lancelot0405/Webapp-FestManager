@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { TrendingUp, TrendingDown, DollarSign, FileSpreadsheet, Pencil, Check, X } from 'lucide-react';
 import { Button } from '@heroui/react';
+import { Input } from '@/components/ui/input';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
 import type { ExpenseStatus, FestivalEvent } from '../../types';
@@ -287,15 +288,13 @@ export default function Finance({ onSelectEvent }: FinanceProps) {
                         { label: 'Vận chuyển (€)', val: editTransport,   set: setEditTransport },
                         { label: 'Lương NV (€)',   val: editStaff,  set: setEditStaff },
                       ].map(({ label, val, set }) => (
-                        <div key={label}>
-                          <label className="text-xs text-[var(--text-muted)]">{label}</label>
-                          <input
-                            type="number"
-                            value={val}
-                            onChange={e => set(Number(e.target.value))}
-                            className="w-full rounded-lg border border-[var(--glass-border)] bg-[var(--glass-bg)] px-2 py-1.5 text-sm mt-0.5 text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]/30"
-                          />
-                        </div>
+                        <Input
+                          key={label}
+                          label={label}
+                          type="number"
+                          value={String(val)}
+                          onChange={value => set(Number(value))}
+                        />
                       ))}
                     </div>
                     <div className="flex gap-2 mt-2">

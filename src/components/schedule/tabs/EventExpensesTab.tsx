@@ -4,6 +4,7 @@ import DocThumbnail from '../../shared/DocThumbnail';
 import { useApp } from '../../../context/AppContext';
 import { useToast } from '../../../context/ToastContext';
 import { ExpenseStatusBadge } from '../../shared/StatusBadge';
+import { Input } from '@/components/ui/input';
 import { supabase } from '../../../lib/supabase';
 import { getErrorMessage } from '../../../lib/errors';
 import type { FestivalEvent, ExpenseCategory, Expense } from '../../../types';
@@ -191,26 +192,20 @@ export default function EventExpensesTab({ event }: Props) {
                               {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                             </select>
                           </div>
-                          <div>
-                            <label className="text-xs text-[var(--text-secondary)] font-semibold">Số tiền (€)</label>
-                            <input
-                              type="number" min="0" step="0.01" required
-                              className={`mt-1 ${inputCls}`}
-                              value={formAmount}
-                              onChange={e => setFormAmount(e.target.value)}
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="text-xs text-[var(--text-secondary)] font-semibold">Ngày</label>
-                          <input
-                            type="date" required
-                            className={`mt-1 ${inputCls} [color-scheme:dark]`}
-                            value={formDate}
-                            onChange={e => setFormDate(e.target.value)}
+                          <Input
+                            type="number" min={0} step={0.01} isRequired
+                            label="Số tiền (€)"
+                            value={formAmount}
+                            onChange={setFormAmount}
                           />
                         </div>
+
+                        <Input
+                          type="date" isRequired
+                          label="Ngày"
+                          value={formDate}
+                          onChange={setFormDate}
+                        />
 
                         {/* Upload ảnh hóa đơn */}
                         <div>

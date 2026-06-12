@@ -252,15 +252,12 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
         {editing ? (
           <div className="space-y-3">
             <Input label="Họ tên" value={editName} onChange={setEditName} />
-            <div>
-              <label className="text-xs text-[var(--text-muted)] font-medium mb-1 block">Ngày sinh (DD-MM-YYYY)</label>
-              <input
-                className="w-full px-3 py-2 border border-[var(--glass-border)] rounded-xl text-sm text-[var(--text-primary)] bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] focus:outline-none focus:border-[var(--primary)]/50 transition-all placeholder:text-[var(--text-muted)]"
-                placeholder="01-01-2000"
-                value={editDob}
-                onChange={e => setEditDob(e.target.value)}
-              />
-            </div>
+            <Input
+              label="Ngày sinh (DD-MM-YYYY)"
+              placeholder="01-01-2000"
+              value={editDob}
+              onChange={setEditDob}
+            />
             <Input label="Nơi ở" value={editCity} onChange={setEditCity} placeholder="Paris, Lyon..." />
             <Input label="Số điện thoại" type="tel" value={editPhone} onChange={setEditPhone} placeholder="+33 6 XX XX XX XX" />
             <Input label="Số Carte Vitale" value={editCarteNum} onChange={setEditCarteNum} placeholder="1 85 01 75 XXX XXX XX" inputClassName="font-mono" />
@@ -397,15 +394,13 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
               </div>
             )}
             <div className="flex gap-2">
-              <div className="flex-1 flex items-center border border-[var(--glass-border)] rounded-lg overflow-hidden bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] focus-within:border-[var(--primary)]/50 transition-all">
-                <input
-                  className="flex-1 px-3 py-2 text-sm bg-transparent text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none"
-                  placeholder="username mới"
-                  value={editUsername}
-                  onChange={e => setEditUsername(e.target.value.replace(/\s/g, '').toLowerCase())}
-                />
-                <span className="px-2 text-xs text-[var(--text-muted)] border-l border-[var(--glass-border)] py-2 shrink-0 font-mono">@fm.com</span>
-              </div>
+              <Input
+                className="flex-1"
+                placeholder="username mới"
+                value={editUsername}
+                onChange={(v) => setEditUsername(v.replace(/\s/g, '').toLowerCase())}
+                endContent={<span className="font-mono text-xs">@fm.com</span>}
+              />
               <Button
                 size="sm"
                 className="bg-[var(--primary)] text-[var(--background)] text-sm font-medium px-3 rounded-lg flex items-center gap-1"
@@ -438,14 +433,14 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
             </div>
             {showPwForm && (
               <form onSubmit={handleChangePassword} className="flex gap-2">
-                <input
-                  required
+                <Input
+                  isRequired
                   type="password"
                   minLength={6}
                   placeholder="Mật khẩu mới (tối thiểu 6 ký tự)"
-                  className="flex-1 px-3 py-2 border border-[var(--glass-border)] rounded-lg text-sm bg-[var(--glass-bg)] text-[var(--text-primary)] backdrop-blur-[var(--glass-blur)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--primary)]/50 transition-all"
+                  className="flex-1"
                   value={newPassword}
-                  onChange={e => setNewPassword(e.target.value)}
+                  onChange={setNewPassword}
                 />
                 <Button
                   type="submit"
@@ -583,29 +578,23 @@ export default function StaffProfile({ staffId, onBack }: StaffProfileProps) {
                   {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
-              <div>
-                <label className="text-xs text-[var(--text-secondary)] font-medium block mb-1">Số tiền (€)</label>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  required
-                  className="w-full px-3 py-2 border border-[var(--glass-border)] rounded-lg text-sm bg-[var(--glass-bg)] text-[var(--text-primary)] backdrop-blur-[var(--glass-blur)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--primary)]/50 transition-all"
-                  value={formAmount}
-                  onChange={e => setFormAmount(e.target.value)}
-                />
-              </div>
-            </div>
-            <div>
-              <label className="text-xs text-[var(--text-secondary)] font-medium block mb-1">Ngày</label>
-              <input
-                type="date"
-                required
-                className="w-full border border-[var(--glass-border)] rounded-lg px-3 py-2 text-sm bg-[var(--glass-bg)] text-[var(--text-primary)] backdrop-blur-[var(--glass-blur)] focus:outline-none focus:border-[var(--primary)]/50 transition-all [color-scheme:dark]"
-                value={formDate}
-                onChange={e => setFormDate(e.target.value)}
+              <Input
+                label="Số tiền (€)"
+                type="number"
+                min={0}
+                step={0.01}
+                isRequired
+                value={formAmount}
+                onChange={setFormAmount}
               />
             </div>
+            <Input
+              label="Ngày"
+              type="date"
+              isRequired
+              value={formDate}
+              onChange={setFormDate}
+            />
             <div>
               <label className="text-xs text-[var(--text-secondary)] font-medium block mb-1">Ảnh hóa đơn (không bắt buộc, tối đa 5MB)</label>
               {expenseFile ? (

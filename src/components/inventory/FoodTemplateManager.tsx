@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Plus, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { Input } from '@/components/ui/input';
 
 interface FoodTemplate {
   id:         number;
@@ -86,12 +87,6 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
     setSaving(false); onChanged();
   };
 
-  const inputCls =
-    'w-full border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] ' +
-    'text-[var(--text-primary)] rounded-xl px-3 py-2 text-xs ' +
-    'focus:outline-none focus:border-[var(--primary)]/50 transition-all ' +
-    'placeholder:text-[var(--text-muted)]';
-
   const modal = (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm px-0 sm:px-4">
       <div className="w-full sm:max-w-md bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] rounded-t-2xl sm:rounded-2xl flex flex-col max-h-[85dvh] sm:max-h-[85vh] border border-[var(--glass-border)]">
@@ -156,12 +151,13 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
 
                       {newItemGroup === group ? (
                         <div className="flex gap-2 mt-1">
-                          <input
+                          <Input
                             autoFocus
-                            className={inputCls}
+                            className="flex-1"
+                            inputClassName="h-9 text-xs"
                             placeholder="Tên sản phẩm mới..."
                             value={newItemName}
-                            onChange={e => setNewItemName(e.target.value)}
+                            onChange={setNewItemName}
                             onKeyDown={e => {
                               if (e.key === 'Enter') { e.preventDefault(); handleAddItem(group); }
                               if (e.key === 'Escape') { setNewItemGroup(''); setNewItemName(''); }
@@ -201,18 +197,18 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
               {showAddGroup ? (
                 <div className="border border-dashed border-[var(--glass-border)] rounded-xl p-3 space-y-2">
                   <p className="text-xs font-bold text-[var(--text-secondary)]">Tạo nhóm mới</p>
-                  <input
+                  <Input
                     autoFocus
-                    className={inputCls}
+                    inputClassName="h-9 text-xs"
                     placeholder="Tên nhóm (VD: Đồ uống)"
                     value={newGroupName}
-                    onChange={e => setNewGroupName(e.target.value)}
+                    onChange={setNewGroupName}
                   />
-                  <input
-                    className={inputCls}
+                  <Input
+                    inputClassName="h-9 text-xs"
                     placeholder="Tên sản phẩm đầu tiên"
                     value={newItemName}
-                    onChange={e => setNewItemName(e.target.value)}
+                    onChange={setNewItemName}
                     onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddGroup(); } }}
                   />
                   <div className="flex gap-2">

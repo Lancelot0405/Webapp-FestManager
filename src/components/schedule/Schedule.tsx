@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Plus, Trash2, Search } from 'lucide-react';
 import { Button, ScrollShadow } from '@heroui/react';
+import { Input } from '@/components/ui/input';
 import { useApp } from '../../context/AppContext';
 import StatusBadge from '../shared/StatusBadge';
 import AddEventForm from './AddEventForm';
@@ -80,16 +81,13 @@ export default function Schedule({ onSelectEvent }: ScheduleProps) {
       </div>
 
       {/* Search input */}
-      <div className="relative">
-        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
-        <input
-          type="text"
-          placeholder="Tìm theo tên hoặc địa điểm..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="w-full pl-9 pr-3 py-2 border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] rounded-xl text-sm focus:outline-none focus:border-[var(--primary)]/50 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] transition-all"
-        />
-      </div>
+      <Input
+        type="text"
+        placeholder="Tìm theo tên hoặc địa điểm..."
+        value={search}
+        onChange={setSearch}
+        startContent={<Search size={15} />}
+      />
 
       {/* Status filter pills */}
       <div className="flex flex-wrap gap-1.5">

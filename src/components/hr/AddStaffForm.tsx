@@ -28,11 +28,6 @@ export default function AddStaffForm({ onClose }: Props) {
   const isAdmin   = currentUser?.role === 'admin';
   const isManager = currentUser?.role === 'manager';
 
-  const inputCls =
-    'w-full border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] ' +
-    'text-[var(--text-primary)] placeholder:text-[var(--text-muted)] ' +
-    'rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--primary)]/50 transition-all [color-scheme:dark]';
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !city.trim()) return;
@@ -101,23 +96,14 @@ export default function AddStaffForm({ onClose }: Props) {
         />
 
         <div>
-          <label className="text-xs font-medium text-[var(--text-secondary)] mb-1 block">
-            Tên đăng nhập <span className="font-normal text-[var(--text-muted)]">(để tạo tài khoản)</span>
-          </label>
-          <div className="flex items-stretch border border-[var(--glass-border)] rounded-xl overflow-hidden focus-within:border-[var(--primary)]/50 bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] transition-all">
-            <input
-              className="flex-1 px-3 py-2.5 text-sm bg-transparent text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none"
-              placeholder="nguyenvana"
-              autoCapitalize="none"
-              autoCorrect="off"
-              spellCheck={false}
-              value={username}
-              onChange={e => setUsername(e.target.value.replace(/\s/g, '').toLowerCase())}
-            />
-            <span className="px-2.5 text-xs text-[var(--text-muted)] border-l border-[var(--glass-border)] flex items-center shrink-0 font-mono">
-              @fm.com
-            </span>
-          </div>
+          <Input
+            label="Tên đăng nhập (để tạo tài khoản)"
+            placeholder="nguyenvana"
+            value={username}
+            onChange={(v) => setUsername(v.replace(/\s/g, '').toLowerCase())}
+            autoComplete="off"
+            endContent={<span className="font-mono text-xs">@fm.com</span>}
+          />
           <p className="text-xs text-[var(--text-muted)] mt-1">
             Mật khẩu mặc định: <span className="font-semibold text-[var(--text-primary)]">fest1234</span>
           </p>
@@ -185,15 +171,12 @@ export default function AddStaffForm({ onClose }: Props) {
           </div>
         )}
 
-        <div>
-          <label className="text-xs font-medium text-[var(--text-secondary)] mb-1 block">Ngày sinh</label>
-          <input
-            type="date"
-            className={inputCls}
-            value={dob}
-            onChange={e => setDob(e.target.value)}
-          />
-        </div>
+        <Input
+          type="date"
+          label="Ngày sinh"
+          value={dob}
+          onChange={setDob}
+        />
 
         <Input
           label="Thành phố *"
