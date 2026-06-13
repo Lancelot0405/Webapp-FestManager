@@ -70,7 +70,7 @@ export default function HRGlobal() {
 
   const renderList = (list: StaffMember[]) => (
     <ScrollShadow className="max-h-[60vh]">
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
       {list.map(s => (
         <div
           key={s.id}

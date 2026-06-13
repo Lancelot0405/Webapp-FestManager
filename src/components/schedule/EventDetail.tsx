@@ -141,23 +141,34 @@ export default function EventDetail() {
         )}
       </div>
 
-      {/* Tabs */}
-      <ScrollShadow orientation="horizontal" className="mb-4">
-        <div className="flex border-b border-[var(--glass-border)]">
-          {TABS.map(tab => (
-            <Button key={tab.id} variant="ghost" onPress={() => setActiveTab(tab.id)}
-              className={`h-auto min-w-0 -mb-px whitespace-nowrap rounded-none border-b-2 px-4 py-2 text-sm font-semibold transition-colors ${activeTab === tab.id ? 'border-[var(--primary)] text-[var(--primary)]' : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}>
-              {tab.label}
-            </Button>
-          ))}
-        </div>
-      </ScrollShadow>
+      {/* 2-panel layout: info panel cố định bên trái trên desktop */}
+      <div className="lg:grid lg:grid-cols-[320px_1fr] lg:gap-6 lg:items-start">
+        {/* Panel trái: thông tin sự kiện — chỉ hiện trên desktop */}
+        <aside className="hidden lg:block glass-card rounded-xl overflow-hidden">
+          <EventInfoTab event={event} />
+        </aside>
 
-      {activeTab === 'info'      && <EventInfoTab event={event} />}
-      {activeTab === 'staff'     && <EventStaffTab event={event} />}
-      {activeTab === 'expenses'  && <EventExpensesTab event={event} />}
-      {activeTab === 'inventory' && <EventInventoryTab event={event} />}
-      {activeTab === 'contracts' && <EventContractsTab event={event} />}
+        {/* Phần phải: tabs + content */}
+        <div>
+          <ScrollShadow orientation="horizontal" className="mb-4">
+            <div className="flex border-b border-[var(--glass-border)]">
+              {TABS.map(tab => (
+                <Button key={tab.id} variant="ghost" onPress={() => setActiveTab(tab.id)}
+                  className={`${tab.id === 'info' ? 'lg:hidden' : ''} h-auto min-w-0 -mb-px whitespace-nowrap rounded-none border-b-2 px-4 py-2 text-sm font-semibold transition-colors ${activeTab === tab.id ? 'border-[var(--primary)] text-[var(--primary)]' : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}>
+                  {tab.label}
+                </Button>
+              ))}
+            </div>
+          </ScrollShadow>
+
+          {/* Tab info: chỉ render trên mobile (desktop dùng panel trái) */}
+          {activeTab === 'info' && <div className="lg:hidden"><EventInfoTab event={event} /></div>}
+          {activeTab === 'staff'     && <EventStaffTab event={event} />}
+          {activeTab === 'expenses'  && <EventExpensesTab event={event} />}
+          {activeTab === 'inventory' && <EventInventoryTab event={event} />}
+          {activeTab === 'contracts' && <EventContractsTab event={event} />}
+        </div>
+      </div>
     </div>
   );
 }
