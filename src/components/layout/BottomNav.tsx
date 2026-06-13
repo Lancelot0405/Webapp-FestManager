@@ -122,20 +122,19 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
 
         {/* Separator + Avatar */}
         <div className="w-px h-8 bg-separator self-center mx-0.5 shrink-0" />
-        <Button
-          variant="ghost"
-          isIconOnly
-          onPress={onOpenSheet}
+        <button
+          type="button"
+          onClick={onOpenSheet}
           aria-label="Tài khoản"
-          className="relative flex-shrink-0 w-9 h-9 min-w-0 rounded-full accent-gradient shadow-sm hover:opacity-90 active:scale-95 transition-all mx-1"
+          className="relative flex-shrink-0 w-10 h-10 min-w-0 rounded-full accent-gradient shadow-sm active:scale-95 transition-transform mx-1 flex items-center justify-center"
         >
-          <span className="text-[12px] font-bold text-white">{initials}</span>
+          <span className="text-[12px] font-bold text-white select-none">{initials}</span>
           {notifCount > 0 && (
             <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-danger text-danger-foreground text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-[var(--surface)]">
               {notifCount > 9 ? '9+' : notifCount}
             </span>
           )}
-        </Button>
+        </button>
       </div>
     </nav>
   );
