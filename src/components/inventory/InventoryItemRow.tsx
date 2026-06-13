@@ -13,7 +13,7 @@ export default function InventoryItemRow({ item, onEdit }: Props) {
 
   return (
     <Card
-      className={`group overflow-hidden transition-all cursor-pointer ${
+      className={`group overflow-hidden transition-all cursor-pointer p-0 ${
         isLow  ? 'border-danger/30 bg-danger/5' :
         isWarn ? 'border-accent/30 bg-accent/5' : ''
       }`}

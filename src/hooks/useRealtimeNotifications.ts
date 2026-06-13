@@ -31,8 +31,10 @@ export function useRealtimeNotifications(isAdmin: boolean) {
   useEffect(() => {
     if (!isAdmin) return;
 
+    const channelSuffix = Math.random().toString(36).substring(2, 10);
+
     const expensesChannel = supabase
-      .channel('realtime-expenses')
+      .channel(`realtime-expenses-${channelSuffix}`)
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'expenses' },
@@ -50,7 +52,7 @@ export function useRealtimeNotifications(isAdmin: boolean) {
       .subscribe();
 
     const inventoryChannel = supabase
-      .channel('realtime-inventory')
+      .channel(`realtime-inventory-${channelSuffix}`)
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'inventory_items' },

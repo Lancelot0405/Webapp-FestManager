@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, User, Trash2, ShieldCheck, Check, X } from 'lucide-react';
 import { Button, Card, ScrollShadow } from '@heroui/react';
@@ -70,11 +70,11 @@ export default function HRGlobal() {
 
   const renderList = (list: StaffMember[]) => (
     <ScrollShadow className="max-h-[60vh]">
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 items-start">
       {list.map(s => (
         <Card
           key={s.id}
-          className="group overflow-hidden flex flex-row items-stretch hover:shadow-lg active:scale-[0.99] transition-all duration-150"
+          className="group overflow-hidden flex flex-row items-stretch hover:shadow-lg active:scale-[0.99] transition-all duration-150 p-0"
         >
           <Button
             variant="ghost"
@@ -96,14 +96,17 @@ export default function HRGlobal() {
             </div>
           </Button>
           {isAdmin && (
-            <Button
-              isIconOnly
-              variant="ghost"
-              onPress={e => handleDelete(e as unknown as React.MouseEvent, s.id, s.name)}
-              className="px-3 text-muted hover:text-danger hover:bg-danger/10 border-l border-separator rounded-none rounded-r-xl h-auto transition-colors"
-            >
-              <Trash2 size={15} />
-            </Button>
+            <>
+              <div className="w-[1px] bg-separator shrink-0" />
+              <Button
+                isIconOnly
+                variant="ghost"
+                onPress={e => handleDelete(e as unknown as React.MouseEvent, s.id, s.name)}
+                className="px-3 text-muted hover:text-danger hover:bg-danger/10 rounded-none rounded-r-xl h-auto transition-colors"
+              >
+                <Trash2 size={15} />
+              </Button>
+            </>
           )}
         </Card>
       ))}

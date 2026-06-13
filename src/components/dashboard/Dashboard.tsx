@@ -1,11 +1,14 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
+import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Calendar, Users, Package, Clock,
-  DollarSign, TrendingUp, AlertTriangle,
-  ArrowUpRight, ArrowDownRight, Search, ChevronRight,
+  Calendar, Package, Clock,
+  AlertTriangle,
+  Search, ChevronRight,
+  RotateCw, Bell, Download, SlidersHorizontal, ArrowUpDown, LayoutGrid,
 } from 'lucide-react';
-import { Avatar, Button, Card } from '@heroui/react';
+import { Button, Card } from '@heroui/react';
+import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
 import { useApp } from '../../context/AppContext';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
 import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
@@ -26,7 +29,7 @@ function monthKey(d: string): string {
 }
 
 function sumExpenses(e: FestivalEvent): number {
-  return Object.values(e.financials.expenses).reduce((s, v) => s + (v ?? 0), 0);
+  return Object.values(e.financials.expenses).reduce<number>((s, v) => s + (v ?? 0), 0);
 }
 
 function pct(cur: number, prev: number): number | null {
@@ -85,25 +88,46 @@ function AdminDashboard({ events, staff, inventory, currentUser, navigate }: {
   navigate: ReturnType<typeof useNavigate>;
 }) {
   const [tab, setTab] = useState<TabKey>('overview');
+  const isAdminOrManager = currentUser?.role === 'admin' || currentUser?.role === 'manager';
+  const { notifications } = useRealtimeNotifications(isAdminOrManager);
+  const notifCount = notifications.length;
 
   return (
     <div className="space-y-5">
-      {/* Greeting */}
-      <div>
-        <p className="text-sm text-muted">{greeting()}</p>
-        <h1 className="text-2xl font-bold text-foreground">{currentUser.name} 👋</h1>
+      {/* Greeting & Top Actions */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight flex items-center gap-2">
+            {greeting()}, {currentUser.name}
+          </h1>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" isIconOnly size="sm" className="rounded-full text-muted hover:bg-default/50" aria-label="Tìm kiếm">
+            <Search size={16} />
+          </Button>
+          <Button variant="ghost" isIconOnly size="sm" className="relative rounded-full text-muted hover:bg-default/50" aria-label="Thông báo">
+            <Bell size={16} />
+            {notifCount > 0 && (
+              <span className="absolute top-1 right-1 w-2 h-2 bg-danger rounded-full border border-background" />
+            )}
+          </Button>
+          <Button size="sm" className="bg-accent text-white dark:text-foreground font-semibold px-4 rounded-xl flex items-center gap-1.5 shadow-sm">
+            + Mời thành viên
+          </Button>
+        </div>
       </div>
 
-      {/* Tab bar */}
-      <div className="flex">
-        <div className="inline-flex items-center gap-0.5 p-1 bg-default-100 rounded-full">
+      {/* Control Bar (Tabs & Filters) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-separator/50 pb-3">
+        {/* Tab bar */}
+        <div className="inline-flex items-center gap-0.5 p-1 bg-default/50 border border-separator rounded-full">
           {TABS.map(t => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`px-3.5 py-1 rounded-full text-[13px] font-medium transition-all whitespace-nowrap ${
+              className={`px-3.5 py-1 rounded-full text-[13px] font-semibold transition-all whitespace-nowrap ${
                 tab === t.key
-                  ? 'bg-white dark:bg-default-200 text-foreground shadow-sm'
+                  ? 'bg-surface dark:bg-white/15 text-foreground shadow-sm'
                   : 'text-default-500 hover:text-foreground'
               }`}
             >
@@ -111,10 +135,23 @@ function AdminDashboard({ events, staff, inventory, currentUser, navigate }: {
             </button>
           ))}
         </div>
+
+        {/* Filters */}
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" isIconOnly size="sm" className="rounded-xl border border-separator hover:bg-default/50 text-muted" aria-label="Làm mới">
+            <RotateCw size={14} />
+          </Button>
+          <Button variant="ghost" size="sm" className="rounded-xl border border-separator text-muted font-medium hover:bg-default/50 flex items-center gap-1.5 px-3 py-1.5 h-auto text-xs">
+            <Calendar size={13} /> Hàng tháng
+          </Button>
+          <Button size="sm" className="bg-accent/10 hover:bg-accent/15 text-accent font-semibold px-4 rounded-xl h-auto py-1.5 text-xs">
+            <Download size={13} className="inline mr-1" /> Tải xuống
+          </Button>
+        </div>
       </div>
 
       {/* Tab content */}
-      {tab === 'overview'  && <OverviewTab  events={events} staff={staff} inventory={inventory} navigate={navigate} />}
+      {tab === 'overview'  && <OverviewTab  events={events} staff={staff} navigate={navigate} />}
       {tab === 'finance'   && <FinanceTab   events={events} navigate={navigate} />}
       {tab === 'hr'        && <HRTab        events={events} staff={staff} navigate={navigate} />}
       {tab === 'inventory' && <InventoryTab inventory={inventory} navigate={navigate} />}
@@ -124,10 +161,9 @@ function AdminDashboard({ events, staff, inventory, currentUser, navigate }: {
 
 // ─── Tab: Tổng quan ──────────────────────────────────────────────────────────
 
-function OverviewTab({ events, staff, inventory, navigate }: {
+function OverviewTab({ events, staff, navigate }: {
   events: FestivalEvent[];
   staff: StaffMember[];
-  inventory: InventoryItem[];
   navigate: ReturnType<typeof useNavigate>;
 }) {
   const now  = new Date();
@@ -137,49 +173,44 @@ function OverviewTab({ events, staff, inventory, navigate }: {
 
   const totalIncome   = events.reduce((s, e) => s + e.financials.income, 0);
   const totalExpenses = events.reduce((s, e) => s + sumExpenses(e), 0);
-  const lowStock      = inventory.filter(i => i.current <= i.threshold).length;
-  const pendingCount  = events.flatMap(e => e.receipts).filter(r => r.status === 'pending').length;
 
   const curIncome  = events.filter(e => monthKey(e.date) === curM).reduce((s, e) => s + e.financials.income, 0);
   const prevIncome = events.filter(e => monthKey(e.date) === prevM).reduce((s, e) => s + e.financials.income, 0);
+  const curExpenses = events.filter(e => monthKey(e.date) === curM).reduce((s, e) => s + sumExpenses(e), 0);
+  const prevExpenses = events.filter(e => monthKey(e.date) === prevM).reduce((s, e) => s + sumExpenses(e), 0);
   const curEvents  = events.filter(e => monthKey(e.date) === curM).length;
   const prevEvents = events.filter(e => monthKey(e.date) === prevM).length;
 
-  const incomeDelta = pct(curIncome, prevIncome);
-  const eventsDelta = pct(curEvents, prevEvents);
+  const incomeDelta   = pct(curIncome, prevIncome);
+  const expensesDelta = pct(curExpenses, prevExpenses);
+  const eventsDelta   = pct(curEvents, prevEvents);
 
   return (
     <div className="space-y-5">
       {/* Stat cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard
-          icon={<DollarSign size={16} />}
           label="Tổng doanh thu"
-          value={totalIncome.toLocaleString('fr-FR') + '€'}
+          value={totalIncome.toLocaleString('fr-FR') + ' €'}
           delta={incomeDelta}
-          color="indigo"
           onClick={() => navigate('/finance')}
         />
         <StatCard
-          icon={<TrendingUp size={16} />}
           label="Tổng chi phí"
-          value={totalExpenses.toLocaleString('fr-FR') + '€'}
-          color="amber"
+          value={totalExpenses.toLocaleString('fr-FR') + ' €'}
+          delta={expensesDelta}
           onClick={() => navigate('/finance')}
         />
         <StatCard
-          icon={<Calendar size={16} />}
           label="Sự kiện"
           value={String(events.length)}
           delta={eventsDelta}
-          color="violet"
           onClick={() => navigate('/schedule')}
         />
         <StatCard
-          icon={<Users size={16} />}
           label="Nhân viên"
           value={String(staff.length)}
-          color="emerald"
+          delta={null}
           onClick={() => navigate('/hr')}
         />
       </div>
@@ -228,10 +259,10 @@ function FinanceTab({ events, navigate }: {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard icon={<DollarSign size={16} />} label="Doanh thu" value={totalIncome.toLocaleString('fr-FR') + '€'} color="indigo" onClick={() => navigate('/finance')} />
-        <StatCard icon={<TrendingUp size={16} />} label="Chi phí"   value={totalExpenses.toLocaleString('fr-FR') + '€'} color="amber" onClick={() => navigate('/finance')} />
-        <StatCard icon={<DollarSign size={16} />} label="Lợi nhuận" value={profit.toLocaleString('fr-FR') + '€'} color={profit >= 0 ? 'emerald' : 'danger'} onClick={() => navigate('/finance')} />
-        <StatCard icon={<Clock size={16} />}      label="Chờ duyệt" value={String(pending.length)} color={pending.length > 0 ? 'danger' : 'emerald'} onClick={() => navigate('/finance')} />
+        <StatCard label="Doanh thu" value={totalIncome.toLocaleString('fr-FR') + ' €'} onClick={() => navigate('/finance')} />
+        <StatCard label="Chi phí"   value={totalExpenses.toLocaleString('fr-FR') + ' €'} onClick={() => navigate('/finance')} />
+        <StatCard label="Lợi nhuận" value={profit.toLocaleString('fr-FR') + ' €'} onClick={() => navigate('/finance')} />
+        <StatCard label="Chờ duyệt" value={String(pending.length)} onClick={() => navigate('/finance')} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -295,9 +326,9 @@ function HRTab({ events, staff, navigate }: {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        <StatCard icon={<Users size={16} />}    label="Tổng nhân viên"   value={String(staff.length)} color="indigo" onClick={() => navigate('/hr')} />
-        <StatCard icon={<Users size={16} />}    label="Cố định"          value={String(permanent)}    color="violet" onClick={() => navigate('/hr')} />
-        <StatCard icon={<Calendar size={16} />} label="Bán thời gian"    value={String(partTime)}     color="amber"  onClick={() => navigate('/hr')} />
+        <StatCard label="Tổng nhân viên"   value={String(staff.length)} onClick={() => navigate('/hr')} />
+        <StatCard label="Cố định"          value={String(permanent)}    onClick={() => navigate('/hr')} />
+        <StatCard label="Bán thời gian"    value={String(partTime)}     onClick={() => navigate('/hr')} />
       </div>
 
       <Card className="overflow-hidden">
@@ -376,9 +407,9 @@ function InventoryTab({ inventory, navigate }: {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        <StatCard icon={<Package size={16} />}       label="Tổng mặt hàng" value={String(inventory.length)} color="indigo"  onClick={() => navigate('/inventory')} />
-        <StatCard icon={<AlertTriangle size={16} />} label="Sắp hết hàng"  value={String(low.length)}       color={low.length > 0 ? 'danger' : 'emerald'}  onClick={() => navigate('/inventory')} />
-        <StatCard icon={<Package size={16} />}       label="Đủ hàng"       value={String(ok.length)}        color="emerald" onClick={() => navigate('/inventory')} />
+        <StatCard label="Tổng mặt hàng" value={String(inventory.length)} onClick={() => navigate('/inventory')} />
+        <StatCard label="Sắp hết hàng"  value={String(low.length)}       onClick={() => navigate('/inventory')} />
+        <StatCard label="Đủ hàng"       value={String(ok.length)}        onClick={() => navigate('/inventory')} />
       </div>
 
       {low.length > 0 && (
@@ -528,17 +559,35 @@ function EventsTable({ events, navigate, title, emptyText }: {
   return (
     <Card className="overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-separator flex-wrap gap-2">
-        <h3 className="text-sm font-semibold text-foreground">
-          {title} <span className="text-muted font-normal">({events.length})</span>
-        </h3>
-        <div className="relative">
-          <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted" />
+      <div className="px-4 pt-4 pb-2">
+        <div className="flex items-center gap-2">
+          <h2 className="text-sm font-bold text-foreground">{title}</h2>
+          <span className="bg-default text-default-foreground px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0">
+            {events.length}
+          </span>
+        </div>
+      </div>
+
+      {/* Actions & Filters */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 pb-3 border-b border-separator/50">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button variant="ghost" size="sm" className="rounded-xl border border-separator text-muted font-medium hover:bg-default/50 flex items-center gap-1.5 px-3 py-1.5 h-auto text-xs">
+            <SlidersHorizontal size={13} /> Lọc
+          </Button>
+          <Button variant="ghost" size="sm" className="rounded-xl border border-separator text-muted font-medium hover:bg-default/50 flex items-center gap-1.5 px-3 py-1.5 h-auto text-xs">
+            <ArrowUpDown size={13} /> Sắp xếp
+          </Button>
+          <Button variant="ghost" size="sm" className="rounded-xl border border-separator text-muted font-medium hover:bg-default/50 flex items-center gap-1.5 px-3 py-1.5 h-auto text-xs">
+            <LayoutGrid size={13} /> Cột
+          </Button>
+        </div>
+        <div className="relative w-full sm:w-auto">
+          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Tìm kiếm..."
-            className="pl-7 pr-3 py-1.5 text-xs rounded-lg bg-default/60 border border-separator text-foreground placeholder:text-muted outline-none focus:border-accent/50 transition-colors w-44"
+            className="pl-8 pr-3 py-1.5 text-xs rounded-xl bg-default/50 border border-separator text-foreground placeholder:text-muted outline-none focus:border-accent/50 transition-colors w-full sm:w-44"
           />
         </div>
       </div>
@@ -587,47 +636,54 @@ function EventsTable({ events, navigate, title, emptyText }: {
 
 // ─── Stat Card ────────────────────────────────────────────────────────────────
 
-type StatColor = 'indigo' | 'violet' | 'emerald' | 'amber' | 'danger';
-
-const colorMap: Record<StatColor, { icon: string; badge: string }> = {
-  indigo:  { icon: 'bg-indigo-100 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400',  badge: 'bg-indigo-50  dark:bg-indigo-500/10  text-indigo-600  dark:text-indigo-400'  },
-  violet:  { icon: 'bg-violet-100 dark:bg-violet-500/15 text-violet-600 dark:text-violet-400',  badge: 'bg-violet-50  dark:bg-violet-500/10  text-violet-600  dark:text-violet-400'  },
-  emerald: { icon: 'bg-emerald-100 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400', badge: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' },
-  amber:   { icon: 'bg-amber-100 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400',      badge: 'bg-amber-50   dark:bg-amber-500/10   text-amber-600   dark:text-amber-400'   },
-  danger:  { icon: 'bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400',              badge: 'bg-red-50    dark:bg-red-500/10    text-red-600    dark:text-red-400'       },
-};
-
-function StatCard({ icon, label, value, delta, color = 'indigo', onClick }: {
-  icon: React.ReactNode;
+interface StatCardProps {
   label: string;
   value: string;
   delta?: number | null;
-  color?: StatColor;
   onClick?: () => void;
-}) {
-  const c = colorMap[color];
+  icon?: ReactNode;
+  color?: string;
+}
+
+function StatCard({ label, value, delta, onClick, icon, color }: StatCardProps) {
+  const colorClasses = useMemo(() => {
+    if (!color) return { bg: 'bg-accent/10', text: 'text-accent' };
+    switch (color) {
+      case 'indigo':
+        return { bg: 'bg-indigo-500/10 dark:bg-indigo-500/20', text: 'text-indigo-500' };
+      case 'danger':
+        return { bg: 'bg-danger/10 dark:bg-danger/20', text: 'text-danger' };
+      case 'emerald':
+        return { bg: 'bg-emerald-500/10 dark:bg-emerald-500/20', text: 'text-emerald-500' };
+      default:
+        return { bg: 'bg-accent/10', text: 'text-accent' };
+    }
+  }, [color]);
+
   return (
-    <Card className="p-0 overflow-hidden hover:shadow-md transition-all duration-150 cursor-pointer" onClick={onClick}>
-      <div className="p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${c.icon}`}>
+    <Card
+      className="hover:shadow-lg hover:border-default-300 dark:hover:border-zinc-700 transition-all duration-200 cursor-pointer p-5 flex flex-col justify-between min-h-[104px] rounded-2xl bg-surface dark:bg-zinc-900/50 border border-separator/80 shadow-sm"
+      onClick={onClick}
+    >
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-muted/80 uppercase tracking-wider">{label}</p>
+        {icon && (
+          <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${colorClasses.bg} ${colorClasses.text}`}>
             {icon}
           </div>
-          {delta != null && (
-            <span className={`flex items-center gap-0.5 text-[11px] font-semibold px-1.5 py-0.5 rounded-full ${
-              delta >= 0
-                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                : 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400'
-            }`}>
-              {delta >= 0 ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
-              {Math.abs(delta).toFixed(1)}%
-            </span>
-          )}
-        </div>
-        <div>
-          <p className="text-2xl font-bold text-foreground leading-none">{value}</p>
-          <p className="text-xs text-muted mt-1">{label}</p>
-        </div>
+        )}
+      </div>
+      <div className="flex items-baseline justify-between mt-3">
+        <span className="text-2xl font-bold text-foreground tracking-tight">{value}</span>
+        {delta != null && (
+          <span className={`inline-flex items-center gap-0.5 text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+            delta >= 0
+              ? 'bg-emerald-500/10 text-emerald-500'
+              : 'bg-danger/10 text-danger'
+          }`}>
+            {delta >= 0 ? '↑' : '↓'} {Math.abs(delta).toFixed(1)}%
+          </span>
+        )}
       </div>
     </Card>
   );
@@ -675,25 +731,31 @@ function RevenueBarChart({ events }: { events: FestivalEvent[] }) {
   const max = Math.max(...data.map(d => d.value), 1);
 
   return (
-    <div className="space-y-1.5">
-      <div className="flex items-end gap-1.5 h-32">
+    <div className="space-y-1.5 relative">
+      {/* Grid lines */}
+      <div className="absolute inset-x-0 top-0 bottom-6 flex flex-col justify-between pointer-events-none opacity-40">
+        <div className="border-t border-separator/80 w-full" />
+        <div className="border-t border-separator/80 w-full" />
+        <div className="border-t border-separator/80 w-full" />
+      </div>
+      <div className="flex items-end gap-2 h-32 relative z-10">
         {data.map((d, i) => {
           const h = Math.max((d.value / max) * 100, 4);
           return (
-            <div key={i} className="flex-1 flex flex-col items-center gap-1">
+            <div key={i} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
               <div
-                className="w-full rounded-t-md transition-all"
-                style={{ height: `${h}%`, background: 'linear-gradient(180deg, #6366F1, #8B5CF6)' }}
-                title={d.value.toLocaleString('fr-FR') + '€'}
+                className="w-full rounded-t-[4px] transition-all hover:opacity-85"
+                style={{ height: `${h}%`, background: 'var(--accent)' }}
+                title={d.value.toLocaleString('fr-FR') + ' €'}
               />
             </div>
           );
         })}
       </div>
-      <div className="flex gap-1.5">
+      <div className="flex gap-2 relative z-10">
         {data.map((d, i) => (
           <div key={i} className="flex-1 text-center">
-            <span className="text-[9px] text-muted">{d.label}</span>
+            <span className="text-[9px] text-muted font-medium">{d.label}</span>
           </div>
         ))}
       </div>
@@ -733,20 +795,25 @@ function EventsLineChart({ events }: { events: FestivalEvent[] }) {
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: 128 }}>
         <defs>
           <linearGradient id="evtGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#6366F1" stopOpacity="0.2" />
-            <stop offset="100%" stopColor="#6366F1" stopOpacity="0" />
+            <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.25" />
+            <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
           </linearGradient>
         </defs>
+        {/* Horizontal grid lines */}
+        <line x1="0" y1="25" x2={W} y2="25" stroke="var(--separator)" strokeWidth="0.5" strokeDasharray="3 3" opacity="0.6" />
+        <line x1="0" y1="50" x2={W} y2="50" stroke="var(--separator)" strokeWidth="0.5" strokeDasharray="3 3" opacity="0.6" />
+        <line x1="0" y1="75" x2={W} y2="75" stroke="var(--separator)" strokeWidth="0.5" strokeDasharray="3 3" opacity="0.6" />
+
         <path d={area} fill="url(#evtGrad)" />
-        <path d={path} fill="none" stroke="#6366F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d={path} fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         {points.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r="3" fill="#6366F1" />
+          <circle key={i} cx={p.x} cy={p.y} r="3" fill="var(--accent)" className="transition-all hover:r-4 cursor-pointer" />
         ))}
       </svg>
       <div className="flex">
         {points.map((p, i) => (
           <div key={i} className="flex-1 text-center">
-            <span className="text-[9px] text-muted">{p.label}</span>
+            <span className="text-[9px] text-muted font-medium">{p.label}</span>
           </div>
         ))}
       </div>
@@ -778,25 +845,35 @@ function IncomeExpenseChart({ events }: { events: FestivalEvent[] }) {
   const max = Math.max(...data.flatMap(d => [d.income, d.expense]), 1);
 
   return (
-    <div className="space-y-1.5">
-      <div className="flex items-end gap-2 h-32">
+    <div className="space-y-1.5 relative">
+      {/* Grid lines */}
+      <div className="absolute inset-x-0 top-0 bottom-6 flex flex-col justify-between pointer-events-none opacity-40">
+        <div className="border-t border-separator/80 w-full" />
+        <div className="border-t border-separator/80 w-full" />
+        <div className="border-t border-separator/80 w-full" />
+      </div>
+      <div className="flex items-end gap-2 h-32 relative z-10">
         {data.map((d, i) => (
-          <div key={i} className="flex-1 flex items-end gap-0.5">
-            <div className="flex-1 rounded-t-sm" style={{ height: `${Math.max((d.income / max) * 100, 2)}%`, background: '#6366F1' }} title={'Thu: ' + d.income.toLocaleString()} />
-            <div className="flex-1 rounded-t-sm" style={{ height: `${Math.max((d.expense / max) * 100, 2)}%`, background: '#F59E0B' }} title={'Chi: ' + d.expense.toLocaleString()} />
+          <div key={i} className="flex-1 flex items-end gap-1 h-full">
+            <div className="flex-1 rounded-t-[3px] transition-all hover:opacity-85" style={{ height: `${Math.max((d.income / max) * 100, 2)}%`, background: 'var(--accent)' }} title={'Doanh thu: ' + d.income.toLocaleString('fr-FR') + ' €'} />
+            <div className="flex-1 rounded-t-[3px] transition-all hover:opacity-85" style={{ height: `${Math.max((d.expense / max) * 100, 2)}%`, background: '#F43F5E' }} title={'Chi phí: ' + d.expense.toLocaleString('fr-FR') + ' €'} />
           </div>
         ))}
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 relative z-10">
         {data.map((d, i) => (
           <div key={i} className="flex-1 text-center">
-            <span className="text-[9px] text-muted">{d.label}</span>
+            <span className="text-[9px] text-muted font-medium">{d.label}</span>
           </div>
         ))}
       </div>
-      <div className="flex items-center gap-4 justify-end">
-        <span className="flex items-center gap-1 text-[10px] text-muted"><span className="w-2 h-2 rounded-full bg-indigo-500 inline-block" />Doanh thu</span>
-        <span className="flex items-center gap-1 text-[10px] text-muted"><span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />Chi phí</span>
+      <div className="flex items-center gap-4 justify-end relative z-10">
+        <span className="flex items-center gap-1.5 text-[10px] text-muted font-medium">
+          <span className="w-2 h-2 rounded-full inline-block" style={{ background: 'var(--accent)' }} /> Doanh thu
+        </span>
+        <span className="flex items-center gap-1.5 text-[10px] text-muted font-medium">
+          <span className="w-2 h-2 rounded-full inline-block bg-[#F43F5E]" /> Chi phí
+        </span>
       </div>
     </div>
   );

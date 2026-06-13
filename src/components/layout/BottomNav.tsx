@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Button } from '@heroui/react';
+import { Tabs } from '@heroui/react';
 import {
   LayoutDashboard,
   Calendar,
@@ -14,6 +14,8 @@ import { useApp } from '../../context/AppContext';
 
 interface BottomNavProps {
   navVisible?: boolean;
+  onOpenSheet?: () => void;
+  notifCount?: number;
 }
 
 const ADMIN_TABS = [
@@ -23,6 +25,7 @@ const ADMIN_TABS = [
   { path: 'finance',   icon: (c: boolean) => <DollarSign      size={c ? 18 : 20} />, label: 'Tài chính'  },
   { path: 'hr',        icon: (c: boolean) => <Users           size={c ? 18 : 20} />, label: 'Nhân sự'    },
   { path: 'clients',   icon: (c: boolean) => <Building2       size={c ? 18 : 20} />, label: 'Khách hàng' },
+  { path: 'profile',   icon: (c: boolean) => <User            size={c ? 18 : 20} />, label: 'Hồ sơ'      },
 ];
 
 const MANAGER_TABS = [
@@ -40,7 +43,7 @@ const STAFF_TABS = [
   { path: 'profile',   icon: (c: boolean) => <User            size={c ? 18 : 20} />, label: 'Hồ sơ'      },
 ];
 
-export default function BottomNav({ navVisible = true }: BottomNavProps) {
+export default function BottomNav({ navVisible = true, onOpenSheet, notifCount = 0 }: BottomNavProps) {
   const { currentUser } = useApp();
   const navigate        = useNavigate();
   const location        = useLocation();
@@ -70,6 +73,8 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
                : STAFF_TABS;
   const compact = tabs.length >= 6;
 
+  const initials = currentUser?.name.trim().split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || '';
+
   const activeSegment = location.pathname.split('/')[1] || 'dashboard';
 
   return (
@@ -80,42 +85,65 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
         transform: `translateX(-50%) translateY(${navVisible ? '0' : 'calc(100% + 2rem)'})`,
       }}
     >
-      {/* Nav pill — uses HeroUI surface token + custom backdrop blur */}
-      <div
-        className="bg-surface/90 border border-separator flex justify-around items-center px-1.5 py-1.5 rounded-[28px] shadow-lg dark:shadow-black/40"
-        style={{ backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
+      <Tabs
+        selectedKey={activeSegment}
+        onSelectionChange={(key) => {
+          if (key === 'profile') {
+            onOpenSheet?.();
+          } else {
+            navigate('/' + key.toString());
+          }
+        }}
+        className="w-full"
       >
-        {tabs.map(({ path, icon, label }) => {
-          const isActive = activeSegment === path;
-          return (
-            <Button
-              key={path}
-              variant="ghost"
-              onPress={() => navigate('/' + path)}
-              aria-current={isActive ? 'page' : undefined}
-              aria-label={label}
-              className="flex flex-col items-center gap-0.5 px-1 py-1 min-w-0 flex-1 h-auto rounded-none bg-transparent hover:bg-transparent"
-            >
-              <div className={`flex items-center justify-center px-3 py-1.5 rounded-2xl transition-all duration-200 ${
-                isActive
-                  ? 'accent-gradient shadow-sm'
-                  : 'hover:bg-default/50'
-              }`}>
-                <span className={`block transition-colors duration-150 ${
-                  isActive ? 'text-white' : 'text-muted'
-                }`}>
-                  {icon(compact)}
-                </span>
-              </div>
-              <span className={`leading-none font-semibold transition-colors duration-150 ${
-                compact ? 'text-[9px]' : 'text-[10px]'
-              } ${isActive ? 'text-accent' : 'text-muted'}`}>
-                {label}
-              </span>
-            </Button>
-          );
-        })}
-      </div>
+        <Tabs.ListContainer
+          className="w-full bg-surface/75 border border-separator/60 rounded-[28px] shadow-lg dark:shadow-black/40 p-1.5 backdrop-blur-lg"
+          style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+        >
+          <Tabs.List aria-label="Navigation" className="w-full flex justify-around items-center gap-1 !bg-transparent !p-0 !shadow-none">
+            {tabs.map(({ path, icon, label }) => {
+              const isActive = activeSegment === path;
+              const isProfile = path === 'profile';
+              return (
+                <Tabs.Tab
+                  key={path}
+                  id={path}
+                  className="flex-1 flex flex-col items-center justify-center py-2 h-auto min-w-0 rounded-[20px] cursor-pointer transition-all duration-200 relative group select-none outline-none data-[selected=false]:hover:bg-default/40 data-[selected=false]:active:bg-default/60"
+                >
+                  <div className="flex flex-col items-center gap-0.5 z-10 relative">
+                    <span className={`block transition-colors duration-150 ${
+                      isActive ? 'text-white' : 'text-muted group-hover:text-foreground/90'
+                    }`}>
+                      {isProfile ? (
+                        <div className="relative">
+                          <div className={`rounded-full accent-gradient flex items-center justify-center text-white font-bold transition-transform group-active:scale-95 shadow-sm ${
+                            compact ? 'w-5.5 h-5.5 text-[9px]' : 'w-6 h-6 text-[10px]'
+                          }`}>
+                            {initials}
+                          </div>
+                          {notifCount > 0 && (
+                            <span className="absolute -top-1 -right-1.5 w-3.5 h-3.5 bg-danger text-white text-[8px] font-bold rounded-full flex items-center justify-center border border-surface">
+                              {notifCount > 9 ? '9+' : notifCount}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        icon(compact)
+                      )}
+                    </span>
+                    <span className={`leading-none font-semibold transition-colors duration-150 ${
+                      compact ? 'text-[9px]' : 'text-[10px]'
+                    } ${isActive ? 'text-white' : 'text-muted group-hover:text-foreground/90'}`}>
+                      {label}
+                    </span>
+                  </div>
+                  <Tabs.Indicator className="bg-accent rounded-[20px]" />
+                </Tabs.Tab>
+              );
+            })}
+          </Tabs.List>
+        </Tabs.ListContainer>
+      </Tabs>
     </nav>
   );
 }

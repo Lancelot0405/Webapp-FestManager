@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { LogOut, Sun, Moon, Bell, BellPlus, Smartphone, X, Check, Info } from 'lucide-react';
 import { Button, Switch } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
@@ -27,6 +28,7 @@ const roleLabel: Record<string, string> = {
 
 export default function UserSheet({ onClose, onLogout, notifications, clearAll, clearOne }: UserSheetProps) {
   const { currentUser } = useApp();
+  const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const isAdmin   = currentUser?.role === 'admin';
   const isManager = currentUser?.role === 'manager';
@@ -77,18 +79,29 @@ export default function UserSheet({ onClose, onLogout, notifications, clearAll, 
               <div className="w-14 h-14 rounded-full accent-gradient flex items-center justify-center shadow-lg shrink-0">
                 <span className="text-xl font-bold text-white">{initials}</span>
               </div>
-              <div>
-                <p className="font-bold text-base text-foreground">{currentUser.name}</p>
-                <span className={`text-xs font-bold uppercase tracking-wide px-2 py-0.5 rounded-full ${roleBadgeStyle[currentUser.role]}`}>
-                  {roleLabel[currentUser.role]}
-                </span>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-base text-foreground truncate">{currentUser.name}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className={`text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full shrink-0 ${roleBadgeStyle[currentUser.role]}`}>
+                    {roleLabel[currentUser.role]}
+                  </span>
+                  <button
+                    onClick={() => {
+                      onClose();
+                      navigate('/profile');
+                    }}
+                    className="text-xs font-semibold text-accent hover:underline cursor-pointer"
+                  >
+                    Xem hồ sơ →
+                  </button>
+                </div>
               </div>
               <Button
                 onPress={onClose}
                 variant="ghost"
                 isIconOnly
                 size="sm"
-                className="ml-auto rounded-full text-muted"
+                className="rounded-full text-muted shrink-0"
               >
                 <X size={16} />
               </Button>

@@ -13,7 +13,7 @@ interface Props {
 export default function InventoryItemList({ items, isLoading, onEditItem, itemLabel, sectionLabel }: Props) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 items-start">
         <ListSkeleton count={3} />
       </div>
     );
@@ -28,7 +28,7 @@ export default function InventoryItemList({ items, isLoading, onEditItem, itemLa
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 items-start">
       {items.map(item => (
         <InventoryItemRow key={item.id} item={item} onEdit={onEditItem} />
       ))}

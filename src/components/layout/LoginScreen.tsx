@@ -1,7 +1,6 @@
-﻿import { useState, useEffect } from 'react';
-import { Lock, User, Eye, EyeOff, Download, Smartphone, X, ShieldCheck, Store, Tent, UtensilsCrossed, Sun, Moon } from 'lucide-react';
-import { Alert, Button, Card } from '@heroui/react';
-import { Input } from '@/components/shared/GlassInput';
+import { useState, useEffect } from 'react';
+import { User, Eye, EyeOff, Download, Smartphone, X, ShieldCheck, Store, Tent, UtensilsCrossed, Sun, Moon } from 'lucide-react';
+import { Alert, Button, Card, Form, Link, TextField, Label, Input } from '@heroui/react';
 import { useTheme } from '../../context/ThemeContext';
 import { supabase } from '../../lib/supabase';
 import { adminApi } from '../../lib/adminApi';
@@ -123,255 +122,238 @@ export default function LoginScreen() {
 
   return (
     <div className="w-full max-w-md flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-background">
+      {/* Branding above the card */}
+      <div className="flex flex-col items-center mb-6 text-center select-none">
+        <div className="w-12 h-12 rounded-2xl bg-accent flex items-center justify-center shadow-lg mb-3 shrink-0">
+          <UtensilsCrossed size={22} className="text-white dark:text-foreground" />
+        </div>
+        <h1 className="text-2xl font-black tracking-tight text-foreground">FestManager</h1>
+        <p className="text-xs text-muted mt-1">Hệ thống quản lý F&amp;B lưu động</p>
+      </div>
 
       {/* Card */}
-      <Card className="w-full p-8">
+      <Card className="w-full">
+        <Card.Header className="flex flex-col items-start gap-1 p-6">
+          <Card.Title className="text-xl font-bold text-foreground">
+            {mode === 'login' ? 'Đăng nhập' : 'Đăng ký tài khoản'}
+          </Card.Title>
+          <Card.Description className="text-sm text-muted">
+            {mode === 'login' 
+              ? 'Nhập thông tin tài khoản để truy cập hệ thống' 
+              : 'Tạo tài khoản mới để bắt đầu sử dụng'}
+          </Card.Description>
+        </Card.Header>
 
-        {/* Logo */}
-        <div className="flex flex-col items-center mb-7">
-          <div className="w-16 h-16 rounded-2xl bg-accent flex items-center justify-center mb-3 shadow-xl">
-            <UtensilsCrossed size={28} className="text-white dark:text-foreground" />
-          </div>
-          <h1 className="text-2xl font-black text-foreground tracking-tight">FestManager</h1>
-          <p className="text-muted text-sm mt-0.5">Hệ thống quản lý F&amp;B lưu động</p>
-        </div>
+        <Card.Content className="flex flex-col gap-4 py-2 px-6">
+          {/* ── LOGIN ── */}
+          {mode === 'login' && (
+            <Form onSubmit={handleLogin} className="w-full flex flex-col gap-4">
+              <TextField name="username" type="text" isRequired value={username} onChange={setUsername} className="w-full flex flex-col gap-1">
+                <Label>Tên đăng nhập</Label>
+                <Input placeholder="Nhập tên đăng nhập" variant="secondary" autoComplete="username" className="w-full" />
+              </TextField>
 
-        {/* Tab */}
-        <div className="flex w-full bg-default/50 rounded-xl p-1 mb-6 border border-separator">
-          {(['login', 'register'] as Mode[]).map(m => (
-            <Button
-              key={m}
-              variant="ghost"
-              onPress={() => reset(m)}
-              className={`flex-1 h-auto min-w-0 py-2 text-sm font-semibold rounded-lg transition-all ${
-                mode === m
-                  ? 'bg-surface text-foreground shadow-[0 1px 3px 0 rgb(0 0 0 / 0.07)]'
-                  : 'text-muted hover:text-foreground/80'
-              }`}
-            >
-              {m === 'login' ? 'Đăng nhập' : 'Đăng ký'}
-            </Button>
-          ))}
-        </div>
+              <TextField name="password" type={showPw ? 'text' : 'password'} isRequired value={password} onChange={setPassword} className="w-full flex flex-col gap-1">
+                <Label>Mật khẩu</Label>
+                <div className="relative flex items-center w-full">
+                  <Input placeholder="Nhập mật khẩu" variant="secondary" autoComplete="current-password" className="w-full pr-10" />
+                  <Button
+                    isIconOnly
+                    variant="ghost"
+                    aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                    onPress={() => setShowPw(v => !v)}
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 min-w-0 p-0 bg-transparent text-muted hover:text-foreground transition-colors"
+                  >
+                    {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </Button>
+                </div>
+              </TextField>
 
-        {/* ── LOGIN ── */}
-        {mode === 'login' && (
-          <form onSubmit={handleLogin} className="w-full space-y-4">
-            <Input
-              label="Tên đăng nhập"
-              value={username}
-              onChange={setUsername}
-              placeholder="Nhập tên đăng nhập"
-              autoComplete="username"
-              startContent={<User size={16} />}
-            />
+              {error && <AlertBox msg={error} />}
 
-            <Input
-              label="Mật khẩu"
-              value={password}
-              onChange={setPassword}
-              type={showPw ? 'text' : 'password'}
-              placeholder="Nhập mật khẩu"
-              autoComplete="current-password"
-              startContent={<Lock size={16} />}
-              endContent={
-                <Button
-                  isIconOnly
-                  variant="ghost"
-                  aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-                  onPress={() => setShowPw(v => !v)}
-                  className="h-auto min-w-0 p-0 bg-transparent text-muted hover:text-foreground transition-colors"
-                >
-                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-                </Button>
-              }
-            />
+              <Button
+                type="submit"
+                isDisabled={loading}
+                className="w-full mt-2"
+              >
+                {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+              </Button>
+            </Form>
+          )}
 
-            {error && <AlertBox msg={error} />}
-
-            <Button
-              type="submit"
-              isDisabled={loading}
-              fullWidth
-              className="w-full bg-accent text-white dark:text-foreground font-semibold py-3 rounded-xl active:scale-[0.98] transition-all hover:opacity-90"
-            >
-              {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-            </Button>
-          </form>
-        )}
-
-        {/* ── REGISTER ── */}
-        {mode === 'register' && (
-          <form onSubmit={handleRegister} className="w-full space-y-4">
-            <div className="bg-default/50 border border-separator rounded-xl px-3 py-2.5 text-xs text-foreground/80">
-              💡 Nếu admin đã tạo tài khoản cho bạn, hãy dùng thông tin do admin cung cấp.
-            </div>
-
-            {/* Role */}
-            <div>
-              <label className="text-xs font-semibold text-foreground/80 mb-1.5 block">Đăng ký với vai trò</label>
-              <div className="grid grid-cols-2 gap-2">
-                <RoleBtn
-                  active={registerRole === 'staff'}
-                  onPress={() => setRegisterRole('staff')}
-                  icon={<User size={14} />}
-                  label="Nhân viên"
-                />
-                <RoleBtn
-                  active={registerRole === 'manager'}
-                  onPress={() => setRegisterRole('manager')}
-                  icon={<ShieldCheck size={14} />}
-                  label="Quản lý"
-                  activeColor="indigo"
-                />
+          {/* ── REGISTER ── */}
+          {mode === 'register' && (
+            <Form onSubmit={handleRegister} className="w-full flex flex-col gap-4">
+              <div className="bg-default/40 border border-separator rounded-xl px-3 py-2.5 text-xs text-foreground/80">
+                💡 Nếu admin đã tạo tài khoản cho bạn, hãy dùng thông tin do admin cung cấp.
               </div>
-              {registerRole === 'manager' && (
-                <p className="mt-1.5 text-xs text-indigo-400">
-                  ⏳ Tài khoản quản lý cần được admin duyệt trước khi đăng nhập.
-                </p>
-              )}
-            </div>
 
-            {/* Department */}
-            {registerRole === 'staff' && (
-              <div>
-                <label className="text-xs font-semibold text-foreground/80 mb-1.5 block">Bộ phận</label>
+              {/* Role */}
+              <div className="flex flex-col gap-1">
+                <Label>Đăng ký với vai trò</Label>
                 <div className="grid grid-cols-2 gap-2">
                   <RoleBtn
-                    active={registerDept === 'restaurant'}
-                    onPress={() => setRegisterDept('restaurant')}
-                    icon={<Store size={14} />}
-                    label="Nhà hàng"
+                    active={registerRole === 'staff'}
+                    onPress={() => setRegisterRole('staff')}
+                    icon={<User size={14} />}
+                    label="Nhân viên"
                   />
                   <RoleBtn
-                    active={registerDept === 'festival'}
-                    onPress={() => setRegisterDept('festival')}
-                    icon={<Tent size={14} />}
-                    label="Festival"
-                    activeColor="success"
+                    active={registerRole === 'manager'}
+                    onPress={() => setRegisterRole('manager')}
+                    icon={<ShieldCheck size={14} />}
+                    label="Quản lý"
+                    activeColor="indigo"
                   />
                 </div>
-              </div>
-            )}
-
-            <Input
-              label="Tên đăng nhập"
-              value={username}
-              onChange={val => setUsername(val.replace(/\s/g, ''))}
-              placeholder="Không dấu, không khoảng trắng"
-              startContent={<User size={16} />}
-            />
-
-            <Input
-              label="Tên hiển thị"
-              value={displayName}
-              onChange={setDisplayName}
-              placeholder="Tên đầy đủ của bạn"
-              startContent={<User size={16} />}
-            />
-
-            <Input
-              label="Mật khẩu"
-              value={password}
-              onChange={setPassword}
-              type={showPw ? 'text' : 'password'}
-              placeholder="Tối thiểu 6 ký tự"
-              startContent={<Lock size={16} />}
-              endContent={
-                <Button
-                  isIconOnly
-                  variant="ghost"
-                  aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-                  onPress={() => setShowPw(v => !v)}
-                  className="h-auto min-w-0 p-0 bg-transparent text-muted hover:text-foreground transition-colors"
-                >
-                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-                </Button>
-              }
-            />
-
-            <Input
-              label="Xác nhận mật khẩu"
-              value={password2}
-              onChange={setPassword2}
-              type="password"
-              placeholder="Nhập lại mật khẩu"
-              startContent={<Lock size={16} />}
-            />
-
-            {error   && <AlertBox msg={error} />}
-            {success && (
-              <Alert status="success">
-                <Alert.Indicator />
-                <Alert.Content>
-                  <Alert.Description>{success}</Alert.Description>
-                </Alert.Content>
-              </Alert>
-            )}
-
-            <Button
-              type="submit"
-              isDisabled={loading}
-              fullWidth
-              className={`w-full font-semibold py-3 rounded-xl active:scale-[0.98] transition-all hover:opacity-90 ${
-                registerRole === 'manager'
-                  ? 'bg-indigo-500 text-white'
-                  : 'bg-accent text-white dark:text-foreground'
-              }`}
-            >
-              {loading ? 'Đang xử lý...' : registerRole === 'manager' ? 'Gửi yêu cầu đăng ký' : 'Tạo tài khoản'}
-            </Button>
-          </form>
-        )}
-
-        {/* Footer */}
-        <div className="border-t border-separator mt-6 pt-4 flex items-center justify-center gap-3">
-          <div className="relative">
-            <Button
-              variant="ghost"
-              onPress={handleInstallClick}
-              className="h-auto min-w-0 flex items-center gap-2 px-3 py-2 rounded-xl bg-default/50 hover:bg-default border border-separator text-foreground/80 text-xs font-medium transition-colors"
-            >
-              <Download size={14} /> Cài đặt app
-            </Button>
-            {showInstallModal && (
-              <div className="absolute bottom-11 right-0 w-72 bg-surface border border-separator rounded-2xl shadow-lg z-50 p-4 animate-fade-in">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Smartphone size={16} className="text-foreground/80" />
-                    <p className="text-sm font-semibold text-foreground">
-                      {isStandalone ? 'Đã cài đặt' : 'Cài FestManager'}
-                    </p>
-                  </div>
-                  <Button isIconOnly variant="ghost" onPress={() => setShowInstallModal(false)} aria-label="Đóng" className="h-auto min-w-0 p-0 text-muted hover:text-foreground transition-colors"><X size={15} /></Button>
-                </div>
-                {isStandalone ? (
-                  <p className="text-sm text-foreground/80">FestManager đã được cài 🎉</p>
-                ) : isIos ? (
-                  <div className="space-y-2.5">
-                    <InstallStep n={1} text='Bấm nút Chia sẻ ↑ ở thanh dưới Safari' />
-                    <InstallStep n={2} text='Cuộn xuống → chọn "Thêm vào màn hình chính"' />
-                    <InstallStep n={3} text='Bấm "Thêm" góc trên phải' />
-                  </div>
-                ) : (
-                  <p className="text-sm text-foreground/80">Dùng menu trình duyệt → "Cài đặt ứng dụng".</p>
+                {registerRole === 'manager' && (
+                  <p className="mt-1 text-xs text-indigo-400">
+                    ⏳ Tài khoản quản lý cần được admin duyệt trước khi đăng nhập.
+                  </p>
                 )}
-                <p className="text-xs text-muted mt-3">Yêu cầu Safari iOS 16.4+ hoặc Chrome Android</p>
               </div>
-            )}
-          </div>
 
+              {/* Department */}
+              {registerRole === 'staff' && (
+                <div className="flex flex-col gap-1">
+                  <Label>Bộ phận</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <RoleBtn
+                      active={registerDept === 'restaurant'}
+                      onPress={() => setRegisterDept('restaurant')}
+                      icon={<Store size={14} />}
+                      label="Nhà hàng"
+                    />
+                    <RoleBtn
+                      active={registerDept === 'festival'}
+                      onPress={() => setRegisterDept('festival')}
+                      icon={<Tent size={14} />}
+                      label="Festival"
+                      activeColor="success"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <TextField name="username" type="text" isRequired value={username} onChange={val => setUsername(val.replace(/\s/g, ''))} className="w-full flex flex-col gap-1">
+                <Label>Tên đăng nhập</Label>
+                <Input placeholder="Không dấu, không khoảng trắng" variant="secondary" className="w-full" />
+              </TextField>
+
+              <TextField name="displayName" type="text" isRequired value={displayName} onChange={setDisplayName} className="w-full flex flex-col gap-1">
+                <Label>Tên hiển thị</Label>
+                <Input placeholder="Tên đầy đủ của bạn" variant="secondary" className="w-full" />
+              </TextField>
+
+              <TextField name="password" type={showPw ? 'text' : 'password'} isRequired value={password} onChange={setPassword} className="w-full flex flex-col gap-1">
+                <Label>Mật khẩu</Label>
+                <div className="relative flex items-center w-full">
+                  <Input placeholder="Tối thiểu 6 ký tự" variant="secondary" className="w-full pr-10" />
+                  <Button
+                    isIconOnly
+                    variant="ghost"
+                    aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                    onPress={() => setShowPw(v => !v)}
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 min-w-0 p-0 bg-transparent text-muted hover:text-foreground transition-colors"
+                  >
+                    {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </Button>
+                </div>
+              </TextField>
+
+              <TextField name="password2" type="password" isRequired value={password2} onChange={setPassword2} className="w-full flex flex-col gap-1">
+                <Label>Xác nhận mật khẩu</Label>
+                <Input placeholder="Nhập lại mật khẩu" variant="secondary" className="w-full" />
+              </TextField>
+
+              {error   && <AlertBox msg={error} />}
+              {success && (
+                <Alert status="success">
+                  <Alert.Indicator />
+                  <Alert.Content>
+                    <Alert.Description>{success}</Alert.Description>
+                  </Alert.Content>
+                </Alert>
+              )}
+
+              <Button
+                type="submit"
+                isDisabled={loading}
+                className="w-full mt-2"
+              >
+                {loading ? 'Đang xử lý...' : registerRole === 'manager' ? 'Gửi yêu cầu đăng ký' : 'Tạo tài khoản'}
+              </Button>
+            </Form>
+          )}
+        </Card.Content>
+
+        {/* Footer with navigation link */}
+        <Card.Footer className="py-4 flex flex-col items-center justify-center gap-2">
+          {mode === 'login' ? (
+            <Link
+              onPress={() => reset('register')}
+              className="cursor-pointer text-sm text-center font-medium"
+            >
+              Chưa có tài khoản? Đăng ký ngay
+            </Link>
+          ) : (
+            <Link
+              onPress={() => reset('login')}
+              className="cursor-pointer text-sm text-center font-medium"
+            >
+              Đã có tài khoản? Đăng nhập
+            </Link>
+          )}
+        </Card.Footer>
+      </Card>
+
+      {/* Utilities outside the card */}
+      <div className="w-full flex items-center justify-center gap-3 mt-6">
+        <div className="relative">
           <Button
             variant="ghost"
-            onPress={() => toggleTheme()}
-            aria-label={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
+            onPress={handleInstallClick}
             className="h-auto min-w-0 flex items-center gap-2 px-3 py-2 rounded-xl bg-default/50 hover:bg-default border border-separator text-foreground/80 text-xs font-medium transition-colors"
           >
-            {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
-            {theme === 'dark' ? 'Sáng' : 'Tối'}
+            <Download size={14} /> Cài đặt app
           </Button>
+          {showInstallModal && (
+            <div className="absolute bottom-11 left-1/2 -translate-x-1/2 w-72 bg-surface border border-separator rounded-2xl shadow-lg z-50 p-4 animate-fade-in text-left">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Smartphone size={16} className="text-foreground/80" />
+                  <p className="text-sm font-semibold text-foreground">
+                    {isStandalone ? 'Đã cài đặt' : 'Cài FestManager'}
+                  </p>
+                </div>
+                <Button isIconOnly variant="ghost" onPress={() => setShowInstallModal(false)} aria-label="Đóng" className="h-auto min-w-0 p-0 text-muted hover:text-foreground transition-colors"><X size={15} /></Button>
+              </div>
+              {isStandalone ? (
+                <p className="text-sm text-foreground/80">FestManager đã được cài 🎉</p>
+              ) : isIos ? (
+                <div className="space-y-2.5">
+                  <InstallStep n={1} text='Bấm nút Chia sẻ ↑ ở thanh dưới Safari' />
+                  <InstallStep n={2} text='Cuộn xuống → chọn "Thêm vào màn hình chính"' />
+                  <InstallStep n={3} text='Bấm "Thêm" góc trên phải' />
+                </div>
+              ) : (
+                <p className="text-sm text-foreground/80">Dùng menu trình duyệt → "Cài đặt ứng dụng".</p>
+              )}
+              <p className="text-xs text-muted mt-3">Yêu cầu Safari iOS 16.4+ hoặc Chrome Android</p>
+            </div>
+          )}
         </div>
-      </Card>
+
+        <Button
+          variant="ghost"
+          onPress={() => toggleTheme()}
+          aria-label={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
+          className="h-auto min-w-0 flex items-center gap-2 px-3 py-2 rounded-xl bg-default/50 hover:bg-default border border-separator text-foreground/80 text-xs font-medium transition-colors"
+        >
+          {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+          {theme === 'dark' ? 'Sáng' : 'Tối'}
+        </Button>
+      </div>
     </div>
   );
 }

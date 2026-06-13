@@ -71,8 +71,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Realtime → invalidate TanStack Query cache
   // ---------------------------------------------------------------------------
   useEffect(() => {
+    const channelSuffix = Math.random().toString(36).substring(2, 10);
     const channel = supabase
-      .channel('festmanager-realtime')
+      .channel(`festmanager-realtime-${channelSuffix}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'staff_members' }, () => {
         queryClient.invalidateQueries({ queryKey: queryKeys.staff });
       })
