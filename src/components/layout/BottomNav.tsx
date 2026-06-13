@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Button } from '@heroui/react';
 import {
   LayoutDashboard,
   Calendar,
@@ -87,12 +88,13 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
         {tabs.map(({ path, icon, label }) => {
           const isActive = activeSegment === path;
           return (
-            <button
+            <Button
               key={path}
-              onClick={() => navigate('/' + path)}
+              variant="ghost"
+              onPress={() => navigate('/' + path)}
               aria-current={isActive ? 'page' : undefined}
               aria-label={label}
-              className="flex flex-col items-center gap-0.5 px-1 py-1 min-w-0 flex-1 focus:outline-none"
+              className="flex flex-col items-center gap-0.5 px-1 py-1 min-w-0 flex-1 h-auto rounded-none bg-transparent hover:bg-transparent"
             >
               <div className={`flex items-center justify-center px-3 py-1.5 rounded-2xl transition-all duration-200 ${
                 isActive
@@ -110,7 +112,7 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
               } ${isActive ? 'text-accent' : 'text-muted'}`}>
                 {label}
               </span>
-            </button>
+            </Button>
           );
         })}
       </div>

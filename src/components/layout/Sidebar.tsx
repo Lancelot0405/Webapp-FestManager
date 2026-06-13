@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Button } from '@heroui/react';
 import {
   LayoutDashboard,
   Calendar,
@@ -77,9 +78,10 @@ export default function Sidebar({ onOpenSheet, notifCount = 0 }: SidebarProps) {
     <aside className="hidden md:flex flex-col w-16 lg:w-64 shrink-0 sticky top-0 h-screen bg-surface border-r border-separator">
 
       {/* Logo */}
-      <button
-        onClick={() => navigate('/dashboard')}
-        className="h-16 flex items-center gap-3 px-3 lg:px-5 border-b border-separator hover:bg-default/40 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 justify-center lg:justify-start"
+      <Button
+        variant="ghost"
+        onPress={() => navigate('/dashboard')}
+        className="h-16 w-full flex items-center gap-3 px-3 lg:px-5 border-b border-separator hover:bg-default/40 rounded-none justify-center lg:justify-start"
       >
         <div className="w-8 h-8 rounded-xl accent-gradient flex items-center justify-center shrink-0">
           <UtensilsCrossed size={15} className="text-white" />
@@ -87,7 +89,7 @@ export default function Sidebar({ onOpenSheet, notifCount = 0 }: SidebarProps) {
         <span className="hidden lg:block text-[15px] font-bold tracking-tight text-foreground select-none">
           FestManager
         </span>
-      </button>
+      </Button>
 
       {/* Nav items */}
       <nav className="flex-1 px-2 lg:px-3 py-4 space-y-0.5 overflow-y-auto">
@@ -95,13 +97,14 @@ export default function Sidebar({ onOpenSheet, notifCount = 0 }: SidebarProps) {
           const isActive = activeSegment === path;
           const badge    = badgeFor(path);
           return (
-            <button
+            <Button
               key={path}
-              onClick={() => navigate('/' + path)}
+              variant="ghost"
+              onPress={() => navigate('/' + path)}
               aria-current={isActive ? 'page' : undefined}
-              className={`relative w-full flex items-center gap-3 px-2.5 lg:px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 justify-center lg:justify-start focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 ${
+              className={`relative w-full flex items-center gap-3 px-2.5 lg:px-3 py-2.5 rounded-xl text-sm font-medium justify-center lg:justify-start h-auto ${
                 isActive
-                  ? 'bg-accent/10 text-accent'
+                  ? 'bg-accent/10 text-accent hover:bg-accent/10'
                   : 'text-muted hover:text-foreground hover:bg-default/50'
               }`}
             >
@@ -115,7 +118,7 @@ export default function Sidebar({ onOpenSheet, notifCount = 0 }: SidebarProps) {
                   <span className="lg:hidden absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full" />
                 </>
               )}
-            </button>
+            </Button>
           );
         })}
       </nav>
@@ -127,10 +130,11 @@ export default function Sidebar({ onOpenSheet, notifCount = 0 }: SidebarProps) {
 
       {/* User footer */}
       <div className="px-2 lg:px-3 pb-4 pt-1 border-t border-separator">
-        <button
-          onClick={onOpenSheet}
-          className="w-full flex items-center gap-2.5 px-2.5 py-2.5 rounded-xl hover:bg-default/50 transition-colors justify-center lg:justify-start focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+        <Button
+          variant="ghost"
+          onPress={onOpenSheet}
           aria-label="Mở tài khoản và cài đặt"
+          className="w-full flex items-center gap-2.5 px-2.5 py-2.5 rounded-xl hover:bg-default/50 justify-center lg:justify-start h-auto"
         >
           <div className="relative w-8 h-8 rounded-full accent-gradient flex items-center justify-center text-white text-xs font-bold shrink-0">
             {currentUser.name.charAt(0).toUpperCase()}
@@ -149,7 +153,7 @@ export default function Sidebar({ onOpenSheet, notifCount = 0 }: SidebarProps) {
             </span>
           </div>
           <ChevronUp size={14} className="hidden lg:block text-muted shrink-0" />
-        </button>
+        </Button>
       </div>
     </aside>
   );

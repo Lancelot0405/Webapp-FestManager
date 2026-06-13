@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { LogOut, Sun, Moon, Bell, BellPlus, Smartphone, X, Check, Info } from 'lucide-react';
-import { Button } from '@heroui/react';
+import { Button, Switch } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
 import { usePushNotifications } from '../../hooks/usePushNotifications';
@@ -98,21 +98,23 @@ export default function UserSheet({ onClose, onLogout, notifications, clearAll, 
             <div className="py-3 space-y-1">
 
               {/* Theme toggle */}
-              <Button
-                variant="ghost"
-                onPress={() => toggleTheme()}
-                className="w-full h-auto justify-start flex items-center gap-3.5 px-3 py-3 rounded-2xl hover:bg-accent/5 active:bg-accent/10 transition-colors"
+              <Switch
+                isSelected={theme === 'dark'}
+                onChange={() => toggleTheme()}
+                className="w-full flex flex-row justify-between px-3 py-3 rounded-2xl hover:bg-accent/5 gap-0"
               >
-                <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
-                  {theme === 'dark' ? <Sun size={17} className="text-accent" /> : <Moon size={17} className="text-accent" />}
+                <div className="flex items-center gap-3.5">
+                  <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
+                    {theme === 'dark' ? <Sun size={17} className="text-accent" /> : <Moon size={17} className="text-accent" />}
+                  </div>
+                  <span className="text-sm font-medium text-foreground">
+                    {theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
+                  </span>
                 </div>
-                <span className="flex-1 text-sm font-medium text-foreground text-left">
-                  {theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
-                </span>
-                <div className={`w-11 h-6 rounded-full flex items-center px-0.5 transition-colors ${theme === 'dark' ? 'bg-accent' : 'bg-muted/25'}`}>
-                  <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${theme === 'dark' ? 'translate-x-5' : 'translate-x-0'}`} />
-                </div>
-              </Button>
+                <Switch.Control>
+                  <Switch.Thumb />
+                </Switch.Control>
+              </Switch>
 
               {/* Notifications — admin/manager */}
               {(isAdmin || isManager) && (
