@@ -28,3 +28,5 @@ dist-ssr
 *.sln
 *.sw?
 .claude/
+# heroui-agents-md
+.heroui-docs/
