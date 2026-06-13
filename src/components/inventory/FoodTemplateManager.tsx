@@ -1,5 +1,4 @@
 ﻿import { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { X, Plus, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { supabase } from '../../lib/supabase';
@@ -259,5 +258,5 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
     </div>
   );
 
-  return createPortal(modal, document.body);
+  return modal;
 }
