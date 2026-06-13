@@ -12,6 +12,7 @@ interface NumberPickerProps {
   min?:         number;
   max?:         number;
   step?:        number;
+  error?:       string;
 }
 
 const QUICK_VALUES = [1, 2, 3, 5, 10, 15, 20, 25, 30, 40, 50];
@@ -25,6 +26,7 @@ export default function NumberPicker({
   min  = 0,
   max,
   step = 1,
+  error,
 }: NumberPickerProps) {
   const numVal  = parseFloat(value);
   const isQuick = !isNaN(numVal) && QUICK_VALUES.includes(numVal);
@@ -72,7 +74,11 @@ export default function NumberPicker({
           placeholder={placeholder}
           value={value}
           onChange={onChange}
+          error={error}
         />
+      )}
+      {error && !custom && (
+        <p className="text-xs text-[var(--danger)] mt-1">{error}</p>
       )}
       {!custom && required && value === '' && (
         <input type="number" required value="" onChange={() => {}} className="sr-only" aria-hidden />

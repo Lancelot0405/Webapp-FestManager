@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { Plus, X, Pencil, Trash2, Phone, Mail, MapPin, Building2, Check, Search } from 'lucide-react';
 import { Button } from '@heroui/react';
+import { Controller, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Input } from '@/components/shared/GlassInput';
 import { Textarea } from '@/components/shared/GlassTextarea';
 
@@ -10,7 +13,10 @@ import { useAddClient } from '../../hooks/queries/mutations/useAddClient';
 import { useUpdateClient } from '../../hooks/queries/mutations/useUpdateClient';
 import { useDeleteClient } from '../../hooks/queries/mutations/useDeleteClient';
 import { useToast } from '../../context/ToastContext';
+import { clientSchema } from '../../lib/validations';
 import type { Client } from '../../types';
+
+type FormValues = z.infer<typeof clientSchema>;
 
 export default function Clients() {
   const showToast = useToast();
@@ -20,45 +26,62 @@ export default function Clients() {
   const updateClientMutation = useUpdateClient();
   const deleteClientMutation = useDeleteClient();
 
-  const [search, setSearch]   = useState('');
+  const [search, setSearch]     = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  const [fName,        setFName]        = useState('');
-  const [fContactName, setFContactName] = useState('');
-  const [fPhone,       setFPhone]       = useState('');
-  const [fEmail,       setFEmail]       = useState('');
-  const [fCity,        setFCity]        = useState('');
-  const [fNotes,       setFNotes]       = useState('');
+  const { control, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
+    resolver: zodResolver(clientSchema),
+    defaultValues: { name: '', contactName: '', phone: '', email: '', city: '', notes: '' },
+  });
 
-  const resetForm = () => {
-    setFName(''); setFContactName(''); setFPhone('');
-    setFEmail(''); setFCity(''); setFNotes('');
+  const openAdd = () => {
+    reset({ name: '', contactName: '', phone: '', email: '', city: '', notes: '' });
     setEditingId(null);
+    setShowForm(true);
   };
-
-  const openAdd = () => { resetForm(); setShowForm(true); };
 
   const openEdit = (client: Client) => {
-    setFName(client.name); setFContactName(client.contactName);
-    setFPhone(client.phone); setFEmail(client.email);
-    setFCity(client.city); setFNotes(client.notes);
-    setEditingId(client.id); setShowForm(true);
+    reset({
+      name: client.name,
+      contactName: client.contactName,
+      phone: client.phone,
+      email: client.email,
+      city: client.city,
+      notes: client.notes,
+    });
+    setEditingId(client.id);
+    setShowForm(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!fName.trim()) return;
+  const onSubmit = (data: FormValues) => {
     if (editingId !== null) {
       const existing = clients.find(c => c.id === editingId)!;
       updateClientMutation.mutate(
-        { ...existing, name: fName.trim(), contactName: fContactName.trim(), phone: fPhone.trim(), email: fEmail.trim(), city: fCity.trim(), notes: fNotes.trim() },
-        { onSuccess: () => { showToast('Đã cập nhật khách hàng', 'success'); setShowForm(false); resetForm(); } }
+        {
+          ...existing,
+          name: data.name.trim(),
+          contactName: data.contactName?.trim() ?? '',
+          phone: data.phone?.trim() ?? '',
+          email: data.email?.trim() ?? '',
+          city: data.city?.trim() ?? '',
+          notes: data.notes?.trim() ?? '',
+        },
+        { onSuccess: () => { showToast('Đã cập nhật khách hàng', 'success'); setShowForm(false); } }
       );
     } else {
       addClientMutation.mutate(
-        { id: Date.now(), name: fName.trim(), contactName: fContactName.trim(), phone: fPhone.trim(), email: fEmail.trim(), city: fCity.trim(), notes: fNotes.trim(), eventIds: [] },
-        { onSuccess: () => { showToast('Đã thêm khách hàng', 'success'); setShowForm(false); resetForm(); } }
+        {
+          id: Date.now(),
+          name: data.name.trim(),
+          contactName: data.contactName?.trim() ?? '',
+          phone: data.phone?.trim() ?? '',
+          email: data.email?.trim() ?? '',
+          city: data.city?.trim() ?? '',
+          notes: data.notes?.trim() ?? '',
+          eventIds: [],
+        },
+        { onSuccess: () => { showToast('Đã thêm khách hàng', 'success'); setShowForm(false); } }
       );
     }
   };
@@ -91,17 +114,89 @@ export default function Clients() {
         <div className="glass-card rounded-xl p-4">
           <div className="flex justify-between items-center mb-3">
             <p className="font-semibold text-sm text-[var(--text-primary)]">{editingId ? 'Chỉnh sửa' : 'Thêm khách hàng mới'}</p>
-            <Button onPress={() => { setShowForm(false); resetForm(); }} variant="ghost" isIconOnly size="sm" className="rounded-full"><X size={16} /></Button>
+            <Button onPress={() => setShowForm(false)} variant="ghost" isIconOnly size="sm" className="rounded-full"><X size={16} /></Button>
           </div>
-          <form onSubmit={handleSubmit} className="space-y-2.5">
-            <Input label="Tên tổ chức *" value={fName} onChange={setFName} placeholder="Tên ban tổ chức / công ty" />
-            <Input label="Người liên hệ" value={fContactName} onChange={setFContactName} placeholder="Họ tên người phụ trách" />
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-2.5">
+            <Controller
+              name="name"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  label="Tên tổ chức *"
+                  placeholder="Tên ban tổ chức / công ty"
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={errors.name?.message}
+                />
+              )}
+            />
+            <Controller
+              name="contactName"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  label="Người liên hệ"
+                  placeholder="Họ tên người phụ trách"
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                />
+              )}
+            />
             <div className="grid grid-cols-2 gap-2">
-              <Input label="Điện thoại" value={fPhone} onChange={setFPhone} type="tel" placeholder="+33..." />
-              <Input label="Email" value={fEmail} onChange={setFEmail} type="email" placeholder="email@..." />
+              <Controller
+                name="phone"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    label="Điện thoại"
+                    type="tel"
+                    placeholder="+33..."
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
+                  />
+                )}
+              />
+              <Controller
+                name="email"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    label="Email"
+                    type="email"
+                    placeholder="email@..."
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
+                    error={errors.email?.message}
+                  />
+                )}
+              />
             </div>
-            <Input label="Thành phố" value={fCity} onChange={setFCity} placeholder="Paris" />
-            <Textarea label="Ghi chú" value={fNotes} onChange={setFNotes} placeholder="Thông tin thêm..." minRows={2} maxRows={4} />
+            <Controller
+              name="city"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  label="Thành phố"
+                  placeholder="Paris"
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                />
+              )}
+            />
+            <Controller
+              name="notes"
+              control={control}
+              render={({ field }) => (
+                <Textarea
+                  label="Ghi chú"
+                  placeholder="Thông tin thêm..."
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                  minRows={2}
+                  maxRows={4}
+                />
+              )}
+            />
             <Button type="submit" variant="primary" fullWidth className="rounded-lg">
               {editingId ? 'Lưu thay đổi' : 'Thêm khách hàng'}
             </Button>

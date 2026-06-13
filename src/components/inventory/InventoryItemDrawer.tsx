@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Check, Trash2 } from 'lucide-react';
 import { Button } from '@heroui/react';
 import {
@@ -7,6 +7,9 @@ import {
   DrawerContent,
   DrawerDialog,
 } from '@heroui/react';
+import { Controller, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Select } from '@/components/shared/GlassSelect';
 import { useIsDesktop } from '@/hooks/useIsDesktop';
 import { useApp } from '../../context/AppContext';
@@ -15,6 +18,7 @@ import { useDeleteInventoryItem } from '../../hooks/queries/mutations/useDeleteI
 import { useAddInventoryLog } from '../../hooks/queries/mutations/useAddInventoryLog';
 import FoodNameSelect from './FoodNameSelect';
 import NumberPicker from './NumberPicker';
+import { inventoryItemSchema } from '../../lib/validations';
 import type { InventoryItem, InventoryUnit } from '../../types';
 import { FOOD_UNITS, EQUIP_UNITS } from './useInventoryFilters';
 
@@ -24,6 +28,8 @@ interface Props {
   onClose: () => void;
 }
 
+type FormValues = z.infer<typeof inventoryItemSchema>;
+
 export default function InventoryItemDrawer({ item, isOpen, onClose }: Props) {
   const { currentUser } = useApp();
   const isDesktop = useIsDesktop();
@@ -31,33 +37,36 @@ export default function InventoryItemDrawer({ item, isOpen, onClose }: Props) {
   const deleteMutation = useDeleteInventoryItem();
   const addLogMutation = useAddInventoryLog();
 
-  const [editName,      setEditName]      = useState('');
-  const [editQty,       setEditQty]       = useState('');
-  const [editThreshold, setEditThreshold] = useState('');
-  const [editUnit,      setEditUnit]      = useState<InventoryUnit>('kg');
+  const isEquip = item
+    ? (item.category === 'equipment' || item.category === 'restaurant-equipment' || item.category === 'festival-equipment')
+    : false;
+  const unitOptions = isEquip ? EQUIP_UNITS : FOOD_UNITS;
+
+  const { control, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
+    resolver: zodResolver(inventoryItemSchema),
+    defaultValues: { name: '', current: '', threshold: '', unit: 'kg' },
+  });
 
   useEffect(() => {
     if (item) {
-      setEditName(item.name);
-      setEditQty(String(item.current));
-      setEditThreshold(String(item.threshold));
-      setEditUnit(item.unit);
+      reset({
+        name: item.name,
+        current: String(item.current),
+        threshold: String(item.threshold),
+        unit: item.unit,
+      });
     }
-  }, [item]);
+  }, [item, reset]);
 
   if (!item) return null;
 
-  const isEquip = item.category === 'equipment' || item.category === 'restaurant-equipment' || item.category === 'festival-equipment';
-  const unitOptions = isEquip ? EQUIP_UNITS : FOOD_UNITS;
-
-  const handleSave = () => {
-    const qty = parseFloat(editQty);
-    const thr = parseFloat(editThreshold) || 0;
-    if (isNaN(qty) || qty < 0 || !editName.trim()) return;
-    updateMutation.mutate({ itemId: item.id, name: editName.trim(), current: qty, threshold: thr, unit: editUnit });
-    if (currentUser && (qty !== item.current || editUnit !== item.unit)) {
+  const onSubmit = (data: FormValues) => {
+    const qty = parseFloat(data.current);
+    const thr = parseFloat(data.threshold ?? '0') || 0;
+    updateMutation.mutate({ itemId: item.id, name: data.name.trim(), current: qty, threshold: thr, unit: data.unit as InventoryUnit });
+    if (currentUser && (qty !== item.current || data.unit !== item.unit)) {
       addLogMutation.mutate({
-        id: Date.now(), itemId: item.id, itemName: editName.trim(), qty, unit: editUnit,
+        id: Date.now(), itemId: item.id, itemName: data.name.trim(), qty, unit: data.unit as InventoryUnit,
         action: 'set', festivalId: null, festivalName: 'Kiểm kho tổng',
         timestamp: new Date().toLocaleString('vi-VN', { hour12: false }),
         submittedBy: currentUser.name,
@@ -89,46 +98,94 @@ export default function InventoryItemDrawer({ item, isOpen, onClose }: Props) {
           <DrawerDialog aria-label="Chỉnh sửa mặt hàng" className="relative outline-none p-4 space-y-3">
             <p className="font-bold text-[var(--text-primary)] text-sm">Chỉnh sửa: {item.name}</p>
 
-            <FoodNameSelect
-              value={editName}
-              onChange={setEditName}
-              itemType={isEquip ? 'equipment' : 'food'}
-              required
-            />
-            <NumberPicker label="Số lượng"  value={editQty}       onChange={setEditQty}       required min={0} step={0.1} />
-            <NumberPicker label="Cảnh báo"  value={editThreshold} onChange={setEditThreshold} min={0}   step={0.1} placeholder="0" />
-            <Select
-              label="Đơn vị"
-              value={editUnit}
-              onChange={(v) => setEditUnit(v as InventoryUnit)}
-              options={unitOptions.map(u => ({ value: u, label: u }))}
-            />
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+              <Controller
+                name="name"
+                control={control}
+                render={({ field }) => (
+                  <FoodNameSelect
+                    value={field.value}
+                    onChange={field.onChange}
+                    itemType={isEquip ? 'equipment' : 'food'}
+                    required
+                  />
+                )}
+              />
+              {errors.name && <p className="text-xs text-[var(--danger)] -mt-2">{errors.name.message}</p>}
 
-            <div className="flex gap-2">
-              <Button
-                onPress={handleSave}
-                variant="primary"
-                className="flex-1 flex items-center justify-center gap-1.5 rounded-xl"
-              >
-                <Check size={14} /> Lưu
-              </Button>
-              <Button
-                onPress={onClose}
-                variant="ghost"
-                className="flex-1 rounded-xl border border-[var(--glass-border)]"
-              >
-                Hủy
-              </Button>
-              <Button
-                onPress={handleDelete}
-                variant="ghost"
-                isIconOnly
-                className="px-3 rounded-xl text-[var(--danger)] bg-[var(--danger)]/10 hover:bg-[var(--danger)]/20"
-                aria-label={`Xóa ${item.name}`}
-              >
-                <Trash2 size={15} />
-              </Button>
-            </div>
+              <Controller
+                name="current"
+                control={control}
+                render={({ field }) => (
+                  <NumberPicker
+                    label="Số lượng"
+                    value={field.value}
+                    onChange={field.onChange}
+                    required
+                    min={0}
+                    step={0.1}
+                    error={errors.current?.message}
+                  />
+                )}
+              />
+
+              <Controller
+                name="threshold"
+                control={control}
+                render={({ field }) => (
+                  <NumberPicker
+                    label="Cảnh báo"
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
+                    min={0}
+                    step={0.1}
+                    placeholder="0"
+                  />
+                )}
+              />
+
+              <Controller
+                name="unit"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    label="Đơn vị"
+                    value={field.value}
+                    onChange={field.onChange}
+                    options={unitOptions.map(u => ({ value: u, label: u }))}
+                    error={errors.unit?.message}
+                  />
+                )}
+              />
+
+              <div className="flex gap-2">
+                <Button
+                  type="submit"
+                  variant="primary"
+                  className="flex-1 flex items-center justify-center gap-1.5 rounded-xl"
+                >
+                  <Check size={14} /> Lưu
+                </Button>
+                <Button
+                  type="button"
+                  onPress={onClose}
+                  variant="ghost"
+                  className="flex-1 rounded-xl border border-[var(--glass-border)]"
+                >
+                  Hủy
+                </Button>
+                <Button
+                  type="button"
+                  onPress={handleDelete}
+                  variant="ghost"
+                  isIconOnly
+                  className="px-3 rounded-xl text-[var(--danger)] bg-[var(--danger)]/10 hover:bg-[var(--danger)]/20"
+                  aria-label={`Xóa ${item.name}`}
+                >
+                  <Trash2 size={15} />
+                </Button>
+              </div>
+            </form>
           </DrawerDialog>
         </DrawerContent>
       </DrawerBackdrop>

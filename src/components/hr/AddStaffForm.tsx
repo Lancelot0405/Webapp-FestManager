@@ -1,11 +1,15 @@
 import { useState } from 'react';
 import { X, ShieldCheck, Building2 } from 'lucide-react';
 import { Button } from '@heroui/react';
+import { Controller, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useApp } from '../../context/AppContext';
 import { adminApi } from '../../lib/adminApi';
 import { useToast } from '../../context/ToastContext';
 import { useCreateStaff } from '../../hooks/queries/mutations/useCreateStaff';
 import { Input } from '@/components/shared/GlassInput';
+import { staffSchema } from '../../lib/validations';
 import type { StaffMember, StaffType, UserRole, UserDepartment } from '../../types';
 
 const DOMAIN = '@fm.com';
@@ -14,16 +18,14 @@ interface Props {
   onClose: () => void;
 }
 
+type FormValues = z.infer<typeof staffSchema>;
+
 export default function AddStaffForm({ onClose }: Props) {
   const { currentUser } = useApp();
   const showToast = useToast();
   const createStaffMutation = useCreateStaff();
 
-  const [name,       setName]       = useState('');
-  const [dob,        setDob]        = useState('');
-  const [city,       setCity]       = useState('');
   const [staffType,  setStaffType]  = useState<StaffType>('permanent');
-  const [username,   setUsername]   = useState('');
   const [role,       setRole]       = useState<UserRole>('staff');
   const [department, setDepartment] = useState<UserDepartment>('restaurant');
   const [loading,    setLoading]    = useState(false);
@@ -31,23 +33,26 @@ export default function AddStaffForm({ onClose }: Props) {
   const isAdmin   = currentUser?.role === 'admin';
   const isManager = currentUser?.role === 'manager';
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim() || !city.trim()) return;
+  const { control, handleSubmit, formState: { errors } } = useForm<FormValues>({
+    resolver: zodResolver(staffSchema),
+    defaultValues: { name: '', city: '', dob: '', username: '' },
+  });
+
+  const onSubmit = async (data: FormValues) => {
     setLoading(true);
 
-    const dobFormatted = dob
-      ? (() => { const [yyyy, mm, dd] = dob.split('-'); return `${dd}-${mm}-${yyyy}`; })()
+    const dobFormatted = data.dob
+      ? (() => { const [yyyy, mm, dd] = data.dob!.split('-'); return `${dd}-${mm}-${yyyy}`; })()
       : '';
 
     let userId: string | undefined;
 
-    if (username.trim()) {
-      const email = username.trim().toLowerCase() + DOMAIN;
-      const { data, error } = await adminApi.createStaff({
+    if (data.username?.trim()) {
+      const email = data.username.trim().toLowerCase() + DOMAIN;
+      const { data: apiData, error } = await adminApi.createStaff({
         email,
         password: 'fest1234',
-        name: name.trim(),
+        name: data.name.trim(),
         role: isAdmin ? role : 'staff',
         department,
       });
@@ -56,15 +61,15 @@ export default function AddStaffForm({ onClose }: Props) {
         setLoading(false);
         return;
       }
-      userId = data?.userId;
+      userId = apiData?.userId;
     }
 
     const newStaff: StaffMember = {
       id: Date.now(),
       userId,
-      name: name.trim(),
+      name: data.name.trim(),
       dob: dobFormatted,
-      city: city.trim(),
+      city: data.city.trim(),
       staffType,
       contracts: [],
     };
@@ -98,23 +103,35 @@ export default function AddStaffForm({ onClose }: Props) {
           <X size={16} />
         </Button>
       </div>
-      <form onSubmit={handleSubmit} className="space-y-2.5">
-        <Input
-          label="Tên *"
-          isRequired
-          value={name}
-          onChange={setName}
-          placeholder="Nguyễn Văn A"
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-2.5">
+        <Controller
+          name="name"
+          control={control}
+          render={({ field }) => (
+            <Input
+              label="Tên *"
+              placeholder="Nguyễn Văn A"
+              value={field.value}
+              onChange={field.onChange}
+              error={errors.name?.message}
+            />
+          )}
         />
 
         <div>
-          <Input
-            label="Tên đăng nhập (để tạo tài khoản)"
-            placeholder="nguyenvana"
-            value={username}
-            onChange={(v) => setUsername(v.replace(/\s/g, '').toLowerCase())}
-            autoComplete="off"
-            endContent={<span className="font-mono text-xs">@fm.com</span>}
+          <Controller
+            name="username"
+            control={control}
+            render={({ field }) => (
+              <Input
+                label="Tên đăng nhập (để tạo tài khoản)"
+                placeholder="nguyenvana"
+                value={field.value ?? ''}
+                onChange={(v) => field.onChange(v.replace(/\s/g, '').toLowerCase())}
+                autoComplete="off"
+                endContent={<span className="font-mono text-xs">@fm.com</span>}
+              />
+            )}
           />
           <p className="text-xs text-[var(--text-muted)] mt-1">
             Mật khẩu mặc định: <span className="font-semibold text-[var(--text-primary)]">fest1234</span>
@@ -183,19 +200,31 @@ export default function AddStaffForm({ onClose }: Props) {
           </div>
         )}
 
-        <Input
-          type="date"
-          label="Ngày sinh"
-          value={dob}
-          onChange={setDob}
+        <Controller
+          name="dob"
+          control={control}
+          render={({ field }) => (
+            <Input
+              type="date"
+              label="Ngày sinh"
+              value={field.value ?? ''}
+              onChange={field.onChange}
+            />
+          )}
         />
 
-        <Input
-          label="Thành phố *"
-          isRequired
-          value={city}
-          onChange={setCity}
-          placeholder="Paris"
+        <Controller
+          name="city"
+          control={control}
+          render={({ field }) => (
+            <Input
+              label="Thành phố *"
+              placeholder="Paris"
+              value={field.value}
+              onChange={field.onChange}
+              error={errors.city?.message}
+            />
+          )}
         />
 
         <div>

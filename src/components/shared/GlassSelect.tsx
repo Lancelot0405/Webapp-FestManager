@@ -6,6 +6,7 @@ import {
   ListBox,
   ListBoxItem,
   Label,
+  FieldError,
 } from "@heroui/react"
 import { ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -25,6 +26,7 @@ export interface SelectProps {
   size?: "sm" | "md"
   className?: string
   isDisabled?: boolean
+  error?: string
 }
 
 const Select = ({
@@ -37,6 +39,7 @@ const Select = ({
   size = "md",
   className,
   isDisabled,
+  error,
 }: SelectProps) => {
   return (
     <SelectRoot
@@ -44,6 +47,7 @@ const Select = ({
       onSelectionChange={(key) => onChange(key != null ? String(key) : "")}
       isRequired={required}
       isDisabled={isDisabled}
+      isInvalid={!!error}
       placeholder={placeholder}
       className={cn("flex w-full flex-col gap-1", className)}
     >
@@ -58,7 +62,8 @@ const Select = ({
           "border-[var(--glass-border)] backdrop-blur-[var(--glass-blur)]",
           "focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]/30",
           "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
-          size === "sm" ? "h-9 text-xs" : "h-10 text-sm"
+          size === "sm" ? "h-9 text-xs" : "h-10 text-sm",
+          error && "border-[var(--danger)] focus:border-[var(--danger)] focus:ring-[var(--danger)]/30",
         )}
       >
         <SelectValue className="truncate data-[placeholder]:text-[var(--text-muted)]" />
@@ -87,6 +92,9 @@ const Select = ({
           ))}
         </ListBox>
       </SelectPopover>
+      {error && (
+        <FieldError className="text-xs text-[var(--danger)]">{error}</FieldError>
+      )}
     </SelectRoot>
   )
 }
