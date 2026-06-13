@@ -1,378 +1,803 @@
-﻿import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Users, Package, Clock, TrendingUp, ChevronRight, ArrowUpRight } from 'lucide-react';
+import {
+  Calendar, Users, Package, Clock,
+  DollarSign, TrendingUp, AlertTriangle,
+  ArrowUpRight, ArrowDownRight, Search, ChevronRight,
+} from 'lucide-react';
 import { Avatar, Button, Card } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
 import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
 import { useInventoryQuery } from '../../hooks/queries/useInventoryQuery';
 import StatusBadge from '../shared/StatusBadge';
-import type { FestivalEvent, StaffMember, StaffRef } from '../../types';
+import type { FestivalEvent, StaffMember, InventoryItem, StaffRef, CurrentUser } from '../../types';
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+function parseDate(d: string): Date {
+  const [dd, mm, yyyy] = d.split('-');
+  return new Date(Number(yyyy), Number(mm) - 1, Number(dd));
+}
+
+function monthKey(d: string): string {
+  const [, mm, yyyy] = d.split('-');
+  return `${yyyy}-${mm}`;
+}
+
+function sumExpenses(e: FestivalEvent): number {
+  return Object.values(e.financials.expenses).reduce((s, v) => s + (v ?? 0), 0);
+}
+
+function pct(cur: number, prev: number): number | null {
+  if (prev === 0) return null;
+  return ((cur - prev) / prev) * 100;
+}
+
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  return (parts[parts.length - 1]?.[0] ?? name[0] ?? '?').toUpperCase();
+}
+
+function greeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return 'Chào buổi sáng';
+  if (h < 18) return 'Chào buổi chiều';
+  return 'Chào buổi tối';
+}
+
+// ─── Main ───────────────────────────────────────────────────────────────────
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { currentUser } = useApp();
-  const { data: events = [] }    = useEventsQuery();
+  const { data: events    = [] } = useEventsQuery();
   const { data: inventory = [] } = useInventoryQuery();
-  const { data: staff = [] }     = useStaffQuery();
+  const { data: staff     = [] } = useStaffQuery();
 
   if (!currentUser) return null;
 
-  const isAdmin    = currentUser.role === 'admin';
-  const isManager  = currentUser.role === 'manager';
-  const canViewAll = isAdmin || isManager;
+  const canViewAll = currentUser.role === 'admin' || currentUser.role === 'manager';
 
-  const myStaffMember = canViewAll ? null : (
-    staff.find(s => s.userId === currentUser.id) ??
-    staff.find(s => s.name.toLowerCase() === currentUser.name.toLowerCase())
-  );
-  const myNumericId = myStaffMember?.id ?? null;
-  const myEvents    = myNumericId ? events.filter(e => e.staff.some(s => s.id === myNumericId)) : [];
+  if (!canViewAll) {
+    return <StaffDashboard events={events} staff={staff} currentUser={currentUser} navigate={navigate} />;
+  }
 
-  const upcomingEvents   = events.filter(e => e.status === 'Sắp tới' || e.status === 'Lên kế hoạch' || e.status === 'Đang diễn ra');
-  const activeEvent      = events.find(e => e.status === 'Đang diễn ra');
-  const lowStockCount    = inventory.filter(i => i.current < i.threshold).length;
-  const pendingExpenses  = events.flatMap(e => e.receipts).filter(r => r.status === 'pending');
-  const myPendingExpenses = pendingExpenses.filter(r => myNumericId != null && r.staffId === String(myNumericId));
+  return <AdminDashboard events={events} staff={staff} inventory={inventory} currentUser={currentUser} navigate={navigate} />;
+}
 
-  const parse = (d: string) => {
-    const [dd, mm, yyyy] = d.split('-');
-    void dd;
-    return new Date(`${yyyy}-${mm}-${dd}`).getTime();
-  };
+// ─── Admin Dashboard ─────────────────────────────────────────────────────────
 
-  const displayEvents = canViewAll
-    ? [...upcomingEvents].sort((a, b) => parse(a.date) - parse(b.date)).slice(0, 3)
-    : [...myEvents].sort((a, b) => parse(a.date) - parse(b.date));
+type TabKey = 'overview' | 'finance' | 'hr' | 'inventory';
+
+const TABS: { key: TabKey; label: string }[] = [
+  { key: 'overview',  label: 'Tổng quan' },
+  { key: 'finance',   label: 'Tài chính' },
+  { key: 'hr',        label: 'Nhân sự'   },
+  { key: 'inventory', label: 'Kho hàng'  },
+];
+
+function AdminDashboard({ events, staff, inventory, currentUser, navigate }: {
+  events: FestivalEvent[];
+  staff: StaffMember[];
+  inventory: InventoryItem[];
+  currentUser: CurrentUser;
+  navigate: ReturnType<typeof useNavigate>;
+}) {
+  const [tab, setTab] = useState<TabKey>('overview');
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
+      {/* Greeting */}
+      <div>
+        <p className="text-sm text-muted">{greeting()}</p>
+        <h1 className="text-2xl font-bold text-foreground">{currentUser.name} 👋</h1>
+      </div>
 
-      {/* ── Hero banner ── */}
-      <div className="relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br from-indigo-600 via-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-500/20">
-        <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/5" />
-        <div className="absolute -bottom-10 right-8 w-24 h-24 rounded-full bg-white/5" />
-        <div className="absolute top-4 right-16 w-10 h-10 rounded-full bg-white/8" />
-
-        <div className="relative">
-          <p className="text-indigo-200 text-xs font-semibold uppercase tracking-widest mb-1.5">
-            {canViewAll ? 'Bảng điều khiển' : 'Cá nhân'}
-          </p>
-          <h1 className="text-[22px] font-bold leading-tight text-white">
-            Xin chào, {currentUser.name} 👋
-          </h1>
-          {activeEvent ? (
-            <Button
-              onPress={() => navigate("/schedule/" + activeEvent.id)}
-              className="mt-3 inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 border border-white/20 rounded-xl px-3.5 py-2 text-sm font-semibold text-white h-auto"
+      {/* Tab bar */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-0.5 -mb-0.5 no-scrollbar">
+        <div className="flex gap-1 p-1 bg-default/60 rounded-xl shrink-0">
+          {TABS.map(t => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+                tab === t.key
+                  ? 'bg-[var(--surface)] shadow-sm text-foreground'
+                  : 'text-muted hover:text-foreground'
+              }`}
             >
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Đang diễn ra: {activeEvent.name}
-              <ChevronRight size={14} />
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Tab content */}
+      {tab === 'overview'  && <OverviewTab  events={events} staff={staff} inventory={inventory} navigate={navigate} />}
+      {tab === 'finance'   && <FinanceTab   events={events} navigate={navigate} />}
+      {tab === 'hr'        && <HRTab        events={events} staff={staff} navigate={navigate} />}
+      {tab === 'inventory' && <InventoryTab inventory={inventory} navigate={navigate} />}
+    </div>
+  );
+}
+
+// ─── Tab: Tổng quan ──────────────────────────────────────────────────────────
+
+function OverviewTab({ events, staff, inventory, navigate }: {
+  events: FestivalEvent[];
+  staff: StaffMember[];
+  inventory: InventoryItem[];
+  navigate: ReturnType<typeof useNavigate>;
+}) {
+  const now  = new Date();
+  const curM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const prevD = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const prevM = `${prevD.getFullYear()}-${String(prevD.getMonth() + 1).padStart(2, '0')}`;
+
+  const totalIncome   = events.reduce((s, e) => s + e.financials.income, 0);
+  const totalExpenses = events.reduce((s, e) => s + sumExpenses(e), 0);
+  const lowStock      = inventory.filter(i => i.current <= i.threshold).length;
+  const pendingCount  = events.flatMap(e => e.receipts).filter(r => r.status === 'pending').length;
+
+  const curIncome  = events.filter(e => monthKey(e.date) === curM).reduce((s, e) => s + e.financials.income, 0);
+  const prevIncome = events.filter(e => monthKey(e.date) === prevM).reduce((s, e) => s + e.financials.income, 0);
+  const curEvents  = events.filter(e => monthKey(e.date) === curM).length;
+  const prevEvents = events.filter(e => monthKey(e.date) === prevM).length;
+
+  const incomeDelta = pct(curIncome, prevIncome);
+  const eventsDelta = pct(curEvents, prevEvents);
+
+  return (
+    <div className="space-y-5">
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <StatCard
+          icon={<DollarSign size={16} />}
+          label="Tổng doanh thu"
+          value={totalIncome.toLocaleString('fr-FR') + '€'}
+          delta={incomeDelta}
+          color="indigo"
+          onClick={() => navigate('/finance')}
+        />
+        <StatCard
+          icon={<TrendingUp size={16} />}
+          label="Tổng chi phí"
+          value={totalExpenses.toLocaleString('fr-FR') + '€'}
+          color="amber"
+          onClick={() => navigate('/finance')}
+        />
+        <StatCard
+          icon={<Calendar size={16} />}
+          label="Sự kiện"
+          value={String(events.length)}
+          delta={eventsDelta}
+          color="violet"
+          onClick={() => navigate('/schedule')}
+        />
+        <StatCard
+          icon={<Users size={16} />}
+          label="Nhân viên"
+          value={String(staff.length)}
+          color="emerald"
+          onClick={() => navigate('/hr')}
+        />
+      </div>
+
+      {/* Charts */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-foreground">Doanh thu theo tháng</h3>
+            <span className="text-xs text-muted">6 tháng gần nhất</span>
+          </div>
+          <RevenueBarChart events={events} />
+        </Card>
+
+        <Card className="p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-foreground">Sự kiện theo tháng</h3>
+            <span className="text-xs text-muted">6 tháng gần nhất</span>
+          </div>
+          <EventsLineChart events={events} />
+        </Card>
+      </div>
+
+      {/* Events table */}
+      <EventsTable
+        events={events}
+        navigate={navigate}
+        title="Tất cả sự kiện"
+        emptyText="Chưa có sự kiện nào"
+      />
+    </div>
+  );
+}
+
+// ─── Tab: Tài chính ──────────────────────────────────────────────────────────
+
+function FinanceTab({ events, navigate }: {
+  events: FestivalEvent[];
+  navigate: ReturnType<typeof useNavigate>;
+}) {
+  const totalIncome   = events.reduce((s, e) => s + e.financials.income, 0);
+  const totalExpenses = events.reduce((s, e) => s + sumExpenses(e), 0);
+  const profit        = totalIncome - totalExpenses;
+  const pending       = events.flatMap(e => e.receipts).filter(r => r.status === 'pending');
+
+  return (
+    <div className="space-y-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <StatCard icon={<DollarSign size={16} />} label="Doanh thu" value={totalIncome.toLocaleString('fr-FR') + '€'} color="indigo" onClick={() => navigate('/finance')} />
+        <StatCard icon={<TrendingUp size={16} />} label="Chi phí"   value={totalExpenses.toLocaleString('fr-FR') + '€'} color="amber" onClick={() => navigate('/finance')} />
+        <StatCard icon={<DollarSign size={16} />} label="Lợi nhuận" value={profit.toLocaleString('fr-FR') + '€'} color={profit >= 0 ? 'emerald' : 'danger'} onClick={() => navigate('/finance')} />
+        <StatCard icon={<Clock size={16} />}      label="Chờ duyệt" value={String(pending.length)} color={pending.length > 0 ? 'danger' : 'emerald'} onClick={() => navigate('/finance')} />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="p-4 space-y-3">
+          <h3 className="text-sm font-semibold text-foreground">Doanh thu & Chi phí theo tháng</h3>
+          <IncomeExpenseChart events={events} />
+        </Card>
+        <Card className="p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-foreground">Chi phí chờ duyệt</h3>
+            <Button variant="ghost" onPress={() => navigate('/finance')}
+              className="h-auto p-0 min-w-0 text-xs text-accent font-medium hover:bg-transparent">
+              Xem tất cả <ChevronRight size={12} />
             </Button>
+          </div>
+          {pending.length === 0 ? (
+            <p className="text-sm text-muted py-4 text-center">Không có chi phí nào chờ duyệt</p>
           ) : (
-            <p className="text-indigo-200 text-sm mt-1.5">
-              {upcomingEvents.length > 0
-                ? `${upcomingEvents.length} sự kiện sắp tới`
-                : 'Không có sự kiện nào đang diễn ra'}
-            </p>
+            <div className="divide-y divide-[var(--separator)]">
+              {pending.slice(0, 6).map(exp => (
+                <div key={exp.id} className="flex items-center justify-between py-2.5">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{exp.staffName}</p>
+                    <p className="text-xs text-muted">{exp.type} · {exp.date}</p>
+                  </div>
+                  <span className="text-sm font-bold text-accent">{exp.amount}€</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+// ─── Tab: Nhân sự ────────────────────────────────────────────────────────────
+
+function HRTab({ events, staff, navigate }: {
+  events: FestivalEvent[];
+  staff: StaffMember[];
+  navigate: ReturnType<typeof useNavigate>;
+}) {
+  const [search, setSearch] = useState('');
+
+  const eventCounts = useMemo(() => {
+    const map: Record<number, number> = {};
+    events.forEach(e => e.staff.forEach(s => { map[s.id] = (map[s.id] ?? 0) + 1; }));
+    return map;
+  }, [events]);
+
+  const permanent = staff.filter(s => s.staffType === 'permanent').length;
+  const partTime  = staff.filter(s => s.staffType === 'part-time').length;
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return staff;
+    const q = search.toLowerCase();
+    return staff.filter(s => s.name.toLowerCase().includes(q) || s.city.toLowerCase().includes(q));
+  }, [staff, search]);
+
+  return (
+    <div className="space-y-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <StatCard icon={<Users size={16} />}    label="Tổng nhân viên"   value={String(staff.length)} color="indigo" onClick={() => navigate('/hr')} />
+        <StatCard icon={<Users size={16} />}    label="Cố định"          value={String(permanent)}    color="violet" onClick={() => navigate('/hr')} />
+        <StatCard icon={<Calendar size={16} />} label="Bán thời gian"    value={String(partTime)}     color="amber"  onClick={() => navigate('/hr')} />
+      </div>
+
+      <Card className="overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-separator flex-wrap gap-2">
+          <h3 className="text-sm font-semibold text-foreground">Danh sách nhân viên <span className="text-muted font-normal">({staff.length})</span></h3>
+          <div className="relative">
+            <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted" />
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Tìm kiếm..."
+              className="pl-7 pr-3 py-1.5 text-xs rounded-lg bg-default/60 border border-separator text-foreground placeholder:text-muted outline-none focus:border-accent/50 transition-colors w-44"
+            />
+          </div>
+        </div>
+
+        {/* Table header */}
+        <div className="hidden md:grid grid-cols-[1fr_1fr_1fr_auto] gap-4 px-4 py-2 text-xs font-semibold text-muted border-b border-separator bg-default/30">
+          <span>Nhân viên</span>
+          <span>Thành phố</span>
+          <span>Loại hợp đồng</span>
+          <span>Sự kiện</span>
+        </div>
+
+        <div className="divide-y divide-[var(--separator)]">
+          {filtered.length === 0 ? (
+            <p className="text-sm text-muted text-center py-8">Không tìm thấy nhân viên</p>
+          ) : (
+            filtered.map(s => (
+              <div
+                key={s.id}
+                className="flex md:grid md:grid-cols-[1fr_1fr_1fr_auto] items-center gap-3 md:gap-4 px-4 py-3 hover:bg-default/30 transition-colors cursor-pointer"
+                onClick={() => navigate('/hr')}
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                    <span className="text-[11px] font-bold text-accent">{initials(s.name)}</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{s.name}</p>
+                    <p className="text-xs text-muted md:hidden">{s.city}</p>
+                  </div>
+                </div>
+                <p className="hidden md:block text-sm text-muted">{s.city}</p>
+                <div className="hidden md:block">
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                    s.staffType === 'permanent'
+                      ? 'bg-indigo-100 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400'
+                      : 'bg-amber-100 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400'
+                  }`}>
+                    {s.staffType === 'permanent' ? 'Cố định' : 'Bán thời gian'}
+                  </span>
+                </div>
+                <span className="text-sm font-semibold text-foreground ml-auto md:ml-0">
+                  {eventCounts[s.id] ?? 0}
+                </span>
+              </div>
+            ))
           )}
         </div>
+      </Card>
+    </div>
+  );
+}
+
+// ─── Tab: Kho hàng ───────────────────────────────────────────────────────────
+
+function InventoryTab({ inventory, navigate }: {
+  inventory: InventoryItem[];
+  navigate: ReturnType<typeof useNavigate>;
+}) {
+  const low    = inventory.filter(i => i.current <= i.threshold);
+  const ok     = inventory.filter(i => i.current > i.threshold);
+  const critical = low.filter(i => i.current === 0);
+
+  return (
+    <div className="space-y-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <StatCard icon={<Package size={16} />}       label="Tổng mặt hàng" value={String(inventory.length)} color="indigo"  onClick={() => navigate('/inventory')} />
+        <StatCard icon={<AlertTriangle size={16} />} label="Sắp hết hàng"  value={String(low.length)}       color={low.length > 0 ? 'danger' : 'emerald'}  onClick={() => navigate('/inventory')} />
+        <StatCard icon={<Package size={16} />}       label="Đủ hàng"       value={String(ok.length)}        color="emerald" onClick={() => navigate('/inventory')} />
       </div>
 
-      {/* ── Stat cards ── */}
-      {canViewAll ? (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <StatCard
-            icon={<Calendar size={17} />}
-            label="Sự kiện sắp tới"
-            value={upcomingEvents.length}
-            color="indigo"
-            onClick={() => navigate("/schedule")}
-          />
-          <StatCard
-            icon={<Users size={17} />}
-            label="Tổng nhân viên"
-            value={staff.length}
-            color="violet"
-            onClick={() => navigate("/hr")}
-          />
-          <StatCard
-            icon={<Package size={17} />}
-            label="Kho sắp hết"
-            value={lowStockCount}
-            color={lowStockCount > 0 ? 'danger' : 'amber'}
-            onClick={() => navigate("/inventory")}
-          />
-          <StatCard
-            icon={<Clock size={17} />}
-            label="Chi phí chờ duyệt"
-            value={pendingExpenses.length}
-            color={pendingExpenses.length > 0 ? 'danger' : 'emerald'}
-            onClick={() => navigate("/finance")}
-          />
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 gap-3">
-          <StatCard
-            icon={<Calendar size={17} />}
-            label="Sự kiện của tôi"
-            value={myEvents.length}
-            color="indigo"
-            onClick={() => navigate("/schedule")}
-          />
-          <StatCard
-            icon={<Clock size={17} />}
-            label="Chi phí chờ duyệt"
-            value={myPendingExpenses.length}
-            color={myPendingExpenses.length > 0 ? 'danger' : 'emerald'}
-            onClick={() => navigate("/profile")}
-          />
-        </div>
+      {low.length > 0 && (
+        <Card className="overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-separator">
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+              <AlertTriangle size={13} className="text-danger" /> Hàng cần bổ sung
+            </h3>
+            <Button variant="ghost" onPress={() => navigate('/inventory')}
+              className="h-auto p-0 min-w-0 text-xs text-accent font-medium hover:bg-transparent">
+              Xem tất cả <ChevronRight size={12} />
+            </Button>
+          </div>
+          <div className="hidden md:grid grid-cols-[1fr_auto_auto_auto] gap-4 px-4 py-2 text-xs font-semibold text-muted border-b border-separator bg-default/30">
+            <span>Tên hàng</span>
+            <span>Hiện tại</span>
+            <span>Ngưỡng cảnh báo</span>
+            <span>Trạng thái</span>
+          </div>
+          <div className="divide-y divide-[var(--separator)]">
+            {low.map(item => (
+              <div key={item.id} className="flex md:grid md:grid-cols-[1fr_auto_auto_auto] items-center gap-3 md:gap-4 px-4 py-3 hover:bg-default/30 transition-colors">
+                <p className="text-sm font-medium text-foreground flex-1">{item.name}</p>
+                <span className="text-sm font-bold text-danger">{item.current} {item.unit}</span>
+                <span className="hidden md:inline text-sm text-muted">{item.threshold} {item.unit}</span>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
+                  item.current === 0
+                    ? 'bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400'
+                    : 'bg-amber-100 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400'
+                }`}>
+                  {item.current === 0 ? 'Hết hàng' : 'Sắp hết'}
+                </span>
+              </div>
+            ))}
+            {critical.length > 0 && (
+              <div className="px-4 py-2 bg-red-50 dark:bg-red-500/5">
+                <p className="text-xs text-danger font-medium">{critical.length} mặt hàng đã hết hoàn toàn</p>
+              </div>
+            )}
+          </div>
+        </Card>
       )}
 
-      {/* ── Upcoming events ── */}
-      <div>
-        <SectionHeader
-          title={canViewAll ? 'Sự kiện sắp tới' : 'Sự kiện của tôi'}
-          onMore={canViewAll ? () => navigate("/schedule") : undefined}
-        />
-        {displayEvents.length === 0 ? (
-          <EmptyState text="Không có sự kiện nào" />
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {displayEvents.map(event => (
-              <Card
-                key={event.id}
-                className="p-0 overflow-hidden border border-separator hover:border-accent/30 hover:shadow-md transition-all duration-150 group"
-              >
-                <Button
-                  variant="ghost"
-                  onPress={() => navigate("/schedule/" + event.id)}
-                  className="card-btn w-full h-auto rounded-none p-4 text-left hover:bg-default/30"
-                >
-                  <div className="flex w-full justify-between items-start gap-2">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-foreground truncate group-hover:text-accent transition-colors">{event.name}</p>
-                      <p className="text-xs text-muted mt-0.5">{event.date} · {event.location}</p>
-                      <StaffAvatars members={event.staff} />
-                    </div>
-                    <div className="flex flex-col items-end gap-1.5 shrink-0">
-                      <StatusBadge status={event.status} />
-                      <ArrowUpRight size={13} className="text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                  </div>
-                </Button>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* ── Staff: pending expenses ── */}
-      {!canViewAll && myPendingExpenses.length > 0 && (
-        <div>
-          <SectionHeader title="Chi phí chờ duyệt" />
-          <div className="space-y-2">
-            {myPendingExpenses.map(exp => (
-              <Card key={exp.id} className="flex-row justify-between items-center p-3.5">
-                <div>
-                  <p className="text-sm font-semibold text-foreground">{exp.type}</p>
-                  <p className="text-xs text-muted mt-0.5">{exp.date}</p>
-                </div>
-                <span className="text-sm font-bold text-accent">{exp.amount}€</span>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── Analytics — admin/manager ── */}
-      {canViewAll && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div>
-            <SectionHeader title="Doanh thu theo tháng" icon={<TrendingUp size={13} />} />
-            <RevenueChart events={events} />
-          </div>
-          <div>
-            <SectionHeader title="Top nhân viên" onMore={() => navigate('/hr')} />
-            <TopStaffList events={events} staff={staff} />
-          </div>
-        </div>
+      {low.length === 0 && (
+        <Card className="py-10 flex flex-col items-center gap-2">
+          <Package size={32} className="text-emerald-500" />
+          <p className="text-sm font-medium text-foreground">Kho hàng đang ở mức tốt</p>
+          <p className="text-xs text-muted">Tất cả mặt hàng đều trên ngưỡng cảnh báo</p>
+        </Card>
       )}
     </div>
   );
 }
+
+// ─── Staff Dashboard ──────────────────────────────────────────────────────────
+
+function StaffDashboard({ events, staff, currentUser, navigate }: {
+  events: FestivalEvent[];
+  staff: StaffMember[];
+  currentUser: CurrentUser;
+  navigate: ReturnType<typeof useNavigate>;
+}) {
+  const myMember = staff.find(s => s.userId === currentUser.id)
+    ?? staff.find(s => s.name.toLowerCase() === currentUser.name.toLowerCase());
+  const myId = myMember?.id ?? null;
+
+  const myEvents   = myId ? events.filter(e => e.staff.some(s => s.id === myId)) : [];
+  const myPending  = events.flatMap(e => e.receipts).filter(r => r.status === 'pending' && myId != null && r.staffId === String(myId));
+  const upcoming   = myEvents.filter(e => e.status === 'Sắp tới' || e.status === 'Lên kế hoạch' || e.status === 'Đang diễn ra');
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <p className="text-sm text-muted">{greeting()}</p>
+        <h1 className="text-2xl font-bold text-foreground">{currentUser.name} 👋</h1>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <StatCard
+          icon={<Calendar size={16} />}
+          label="Sự kiện của tôi"
+          value={String(myEvents.length)}
+          color="indigo"
+          onClick={() => navigate('/schedule')}
+        />
+        <StatCard
+          icon={<Clock size={16} />}
+          label="Chi phí chờ duyệt"
+          value={String(myPending.length)}
+          color={myPending.length > 0 ? 'danger' : 'emerald'}
+          onClick={() => navigate('/profile')}
+        />
+      </div>
+
+      <EventsTable
+        events={upcoming}
+        navigate={navigate}
+        title="Sự kiện sắp tới của tôi"
+        emptyText="Không có sự kiện nào"
+      />
+
+      {myPending.length > 0 && (
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-separator">
+            <h3 className="text-sm font-semibold text-foreground">Chi phí chờ duyệt</h3>
+          </div>
+          <div className="divide-y divide-[var(--separator)]">
+            {myPending.map(exp => (
+              <div key={exp.id} className="flex items-center justify-between px-4 py-3">
+                <div>
+                  <p className="text-sm font-medium text-foreground">{exp.type}</p>
+                  <p className="text-xs text-muted">{exp.date}</p>
+                </div>
+                <span className="text-sm font-bold text-accent">{exp.amount}€</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+// ─── Events Table ─────────────────────────────────────────────────────────────
+
+function EventsTable({ events, navigate, title, emptyText }: {
+  events: FestivalEvent[];
+  navigate: ReturnType<typeof useNavigate>;
+  title: string;
+  emptyText: string;
+}) {
+  const [search, setSearch] = useState('');
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return events;
+    const q = search.toLowerCase();
+    return events.filter(e =>
+      e.name.toLowerCase().includes(q) ||
+      e.location.toLowerCase().includes(q)
+    );
+  }, [events, search]);
+
+  const sorted = useMemo(() =>
+    [...filtered].sort((a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime()),
+  [filtered]);
+
+  return (
+    <Card className="overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-separator flex-wrap gap-2">
+        <h3 className="text-sm font-semibold text-foreground">
+          {title} <span className="text-muted font-normal">({events.length})</span>
+        </h3>
+        <div className="relative">
+          <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted" />
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Tìm kiếm..."
+            className="pl-7 pr-3 py-1.5 text-xs rounded-lg bg-default/60 border border-separator text-foreground placeholder:text-muted outline-none focus:border-accent/50 transition-colors w-44"
+          />
+        </div>
+      </div>
+
+      {/* Column headers — desktop only */}
+      <div className="hidden md:grid md:grid-cols-[2fr_1fr_1.5fr_1fr_auto] gap-4 px-4 py-2 text-xs font-semibold text-muted border-b border-separator bg-default/30">
+        <span>Sự kiện</span>
+        <span>Ngày</span>
+        <span>Địa điểm</span>
+        <span>Nhân viên</span>
+        <span>Trạng thái</span>
+      </div>
+
+      {/* Rows */}
+      <div className="divide-y divide-[var(--separator)]">
+        {sorted.length === 0 ? (
+          <p className="text-sm text-muted text-center py-10">{emptyText}</p>
+        ) : (
+          sorted.map(event => (
+            <button
+              key={event.id}
+              onClick={() => navigate('/schedule/' + event.id)}
+              className="w-full text-left flex md:grid md:grid-cols-[2fr_1fr_1.5fr_1fr_auto] items-center gap-3 md:gap-4 px-4 py-3 hover:bg-default/30 transition-colors group"
+            >
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground truncate group-hover:text-accent transition-colors">
+                  {event.name}
+                </p>
+                <p className="text-xs text-muted md:hidden">{event.date} · {event.location}</p>
+              </div>
+              <p className="hidden md:block text-sm text-muted shrink-0">{event.date}</p>
+              <p className="hidden md:block text-sm text-muted truncate">{event.location}</p>
+              <div className="hidden md:flex items-center gap-1.5">
+                <StaffAvatarGroup members={event.staff} />
+              </div>
+              <div className="ml-auto md:ml-0 shrink-0">
+                <StatusBadge status={event.status} />
+              </div>
+            </button>
+          ))
+        )}
+      </div>
+    </Card>
+  );
+}
+
+// ─── Stat Card ────────────────────────────────────────────────────────────────
 
 type StatColor = 'indigo' | 'violet' | 'emerald' | 'amber' | 'danger';
 
-const statColorMap: Record<StatColor, { iconBg: string; iconText: string; value: string }> = {
-  indigo:  { iconBg: 'bg-indigo-100 dark:bg-indigo-500/15',  iconText: 'text-indigo-600 dark:text-indigo-400',  value: 'text-indigo-600 dark:text-indigo-400'  },
-  violet:  { iconBg: 'bg-violet-100 dark:bg-violet-500/15',  iconText: 'text-violet-600 dark:text-violet-400',  value: 'text-violet-600 dark:text-violet-400'  },
-  emerald: { iconBg: 'bg-emerald-100 dark:bg-emerald-500/15',iconText: 'text-emerald-600 dark:text-emerald-400',value: 'text-foreground'             },
-  amber:   { iconBg: 'bg-amber-100 dark:bg-amber-500/15',    iconText: 'text-amber-600 dark:text-amber-400',    value: 'text-foreground'             },
-  danger:  { iconBg: 'bg-red-100 dark:bg-red-500/15',        iconText: 'text-red-600 dark:text-red-400',        value: 'text-red-600 dark:text-red-400'         },
+const colorMap: Record<StatColor, { icon: string; badge: string }> = {
+  indigo:  { icon: 'bg-indigo-100 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400',  badge: 'bg-indigo-50  dark:bg-indigo-500/10  text-indigo-600  dark:text-indigo-400'  },
+  violet:  { icon: 'bg-violet-100 dark:bg-violet-500/15 text-violet-600 dark:text-violet-400',  badge: 'bg-violet-50  dark:bg-violet-500/10  text-violet-600  dark:text-violet-400'  },
+  emerald: { icon: 'bg-emerald-100 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400', badge: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' },
+  amber:   { icon: 'bg-amber-100 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400',      badge: 'bg-amber-50   dark:bg-amber-500/10   text-amber-600   dark:text-amber-400'   },
+  danger:  { icon: 'bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400',              badge: 'bg-red-50    dark:bg-red-500/10    text-red-600    dark:text-red-400'       },
 };
 
-function StatCard({ icon, label, value, color = 'indigo', onClick }: {
-  icon: React.ReactNode; label: string; value: number;
-  color?: StatColor; onClick?: () => void;
+function StatCard({ icon, label, value, delta, color = 'indigo', onClick }: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  delta?: number | null;
+  color?: StatColor;
+  onClick?: () => void;
 }) {
-  const c = statColorMap[color];
+  const c = colorMap[color];
   return (
-    <Card className="p-0 overflow-hidden hover:shadow-md transition-all duration-150">
-      <Button
-        variant="ghost"
-        onPress={onClick}
-        className="card-btn w-full h-auto rounded-none p-4 flex flex-col gap-3 text-left hover:bg-default/30"
-      >
-        <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${c.iconBg}`}>
-          <span className={c.iconText}>{icon}</span>
+    <Card className="p-0 overflow-hidden hover:shadow-md transition-all duration-150 cursor-pointer" onClick={onClick}>
+      <div className="p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${c.icon}`}>
+            {icon}
+          </div>
+          {delta != null && (
+            <span className={`flex items-center gap-0.5 text-[11px] font-semibold px-1.5 py-0.5 rounded-full ${
+              delta >= 0
+                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                : 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400'
+            }`}>
+              {delta >= 0 ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
+              {Math.abs(delta).toFixed(1)}%
+            </span>
+          )}
         </div>
         <div>
-          <p className={`text-2xl font-bold leading-none ${c.value}`}>{value}</p>
-          <p className="text-xs text-muted mt-1 leading-tight">{label}</p>
+          <p className="text-2xl font-bold text-foreground leading-none">{value}</p>
+          <p className="text-xs text-muted mt-1">{label}</p>
         </div>
-      </Button>
+      </div>
     </Card>
   );
 }
 
-function initials(name: string) {
-  const parts = name.trim().split(/\s+/);
-  const last = parts[parts.length - 1] ?? '';
-  return (last[0] ?? name[0] ?? '?').toUpperCase();
-}
+// ─── Staff Avatar Group ───────────────────────────────────────────────────────
 
-function StaffAvatars({ members }: { members: StaffRef[] }) {
-  if (members.length === 0) return <p className="text-xs text-muted mt-1.5">Chưa có nhân viên</p>;
-  const shown = members.slice(0, 4);
+function StaffAvatarGroup({ members }: { members: StaffRef[] }) {
+  if (members.length === 0) return <span className="text-xs text-muted">–</span>;
+  const shown = members.slice(0, 3);
   const extra = members.length - shown.length;
   return (
-    <div className="flex items-center mt-2">
-      <div className="flex -space-x-1.5">
-        {shown.map(m => (
-          <Avatar key={m.id} className="w-5 h-5 ring-2 ring-[var(--surface)]">
-            <Avatar.Fallback className="bg-accent/10 text-accent text-[9px] font-bold">{initials(m.name)}</Avatar.Fallback>
-          </Avatar>
-        ))}
-        {extra > 0 && (
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-default/50 text-[9px] font-semibold text-muted ring-2 ring-[var(--surface)]">
-            +{extra}
-          </span>
-        )}
-      </div>
-      <span className="ml-2 text-[11px] text-muted">{members.length} nhân viên</span>
-    </div>
-  );
-}
-
-function SectionHeader({ title, onMore, icon }: { title: string; onMore?: () => void; icon?: React.ReactNode }) {
-  return (
-    <div className="flex items-center justify-between mb-3">
-      <h2 className="flex items-center gap-1.5 text-[13px] font-semibold text-foreground">
-        {icon && <span className="text-muted">{icon}</span>}
-        {title}
-      </h2>
-      {onMore && (
-        <Button
-          variant="ghost"
-          onPress={onMore}
-          className="flex items-center gap-1 text-xs text-accent font-medium h-auto p-0 min-w-0 rounded-none hover:bg-transparent underline-offset-2 hover:underline"
-        >
-          Xem thêm <ChevronRight size={12} />
-        </Button>
+    <div className="flex items-center -space-x-1.5">
+      {shown.map(m => (
+        <div key={m.id} className="w-6 h-6 rounded-full bg-accent/10 ring-2 ring-[var(--surface)] flex items-center justify-center">
+          <span className="text-[9px] font-bold text-accent">{initials(m.name)}</span>
+        </div>
+      ))}
+      {extra > 0 && (
+        <div className="w-6 h-6 rounded-full bg-default/80 ring-2 ring-[var(--surface)] flex items-center justify-center">
+          <span className="text-[9px] font-semibold text-muted">+{extra}</span>
+        </div>
       )}
     </div>
   );
 }
 
-function EmptyState({ text }: { text: string }) {
-  return (
-    <Card className="py-10 flex flex-col items-center gap-2">
-      <p className="text-sm text-muted">{text}</p>
-    </Card>
-  );
-}
+// ─── Revenue Bar Chart ────────────────────────────────────────────────────────
 
-function RevenueChart({ events }: { events: FestivalEvent[] }) {
-  const monthMap: Record<string, number> = {};
-  events.forEach(e => {
-    const [dd, mm, yyyy] = e.date.split('-');
-    void dd;
-    const key = `${mm}/${yyyy}`;
-    monthMap[key] = (monthMap[key] ?? 0) + e.financials.income;
-  });
-  const entries = Object.entries(monthMap)
-    .sort((a, b) => {
-      const [ma, ya] = a[0].split('/');
-      const [mb, yb] = b[0].split('/');
-      return new Date(`${ya}-${ma}-01`).getTime() - new Date(`${yb}-${mb}-01`).getTime();
-    })
-    .slice(-6);
-  if (entries.length === 0) return (
-    <Card className="py-8 flex items-center justify-center">
-      <p className="text-sm text-muted">Chưa có dữ liệu</p>
-    </Card>
-  );
-  const maxVal = Math.max(...entries.map(([, v]) => v), 100000);
+function RevenueBarChart({ events }: { events: FestivalEvent[] }) {
+  const data = useMemo(() => {
+    const map: Record<string, number> = {};
+    events.forEach(e => {
+      const k = monthKey(e.date);
+      map[k] = (map[k] ?? 0) + e.financials.income;
+    });
+    return Object.entries(map)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-6)
+      .map(([k, v]) => ({ label: k.slice(5) + '/' + k.slice(2, 4), value: v }));
+  }, [events]);
+
+  if (data.length === 0) return <p className="text-sm text-muted py-6 text-center">Chưa có dữ liệu</p>;
+
+  const max = Math.max(...data.map(d => d.value), 1);
+
   return (
-    <Card className="p-4">
-      <div className="flex items-end gap-2 h-28">
-        {entries.map(([month, val]) => {
-          const pct = Math.max((val / maxVal) * 100, 4);
+    <div className="space-y-1.5">
+      <div className="flex items-end gap-1.5 h-32">
+        {data.map((d, i) => {
+          const h = Math.max((d.value / max) * 100, 4);
           return (
-            <div key={month} className="flex-1 flex flex-col items-center gap-1.5">
+            <div key={i} className="flex-1 flex flex-col items-center gap-1">
               <div
-                className="w-full rounded-t-lg transition-all"
-                style={{
-                  height: `${pct}%`,
-                  background: 'linear-gradient(180deg, #6366F1, #8B5CF6)',
-                  opacity: pct < 20 ? 0.5 : 1,
-                }}
+                className="w-full rounded-t-md transition-all"
+                style={{ height: `${h}%`, background: 'linear-gradient(180deg, #6366F1, #8B5CF6)' }}
+                title={d.value.toLocaleString('fr-FR') + '€'}
               />
-              <span className="text-[9px] text-muted leading-none">{month}</span>
             </div>
           );
         })}
       </div>
-      <p className="text-[10px] text-muted mt-2 text-right">Max: {maxVal.toLocaleString('fr-FR')}€</p>
-    </Card>
+      <div className="flex gap-1.5">
+        {data.map((d, i) => (
+          <div key={i} className="flex-1 text-center">
+            <span className="text-[9px] text-muted">{d.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
-function TopStaffList({ events, staff }: { events: FestivalEvent[]; staff: StaffMember[] }) {
-  const counts: Record<number, number> = {};
-  events.forEach(e => e.staff.forEach(s => { counts[s.id] = (counts[s.id] ?? 0) + 1; }));
-  const top = Object.entries(counts)
-    .sort((a, b) => Number(b[1]) - Number(a[1]))
-    .slice(0, 3)
-    .map(([id, count]) => ({ member: staff.find(s => s.id === Number(id)), count }))
-    .filter(x => x.member);
-  if (top.length === 0) return (
-    <Card className="py-8 flex items-center justify-center">
-      <p className="text-sm text-muted">Chưa có dữ liệu</p>
-    </Card>
-  );
-  const rankConfig = [
-    { bg: 'bg-amber-100 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400', label: '1' },
-    { bg: 'bg-slate-100 dark:bg-slate-500/15 text-slate-500 dark:text-slate-400', label: '2' },
-    { bg: 'bg-orange-100 dark:bg-orange-500/15 text-orange-500 dark:text-orange-400', label: '3' },
-  ];
+// ─── Events Line Chart (SVG) ──────────────────────────────────────────────────
+
+function EventsLineChart({ events }: { events: FestivalEvent[] }) {
+  const data = useMemo(() => {
+    const map: Record<string, number> = {};
+    events.forEach(e => {
+      const k = monthKey(e.date);
+      map[k] = (map[k] ?? 0) + 1;
+    });
+    return Object.entries(map)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-6)
+      .map(([k, v]) => ({ label: k.slice(5) + '/' + k.slice(2, 4), value: v }));
+  }, [events]);
+
+  if (data.length === 0) return <p className="text-sm text-muted py-6 text-center">Chưa có dữ liệu</p>;
+
+  const max = Math.max(...data.map(d => d.value), 1);
+  const W = 300; const H = 100; const PAD = 8;
+  const points = data.map((d, i) => {
+    const x = PAD + (i / Math.max(data.length - 1, 1)) * (W - PAD * 2);
+    const y = PAD + (1 - d.value / max) * (H - PAD * 2);
+    return { x, y, ...d };
+  });
+  const path = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+  const area = `${path} L ${points[points.length - 1]!.x} ${H} L ${points[0]!.x} ${H} Z`;
+
   return (
-    <Card className="p-0 divide-y divide-[var(--separator)]">
-      {top.map(({ member, count }, i) => (
-        <div key={member!.id} className="flex items-center gap-3 px-4 py-3">
-          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${rankConfig[i].bg}`}>
-            {rankConfig[i].label}
-          </span>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-foreground truncate">{member!.name}</p>
-            <p className="text-xs text-muted">{member!.city}</p>
+    <div className="space-y-1.5">
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: 128 }}>
+        <defs>
+          <linearGradient id="evtGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#6366F1" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#6366F1" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path d={area} fill="url(#evtGrad)" />
+        <path d={path} fill="none" stroke="#6366F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        {points.map((p, i) => (
+          <circle key={i} cx={p.x} cy={p.y} r="3" fill="#6366F1" />
+        ))}
+      </svg>
+      <div className="flex">
+        {points.map((p, i) => (
+          <div key={i} className="flex-1 text-center">
+            <span className="text-[9px] text-muted">{p.label}</span>
           </div>
-          <span className="text-xs font-semibold text-muted shrink-0">{count} sự kiện</span>
-        </div>
-      ))}
-    </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Income/Expense Chart (Finance tab) ───────────────────────────────────────
+
+function IncomeExpenseChart({ events }: { events: FestivalEvent[] }) {
+  const data = useMemo(() => {
+    const inc: Record<string, number> = {};
+    const exp: Record<string, number> = {};
+    events.forEach(e => {
+      const k = monthKey(e.date);
+      inc[k] = (inc[k] ?? 0) + e.financials.income;
+      exp[k] = (exp[k] ?? 0) + sumExpenses(e);
+    });
+    const keys = [...new Set([...Object.keys(inc), ...Object.keys(exp)])].sort().slice(-6);
+    return keys.map(k => ({
+      label: k.slice(5) + '/' + k.slice(2, 4),
+      income: inc[k] ?? 0,
+      expense: exp[k] ?? 0,
+    }));
+  }, [events]);
+
+  if (data.length === 0) return <p className="text-sm text-muted py-6 text-center">Chưa có dữ liệu</p>;
+
+  const max = Math.max(...data.flatMap(d => [d.income, d.expense]), 1);
+
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-end gap-2 h-32">
+        {data.map((d, i) => (
+          <div key={i} className="flex-1 flex items-end gap-0.5">
+            <div className="flex-1 rounded-t-sm" style={{ height: `${Math.max((d.income / max) * 100, 2)}%`, background: '#6366F1' }} title={'Thu: ' + d.income.toLocaleString()} />
+            <div className="flex-1 rounded-t-sm" style={{ height: `${Math.max((d.expense / max) * 100, 2)}%`, background: '#F59E0B' }} title={'Chi: ' + d.expense.toLocaleString()} />
+          </div>
+        ))}
+      </div>
+      <div className="flex gap-2">
+        {data.map((d, i) => (
+          <div key={i} className="flex-1 text-center">
+            <span className="text-[9px] text-muted">{d.label}</span>
+          </div>
+        ))}
+      </div>
+      <div className="flex items-center gap-4 justify-end">
+        <span className="flex items-center gap-1 text-[10px] text-muted"><span className="w-2 h-2 rounded-full bg-indigo-500 inline-block" />Doanh thu</span>
+        <span className="flex items-center gap-1 text-[10px] text-muted"><span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />Chi phí</span>
+      </div>
+    </div>
   );
 }
