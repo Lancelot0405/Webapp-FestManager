@@ -149,7 +149,7 @@ export default function Dashboard() {
                 <Button
                   variant="ghost"
                   onPress={() => navigate("/schedule/" + event.id)}
-                  className="w-full h-auto rounded-none p-4 text-left hover:bg-default/30 active:scale-[0.99]"
+                  className="card-btn w-full h-auto rounded-none p-4 text-left hover:bg-default/30"
                 >
                   <div className="flex w-full justify-between items-start gap-2">
                     <div className="flex-1 min-w-0">
@@ -224,7 +224,7 @@ function StatCard({ icon, label, value, color = 'indigo', onClick }: {
       <Button
         variant="ghost"
         onPress={onClick}
-        className="w-full h-auto rounded-none p-4 flex flex-col gap-3 text-left hover:bg-default/30 active:scale-[0.97]"
+        className="card-btn w-full h-auto rounded-none p-4 flex flex-col gap-3 text-left hover:bg-default/30"
       >
         <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${c.iconBg}`}>
           <span className={c.iconText}>{icon}</span>

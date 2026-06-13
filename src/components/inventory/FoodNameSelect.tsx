@@ -103,7 +103,7 @@ export default function FoodNameSelect({
                   <Button
                     variant="ghost"
                     onPress={() => setOpenGroup(openGroup === group ? null : group)}
-                    className="w-full h-auto justify-between rounded-none px-3 py-2.5 bg-default/50 text-xs font-bold text-foreground/80 hover:bg-default/50 hover:text-foreground transition-colors"
+                    className="card-btn w-full h-auto justify-between rounded-none px-3 py-2.5 bg-default/50 text-xs font-bold text-foreground/80 hover:bg-default/70 hover:text-foreground transition-colors"
                   >
                     {group}
                     <ChevronDown
@@ -112,13 +112,13 @@ export default function FoodNameSelect({
                     />
                   </Button>
                   {openGroup === group && (
-                    <div className="flex flex-wrap gap-1.5 p-2.5 bg-default/50/50">
+                    <div className="flex flex-wrap gap-1.5 p-2.5 bg-default/30">
                       {items.map(t => (
                         <Button
                           key={t.id}
                           variant="ghost"
                           onPress={() => { onChange(t.name); setCustom(false); setOpenGroup(null); }}
-                          className="h-auto min-w-0 px-2.5 py-1 rounded-lg text-xs font-medium border border-separator bg-default/50 text-foreground/80 hover:bg-accent hover:text-white dark:text-foreground hover:border-accent active:scale-95 transition-all"
+                          className="h-auto min-w-0 px-2.5 py-1 rounded-lg text-xs font-medium border border-separator bg-default/50 text-foreground/80 hover:bg-accent hover:text-white hover:border-accent active:scale-95 transition-all"
                         >
                           {t.name}
                         </Button>

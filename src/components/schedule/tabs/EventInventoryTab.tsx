@@ -233,7 +233,8 @@ export default function EventInventoryTab({ event }: Props) {
                                   <Button
                                     key={u}
                                     variant="ghost"
-                                    className={`w-full h-auto min-w-0 justify-start rounded-none text-left px-3 py-1.5 text-sm hover:bg-default/50 transition-colors ${u === item.unit ? 'text-accent font-semibold' : 'text-foreground'}`}
+                                   
+                                    className={`w-full h-auto min-w-0 justify-start text-left px-3 py-1.5 text-sm hover:bg-default/50 transition-colors ${u === item.unit ? 'text-accent font-semibold' : 'text-foreground'}`}
                                     onPress={() => { updateInventoryUnitMutation.mutate({ itemId: item.id, unit: u }); setUnitMenuId(null); }}
                                   >
                                     {u}

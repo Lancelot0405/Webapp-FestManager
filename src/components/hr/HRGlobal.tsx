@@ -79,7 +79,7 @@ export default function HRGlobal() {
           <Button
             variant="ghost"
             onPress={() => navigate('/hr/' + s.id)}
-            className="flex-1 h-auto min-w-0 justify-start rounded-none p-4 text-left hover:bg-default/50"
+            className="card-btn flex-1 h-auto min-w-0 justify-start rounded-none p-4 text-left hover:bg-default/50"
           >
             <div className="flex w-full items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
@@ -137,7 +137,7 @@ export default function HRGlobal() {
           <Button
             variant="ghost"
             onPress={() => setShowPending(v => !v)}
-            className="w-full h-auto justify-between rounded-none px-4 py-3"
+            className="card-btn w-full h-auto justify-between rounded-none px-4 py-3"
           >
             <div className="flex items-center gap-2">
               <ShieldCheck size={16} className="text-indigo-400" />

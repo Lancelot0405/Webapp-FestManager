@@ -90,7 +90,7 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
 
   const modal = (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm px-0 sm:px-4">
-      <div className="w-full sm:max-w-md bg-default/50 backdrop-blur-xl rounded-t-2xl sm:rounded-2xl flex flex-col max-h-[85dvh] sm:max-h-[85vh] border border-separator">
+      <div className="w-full sm:max-w-md bg-[var(--overlay)] rounded-t-2xl sm:rounded-2xl flex flex-col max-h-[85dvh] sm:max-h-[85vh] border border-separator shadow-2xl">
 
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-separator shrink-0">
@@ -121,7 +121,7 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
                   <Button
                     variant="ghost"
                     onPress={() => setOpenGroup(openGroup === group ? null : group)}
-                    className="w-full h-auto justify-between rounded-none px-3 py-2.5 bg-default/50 text-xs font-bold text-foreground/80 hover:text-foreground transition-colors"
+                    className="card-btn w-full h-auto justify-between rounded-none px-3 py-2.5 bg-default/50 text-xs font-bold text-foreground/80 hover:bg-default/70 hover:text-foreground transition-colors"
                   >
                     <span>{group} <span className="font-normal text-muted">({items.length})</span></span>
                     {openGroup === group
@@ -134,7 +134,7 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
                     <div className="p-3 space-y-2">
                       <div className="flex flex-wrap gap-1.5">
                         {items.map(t => (
-                          <div key={t.id} className="flex items-center gap-1 pl-2.5 pr-1 py-1 rounded-lg border border-separator bg-default/50 text-xs text-foreground/80 font-medium">
+                          <div key={t.id} className="flex items-center gap-1 pl-2.5 pr-1 py-1 rounded-lg border border-separator bg-default text-xs text-foreground/80 font-medium">
                             {t.name}
                             <Button
                               isIconOnly

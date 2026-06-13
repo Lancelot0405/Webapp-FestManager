@@ -83,7 +83,7 @@ export default function EventFinanceCard({ event }: Props) {
         <Button
           variant="ghost"
           onPress={() => navigate('/schedule/' + event.id)}
-          className="h-auto min-w-0 flex-1 justify-start rounded-none p-0 text-left"
+          className="h-auto min-w-0 flex-1 justify-start p-0 text-left"
         >
           <div className="min-w-0">
             <p className="font-semibold text-foreground truncate">{event.name}</p>

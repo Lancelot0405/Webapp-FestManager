@@ -22,7 +22,7 @@ export default function InventoryItemRow({ item, onEdit }: Props) {
         onPress={() => onEdit(item)}
         variant="ghost"
         aria-label={`Chỉnh sửa ${item.name}`}
-        className="w-full flex items-center justify-between px-4 py-3 text-left h-auto rounded-none hover:bg-default/50 active:scale-[0.99] transition-all"
+        className="card-btn w-full flex items-center justify-between px-4 py-3 text-left h-auto rounded-none hover:bg-default/50 transition-all"
       >
         <div className="flex-1 min-w-0">
           <p className={`font-semibold text-sm ${isLow ? 'text-danger' : 'text-foreground'}`}>

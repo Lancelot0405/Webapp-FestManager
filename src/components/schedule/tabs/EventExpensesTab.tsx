@@ -146,7 +146,7 @@ export default function EventExpensesTab({ event }: Props) {
                 {/* Header */}
                 <Button
                   variant="ghost"
-                  className="w-full h-auto justify-between rounded-none px-4 py-3 text-left"
+                  className="card-btn w-full h-auto justify-between rounded-none px-4 py-3 text-left"
                   onPress={() => toggle(staffId)}
                 >
                   <div>

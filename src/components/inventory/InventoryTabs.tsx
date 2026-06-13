@@ -73,7 +73,7 @@ export default function InventoryTabs({
             >
               {id === 'history' && <History size={11} />}
               {label}
-              <Chip size="sm" className={`font-bold ${isActive ? 'bg-white/20 text-white border-0' : ''}`}>
+              <Chip size="sm" className={`font-bold ${isActive ? 'bg-white/20 text-accent-foreground border-0' : ''}`}>
                 {count}
               </Chip>
             </Button>

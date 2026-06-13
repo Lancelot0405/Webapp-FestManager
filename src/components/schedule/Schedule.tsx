@@ -125,7 +125,7 @@ function EventCard({ event, isAdmin, onSelect, onDelete }: {
     ? `${event.date} → ${event.endDate}` : event.date;
   return (
     <div className="group bg-surface border border-separator rounded-xl shadow-sm overflow-hidden flex items-stretch hover:shadow-lg active:scale-[0.99] transition-all duration-150">
-      <Button variant="ghost" onPress={onSelect} className="flex-1 h-auto min-w-0 justify-start rounded-none p-4 text-left hover:bg-default/50">
+      <Button variant="ghost" onPress={onSelect} className="card-btn flex-1 h-auto min-w-0 justify-start rounded-none p-4 text-left hover:bg-default/50">
         <div className="flex w-full justify-between items-start gap-2">
           <div className="flex-1 min-w-0">
             <p className="font-semibold text-foreground truncate">{event.name}</p>
