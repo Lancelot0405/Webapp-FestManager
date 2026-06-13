@@ -1,7 +1,7 @@
 ﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, User, Trash2, ShieldCheck, Check, X } from 'lucide-react';
-import { Button, ScrollShadow } from '@heroui/react';
+import { Button, Card, ScrollShadow } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
@@ -72,9 +72,9 @@ export default function HRGlobal() {
     <ScrollShadow className="max-h-[60vh]">
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
       {list.map(s => (
-        <div
+        <Card
           key={s.id}
-          className="group bg-surface border border-separator rounded-xl shadow-sm overflow-hidden flex flex-row items-stretch hover:shadow-lg active:scale-[0.99] transition-all duration-150"
+          className="group overflow-hidden flex flex-row items-stretch hover:shadow-lg active:scale-[0.99] transition-all duration-150"
         >
           <Button
             variant="ghost"
@@ -105,7 +105,7 @@ export default function HRGlobal() {
               <Trash2 size={15} />
             </Button>
           )}
-        </div>
+        </Card>
       ))}
     </div>
     </ScrollShadow>
@@ -159,10 +159,7 @@ export default function HRGlobal() {
                 </p>
               )}
               {pendingRegistrations.map(req => (
-                <div
-                  key={req.id}
-                  className="bg-surface border border-separator rounded-xl shadow-sm p-3"
-                >
+                <Card key={req.id} className="p-3">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-indigo-500/10 flex items-center justify-center shrink-0">
                       <ShieldCheck size={16} className="text-indigo-400" />
@@ -188,7 +185,7 @@ export default function HRGlobal() {
                       </Button>
                     </div>
                   </div>
-                </div>
+                </Card>
               ))}
             </div>
           )}

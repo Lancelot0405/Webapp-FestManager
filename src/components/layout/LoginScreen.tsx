@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect } from 'react';
-import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Download, Smartphone, X, ShieldCheck, Store, Tent, UtensilsCrossed, Sun, Moon } from 'lucide-react';
-import { Button } from '@heroui/react';
+import { Lock, User, Eye, EyeOff, Download, Smartphone, X, ShieldCheck, Store, Tent, UtensilsCrossed, Sun, Moon } from 'lucide-react';
+import { Alert, Button, Card } from '@heroui/react';
 import { Input } from '@/components/shared/GlassInput';
 import { useTheme } from '../../context/ThemeContext';
 import { supabase } from '../../lib/supabase';
@@ -125,7 +125,7 @@ export default function LoginScreen() {
     <div className="w-full max-w-md flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-background">
 
       {/* Card */}
-      <div className="w-full bg-surface border border-separator rounded-xl rounded-3xl p-8 shadow-xl">
+      <Card className="w-full p-8">
 
         {/* Logo */}
         <div className="flex flex-col items-center mb-7">
@@ -301,9 +301,12 @@ export default function LoginScreen() {
 
             {error   && <AlertBox msg={error} />}
             {success && (
-              <div className="flex items-center gap-2 bg-[color-mix(in oklch, var(--success) 15%, transparent)] border border-success/30 rounded-xl px-3 py-2.5 text-sm text-success">
-                <CheckCircle size={15} className="shrink-0" /> {success}
-              </div>
+              <Alert status="success">
+                <Alert.Indicator />
+                <Alert.Content>
+                  <Alert.Description>{success}</Alert.Description>
+                </Alert.Content>
+              </Alert>
             )}
 
             <Button
@@ -368,7 +371,7 @@ export default function LoginScreen() {
             {theme === 'dark' ? 'Sáng' : 'Tối'}
           </Button>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
@@ -405,9 +408,12 @@ function RoleBtn({ active, onPress, icon, label, activeColor = 'primary' }: {
 
 function AlertBox({ msg }: { msg: string }) {
   return (
-    <div className="flex items-center gap-2 bg-[color-mix(in oklch, var(--danger) 15%, transparent)] border border-danger/30 rounded-xl px-3 py-2.5 text-sm text-danger">
-      <AlertCircle size={15} className="shrink-0" /> {msg}
-    </div>
+    <Alert status="danger">
+      <Alert.Indicator />
+      <Alert.Content>
+        <Alert.Description>{msg}</Alert.Description>
+      </Alert.Content>
+    </Alert>
   );
 }
 
