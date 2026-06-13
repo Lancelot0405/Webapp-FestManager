@@ -1,5 +1,5 @@
 ﻿import { Store, Tent, History } from 'lucide-react';
-import { Button } from '@heroui/react';
+import { Button, Chip } from '@heroui/react';
 import type { MainTab, SubTab } from './useInventoryFilters';
 
 interface Props {
@@ -73,9 +73,9 @@ export default function InventoryTabs({
             >
               {id === 'history' && <History size={11} />}
               {label}
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${isActive ? 'bg-white/20 text-white' : 'bg-default/50 text-muted'}`}>
+              <Chip size="sm" className={`font-bold ${isActive ? 'bg-white/20 text-white border-0' : ''}`}>
                 {count}
-              </span>
+              </Chip>
             </Button>
           );
         })}

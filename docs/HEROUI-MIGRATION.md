@@ -15,11 +15,11 @@
 | Skeleton components | ✅ Xong |
 | ErrorBoundary | ✅ Xong |
 | Inventory Modal & Drawer | ✅ Xong |
-| Layout (TopBar, BottomNav, Sidebar) | ⏳ Phase 1 |
-| Dashboard cards | ⏳ Phase 2 |
-| Finance (Table, Progress) | ⏳ Phase 3 |
-| HR & Clients cards | ⏳ Phase 4 |
-| Polish nhỏ lẻ | ⏳ Phase 5 |
+| Layout (TopBar, BottomNav, Sidebar) | ✅ Phase 1 |
+| Dashboard cards | ✅ Phase 2 |
+| Finance (Table, Progress) | ✅ Phase 3 |
+| HR & Clients cards | ✅ Phase 4 |
+| Polish nhỏ lẻ | ✅ Phase 5 |
 
 ---
 

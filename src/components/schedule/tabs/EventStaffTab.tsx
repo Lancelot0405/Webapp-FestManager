@@ -1,6 +1,6 @@
 ﻿import { useState } from 'react';
 import { UserMinus, UserPlus, Check } from 'lucide-react';
-import { Button } from '@heroui/react';
+import { Button, Card, ToggleButton } from '@heroui/react';
 import { useApp } from '../../../context/AppContext';
 import { useStaffQuery } from '../../../hooks/queries/useStaffQuery';
 import { useAddStaffToEvent } from '../../../hooks/queries/mutations/useAddStaffToEvent';
@@ -58,26 +58,22 @@ export default function EventStaffTab({ event }: Props) {
 
       {/* Multi-select staff panel */}
       {showAdd && isAdmin && (
-        <div className="bg-surface border border-separator rounded-xl shadow-sm p-3 space-y-2">
+        <Card className="p-3 space-y-2">
           <p className="text-xs font-semibold text-foreground/80">Chọn nhân viên để thêm</p>
           {availableStaff.length === 0 ? (
             <p className="text-xs text-muted py-2 text-center">Tất cả nhân viên đã được phân công</p>
           ) : (
             <>
               {availableStaff.map(s => (
-                <Button
+                <ToggleButton
                   key={s.id}
-                  variant="ghost"
-                  onPress={() => toggleSelect(s.id)}
-                  className={`w-full h-auto flex items-center justify-between text-left rounded-xl px-3 py-2 text-sm transition-all border ${
-                    selected.has(s.id)
-                      ? 'bg-accent/10 text-accent border-accent/30'
-                      : 'bg-surface border border-separator rounded-xl text-foreground border-separator hover:border-accent/30'
-                  }`}
+                  isSelected={selected.has(s.id)}
+                  onChange={() => toggleSelect(s.id)}
+                  className="w-full h-auto flex items-center justify-between text-left rounded-xl px-3 py-2 text-sm border border-separator hover:border-accent/30 data-[selected=true]:bg-accent/10 data-[selected=true]:text-accent data-[selected=true]:border-accent/30"
                 >
                   <span>{s.name}{s.city ? ` — ${s.city}` : ''}</span>
                   {selected.has(s.id) && <Check size={15} className="shrink-0" />}
-                </Button>
+                </ToggleButton>
               ))}
               <Button
                 onPress={handleConfirmAdd}
@@ -88,7 +84,7 @@ export default function EventStaffTab({ event }: Props) {
               </Button>
             </>
           )}
-        </div>
+        </Card>
       )}
 
       {event.staff.length === 0 ? (
@@ -96,10 +92,7 @@ export default function EventStaffTab({ event }: Props) {
       ) : (
         <div className="space-y-2">
           {event.staff.map(s => (
-            <div
-              key={s.id}
-              className="bg-surface border border-separator rounded-xl shadow-sm p-3 flex justify-between items-center"
-            >
+            <Card key={s.id} className="p-3 flex justify-between items-center">
               <div>
                 <p className="font-medium text-foreground text-sm">{s.name}</p>
                 <p className="text-xs text-muted">{s.city}</p>
@@ -115,7 +108,7 @@ export default function EventStaffTab({ event }: Props) {
                   <UserMinus size={16} />
                 </Button>
               )}
-            </div>
+            </Card>
           ))}
         </div>
       )}
