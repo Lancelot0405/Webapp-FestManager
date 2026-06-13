@@ -1,6 +1,6 @@
 ﻿import { useState } from 'react';
 import { Pencil } from 'lucide-react';
-import { Button } from '@heroui/react';
+import { Button, Card, ProgressBar } from '@heroui/react';
 import { useNavigate } from 'react-router-dom';
 import { Input } from '@/components/shared/GlassInput';
 import { useUpdateEvent } from '../../hooks/queries/mutations/useUpdateEvent';
@@ -14,8 +14,12 @@ function BarRow({ label, value, maxVal, color }: {
   return (
     <div className="flex items-center gap-2">
       <span className="text-xs text-muted w-20 shrink-0">{label}</span>
-      <div className="flex-1 bg-default/50 border border-separator rounded-full h-2 overflow-hidden">
-        <div className={`h-full rounded-full ${color} transition-all`} style={{ width: `${pct}%` }} />
+      <div className="flex-1">
+        <ProgressBar value={pct} aria-label={label} size="sm">
+          <ProgressBar.Track className="bg-default/50 border border-separator">
+            <ProgressBar.Fill className={color} />
+          </ProgressBar.Track>
+        </ProgressBar>
       </div>
       <span className="text-xs font-medium text-foreground/80 w-14 text-right shrink-0">
         {value.toLocaleString('fr-FR')}€
@@ -74,7 +78,7 @@ export default function EventFinanceCard({ event }: Props) {
   const maxVal = Math.max(event.financials.income, expTotal, 1);
 
   return (
-    <div className="bg-surface border border-separator rounded-xl shadow-sm p-4">
+    <Card className="p-4">
       <div className="flex justify-between items-start mb-3">
         <Button
           variant="ghost"
@@ -143,6 +147,6 @@ export default function EventFinanceCard({ event }: Props) {
           </div>
         </>
       )}
-    </div>
+    </Card>
   );
 }

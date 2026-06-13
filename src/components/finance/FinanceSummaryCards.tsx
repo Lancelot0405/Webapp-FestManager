@@ -1,6 +1,6 @@
 import React from 'react';
 import { TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
-import { Card } from '@heroui/react';
+import { Card, ProgressBar } from '@heroui/react';
 import type { FestivalEvent } from '../../types';
 
 interface Props {
@@ -40,8 +40,12 @@ function BarRow({ label, value, maxVal, color, showPct, totalVal }: {
   return (
     <div className="flex items-center gap-2">
       <span className="text-xs text-muted w-20 shrink-0">{label}</span>
-      <div className="flex-1 bg-default rounded-full h-2 overflow-hidden">
-        <div className={`h-full rounded-full ${color} transition-all`} style={{ width: `${pct}%` }} />
+      <div className="flex-1">
+        <ProgressBar value={pct} aria-label={label} size="sm">
+          <ProgressBar.Track className="bg-default">
+            <ProgressBar.Fill className={color} />
+          </ProgressBar.Track>
+        </ProgressBar>
       </div>
       <span className="text-xs font-medium text-foreground w-14 text-right shrink-0">
         {value.toLocaleString('fr-FR')}€

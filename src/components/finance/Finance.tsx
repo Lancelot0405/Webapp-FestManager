@@ -1,5 +1,5 @@
 ﻿import { useState } from 'react';
-import { Button } from '@heroui/react';
+import { ToggleButtonGroup, ToggleButton } from '@heroui/react';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
 import FinanceSummaryCards from './FinanceSummaryCards';
 import ExpenseList from './ExpenseList';
@@ -34,21 +34,25 @@ export default function Finance() {
       </div>
 
       {allMonths.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto pb-1 lg:flex-wrap lg:overflow-x-visible">
-          {(['all', ...allMonths] as string[]).map(m => (
-            <Button
-              key={m}
-              variant="ghost"
-              onPress={() => setSelectedMonth(m)}
-              className={`h-auto min-w-0 shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
-                selectedMonth === m
-                  ? 'bg-accent text-white dark:text-foreground'
-                  : 'bg-default/50 border border-separator text-muted hover:text-foreground'
-              }`}
-            >
-              {m === 'all' ? 'Tất cả' : m}
-            </Button>
-          ))}
+        <div className="overflow-x-auto pb-1">
+          <ToggleButtonGroup
+            selectionMode="single"
+            disallowEmptySelection
+            isDetached
+            size="sm"
+            selectedKeys={new Set([selectedMonth])}
+            onSelectionChange={(keys) => {
+              const next = [...keys][0];
+              if (next !== undefined) setSelectedMonth(String(next));
+            }}
+            className="flex-nowrap"
+          >
+            {(['all', ...allMonths] as string[]).map(m => (
+              <ToggleButton key={m} id={m} className="shrink-0 rounded-full">
+                {m === 'all' ? 'Tất cả' : m}
+              </ToggleButton>
+            ))}
+          </ToggleButtonGroup>
         </div>
       )}
 
