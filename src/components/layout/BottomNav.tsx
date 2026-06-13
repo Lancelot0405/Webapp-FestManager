@@ -19,18 +19,18 @@ interface BottomNavProps {
 
 const ADMIN_TABS: { tab: ActiveTab; icon: (compact: boolean) => React.ReactNode; label: string }[] = [
   { tab: 'dashboard', icon: c => <LayoutDashboard size={c ? 18 : 20} />, label: 'Tổng quan'  },
+  { tab: 'clients',   icon: c => <Building2       size={c ? 18 : 20} />, label: 'Khách hàng' },
   { tab: 'schedule',  icon: c => <Calendar        size={c ? 18 : 20} />, label: 'Lịch trình' },
+  { tab: 'hr',        icon: c => <Users           size={c ? 18 : 20} />, label: 'Nhân sự'    },
   { tab: 'inventory', icon: c => <Package         size={c ? 18 : 20} />, label: 'Kho hàng'   },
   { tab: 'finance',   icon: c => <DollarSign      size={c ? 18 : 20} />, label: 'Tài chính'  },
-  { tab: 'hr',        icon: c => <Users           size={c ? 18 : 20} />, label: 'Nhân sự'    },
-  { tab: 'clients',   icon: c => <Building2       size={c ? 18 : 20} />, label: 'Khách hàng' },
 ];
 
 const MANAGER_TABS: { tab: ActiveTab; icon: (compact: boolean) => React.ReactNode; label: string }[] = [
   { tab: 'dashboard', icon: c => <LayoutDashboard size={c ? 18 : 20} />, label: 'Tổng quan'  },
   { tab: 'schedule',  icon: c => <Calendar        size={c ? 18 : 20} />, label: 'Lịch trình' },
-  { tab: 'inventory', icon: c => <Package         size={c ? 18 : 20} />, label: 'Kho hàng'   },
   { tab: 'hr',        icon: c => <Users           size={c ? 18 : 20} />, label: 'Nhân sự'    },
+  { tab: 'inventory', icon: c => <Package         size={c ? 18 : 20} />, label: 'Kho hàng'   },
   { tab: 'profile',   icon: c => <User            size={c ? 18 : 20} />, label: 'Hồ sơ'      },
 ];
 

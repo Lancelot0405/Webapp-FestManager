@@ -22,18 +22,18 @@ interface SidebarProps {
 
 const ADMIN_TABS: { tab: ActiveTab; icon: React.ReactNode; label: string }[] = [
   { tab: 'dashboard', icon: <LayoutDashboard size={20} />, label: 'Tổng quan'  },
+  { tab: 'clients',   icon: <Building2       size={20} />, label: 'Khách hàng' },
   { tab: 'schedule',  icon: <Calendar        size={20} />, label: 'Lịch trình' },
+  { tab: 'hr',        icon: <Users           size={20} />, label: 'Nhân sự'    },
   { tab: 'inventory', icon: <Package         size={20} />, label: 'Kho hàng'   },
   { tab: 'finance',   icon: <DollarSign      size={20} />, label: 'Tài chính'  },
-  { tab: 'hr',        icon: <Users           size={20} />, label: 'Nhân sự'    },
-  { tab: 'clients',   icon: <Building2       size={20} />, label: 'Khách hàng' },
 ];
 
 const MANAGER_TABS: { tab: ActiveTab; icon: React.ReactNode; label: string }[] = [
   { tab: 'dashboard', icon: <LayoutDashboard size={20} />, label: 'Tổng quan'  },
   { tab: 'schedule',  icon: <Calendar        size={20} />, label: 'Lịch trình' },
-  { tab: 'inventory', icon: <Package         size={20} />, label: 'Kho hàng'   },
   { tab: 'hr',        icon: <Users           size={20} />, label: 'Nhân sự'    },
+  { tab: 'inventory', icon: <Package         size={20} />, label: 'Kho hàng'   },
   { tab: 'profile',   icon: <User            size={20} />, label: 'Hồ sơ'      },
 ];
 

@@ -12,14 +12,14 @@ import EventInventoryTab  from './tabs/EventInventoryTab';
 import EventContractsTab  from './tabs/EventContractsTab';
 
 
-type Tab = 'info' | 'staff' | 'expenses' | 'inventory' | 'contracts';
+type Tab = 'info' | 'contracts' | 'staff' | 'inventory' | 'expenses';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'info',      label: 'Thông tin'  },
-  { id: 'staff',     label: 'Nhân sự'    },
-  { id: 'expenses',  label: 'Chi phí'    },
-  { id: 'inventory', label: 'Kho'        },
   { id: 'contracts', label: 'Hợp đồng'  },
+  { id: 'staff',     label: 'Nhân sự'    },
+  { id: 'inventory', label: 'Kho'        },
+  { id: 'expenses',  label: 'Chi phí'    },
 ];
 
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
