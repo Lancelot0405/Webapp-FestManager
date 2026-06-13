@@ -117,21 +117,9 @@ export default function HRGlobal() {
   return (
     <div className="space-y-4 pb-20">
       {isAdmin && (
-        <>
-          <div className="hidden md:flex justify-end">
-            <Button
-              size="sm"
-              onPress={() => setShowForm(true)}
-              variant="primary"
-              className="flex items-center gap-1.5 rounded-xl font-semibold"
-            >
-              <Plus size={16} /> Thêm nhân viên
-            </Button>
-          </div>
-          <Button onPress={() => setShowForm(true)} isIconOnly aria-label="Thêm nhân viên" className="md:hidden fixed bottom-24 right-4 z-30 h-14 w-14 rounded-full bg-accent text-white dark:text-foreground shadow-xl active:scale-95 transition-transform">
+        <Button onPress={() => setShowForm(true)} isIconOnly aria-label="Thêm nhân viên" className="fixed bottom-24 right-4 md:bottom-8 z-30 h-14 w-14 rounded-full bg-accent text-white dark:text-foreground shadow-xl active:scale-95 transition-transform">
           <Plus size={24} />
         </Button>
-        </>
       )}
 
       {/* Pending registrations — admin only */}

@@ -67,17 +67,9 @@ export default function Schedule() {
   return (
     <div className="space-y-4 pb-20">
       {isAdmin && (
-        <>
-          <div className="hidden md:flex justify-end">
-            <Button onPress={() => setShowAddForm(true)} variant="primary" size="sm" className="flex items-center gap-1 rounded-xl font-semibold">
-              <Plus size={16} />
-              Thêm sự kiện
-            </Button>
-          </div>
-          <Button onPress={() => setShowAddForm(true)} isIconOnly aria-label="Thêm sự kiện" className="md:hidden fixed bottom-24 right-4 z-30 h-14 w-14 rounded-full bg-accent text-white dark:text-foreground shadow-xl active:scale-95 transition-transform">
+        <Button onPress={() => setShowAddForm(true)} isIconOnly aria-label="Thêm sự kiện" className="fixed bottom-24 right-4 md:bottom-8 z-30 h-14 w-14 rounded-full bg-accent text-white dark:text-foreground shadow-xl active:scale-95 transition-transform">
           <Plus size={24} />
         </Button>
-        </>
       )}
 
       <Input type="text" placeholder="Tìm theo tên hoặc địa điểm..." value={search} onChange={setSearch} startContent={<Search size={15} />} />

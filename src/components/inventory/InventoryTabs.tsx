@@ -1,5 +1,5 @@
-﻿import { Store, Tent, History } from 'lucide-react';
-import { Button, Chip } from '@heroui/react';
+import { Store, Tent, History } from 'lucide-react';
+import { Button, Chip, Tabs } from '@heroui/react';
 import type { MainTab, SubTab } from './useInventoryFilters';
 
 interface Props {
@@ -23,23 +23,15 @@ export default function InventoryTabs({
   return (
     <>
       {canSeeRestaurant && canSeeFestival && (
-        <div className="flex border-b border-separator">
-          {([
-            { id: 'restaurant' as MainTab, icon: <Store size={14} />, label: 'Nhà hàng', activeClass: 'text-accent border-accent' },
-            { id: 'festival'   as MainTab, icon: <Tent  size={14} />, label: 'Festival',  activeClass: 'text-success border-[var(--success)]' },
-          ]).map(t => (
-            <Button
-              key={t.id}
-              onPress={() => onMainTabChange(t.id)}
-              variant="ghost"
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold border-b-2 rounded-none h-auto transition-colors ${
-                mainTab === t.id ? t.activeClass : 'border-transparent text-muted hover:text-foreground'
-              }`}
-            >
-              {t.icon} {t.label}
-            </Button>
-          ))}
-        </div>
+        <Tabs
+          selectedKey={mainTab}
+          onSelectionChange={(key) => onMainTabChange(key as MainTab)}
+        >
+          <Tabs.List aria-label="Khu vực kho">
+            <Tabs.Tab id="restaurant"><span className="flex items-center gap-1.5"><Store size={14} />Nhà hàng</span></Tabs.Tab>
+            <Tabs.Tab id="festival"><span className="flex items-center gap-1.5"><Tent size={14} />Festival</span></Tabs.Tab>
+          </Tabs.List>
+        </Tabs>
       )}
 
       <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border ${

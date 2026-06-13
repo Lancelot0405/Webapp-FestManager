@@ -64,27 +64,21 @@ export default function Inventory() {
   return (
     <div className="space-y-4 pb-20">
       {filters.subTab !== 'history' && (
-        <div className="flex justify-end gap-2">
-          <label className={`flex items-center gap-1.5 bg-success/10 text-success border border-success/20 text-xs font-bold px-3 py-2 rounded-xl cursor-pointer hover:bg-success/20 active:scale-95 transition-all ${importing ? 'opacity-60 pointer-events-none' : ''}`}>
+        <div className="fixed bottom-24 right-4 md:bottom-8 z-30 flex flex-col gap-2 items-end">
+          <label className={`flex items-center gap-1.5 bg-success/10 text-success border border-success/20 text-xs font-bold px-3 py-2 rounded-xl cursor-pointer hover:bg-success/20 active:scale-95 transition-all shadow-lg ${importing ? 'opacity-60 pointer-events-none' : ''}`}>
             <FileSpreadsheet size={14} />
             {importing ? 'Đang import...' : 'Import'}
             <input ref={importRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleImport} />
           </label>
           <Button
             onPress={() => setShowAddModal(true)}
-            variant="primary"
-            size="sm"
-            className="hidden md:flex items-center gap-1.5 rounded-xl"
+            isIconOnly
+            aria-label="Thêm vào kho"
+            className="h-14 w-14 rounded-full bg-accent text-white dark:text-foreground shadow-xl active:scale-95 transition-transform"
           >
-            <Plus size={14} /> Thêm
+            <Plus size={24} />
           </Button>
         </div>
-      )}
-
-      {filters.subTab !== 'history' && (
-        <Button onPress={() => setShowAddModal(true)} isIconOnly aria-label="Thêm vào kho" className="md:hidden fixed bottom-24 right-4 z-30 h-14 w-14 rounded-full bg-accent text-white dark:text-foreground shadow-xl active:scale-95 transition-transform">
-          <Plus size={24} />
-        </Button>
       )}
 
       <InventoryTabs

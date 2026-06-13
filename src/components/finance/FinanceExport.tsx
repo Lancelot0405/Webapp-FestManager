@@ -33,10 +33,9 @@ export default function FinanceExport() {
     <Button
       onPress={handleExport}
       variant="ghost"
-      size="sm"
-      className="flex items-center gap-1.5 rounded-xl bg-success/10 text-success hover:bg-success/20 border border-success/20"
+      className="flex items-center gap-1.5 rounded-xl bg-success/10 text-success hover:bg-success/20 border border-success/20 shadow-lg px-4 h-12 text-sm font-bold"
     >
-      <FileSpreadsheet size={15} /> Xuất Excel
+      <FileSpreadsheet size={16} /> Xuất Excel
     </Button>
   );
 }

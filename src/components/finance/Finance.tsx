@@ -29,7 +29,7 @@ export default function Finance() {
 
   return (
     <div className="space-y-6 pb-20">
-      <div className="flex items-center justify-end">
+      <div className="fixed bottom-24 right-4 md:bottom-8 z-30">
         <FinanceExport />
       </div>
 

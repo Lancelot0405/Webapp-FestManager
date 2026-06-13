@@ -1,7 +1,7 @@
 ﻿import { useState, lazy, Suspense } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trash2, Download, Copy } from 'lucide-react';
-import { Tooltip, ScrollShadow, Button } from '@heroui/react';
+import { Tooltip, Button, Tabs } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
 import { useDeleteEvent } from '../../hooks/queries/mutations/useDeleteEvent';
@@ -150,16 +150,19 @@ export default function EventDetail() {
 
         {/* Phần phải: tabs + content */}
         <div>
-          <ScrollShadow orientation="horizontal" className="mb-4">
-            <div className="flex border-b border-separator">
+          <Tabs
+            selectedKey={activeTab}
+            onSelectionChange={(key) => setActiveTab(key as Tab)}
+            className="mb-4"
+          >
+            <Tabs.List aria-label="Chi tiết sự kiện">
               {TABS.map(tab => (
-                <Button key={tab.id} variant="ghost" onPress={() => setActiveTab(tab.id)}
-                  className={`${tab.id === 'info' ? 'lg:hidden' : ''} h-auto min-w-0 -mb-px whitespace-nowrap rounded-none border-b-2 px-4 py-2 text-sm font-semibold transition-colors ${activeTab === tab.id ? 'border-accent text-accent' : 'border-transparent text-muted hover:text-foreground'}`}>
+                <Tabs.Tab key={tab.id} id={tab.id} className={tab.id === 'info' ? 'lg:hidden' : ''}>
                   {tab.label}
-                </Button>
+                </Tabs.Tab>
               ))}
-            </div>
-          </ScrollShadow>
+            </Tabs.List>
+          </Tabs>
 
           {/* Tab info: chỉ render trên mobile (desktop dùng panel trái) */}
           {activeTab === 'info' && <div className="lg:hidden"><EventInfoTab event={event} /></div>}

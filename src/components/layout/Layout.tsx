@@ -58,6 +58,10 @@ export default function Layout() {
         <Sidebar
           onOpenSheet={() => setShowUserSheet(true)}
           notifCount={notifications.length}
+          notifications={notifications}
+          clearAll={clearAll}
+          clearOne={clearOne}
+          onLogout={handleLogout}
         />
 
         <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
