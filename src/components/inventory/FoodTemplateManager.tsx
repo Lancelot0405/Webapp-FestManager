@@ -89,7 +89,7 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
   };
 
   const modal = (
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm px-0 sm:px-4">
+    <div className="fixed inset-0 z-[300] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm px-0 sm:px-4">
       <div className="w-full sm:max-w-md bg-[var(--overlay)] rounded-t-2xl sm:rounded-2xl flex flex-col max-h-[85dvh] sm:max-h-[85vh] border border-separator shadow-2xl">
 
         {/* Header */}
