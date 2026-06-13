@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Button } from '@heroui/react';
 import {
   LayoutDashboard,
   Calendar,
@@ -81,25 +80,26 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
       }}
     >
       <div
-        className="bottom-nav-pill flex justify-around items-center px-2 py-1.5 rounded-[26px]"
+        className="bottom-nav-pill flex justify-around items-center px-1.5 py-1.5 rounded-[28px]"
         style={{ backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
       >
         {tabs.map(({ path, icon, label }) => {
           const isActive = activeSegment === path;
           return (
-            <Button
+            <button
               key={path}
-              variant="ghost"
-              onPress={() => navigate('/' + path)}
+              onClick={() => navigate('/' + path)}
               aria-current={isActive ? 'page' : undefined}
               aria-label={label}
-              className="flex flex-col items-center gap-0.5 px-1 py-1 min-w-0 flex-1 h-auto rounded-xl"
+              className="flex flex-col items-center gap-0.5 px-1 py-1 min-w-0 flex-1 focus:outline-none"
             >
-              <div className={`px-2.5 py-1 rounded-xl transition-all duration-150 ${
-                isActive ? 'bg-[var(--primary)]/10' : ''
+              <div className={`flex items-center justify-center px-3 py-1.5 rounded-2xl transition-all duration-200 ${
+                isActive
+                  ? 'bg-[var(--primary)] shadow-sm shadow-[var(--primary)]/30'
+                  : 'hover:bg-[var(--glass-bg)]'
               }`}>
                 <span className={`block transition-colors duration-150 ${
-                  isActive ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'
+                  isActive ? 'text-white' : 'text-[var(--text-muted)]'
                 }`}>
                   {icon(compact)}
                 </span>
@@ -109,7 +109,7 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
               } ${isActive ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'}`}>
                 {label}
               </span>
-            </Button>
+            </button>
           );
         })}
       </div>
