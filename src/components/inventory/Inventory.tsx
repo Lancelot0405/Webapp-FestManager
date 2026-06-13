@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+﻿import { useRef, useState } from 'react';
 import { Plus, Upload, FileSpreadsheet } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
@@ -65,7 +65,7 @@ export default function Inventory() {
     <div className="space-y-4 pb-20">
       {filters.subTab !== 'history' && (
         <div className="flex justify-end gap-2">
-          <label className={`flex items-center gap-1.5 bg-[var(--success)]/10 text-[var(--success)] border border-[var(--success)]/20 text-xs font-bold px-3 py-2 rounded-xl cursor-pointer hover:bg-[var(--success)]/20 active:scale-95 transition-all ${importing ? 'opacity-60 pointer-events-none' : ''}`}>
+          <label className={`flex items-center gap-1.5 bg-success/10 text-success border border-success/20 text-xs font-bold px-3 py-2 rounded-xl cursor-pointer hover:bg-success/20 active:scale-95 transition-all ${importing ? 'opacity-60 pointer-events-none' : ''}`}>
             <FileSpreadsheet size={14} />
             {importing ? 'Đang import...' : 'Import'}
             <input ref={importRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleImport} />
@@ -82,7 +82,7 @@ export default function Inventory() {
       )}
 
       {filters.subTab !== 'history' && (
-        <Button onPress={() => setShowAddModal(true)} isIconOnly aria-label="Thêm vào kho" className="md:hidden fixed bottom-24 right-4 z-30 h-14 w-14 rounded-full bg-[var(--primary)] text-[var(--background)] shadow-[var(--shadow-hero)] active:scale-95 transition-transform">
+        <Button onPress={() => setShowAddModal(true)} isIconOnly aria-label="Thêm vào kho" className="md:hidden fixed bottom-24 right-4 z-30 h-14 w-14 rounded-full bg-accent text-white dark:text-foreground shadow-xl active:scale-95 transition-transform">
           <Plus size={24} />
         </Button>
       )}
@@ -100,7 +100,7 @@ export default function Inventory() {
       />
 
       {filters.subTab !== 'history' && (
-        <div className="flex items-start gap-2 bg-[var(--success)]/5 border border-[var(--success)]/20 rounded-xl px-3 py-2 text-xs text-[var(--success)]">
+        <div className="flex items-start gap-2 bg-success/5 border border-success/20 rounded-xl px-3 py-2 text-xs text-success">
           <Upload size={11} className="shrink-0 mt-0.5" />
           <span>File Excel: 2 cột <strong>Tên | Số lượng</strong> — đơn vị chỉnh trong app sau</span>
         </div>

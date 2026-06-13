@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { Pencil, ChevronDown, Settings } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { supabase } from '../../lib/supabase';
@@ -61,14 +61,14 @@ export default function FoodNameSelect({
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
-        <label className="text-xs font-semibold text-[var(--text-secondary)]">
+        <label className="text-xs font-semibold text-foreground/80">
           Tên {itemType === 'food' ? 'thực phẩm' : 'thiết bị'}
         </label>
         {canManage && (
           <Button
             variant="ghost"
             onPress={() => setShowManager(true)}
-            className="h-auto min-w-0 p-0 flex items-center gap-1 text-[11px] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors font-medium"
+            className="h-auto min-w-0 p-0 flex items-center gap-1 text-[11px] text-muted hover:text-foreground transition-colors font-medium"
           >
             <Settings size={11} /> Quản lý mẫu
           </Button>
@@ -78,13 +78,13 @@ export default function FoodNameSelect({
       {/* Selected chip */}
       {!custom && value && (
         <div className="flex items-center gap-2">
-          <span className="flex-1 bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-[var(--primary)] rounded-xl px-3 py-2 text-sm font-semibold truncate">
+          <span className="flex-1 bg-accent/10 border border-accent/20 text-accent rounded-xl px-3 py-2 text-sm font-semibold truncate">
             {value}
           </span>
           <Button
             variant="ghost"
             onPress={() => { onChange(''); setOpenGroup(null); }}
-            className="h-auto min-w-0 text-xs text-[var(--text-muted)] hover:text-[var(--danger)] px-3 py-2 rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] font-medium transition-colors"
+            className="h-auto min-w-0 text-xs text-muted hover:text-danger px-3 py-2 rounded-xl border border-separator bg-default/50 font-medium transition-colors"
           >
             Đổi
           </Button>
@@ -95,30 +95,30 @@ export default function FoodNameSelect({
       {!custom && !value && (
         <div className="space-y-1.5">
           {loading ? (
-            <div className="h-9 bg-[var(--glass-bg)] rounded-xl animate-pulse" />
+            <div className="h-9 bg-default/50 rounded-xl animate-pulse" />
           ) : (
             <>
               {Object.entries(groups).map(([group, items]) => (
-                <div key={group} className="border border-[var(--glass-border)] rounded-xl overflow-hidden">
+                <div key={group} className="border border-separator rounded-xl overflow-hidden">
                   <Button
                     variant="ghost"
                     onPress={() => setOpenGroup(openGroup === group ? null : group)}
-                    className="w-full h-auto justify-between rounded-none px-3 py-2.5 bg-[var(--glass-bg)] text-xs font-bold text-[var(--text-secondary)] hover:bg-[var(--glass-bg)] hover:text-[var(--text-primary)] transition-colors"
+                    className="w-full h-auto justify-between rounded-none px-3 py-2.5 bg-default/50 text-xs font-bold text-foreground/80 hover:bg-default/50 hover:text-foreground transition-colors"
                   >
                     {group}
                     <ChevronDown
                       size={13}
-                      className={`text-[var(--text-muted)] transition-transform ${openGroup === group ? 'rotate-180' : ''}`}
+                      className={`text-muted transition-transform ${openGroup === group ? 'rotate-180' : ''}`}
                     />
                   </Button>
                   {openGroup === group && (
-                    <div className="flex flex-wrap gap-1.5 p-2.5 bg-[var(--glass-bg)]/50">
+                    <div className="flex flex-wrap gap-1.5 p-2.5 bg-default/50/50">
                       {items.map(t => (
                         <Button
                           key={t.id}
                           variant="ghost"
                           onPress={() => { onChange(t.name); setCustom(false); setOpenGroup(null); }}
-                          className="h-auto min-w-0 px-2.5 py-1 rounded-lg text-xs font-medium border border-[var(--glass-border)] bg-[var(--glass-bg)] text-[var(--text-secondary)] hover:bg-[var(--primary)] hover:text-[var(--background)] hover:border-[var(--primary)] active:scale-95 transition-all"
+                          className="h-auto min-w-0 px-2.5 py-1 rounded-lg text-xs font-medium border border-separator bg-default/50 text-foreground/80 hover:bg-accent hover:text-white dark:text-foreground hover:border-accent active:scale-95 transition-all"
                         >
                           {t.name}
                         </Button>
@@ -130,7 +130,7 @@ export default function FoodNameSelect({
               <Button
                 variant="ghost"
                 onPress={() => { setCustom(true); setOpenGroup(null); onChange(''); }}
-                className="w-full h-auto flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-dashed border-[var(--glass-border)] text-xs text-[var(--text-muted)] hover:border-[var(--primary)]/40 hover:text-[var(--text-primary)] transition-colors font-medium"
+                className="w-full h-auto flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-dashed border-separator text-xs text-muted hover:border-accent/40 hover:text-foreground transition-colors font-medium"
               >
                 <Pencil size={11} /> Nhập tên tùy chỉnh
               </Button>
@@ -153,7 +153,7 @@ export default function FoodNameSelect({
           <Button
             variant="ghost"
             onPress={() => { setCustom(false); onChange(''); }}
-            className="h-auto min-w-0 px-3 py-2 rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] text-xs text-[var(--text-muted)] hover:text-[var(--danger)] font-medium transition-colors"
+            className="h-auto min-w-0 px-3 py-2 rounded-xl border border-separator bg-default/50 text-xs text-muted hover:text-danger font-medium transition-colors"
           >
             Hủy
           </Button>
@@ -164,7 +164,7 @@ export default function FoodNameSelect({
         <input type="text" required value="" onChange={() => {}} className="sr-only" aria-hidden />
       )}
       {!isFromTemplate && value && !custom && (
-        <p className="mt-1 text-[10px] text-[var(--text-muted)]">Tên tùy chỉnh</p>
+        <p className="mt-1 text-[10px] text-muted">Tên tùy chỉnh</p>
       )}
 
       {showManager && (

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Check, X, ChevronDown, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { useApp } from '../../../context/AppContext';
@@ -85,11 +85,11 @@ export default function EventInventoryTab({ event }: Props) {
     <div className="space-y-4" onClick={() => setUnitMenuId(null)}>
       {/* Header */}
       <div className="flex justify-between items-center">
-        <p className="text-sm text-[var(--text-muted)]">Tồn kho — bấm số lượng để chỉnh sửa</p>
+        <p className="text-sm text-muted">Tồn kho — bấm số lượng để chỉnh sửa</p>
         <Button
           variant="ghost"
           onPress={() => setShowAdd(true)}
-          className="h-auto min-w-0 p-0 flex items-center gap-1 text-[var(--primary)] text-sm font-semibold"
+          className="h-auto min-w-0 p-0 flex items-center gap-1 text-accent text-sm font-semibold"
         >
           <Plus size={15} /> Thêm
         </Button>
@@ -99,12 +99,12 @@ export default function EventInventoryTab({ event }: Props) {
       {showAdd && (
         <form
           onSubmit={handleAddItem}
-          className="glass-card rounded-xl p-4 space-y-3"
+          className="bg-surface border border-separator rounded-xl rounded-xl p-4 space-y-3"
           onClick={e => e.stopPropagation()}
         >
           <div className="flex justify-between items-center">
-            <p className="font-semibold text-[var(--text-primary)] text-sm">Thêm mặt hàng mới</p>
-            <Button isIconOnly variant="ghost" onPress={() => setShowAdd(false)} aria-label="Đóng" className="h-auto min-w-0 p-0 text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors">
+            <p className="font-semibold text-foreground text-sm">Thêm mặt hàng mới</p>
+            <Button isIconOnly variant="ghost" onPress={() => setShowAdd(false)} aria-label="Đóng" className="h-auto min-w-0 p-0 text-muted hover:text-danger transition-colors">
               <X size={16} />
             </Button>
           </div>
@@ -138,7 +138,7 @@ export default function EventInventoryTab({ event }: Props) {
           </div>
           <Button
             type="submit"
-            className="w-full h-auto bg-[var(--primary)] text-[var(--background)] font-semibold py-2 rounded-xl text-sm hover:opacity-90 transition-opacity"
+            className="w-full h-auto bg-accent text-white dark:text-foreground font-semibold py-2 rounded-xl text-sm hover:opacity-90 transition-opacity"
           >
             Thêm
           </Button>
@@ -147,17 +147,17 @@ export default function EventInventoryTab({ event }: Props) {
 
       {/* Danh sách */}
       {inventory.length === 0 ? (
-        <p className="text-sm text-[var(--text-muted)] text-center py-8">Chưa có dữ liệu kho</p>
+        <p className="text-sm text-muted text-center py-8">Chưa có dữ liệu kho</p>
       ) : (
         <div className="space-y-2">
           {inventory.map(item => {
             const isLow  = item.current < item.threshold;
             const isWarn = !isLow && item.current < item.threshold * 1.5;
             const rowCls = isLow
-              ? 'bg-[var(--danger)]/5 border border-[var(--danger)]/30 backdrop-blur-[var(--glass-blur)]'
+              ? 'bg-danger/5 border border-danger/30 backdrop-blur-xl'
               : isWarn
-              ? 'bg-indigo-500/5 border border-indigo-500/30 backdrop-blur-[var(--glass-blur)]'
-              : 'glass-card';
+              ? 'bg-indigo-500/5 border border-indigo-500/30 backdrop-blur-xl'
+              : 'bg-surface border border-separator rounded-xl';
 
             return (
               <div
@@ -168,10 +168,10 @@ export default function EventInventoryTab({ event }: Props) {
                 <div className="flex-1 p-3">
                   <div className="flex justify-between items-center gap-2">
                     <div className="flex-1 min-w-0">
-                      <p className={`text-sm font-medium truncate ${isLow ? 'text-[var(--danger)]' : 'text-[var(--text-primary)]'}`}>
+                      <p className={`text-sm font-medium truncate ${isLow ? 'text-danger' : 'text-foreground'}`}>
                         {item.name}
                       </p>
-                      {isLow && <p className="text-xs text-[var(--danger)]">Sắp hết hàng!</p>}
+                      {isLow && <p className="text-xs text-danger">Sắp hết hàng!</p>}
                     </div>
 
                     <div className="flex items-center gap-1 shrink-0">
@@ -196,7 +196,7 @@ export default function EventInventoryTab({ event }: Props) {
                             variant="ghost"
                             onPress={() => handleSave(item.id, item.name)}
                             aria-label="Lưu"
-                            className="h-auto min-w-0 p-1 text-[var(--success)] hover:bg-[var(--success)]/10 rounded transition-colors"
+                            className="h-auto min-w-0 p-1 text-success hover:bg-success/10 rounded transition-colors"
                           >
                             <Check size={15} />
                           </Button>
@@ -205,7 +205,7 @@ export default function EventInventoryTab({ event }: Props) {
                             variant="ghost"
                             onPress={() => setEditingId(null)}
                             aria-label="Hủy"
-                            className="h-auto min-w-0 p-1 text-[var(--text-muted)] hover:bg-[var(--glass-bg)] rounded transition-colors"
+                            className="h-auto min-w-0 p-1 text-muted hover:bg-default/50 rounded transition-colors"
                           >
                             <X size={15} />
                           </Button>
@@ -214,7 +214,7 @@ export default function EventInventoryTab({ event }: Props) {
                         <>
                           <Button
                             variant="ghost"
-                            className={`h-auto min-w-0 p-0 text-sm font-bold ${isLow ? 'text-[var(--danger)]' : isWarn ? 'text-indigo-400' : 'text-[var(--primary)]'}`}
+                            className={`h-auto min-w-0 p-0 text-sm font-bold ${isLow ? 'text-danger' : isWarn ? 'text-indigo-400' : 'text-accent'}`}
                             onPress={() => startEdit(item.id, item.current, item.unit)}
                           >
                             {item.current}
@@ -222,18 +222,18 @@ export default function EventInventoryTab({ event }: Props) {
                           <div className="relative">
                             <Button
                               variant="ghost"
-                              className="h-auto min-w-0 flex items-center gap-0.5 text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] px-1 py-0.5 rounded transition-colors"
+                              className="h-auto min-w-0 flex items-center gap-0.5 text-sm text-muted hover:text-foreground px-1 py-0.5 rounded transition-colors"
                               onPress={() => setUnitMenuId(unitMenuId === item.id ? null : item.id)}
                             >
                               {item.unit}<ChevronDown size={11} />
                             </Button>
                             {unitMenuId === item.id && (
-                              <div className="absolute right-0 top-7 z-20 bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] border border-[var(--glass-border)] rounded-xl shadow-lg py-1 min-w-[80px]">
+                              <div className="absolute right-0 top-7 z-20 bg-default/50 backdrop-blur-xl border border-separator rounded-xl shadow-lg py-1 min-w-[80px]">
                                 {UNITS.map(u => (
                                   <Button
                                     key={u}
                                     variant="ghost"
-                                    className={`w-full h-auto min-w-0 justify-start rounded-none text-left px-3 py-1.5 text-sm hover:bg-[var(--glass-bg)] transition-colors ${u === item.unit ? 'text-[var(--primary)] font-semibold' : 'text-[var(--text-primary)]'}`}
+                                    className={`w-full h-auto min-w-0 justify-start rounded-none text-left px-3 py-1.5 text-sm hover:bg-default/50 transition-colors ${u === item.unit ? 'text-accent font-semibold' : 'text-foreground'}`}
                                     onPress={() => { updateInventoryUnitMutation.mutate({ itemId: item.id, unit: u }); setUnitMenuId(null); }}
                                   >
                                     {u}
@@ -254,7 +254,7 @@ export default function EventInventoryTab({ event }: Props) {
                     variant="ghost"
                     onPress={() => handleDelete(item.id, item.name)}
                     aria-label="Xóa"
-                    className="h-auto min-w-0 px-3 text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 border-l border-[var(--glass-border)] transition-colors rounded-r-xl rounded-l-none"
+                    className="h-auto min-w-0 px-3 text-muted hover:text-danger hover:bg-danger/10 border-l border-separator transition-colors rounded-r-xl rounded-l-none"
                   >
                     <Trash2 size={15} />
                   </Button>
@@ -268,12 +268,12 @@ export default function EventInventoryTab({ event }: Props) {
       {/* Báo cáo cuối sự kiện */}
       {event.inventoryReported.length > 0 && (
         <div>
-          <p className="text-sm font-semibold text-[var(--text-primary)] mb-2">Báo cáo cuối sự kiện</p>
+          <p className="text-sm font-semibold text-foreground mb-2">Báo cáo cuối sự kiện</p>
           <div className="space-y-2">
             {event.inventoryReported.map((item, i) => (
-              <div key={i} className="glass-card rounded-xl p-3 flex justify-between items-center">
-                <p className="text-sm text-[var(--text-primary)]">{item.name}</p>
-                <span className="text-sm text-[var(--text-muted)]">{item.current} {item.unit}</span>
+              <div key={i} className="bg-surface border border-separator rounded-xl rounded-xl p-3 flex justify-between items-center">
+                <p className="text-sm text-foreground">{item.name}</p>
+                <span className="text-sm text-muted">{item.current} {item.unit}</span>
               </div>
             ))}
           </div>

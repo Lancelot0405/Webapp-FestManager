@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+﻿import { useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@heroui/react';
 import {
@@ -79,11 +79,11 @@ export default function InventoryAddModal({ isOpen, onClose, mainTab, subTab }: 
         isDismissable
         className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm"
       >
-        <ModalContainer className="relative z-[201] w-full max-w-lg rounded-xl outline-none border border-[var(--glass-border)] bg-[var(--popover)] backdrop-blur-[var(--glass-blur)] shadow-2xl">
+        <ModalContainer className="relative z-[201] w-full max-w-lg rounded-xl outline-none border border-separator bg-overlay backdrop-blur-xl shadow-2xl">
           <ModalDialog aria-label="Thêm mặt hàng" className="relative outline-none">
             <form onSubmit={handleSubmit(onSubmit)} className="p-4 space-y-3">
               <div className="flex justify-between items-center">
-                <p className="font-bold text-[var(--text-primary)] text-sm">
+                <p className="font-bold text-foreground text-sm">
                   Thêm {itemLabel} — {sectionLabel}
                 </p>
                 <Button
@@ -93,7 +93,7 @@ export default function InventoryAddModal({ isOpen, onClose, mainTab, subTab }: 
                   isIconOnly
                   size="sm"
                   aria-label="Đóng"
-                  className="text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                  className="text-muted hover:text-foreground"
                 >
                   <X size={15} />
                 </Button>
@@ -111,7 +111,7 @@ export default function InventoryAddModal({ isOpen, onClose, mainTab, subTab }: 
                   />
                 )}
               />
-              {errors.name && <p className="text-xs text-[var(--danger)] -mt-2">{errors.name.message}</p>}
+              {errors.name && <p className="text-xs text-danger -mt-2">{errors.name.message}</p>}
 
               <Controller
                 name="current"

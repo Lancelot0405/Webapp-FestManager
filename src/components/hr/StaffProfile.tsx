@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+﻿import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, Plus, Upload, Image, X, Loader, Pencil, Check, CreditCard, ShieldCheck, KeyRound, Copy, CheckCheck, Building2 } from 'lucide-react';
 import { Button } from '@heroui/react';
@@ -95,7 +95,7 @@ export default function StaffProfile() {
   const [uploadingExp, setUploadingExp] = useState(false);
 
   if (!member) return (
-    <div className="text-center py-20 text-[var(--text-muted)]">
+    <div className="text-center py-20 text-muted">
       <p>Không tìm thấy nhân viên</p>
       {paramStaffId && (
         <Button variant="ghost" size="sm" className="mt-4 text-sm" onPress={() => navigate(-1)}>
@@ -241,10 +241,10 @@ export default function StaffProfile() {
     <div className="space-y-5 pb-20">
       {paramStaffId && (
         <div className="flex items-center gap-2">
-          <Button isIconOnly variant="ghost" size="sm" className="text-[var(--text-muted)] hover:text-[var(--text-primary)]" onPress={() => navigate(-1)}>
+          <Button isIconOnly variant="ghost" size="sm" className="text-muted hover:text-foreground" onPress={() => navigate(-1)}>
             <ArrowLeft size={22} />
           </Button>
-          <h1 className="text-lg font-bold text-[var(--text-primary)]">Hồ sơ nhân viên</h1>
+          <h1 className="text-lg font-bold text-foreground">Hồ sơ nhân viên</h1>
         </div>
       )}
 
@@ -252,14 +252,14 @@ export default function StaffProfile() {
       {/* ── CỘT TRÁI: Thông tin + Tài khoản ──────────────────────────── */}
       <div className="space-y-5">
       {/* ── THÔNG TIN CÁ NHÂN ──────────────────────────────────────────── */}
-      <div className="glass-card rounded-xl p-4">
+      <div className="bg-surface border border-separator rounded-xl rounded-xl p-4">
         <div className="flex justify-between items-center mb-3">
-          <p className="text-sm font-semibold text-[var(--text-primary)]">Thông tin cá nhân</p>
+          <p className="text-sm font-semibold text-foreground">Thông tin cá nhân</p>
           {canEdit && !editing && (
             <Button
               size="sm"
               variant="ghost"
-              className="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] flex items-center gap-1 px-2.5 py-1.5 rounded-lg h-auto min-w-0 bg-[var(--glass-bg)] border border-[var(--glass-border)]"
+              className="text-xs text-muted hover:text-foreground flex items-center gap-1 px-2.5 py-1.5 rounded-lg h-auto min-w-0 bg-default/50 border border-separator"
               onPress={startEdit}
             >
               <Pencil size={12} /> Chỉnh sửa
@@ -283,13 +283,13 @@ export default function StaffProfile() {
             {isAdmin && (
               <>
                 <div>
-                  <label className="text-xs text-[var(--text-muted)] font-medium mb-1 block">Loại nhân viên</label>
+                  <label className="text-xs text-muted font-medium mb-1 block">Loại nhân viên</label>
                   <div className="grid grid-cols-2 gap-2">
                     <Button variant="ghost" onPress={() => setEditStaffType('permanent')}
                       className={`w-full h-auto min-w-0 py-2 rounded-lg text-sm font-medium border transition-colors ${
                         editStaffType === 'permanent'
-                          ? 'bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]/30'
-                          : 'bg-[var(--glass-bg)] text-[var(--text-secondary)] border-[var(--glass-border)] hover:border-[var(--primary)]/30'
+                          ? 'bg-accent/10 text-accent border-accent/30'
+                          : 'bg-default/50 text-foreground/80 border-separator hover:border-accent/30'
                       }`}>
                       Nhân viên cứng
                     </Button>
@@ -297,7 +297,7 @@ export default function StaffProfile() {
                       className={`w-full h-auto min-w-0 py-2 rounded-lg text-sm font-medium border transition-colors ${
                         editStaffType === 'part-time'
                           ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30'
-                          : 'bg-[var(--glass-bg)] text-[var(--text-secondary)] border-[var(--glass-border)] hover:border-indigo-500/30'
+                          : 'bg-default/50 text-foreground/80 border-separator hover:border-indigo-500/30'
                       }`}>
                       Part-time
                     </Button>
@@ -306,30 +306,30 @@ export default function StaffProfile() {
                 {member.userId && (
                   <div className="space-y-3">
                     <div>
-                      <label className="text-xs text-[var(--text-muted)] font-medium flex items-center gap-1 mb-1">
+                      <label className="text-xs text-muted font-medium flex items-center gap-1 mb-1">
                         <ShieldCheck size={12} /> Quyền tài khoản
                       </label>
                       <div className="grid grid-cols-2 gap-2">
                         <Button variant="ghost" onPress={() => setEditRole('staff')}
                           className={`w-full h-auto min-w-0 py-2 rounded-lg text-sm font-medium border transition-colors ${
                             editRole === 'staff'
-                              ? 'bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]/30'
-                              : 'bg-[var(--glass-bg)] text-[var(--text-secondary)] border-[var(--glass-border)] hover:border-[var(--primary)]/30'
+                              ? 'bg-accent/10 text-accent border-accent/30'
+                              : 'bg-default/50 text-foreground/80 border-separator hover:border-accent/30'
                           }`}>
                           Nhân viên
                         </Button>
                         <Button variant="ghost" onPress={() => setEditRole('manager')}
                           className={`w-full h-auto min-w-0 py-2 rounded-lg text-sm font-medium border transition-colors ${
                             editRole === 'manager'
-                              ? 'bg-[var(--warning)]/10 text-[var(--warning)] border-[var(--warning)]/30'
-                              : 'bg-[var(--glass-bg)] text-[var(--text-secondary)] border-[var(--glass-border)] hover:border-[var(--warning)]/30'
+                              ? 'bg-warning/10 text-warning border-warning/30'
+                              : 'bg-default/50 text-foreground/80 border-separator hover:border-warning/30'
                           }`}>
                           Quản lý
                         </Button>
                       </div>
                     </div>
                     <div>
-                      <label className="text-xs text-[var(--text-muted)] font-medium flex items-center gap-1 mb-1">
+                      <label className="text-xs text-muted font-medium flex items-center gap-1 mb-1">
                         <Building2 size={12} /> Bộ phận kho hàng
                       </label>
                       <div className="grid grid-cols-3 gap-2">
@@ -341,8 +341,8 @@ export default function StaffProfile() {
                           <Button key={id} variant="ghost" onPress={() => setEditDepartment(id)}
                             className={`w-full h-auto min-w-0 py-2 rounded-lg text-xs font-medium border transition-colors ${
                               editDepartment === id
-                                ? 'bg-[var(--success)]/10 text-[var(--success)] border-[var(--success)]/30'
-                                : 'bg-[var(--glass-bg)] text-[var(--text-secondary)] border-[var(--glass-border)] hover:border-[var(--success)]/30'
+                                ? 'bg-success/10 text-success border-success/30'
+                                : 'bg-default/50 text-foreground/80 border-separator hover:border-success/30'
                             }`}>
                             {label}
                           </Button>
@@ -355,7 +355,7 @@ export default function StaffProfile() {
             )}
             <div className="flex gap-2 pt-1">
               <Button
-                className="flex-1 bg-[var(--primary)] text-[var(--background)] text-sm font-medium rounded-xl flex items-center justify-center gap-1.5"
+                className="flex-1 bg-accent text-white dark:text-foreground text-sm font-medium rounded-xl flex items-center justify-center gap-1.5"
                 size="sm"
                 onPress={saveEdit}
               >
@@ -363,7 +363,7 @@ export default function StaffProfile() {
               </Button>
               <Button
                 variant="ghost"
-                className="flex-1 border border-[var(--glass-border)] text-sm text-[var(--text-secondary)] rounded-xl"
+                className="flex-1 border border-separator text-sm text-foreground/80 rounded-xl"
                 size="sm"
                 onPress={() => setEditing(false)}
               >
@@ -395,19 +395,19 @@ export default function StaffProfile() {
 
       {/* ── QUẢN LÝ TÀI KHOẢN (chỉ admin) ─────────────────────────────── */}
       {isAdmin && member.userId && (
-        <div className="glass-card rounded-xl p-4 space-y-4">
-          <p className="text-sm font-semibold text-[var(--text-primary)] flex items-center gap-2">
-            <KeyRound size={15} className="text-[var(--warning)]" /> Quản lý tài khoản
+        <div className="bg-surface border border-separator rounded-xl rounded-xl p-4 space-y-4">
+          <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <KeyRound size={15} className="text-warning" /> Quản lý tài khoản
           </p>
 
           {/* Username */}
           <div>
-            <label className="text-xs text-[var(--text-muted)] font-medium block mb-1">Tên đăng nhập</label>
+            <label className="text-xs text-muted font-medium block mb-1">Tên đăng nhập</label>
             {currentUsername && (
-              <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-[var(--glass-bg)] rounded-lg border border-[var(--glass-border)]">
-                <span className="text-xs text-[var(--text-muted)] shrink-0">Hiện tại:</span>
-                <span className="text-sm font-mono font-medium text-[var(--text-secondary)] flex-1 truncate">
-                  {currentUsername}<span className="text-[var(--text-muted)]">@fm.com</span>
+              <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-default/50 rounded-lg border border-separator">
+                <span className="text-xs text-muted shrink-0">Hiện tại:</span>
+                <span className="text-sm font-mono font-medium text-foreground/80 flex-1 truncate">
+                  {currentUsername}<span className="text-muted">@fm.com</span>
                 </span>
               </div>
             )}
@@ -421,7 +421,7 @@ export default function StaffProfile() {
               />
               <Button
                 size="sm"
-                className="bg-[var(--primary)] text-[var(--background)] text-sm font-medium px-3 rounded-lg flex items-center gap-1"
+                className="bg-accent text-white dark:text-foreground text-sm font-medium px-3 rounded-lg flex items-center gap-1"
                 onPress={async () => {
                   if (!editUsername.trim()) return;
                   await supabase.from('users').update({ name: editUsername.trim() }).eq('id', member.userId!);
@@ -439,11 +439,11 @@ export default function StaffProfile() {
           {/* Mật khẩu */}
           <div>
             <div className="flex justify-between items-center mb-1">
-              <label className="text-xs text-[var(--text-muted)] font-medium">Mật khẩu</label>
+              <label className="text-xs text-muted font-medium">Mật khẩu</label>
               <Button
                 size="sm"
                 variant="ghost"
-                className="text-xs text-[var(--warning)] bg-[var(--warning)]/10 border border-[var(--warning)]/20 px-2.5 py-1 rounded-lg h-auto min-w-0 hover:bg-[var(--warning)]/20 transition-colors"
+                className="text-xs text-warning bg-warning/10 border border-warning/20 px-2.5 py-1 rounded-lg h-auto min-w-0 hover:bg-warning/20 transition-colors"
                 onPress={() => { setShowPwForm(!showPwForm); setPwMsg(''); setNewPassword(''); }}
               >
                 {showPwForm ? 'Huỷ' : 'Đổi mật khẩu'}
@@ -464,7 +464,7 @@ export default function StaffProfile() {
                   type="submit"
                   isDisabled={pwLoading}
                   size="sm"
-                  className="bg-[var(--warning)] text-[var(--background)] text-sm font-medium px-3 rounded-lg flex items-center gap-1"
+                  className="bg-warning text-white dark:text-foreground text-sm font-medium px-3 rounded-lg flex items-center gap-1"
                 >
                   {pwLoading ? <Loader size={13} className="animate-spin" /> : <Check size={13} />}
                   Lưu
@@ -474,7 +474,7 @@ export default function StaffProfile() {
           </div>
 
           {pwMsg && (
-            <p className={`text-xs ${pwMsg.startsWith('Lỗi') ? 'text-[var(--danger)]' : 'text-[var(--success)]'}`}>{pwMsg}</p>
+            <p className={`text-xs ${pwMsg.startsWith('Lỗi') ? 'text-danger' : 'text-success'}`}>{pwMsg}</p>
           )}
         </div>
       )}
@@ -485,10 +485,10 @@ export default function StaffProfile() {
       {/* ── TÀI LIỆU CÁ NHÂN ───────────────────────────────────────────── */}
       {canEdit && (
         <div className="space-y-3">
-          <p className="text-sm font-semibold text-[var(--text-primary)]">Tài liệu cá nhân</p>
+          <p className="text-sm font-semibold text-foreground">Tài liệu cá nhân</p>
 
           <DocCard
-            icon={<CreditCard size={18} className="text-[var(--success)]" />}
+            icon={<CreditCard size={18} className="text-success" />}
             label="Carte Vitale"
             cardNumber={member.carteVitaleNumber}
             doc={member.carteVitale}
@@ -518,12 +518,12 @@ export default function StaffProfile() {
       {/* ── HỢP ĐỒNG ────────────────────────────────────────────────────── */}
       <div>
         <div className="flex justify-between items-center mb-2">
-          <h2 className="text-sm font-semibold text-[var(--text-primary)]">Hợp đồng ({member.contracts.length})</h2>
+          <h2 className="text-sm font-semibold text-foreground">Hợp đồng ({member.contracts.length})</h2>
           {canEdit && (
-            <label className={`flex items-center gap-1 text-sm font-medium cursor-pointer px-3 py-1.5 rounded-lg border border-[var(--glass-border)] transition-colors ${
+            <label className={`flex items-center gap-1 text-sm font-medium cursor-pointer px-3 py-1.5 rounded-lg border border-separator transition-colors ${
               uploadingContract
-                ? 'bg-[var(--glass-bg)] text-[var(--text-muted)]'
-                : 'bg-[var(--glass-bg)] text-[var(--text-secondary)] hover:border-[var(--primary)]/30 hover:text-[var(--text-primary)]'
+                ? 'bg-default/50 text-muted'
+                : 'bg-default/50 text-foreground/80 hover:border-accent/30 hover:text-foreground'
             }`}>
               {uploadingContract ? <Loader size={14} className="animate-spin" /> : <Upload size={14} />}
               {uploadingContract ? 'Đang upload...' : 'Upload hợp đồng'}
@@ -533,18 +533,18 @@ export default function StaffProfile() {
           )}
         </div>
         {member.contracts.length === 0 ? (
-          <p className="text-xs text-[var(--text-muted)] py-4 text-center glass-card rounded-xl border-dashed">
+          <p className="text-xs text-muted py-4 text-center bg-surface border border-separator rounded-xl rounded-xl border-dashed">
             Chưa có hợp đồng
           </p>
         ) : (
           <div className="space-y-2">
             {member.contracts.map(c => (
               <a key={c.id} href={c.url} target="_blank" rel="noreferrer"
-                className="flex items-center gap-3 glass-card rounded-xl p-3 hover:border-[var(--primary)]/30 transition-colors">
-                <FileText size={18} className="text-[var(--primary)] shrink-0" />
+                className="flex items-center gap-3 bg-surface border border-separator rounded-xl rounded-xl p-3 hover:border-accent/30 transition-colors">
+                <FileText size={18} className="text-accent shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-[var(--text-primary)] truncate">{c.fileName ?? 'Hợp đồng'}</p>
-                  <p className="text-xs text-[var(--text-muted)]">{c.date}</p>
+                  <p className="text-sm text-foreground truncate">{c.fileName ?? 'Hợp đồng'}</p>
+                  <p className="text-xs text-muted">{c.date}</p>
                 </div>
               </a>
             ))}
@@ -555,12 +555,12 @@ export default function StaffProfile() {
       {/* ── CHI PHÍ ─────────────────────────────────────────────────────── */}
       <div>
         <div className="flex justify-between items-center mb-2">
-          <h2 className="text-sm font-semibold text-[var(--text-primary)]">Chi phí ({allExpenses.length})</h2>
+          <h2 className="text-sm font-semibold text-foreground">Chi phí ({allExpenses.length})</h2>
           {canEdit && (
             <Button
               size="sm"
               variant="ghost"
-              className="bg-[var(--success)]/10 text-[var(--success)] border border-[var(--success)]/20 text-sm font-medium px-3 py-1.5 rounded-lg h-auto hover:bg-[var(--success)]/20 flex items-center gap-1 transition-colors"
+              className="bg-success/10 text-success border border-success/20 text-sm font-medium px-3 py-1.5 rounded-lg h-auto hover:bg-success/20 flex items-center gap-1 transition-colors"
               onPress={() => setShowExpenseForm(!showExpenseForm)}
             >
               <Plus size={14} /> Nộp chi phí
@@ -569,10 +569,10 @@ export default function StaffProfile() {
         </div>
 
         {showExpenseForm && (
-          <form onSubmit={handleSubmitExpense} className="glass-card rounded-xl p-4 space-y-3 mb-3">
+          <form onSubmit={handleSubmitExpense} className="bg-surface border border-separator rounded-xl rounded-xl p-4 space-y-3 mb-3">
             <div className="flex justify-between items-center">
-              <p className="text-sm font-semibold text-[var(--success)]">Nộp chi phí mới</p>
-              <Button isIconOnly variant="ghost" size="sm" className="text-[var(--text-muted)] h-auto min-w-0 p-0 hover:text-[var(--danger)]" onPress={() => setShowExpenseForm(false)}>
+              <p className="text-sm font-semibold text-success">Nộp chi phí mới</p>
+              <Button isIconOnly variant="ghost" size="sm" className="text-muted h-auto min-w-0 p-0 hover:text-danger" onPress={() => setShowExpenseForm(false)}>
                 <X size={15} />
               </Button>
             </div>
@@ -609,19 +609,19 @@ export default function StaffProfile() {
               onChange={setFormDate}
             />
             <div>
-              <label className="text-xs text-[var(--text-secondary)] font-medium block mb-1">Ảnh hóa đơn (không bắt buộc, tối đa 5MB)</label>
+              <label className="text-xs text-foreground/80 font-medium block mb-1">Ảnh hóa đơn (không bắt buộc, tối đa 5MB)</label>
               {expenseFile ? (
-                <div className="flex items-center gap-2 glass-card rounded-lg px-3 py-2">
-                  <Image size={15} className="text-[var(--success)] shrink-0" />
-                  <span className="text-xs text-[var(--text-primary)] truncate flex-1">{expenseFile.name}</span>
-                  <Button isIconOnly variant="ghost" size="sm" className="h-auto min-w-0 p-0 text-[var(--text-muted)] hover:text-[var(--danger)]" onPress={() => setExpenseFile(null)}>
+                <div className="flex items-center gap-2 bg-surface border border-separator rounded-xl rounded-lg px-3 py-2">
+                  <Image size={15} className="text-success shrink-0" />
+                  <span className="text-xs text-foreground truncate flex-1">{expenseFile.name}</span>
+                  <Button isIconOnly variant="ghost" size="sm" className="h-auto min-w-0 p-0 text-muted hover:text-danger" onPress={() => setExpenseFile(null)}>
                     <X size={14} />
                   </Button>
                 </div>
               ) : (
-                <label className="flex items-center gap-2 border border-dashed border-[var(--glass-border)] rounded-lg px-3 py-2.5 cursor-pointer hover:border-[var(--primary)]/30 hover:bg-[var(--glass-bg)] transition-colors">
-                  <Upload size={15} className="text-[var(--text-muted)]" />
-                  <span className="text-xs text-[var(--text-muted)]">Chọn ảnh hoặc PDF</span>
+                <label className="flex items-center gap-2 border border-dashed border-separator rounded-lg px-3 py-2.5 cursor-pointer hover:border-accent/30 hover:bg-default/50 transition-colors">
+                  <Upload size={15} className="text-muted" />
+                  <span className="text-xs text-muted">Chọn ảnh hoặc PDF</span>
                   <input type="file" accept="image/*,.pdf" className="hidden"
                     onChange={e => setExpenseFile(e.target.files?.[0] ?? null)} />
                 </label>
@@ -631,7 +631,7 @@ export default function StaffProfile() {
               <Button
                 type="submit"
                 isDisabled={uploadingExp}
-                className="flex-1 bg-[var(--success)] text-[var(--background)] text-sm font-medium py-2 rounded-lg flex items-center justify-center gap-1.5"
+                className="flex-1 bg-success text-white dark:text-foreground text-sm font-medium py-2 rounded-lg flex items-center justify-center gap-1.5"
                 size="sm"
               >
                 {uploadingExp && <Loader size={14} className="animate-spin" />}
@@ -640,7 +640,7 @@ export default function StaffProfile() {
               <Button
                 type="button"
                 variant="ghost"
-                className="flex-1 border border-[var(--glass-border)] text-sm text-[var(--text-secondary)] rounded-lg"
+                className="flex-1 border border-separator text-sm text-foreground/80 rounded-lg"
                 size="sm"
                 onPress={() => setShowExpenseForm(false)}
               >
@@ -651,18 +651,18 @@ export default function StaffProfile() {
         )}
 
         {allExpenses.length === 0 ? (
-          <p className="text-xs text-[var(--text-muted)] text-center py-6 glass-card rounded-xl border-dashed">Chưa có chi phí nào</p>
+          <p className="text-xs text-muted text-center py-6 bg-surface border border-separator rounded-xl rounded-xl border-dashed">Chưa có chi phí nào</p>
         ) : (
           <div className="space-y-2">
             {allExpenses.map(exp => (
-              <div key={exp.id} className="glass-card rounded-xl p-3">
+              <div key={exp.id} className="bg-surface border border-separator rounded-xl rounded-xl p-3">
                 <div className="flex justify-between items-start">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[var(--text-primary)]">{exp.type}</p>
-                    <p className="text-xs text-[var(--text-muted)]">{exp.eventName} · {exp.date}</p>
+                    <p className="text-sm font-medium text-foreground">{exp.type}</p>
+                    <p className="text-xs text-muted">{exp.eventName} · {exp.date}</p>
                   </div>
                   <div className="flex flex-col items-end gap-1 ml-2">
-                    <span className="text-sm font-bold text-[var(--text-primary)]">{exp.amount}€</span>
+                    <span className="text-sm font-bold text-foreground">{exp.amount}€</span>
                     <ExpenseStatusBadge status={exp.status} />
                   </div>
                 </div>
@@ -687,8 +687,8 @@ export default function StaffProfile() {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between text-sm">
-      <span className="text-[var(--text-muted)]">{label}</span>
-      <span className="text-[var(--text-primary)] font-medium">{value}</span>
+      <span className="text-muted">{label}</span>
+      <span className="text-foreground font-medium">{value}</span>
     </div>
   );
 }
@@ -709,16 +709,16 @@ function DocCard({
 }) {
   const copied = copiedField === copyKey;
   return (
-    <div className="glass-card rounded-xl p-3 space-y-2">
+    <div className="bg-surface border border-separator rounded-xl rounded-xl p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {icon}
-          <p className="text-sm font-medium text-[var(--text-primary)]">{label}</p>
+          <p className="text-sm font-medium text-foreground">{label}</p>
         </div>
-        <label className={`flex items-center gap-1 text-xs font-medium cursor-pointer px-2.5 py-1.5 rounded-lg border border-[var(--glass-border)] transition-colors ${
+        <label className={`flex items-center gap-1 text-xs font-medium cursor-pointer px-2.5 py-1.5 rounded-lg border border-separator transition-colors ${
           uploading
-            ? 'bg-[var(--glass-bg)] text-[var(--text-muted)]'
-            : 'bg-[var(--glass-bg)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--primary)]/30'
+            ? 'bg-default/50 text-muted'
+            : 'bg-default/50 text-foreground/80 hover:text-foreground hover:border-accent/30'
         }`}>
           {uploading ? <Loader size={12} className="animate-spin" /> : <Upload size={12} />}
           {uploading ? 'Uploading...' : doc ? 'Cập nhật' : 'Upload'}
@@ -728,30 +728,30 @@ function DocCard({
       </div>
 
       {cardNumber ? (
-        <div className="flex items-center justify-between bg-[var(--glass-bg)] rounded-lg px-3 py-2 border border-[var(--glass-border)]">
-          <span className="text-sm font-mono text-[var(--text-primary)] tracking-wide">{cardNumber}</span>
+        <div className="flex items-center justify-between bg-default/50 rounded-lg px-3 py-2 border border-separator">
+          <span className="text-sm font-mono text-foreground tracking-wide">{cardNumber}</span>
           <Button
             isIconOnly
             variant="ghost"
             size="sm"
-            className="ml-2 h-auto min-w-0 p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+            className="ml-2 h-auto min-w-0 p-1 text-muted hover:text-foreground"
             aria-label="Sao chép"
             onPress={() => onCopy(cardNumber)}
           >
-            {copied ? <CheckCheck size={14} className="text-[var(--success)]" /> : <Copy size={14} />}
+            {copied ? <CheckCheck size={14} className="text-success" /> : <Copy size={14} />}
           </Button>
         </div>
       ) : (
-        <p className="text-xs text-[var(--text-muted)] italic">Chưa có số thẻ — chỉnh sửa thông tin để thêm</p>
+        <p className="text-xs text-muted italic">Chưa có số thẻ — chỉnh sửa thông tin để thêm</p>
       )}
 
       {doc ? (
         <div className="space-y-1.5">
           <DocThumbnail url={doc.url} fileName={doc.fileName} />
-          <p className="text-xs text-[var(--text-muted)]">Cập nhật: {doc.uploadedAt}</p>
+          <p className="text-xs text-muted">Cập nhật: {doc.uploadedAt}</p>
         </div>
       ) : (
-        <p className="text-xs text-[var(--text-muted)]">Chưa có tài liệu</p>
+        <p className="text-xs text-muted">Chưa có tài liệu</p>
       )}
     </div>
   );

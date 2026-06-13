@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Plus, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { Button } from '@heroui/react';
@@ -90,11 +90,11 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
 
   const modal = (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm px-0 sm:px-4">
-      <div className="w-full sm:max-w-md bg-[var(--glass-bg)] backdrop-blur-[var(--glass-blur)] rounded-t-2xl sm:rounded-2xl flex flex-col max-h-[85dvh] sm:max-h-[85vh] border border-[var(--glass-border)]">
+      <div className="w-full sm:max-w-md bg-default/50 backdrop-blur-xl rounded-t-2xl sm:rounded-2xl flex flex-col max-h-[85dvh] sm:max-h-[85vh] border border-separator">
 
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--glass-border)] shrink-0">
-          <h2 className="font-bold text-[var(--text-primary)] text-sm">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-separator shrink-0">
+          <h2 className="font-bold text-foreground text-sm">
             Quản lý mẫu — {itemType === 'food' ? 'Thực phẩm' : 'Thiết bị'}
           </h2>
           <Button
@@ -102,7 +102,7 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
             variant="ghost"
             onPress={onClose}
             aria-label="Đóng"
-            className="w-7 h-7 min-w-0 h-auto rounded-full flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--glass-bg)] transition-colors"
+            className="w-7 h-7 min-w-0 h-auto rounded-full flex items-center justify-center text-muted hover:text-foreground hover:bg-default/50 transition-colors"
           >
             <X size={16} />
           </Button>
@@ -112,21 +112,21 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
         <div className="overflow-y-auto flex-1 p-4 space-y-2">
           {loading ? (
             <div className="flex justify-center py-8">
-              <Loader2 size={20} className="animate-spin text-[var(--primary)]" />
+              <Loader2 size={20} className="animate-spin text-accent" />
             </div>
           ) : (
             <>
               {Object.entries(groups).map(([group, items]) => (
-                <div key={group} className="border border-[var(--glass-border)] rounded-xl overflow-hidden">
+                <div key={group} className="border border-separator rounded-xl overflow-hidden">
                   <Button
                     variant="ghost"
                     onPress={() => setOpenGroup(openGroup === group ? null : group)}
-                    className="w-full h-auto justify-between rounded-none px-3 py-2.5 bg-[var(--glass-bg)] text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                    className="w-full h-auto justify-between rounded-none px-3 py-2.5 bg-default/50 text-xs font-bold text-foreground/80 hover:text-foreground transition-colors"
                   >
-                    <span>{group} <span className="font-normal text-[var(--text-muted)]">({items.length})</span></span>
+                    <span>{group} <span className="font-normal text-muted">({items.length})</span></span>
                     {openGroup === group
-                      ? <ChevronUp size={13} className="text-[var(--text-muted)]" />
-                      : <ChevronDown size={13} className="text-[var(--text-muted)]" />
+                      ? <ChevronUp size={13} className="text-muted" />
+                      : <ChevronDown size={13} className="text-muted" />
                     }
                   </Button>
 
@@ -134,7 +134,7 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
                     <div className="p-3 space-y-2">
                       <div className="flex flex-wrap gap-1.5">
                         {items.map(t => (
-                          <div key={t.id} className="flex items-center gap-1 pl-2.5 pr-1 py-1 rounded-lg border border-[var(--glass-border)] bg-[var(--glass-bg)] text-xs text-[var(--text-secondary)] font-medium">
+                          <div key={t.id} className="flex items-center gap-1 pl-2.5 pr-1 py-1 rounded-lg border border-separator bg-default/50 text-xs text-foreground/80 font-medium">
                             {t.name}
                             <Button
                               isIconOnly
@@ -142,7 +142,7 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
                               aria-label={`Xóa ${t.name}`}
                               onPress={() => handleDelete(t.id)}
                               isDisabled={deletingId === t.id}
-                              className="h-auto min-w-0 p-0 ml-0.5 text-[var(--text-muted)] hover:text-[var(--danger)] disabled:opacity-40 transition-colors"
+                              className="h-auto min-w-0 p-0 ml-0.5 text-muted hover:text-danger disabled:opacity-40 transition-colors"
                             >
                               {deletingId === t.id
                                 ? <Loader2 size={11} className="animate-spin" />
@@ -170,7 +170,7 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
                           <Button
                             onPress={() => handleAddItem(group)}
                             isDisabled={saving || !newItemName.trim()}
-                            className="h-auto min-w-0 px-3 py-1.5 bg-[var(--primary)] text-[var(--background)] rounded-xl text-xs font-semibold disabled:opacity-50 transition-opacity"
+                            className="h-auto min-w-0 px-3 py-1.5 bg-accent text-white dark:text-foreground rounded-xl text-xs font-semibold disabled:opacity-50 transition-opacity"
                           >
                             {saving ? <Loader2 size={12} className="animate-spin" /> : 'Thêm'}
                           </Button>
@@ -179,7 +179,7 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
                             variant="ghost"
                             onPress={() => { setNewItemGroup(''); setNewItemName(''); }}
                             aria-label="Hủy"
-                            className="h-auto min-w-0 px-2 py-1.5 rounded-xl border border-[var(--glass-border)] text-xs text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors"
+                            className="h-auto min-w-0 px-2 py-1.5 rounded-xl border border-separator text-xs text-muted hover:text-danger transition-colors"
                           >
                             <X size={12} />
                           </Button>
@@ -188,7 +188,7 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
                         <Button
                           variant="ghost"
                           onPress={() => { setNewItemGroup(group); setNewItemName(''); setShowAddGroup(false); }}
-                          className="h-auto min-w-0 p-0 flex items-center gap-1 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] font-medium mt-1 transition-colors"
+                          className="h-auto min-w-0 p-0 flex items-center gap-1 text-xs text-muted hover:text-foreground font-medium mt-1 transition-colors"
                         >
                           <Plus size={11} /> Thêm vào nhóm này
                         </Button>
@@ -200,8 +200,8 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
 
               {/* Add new group */}
               {showAddGroup ? (
-                <div className="border border-dashed border-[var(--glass-border)] rounded-xl p-3 space-y-2">
-                  <p className="text-xs font-bold text-[var(--text-secondary)]">Tạo nhóm mới</p>
+                <div className="border border-dashed border-separator rounded-xl p-3 space-y-2">
+                  <p className="text-xs font-bold text-foreground/80">Tạo nhóm mới</p>
                   <Input
                     autoFocus
                     inputClassName="h-9 text-xs"
@@ -220,14 +220,14 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
                     <Button
                       onPress={handleAddGroup}
                       isDisabled={saving || !newGroupName.trim() || !newItemName.trim()}
-                      className="flex-1 h-auto py-2 bg-[var(--primary)] text-[var(--background)] rounded-xl text-xs font-semibold disabled:opacity-50 transition-opacity"
+                      className="flex-1 h-auto py-2 bg-accent text-white dark:text-foreground rounded-xl text-xs font-semibold disabled:opacity-50 transition-opacity"
                     >
                       {saving ? <Loader2 size={12} className="animate-spin mx-auto" /> : 'Tạo nhóm'}
                     </Button>
                     <Button
                       variant="ghost"
                       onPress={() => { setShowAddGroup(false); setNewGroupName(''); setNewItemName(''); }}
-                      className="h-auto min-w-0 px-3 py-2 rounded-xl border border-[var(--glass-border)] text-xs text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors"
+                      className="h-auto min-w-0 px-3 py-2 rounded-xl border border-separator text-xs text-muted hover:text-danger transition-colors"
                     >
                       Hủy
                     </Button>
@@ -237,7 +237,7 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
                 <Button
                   variant="ghost"
                   onPress={() => { setShowAddGroup(true); setNewItemGroup(''); setNewItemName(''); }}
-                  className="w-full h-auto flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-dashed border-[var(--glass-border)] text-xs text-[var(--text-muted)] hover:border-[var(--primary)]/40 hover:text-[var(--text-primary)] transition-colors font-medium"
+                  className="w-full h-auto flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-dashed border-separator text-xs text-muted hover:border-accent/40 hover:text-foreground transition-colors font-medium"
                 >
                   <Plus size={12} /> Thêm nhóm mới
                 </Button>
@@ -247,10 +247,10 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
         </div>
 
         {/* Footer */}
-        <div className="px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] border-t border-[var(--glass-border)] shrink-0">
+        <div className="px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] border-t border-separator shrink-0">
           <Button
             onPress={onClose}
-            className="w-full h-auto py-2.5 rounded-xl bg-[var(--primary)] text-[var(--background)] text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all"
+            className="w-full h-auto py-2.5 rounded-xl bg-accent text-white dark:text-foreground text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all"
           >
             Xong
           </Button>

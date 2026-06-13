@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Users, Package, Clock, TrendingUp, ChevronRight, ArrowUpRight } from 'lucide-react';
 import { Avatar } from '@heroui/react';
@@ -145,17 +145,17 @@ export default function Dashboard() {
               <button
                 key={event.id}
                 onClick={() => navigate("/schedule/" + event.id)}
-                className="w-full text-left glass-card rounded-xl p-4 hover:border-[var(--primary)]/30 hover:shadow-md transition-all duration-150 active:scale-[0.99] group"
+                className="w-full text-left bg-surface border border-separator rounded-xl rounded-xl p-4 hover:border-accent/30 hover:shadow-md transition-all duration-150 active:scale-[0.99] group"
               >
                 <div className="flex w-full justify-between items-start gap-2">
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-[var(--text-primary)] truncate group-hover:text-[var(--primary)] transition-colors">{event.name}</p>
-                    <p className="text-xs text-[var(--text-muted)] mt-0.5">{event.date} · {event.location}</p>
+                    <p className="font-semibold text-foreground truncate group-hover:text-accent transition-colors">{event.name}</p>
+                    <p className="text-xs text-muted mt-0.5">{event.date} · {event.location}</p>
                     <StaffAvatars members={event.staff} />
                   </div>
                   <div className="flex flex-col items-end gap-1.5 shrink-0">
                     <StatusBadge status={event.status} />
-                    <ArrowUpRight size={13} className="text-[var(--text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <ArrowUpRight size={13} className="text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                 </div>
               </button>
@@ -170,12 +170,12 @@ export default function Dashboard() {
           <SectionHeader title="Chi phí chờ duyệt" />
           <div className="space-y-2">
             {myPendingExpenses.map(exp => (
-              <div key={exp.id} className="glass-card rounded-xl p-3.5 flex justify-between items-center">
+              <div key={exp.id} className="bg-surface border border-separator rounded-xl rounded-xl p-3.5 flex justify-between items-center">
                 <div>
-                  <p className="text-sm font-semibold text-[var(--text-primary)]">{exp.type}</p>
-                  <p className="text-xs text-[var(--text-muted)] mt-0.5">{exp.date}</p>
+                  <p className="text-sm font-semibold text-foreground">{exp.type}</p>
+                  <p className="text-xs text-muted mt-0.5">{exp.date}</p>
                 </div>
-                <span className="text-sm font-bold text-[var(--primary)]">{exp.amount}€</span>
+                <span className="text-sm font-bold text-accent">{exp.amount}€</span>
               </div>
             ))}
           </div>
@@ -204,8 +204,8 @@ type StatColor = 'indigo' | 'violet' | 'emerald' | 'amber' | 'danger';
 const statColorMap: Record<StatColor, { iconBg: string; iconText: string; value: string }> = {
   indigo:  { iconBg: 'bg-indigo-100 dark:bg-indigo-500/15',  iconText: 'text-indigo-600 dark:text-indigo-400',  value: 'text-indigo-600 dark:text-indigo-400'  },
   violet:  { iconBg: 'bg-violet-100 dark:bg-violet-500/15',  iconText: 'text-violet-600 dark:text-violet-400',  value: 'text-violet-600 dark:text-violet-400'  },
-  emerald: { iconBg: 'bg-emerald-100 dark:bg-emerald-500/15',iconText: 'text-emerald-600 dark:text-emerald-400',value: 'text-[var(--text-primary)]'             },
-  amber:   { iconBg: 'bg-amber-100 dark:bg-amber-500/15',    iconText: 'text-amber-600 dark:text-amber-400',    value: 'text-[var(--text-primary)]'             },
+  emerald: { iconBg: 'bg-emerald-100 dark:bg-emerald-500/15',iconText: 'text-emerald-600 dark:text-emerald-400',value: 'text-foreground'             },
+  amber:   { iconBg: 'bg-amber-100 dark:bg-amber-500/15',    iconText: 'text-amber-600 dark:text-amber-400',    value: 'text-foreground'             },
   danger:  { iconBg: 'bg-red-100 dark:bg-red-500/15',        iconText: 'text-red-600 dark:text-red-400',        value: 'text-red-600 dark:text-red-400'         },
 };
 
@@ -217,14 +217,14 @@ function StatCard({ icon, label, value, color = 'indigo', onClick }: {
   return (
     <button
       onClick={onClick}
-      className="saas-card p-4 flex flex-col gap-3 w-full text-left hover:border-[var(--primary)]/30 hover:shadow-md transition-all duration-150 active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]/40"
+      className="saas-card p-4 flex flex-col gap-3 w-full text-left hover:border-accent/30 hover:shadow-md transition-all duration-150 active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40"
     >
       <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${c.iconBg}`}>
         <span className={c.iconText}>{icon}</span>
       </div>
       <div>
         <p className={`text-2xl font-bold leading-none ${c.value}`}>{value}</p>
-        <p className="text-xs text-[var(--text-muted)] mt-1 leading-tight">{label}</p>
+        <p className="text-xs text-muted mt-1 leading-tight">{label}</p>
       </div>
     </button>
   );
@@ -237,24 +237,24 @@ function initials(name: string) {
 }
 
 function StaffAvatars({ members }: { members: StaffRef[] }) {
-  if (members.length === 0) return <p className="text-xs text-[var(--text-muted)] mt-1.5">Chưa có nhân viên</p>;
+  if (members.length === 0) return <p className="text-xs text-muted mt-1.5">Chưa có nhân viên</p>;
   const shown = members.slice(0, 4);
   const extra = members.length - shown.length;
   return (
     <div className="flex items-center mt-2">
       <div className="flex -space-x-1.5">
         {shown.map(m => (
-          <Avatar key={m.id} className="w-5 h-5 ring-2 ring-[var(--card)]">
-            <Avatar.Fallback className="bg-[var(--primary-light)] text-[var(--primary)] text-[9px] font-bold">{initials(m.name)}</Avatar.Fallback>
+          <Avatar key={m.id} className="w-5 h-5 ring-2 ring-[var(--surface)]">
+            <Avatar.Fallback className="bg-accent/10 text-accent text-[9px] font-bold">{initials(m.name)}</Avatar.Fallback>
           </Avatar>
         ))}
         {extra > 0 && (
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--glass-bg)] text-[9px] font-semibold text-[var(--text-muted)] ring-2 ring-[var(--card)]">
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-default/50 text-[9px] font-semibold text-muted ring-2 ring-[var(--surface)]">
             +{extra}
           </span>
         )}
       </div>
-      <span className="ml-2 text-[11px] text-[var(--text-muted)]">{members.length} nhân viên</span>
+      <span className="ml-2 text-[11px] text-muted">{members.length} nhân viên</span>
     </div>
   );
 }
@@ -262,14 +262,14 @@ function StaffAvatars({ members }: { members: StaffRef[] }) {
 function SectionHeader({ title, onMore, icon }: { title: string; onMore?: () => void; icon?: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between mb-3">
-      <h2 className="flex items-center gap-1.5 text-[13px] font-semibold text-[var(--text-primary)]">
-        {icon && <span className="text-[var(--text-muted)]">{icon}</span>}
+      <h2 className="flex items-center gap-1.5 text-[13px] font-semibold text-foreground">
+        {icon && <span className="text-muted">{icon}</span>}
         {title}
       </h2>
       {onMore && (
         <button
           onClick={onMore}
-          className="flex items-center gap-1 text-xs text-[var(--primary)] font-medium hover:underline transition-colors focus:outline-none"
+          className="flex items-center gap-1 text-xs text-accent font-medium hover:underline transition-colors focus:outline-none"
         >
           Xem thêm <ChevronRight size={12} />
         </button>
@@ -280,8 +280,8 @@ function SectionHeader({ title, onMore, icon }: { title: string; onMore?: () => 
 
 function EmptyState({ text }: { text: string }) {
   return (
-    <div className="glass-card rounded-xl py-10 flex flex-col items-center gap-2">
-      <p className="text-sm text-[var(--text-muted)]">{text}</p>
+    <div className="bg-surface border border-separator rounded-xl rounded-xl py-10 flex flex-col items-center gap-2">
+      <p className="text-sm text-muted">{text}</p>
     </div>
   );
 }
@@ -303,7 +303,7 @@ function RevenueChart({ events }: { events: FestivalEvent[] }) {
     .slice(-6);
   if (entries.length === 0) return (
     <div className="saas-card rounded-xl py-8 flex items-center justify-center">
-      <p className="text-sm text-[var(--text-muted)]">Chưa có dữ liệu</p>
+      <p className="text-sm text-muted">Chưa có dữ liệu</p>
     </div>
   );
   const maxVal = Math.max(...entries.map(([, v]) => v), 100000);
@@ -322,12 +322,12 @@ function RevenueChart({ events }: { events: FestivalEvent[] }) {
                   opacity: pct < 20 ? 0.5 : 1,
                 }}
               />
-              <span className="text-[9px] text-[var(--text-muted)] leading-none">{month}</span>
+              <span className="text-[9px] text-muted leading-none">{month}</span>
             </div>
           );
         })}
       </div>
-      <p className="text-[10px] text-[var(--text-muted)] mt-2 text-right">Max: {maxVal.toLocaleString('fr-FR')}€</p>
+      <p className="text-[10px] text-muted mt-2 text-right">Max: {maxVal.toLocaleString('fr-FR')}€</p>
     </div>
   );
 }
@@ -342,7 +342,7 @@ function TopStaffList({ events, staff }: { events: FestivalEvent[]; staff: Staff
     .filter(x => x.member);
   if (top.length === 0) return (
     <div className="saas-card rounded-xl py-8 flex items-center justify-center">
-      <p className="text-sm text-[var(--text-muted)]">Chưa có dữ liệu</p>
+      <p className="text-sm text-muted">Chưa có dữ liệu</p>
     </div>
   );
   const rankConfig = [
@@ -351,17 +351,17 @@ function TopStaffList({ events, staff }: { events: FestivalEvent[]; staff: Staff
     { bg: 'bg-orange-100 dark:bg-orange-500/15 text-orange-500 dark:text-orange-400', label: '3' },
   ];
   return (
-    <div className="saas-card rounded-xl divide-y divide-[var(--glass-border)]">
+    <div className="saas-card rounded-xl divide-y divide-[var(--separator)]">
       {top.map(({ member, count }, i) => (
         <div key={member!.id} className="flex items-center gap-3 px-4 py-3">
           <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${rankConfig[i].bg}`}>
             {rankConfig[i].label}
           </span>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{member!.name}</p>
-            <p className="text-xs text-[var(--text-muted)]">{member!.city}</p>
+            <p className="text-sm font-semibold text-foreground truncate">{member!.name}</p>
+            <p className="text-xs text-muted">{member!.city}</p>
           </div>
-          <span className="text-xs font-semibold text-[var(--text-muted)] shrink-0">{count} sự kiện</span>
+          <span className="text-xs font-semibold text-muted shrink-0">{count} sự kiện</span>
         </div>
       ))}
     </div>

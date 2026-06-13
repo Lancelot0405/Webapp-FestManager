@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Trash2, Search } from 'lucide-react';
 import { Button, ScrollShadow } from '@heroui/react';
@@ -74,7 +74,7 @@ export default function Schedule() {
               Thêm sự kiện
             </Button>
           </div>
-          <Button onPress={() => setShowAddForm(true)} isIconOnly aria-label="Thêm sự kiện" className="md:hidden fixed bottom-24 right-4 z-30 h-14 w-14 rounded-full bg-[var(--primary)] text-[var(--background)] shadow-[var(--shadow-hero)] active:scale-95 transition-transform">
+          <Button onPress={() => setShowAddForm(true)} isIconOnly aria-label="Thêm sự kiện" className="md:hidden fixed bottom-24 right-4 z-30 h-14 w-14 rounded-full bg-accent text-white dark:text-foreground shadow-xl active:scale-95 transition-transform">
           <Plus size={24} />
         </Button>
         </>
@@ -85,7 +85,7 @@ export default function Schedule() {
       <div className="flex flex-wrap gap-1.5">
         {STATUS_FILTERS.map(s => (
           <Button key={s} variant="ghost" onPress={() => setStatusFilter(s)}
-            className={`h-auto min-w-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${statusFilter === s ? 'bg-[var(--primary)] text-[var(--background)] border-[var(--primary)]' : 'glass-card border-[var(--glass-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
+            className={`h-auto min-w-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${statusFilter === s ? 'bg-accent text-white dark:text-foreground border-accent' : 'bg-surface border border-separator rounded-xl border-separator text-foreground/80 hover:text-foreground'}`}>
             {s}
           </Button>
         ))}
@@ -96,7 +96,7 @@ export default function Schedule() {
       {isLoading ? (
         <CardSkeleton count={3} />
       ) : sorted.length === 0 ? (
-        <p className="text-sm text-[var(--text-muted)] text-center py-10">Chưa có sự kiện nào</p>
+        <p className="text-sm text-muted text-center py-10">Chưa có sự kiện nào</p>
       ) : (
         <ScrollShadow className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {sorted.map(event => (
@@ -124,21 +124,21 @@ function EventCard({ event, isAdmin, onSelect, onDelete }: {
   const dateDisplay = event.endDate && event.endDate !== event.date
     ? `${event.date} → ${event.endDate}` : event.date;
   return (
-    <div className="group glass-card rounded-xl overflow-hidden flex items-stretch hover:shadow-[var(--shadow-warm)] active:scale-[0.99] transition-all duration-150">
-      <Button variant="ghost" onPress={onSelect} className="flex-1 h-auto min-w-0 justify-start rounded-none p-4 text-left hover:bg-[var(--glass-bg)]">
+    <div className="group bg-surface border border-separator rounded-xl rounded-xl overflow-hidden flex items-stretch hover:shadow-lg active:scale-[0.99] transition-all duration-150">
+      <Button variant="ghost" onPress={onSelect} className="flex-1 h-auto min-w-0 justify-start rounded-none p-4 text-left hover:bg-default/50">
         <div className="flex w-full justify-between items-start gap-2">
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-[var(--text-primary)] truncate">{event.name}</p>
-            <p className="text-xs text-[var(--text-muted)] mt-0.5">{dateDisplay}</p>
-            <p className="text-xs text-[var(--text-muted)] truncate mt-0.5">{event.location}</p>
-            <p className="text-xs text-[var(--text-muted)] mt-1">{event.staff.length} nhân viên</p>
+            <p className="font-semibold text-foreground truncate">{event.name}</p>
+            <p className="text-xs text-muted mt-0.5">{dateDisplay}</p>
+            <p className="text-xs text-muted truncate mt-0.5">{event.location}</p>
+            <p className="text-xs text-muted mt-1">{event.staff.length} nhân viên</p>
           </div>
           <StatusBadge status={event.status} />
         </div>
       </Button>
       {isAdmin && (
         <Button isIconOnly variant="ghost" onPress={onDelete} aria-label="Xóa sự kiện"
-          className="h-auto rounded-none px-3 text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 border-l border-[var(--glass-border)] transition-colors">
+          className="h-auto rounded-none px-3 text-muted hover:text-danger hover:bg-danger/10 border-l border-separator transition-colors">
           <Trash2 size={16} />
         </Button>
       )}

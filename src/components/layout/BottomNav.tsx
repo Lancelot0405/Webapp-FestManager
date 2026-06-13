@@ -79,8 +79,9 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
         transform: `translateX(-50%) translateY(${navVisible ? '0' : 'calc(100% + 2rem)'})`,
       }}
     >
+      {/* Nav pill — uses HeroUI surface token + custom backdrop blur */}
       <div
-        className="bottom-nav-pill flex justify-around items-center px-1.5 py-1.5 rounded-[28px]"
+        className="bg-surface/90 border border-separator flex justify-around items-center px-1.5 py-1.5 rounded-[28px] shadow-lg dark:shadow-black/40"
         style={{ backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
       >
         {tabs.map(({ path, icon, label }) => {
@@ -95,18 +96,18 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
             >
               <div className={`flex items-center justify-center px-3 py-1.5 rounded-2xl transition-all duration-200 ${
                 isActive
-                  ? 'bg-[var(--primary)] shadow-sm shadow-[var(--primary)]/30'
-                  : 'hover:bg-[var(--glass-bg)]'
+                  ? 'accent-gradient shadow-sm'
+                  : 'hover:bg-default/50'
               }`}>
                 <span className={`block transition-colors duration-150 ${
-                  isActive ? 'text-white' : 'text-[var(--text-muted)]'
+                  isActive ? 'text-white' : 'text-muted'
                 }`}>
                   {icon(compact)}
                 </span>
               </div>
               <span className={`leading-none font-semibold transition-colors duration-150 ${
                 compact ? 'text-[9px]' : 'text-[10px]'
-              } ${isActive ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'}`}>
+              } ${isActive ? 'text-accent' : 'text-muted'}`}>
                 {label}
               </span>
             </button>

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Select as SelectRoot,
   SelectTrigger,
   SelectValue,
@@ -52,27 +52,27 @@ const Select = ({
       className={cn("flex w-full flex-col gap-1", className)}
     >
       {label && (
-        <Label className="text-xs font-medium text-[var(--text-secondary)]">
+        <Label className="text-xs font-medium text-foreground/80">
           {label}
         </Label>
       )}
       <SelectTrigger
         className={cn(
-          "flex w-full items-center justify-between gap-2 rounded-2xl border bg-[var(--glass-bg)] px-3 text-left text-[var(--text-primary)] transition-colors",
-          "border-[var(--glass-border)] backdrop-blur-[var(--glass-blur)]",
-          "focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]/30",
+          "flex w-full items-center justify-between gap-2 rounded-2xl border bg-default/50 px-3 text-left text-foreground transition-colors",
+          "border-separator backdrop-blur-xl",
+          "focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
           "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
           size === "sm" ? "h-9 text-xs" : "h-10 text-sm",
-          error && "border-[var(--danger)] focus:border-[var(--danger)] focus:ring-[var(--danger)]/30",
+          error && "border-danger focus:border-danger focus:ring-danger/30",
         )}
       >
-        <SelectValue className="truncate data-[placeholder]:text-[var(--text-muted)]" />
-        <ChevronDown className="size-4 shrink-0 text-[var(--text-muted)]" />
+        <SelectValue className="truncate data-[placeholder]:text-muted" />
+        <ChevronDown className="size-4 shrink-0 text-muted" />
       </SelectTrigger>
       <SelectPopover
         className={cn(
           "z-[300] max-h-60 w-[var(--trigger-width)] overflow-auto rounded-2xl border p-1 shadow-xl",
-          "border-[var(--glass-border)] bg-[var(--popover)] backdrop-blur-[var(--glass-blur)]"
+          "border-separator bg-overlay backdrop-blur-xl"
         )}
       >
         <ListBox className="outline-none">
@@ -82,9 +82,9 @@ const Select = ({
               id={opt.value}
               textValue={opt.label}
               className={cn(
-                "flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-[var(--text-primary)] outline-none transition-colors",
-                "data-[hovered]:bg-[var(--primary)]/10 data-[focused]:bg-[var(--primary)]/10",
-                "data-[selected]:bg-[var(--primary)]/15 data-[selected]:text-[var(--primary)] data-[selected]:font-medium"
+                "flex cursor-pointer select-none items-center rounded-xl px-3 py-2 text-sm text-foreground outline-none transition-colors",
+                "data-[hovered]:bg-accent/10 data-[focused]:bg-accent/10",
+                "data-[selected]:bg-accent/15 data-[selected]:text-accent data-[selected]:font-medium"
               )}
             >
               {opt.label}
@@ -93,7 +93,7 @@ const Select = ({
         </ListBox>
       </SelectPopover>
       {error && (
-        <FieldError className="text-xs text-[var(--danger)]">{error}</FieldError>
+        <FieldError className="text-xs text-danger">{error}</FieldError>
       )}
     </SelectRoot>
   )

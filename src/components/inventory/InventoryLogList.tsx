@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+﻿import { useState, useMemo } from 'react';
 import { Search } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { Input } from '@/components/shared/GlassInput';
@@ -34,14 +34,14 @@ export default function InventoryLogList({ logs }: Props) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-bold text-[var(--text-secondary)] uppercase tracking-wide">
+        <h2 className="text-sm font-bold text-foreground/80 uppercase tracking-wide">
           Lịch sử ({filtered.length})
         </h2>
         {filtered.length > COLLAPSED_COUNT && (
           <Button
             variant="ghost"
             onPress={() => setExpanded(v => !v)}
-            className="h-auto min-w-0 p-0 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] font-semibold transition-colors"
+            className="h-auto min-w-0 p-0 text-xs text-muted hover:text-foreground font-semibold transition-colors"
           >
             {expanded ? 'Thu gọn' : 'Xem tất cả'}
           </Button>
@@ -72,19 +72,19 @@ export default function InventoryLogList({ logs }: Props) {
 
       {/* Log list */}
       {filtered.length === 0 ? (
-        <p className="text-xs text-[var(--text-muted)] text-center py-4">Không có bản ghi nào</p>
+        <p className="text-xs text-muted text-center py-4">Không có bản ghi nào</p>
       ) : (
         <div className="space-y-2">
           {displayed.map(log => (
-            <div key={log.id} className="glass-card rounded-xl p-3">
+            <div key={log.id} className="bg-surface border border-separator rounded-xl rounded-xl p-3">
               <div className="flex justify-between items-start gap-2">
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{log.itemName}</p>
-                  <p className="text-xs text-[var(--text-muted)] truncate">{log.festivalName} · {log.submittedBy}</p>
+                  <p className="text-sm font-semibold text-foreground truncate">{log.itemName}</p>
+                  <p className="text-xs text-muted truncate">{log.festivalName} · {log.submittedBy}</p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-sm font-black text-[var(--primary)]">{log.qty} {log.unit}</p>
-                  <p className="text-xs text-[var(--text-muted)]">{log.timestamp}</p>
+                  <p className="text-sm font-black text-accent">{log.qty} {log.unit}</p>
+                  <p className="text-xs text-muted">{log.timestamp}</p>
                 </div>
               </div>
             </div>
@@ -93,7 +93,7 @@ export default function InventoryLogList({ logs }: Props) {
       )}
 
       {!expanded && filtered.length > COLLAPSED_COUNT && (
-        <p className="text-xs text-[var(--text-muted)] text-center">
+        <p className="text-xs text-muted text-center">
           Hiển thị {COLLAPSED_COUNT}/{filtered.length} bản ghi
         </p>
       )}

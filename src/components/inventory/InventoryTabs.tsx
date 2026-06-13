@@ -1,4 +1,4 @@
-import { Store, Tent, History } from 'lucide-react';
+﻿import { Store, Tent, History } from 'lucide-react';
 import { Button } from '@heroui/react';
 import type { MainTab, SubTab } from './useInventoryFilters';
 
@@ -23,17 +23,17 @@ export default function InventoryTabs({
   return (
     <>
       {canSeeRestaurant && canSeeFestival && (
-        <div className="flex border-b border-[var(--glass-border)]">
+        <div className="flex border-b border-separator">
           {([
-            { id: 'restaurant' as MainTab, icon: <Store size={14} />, label: 'Nhà hàng', activeClass: 'text-[var(--primary)] border-[var(--primary)]' },
-            { id: 'festival'   as MainTab, icon: <Tent  size={14} />, label: 'Festival',  activeClass: 'text-[var(--success)] border-[var(--success)]' },
+            { id: 'restaurant' as MainTab, icon: <Store size={14} />, label: 'Nhà hàng', activeClass: 'text-accent border-accent' },
+            { id: 'festival'   as MainTab, icon: <Tent  size={14} />, label: 'Festival',  activeClass: 'text-success border-[var(--success)]' },
           ]).map(t => (
             <Button
               key={t.id}
               onPress={() => onMainTabChange(t.id)}
               variant="ghost"
               className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold border-b-2 rounded-none h-auto transition-colors ${
-                mainTab === t.id ? t.activeClass : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                mainTab === t.id ? t.activeClass : 'border-transparent text-muted hover:text-foreground'
               }`}
             >
               {t.icon} {t.label}
@@ -44,14 +44,14 @@ export default function InventoryTabs({
 
       <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border ${
         mainTab === 'restaurant'
-          ? 'bg-[var(--primary)]/5 border-[var(--primary)]/20'
-          : 'bg-[var(--success)]/5 border-[var(--success)]/20'
+          ? 'bg-accent/5 border-accent/20'
+          : 'bg-success/5 border-success/20'
       }`}>
         {mainTab === 'restaurant'
-          ? <Store size={13} className="text-[var(--primary)]" />
-          : <Tent  size={13} className="text-[var(--success)]" />
+          ? <Store size={13} className="text-accent" />
+          : <Tent  size={13} className="text-success" />
         }
-        <span className={`text-xs font-bold ${mainTab === 'restaurant' ? 'text-[var(--primary)]' : 'text-[var(--success)]'}`}>
+        <span className={`text-xs font-bold ${mainTab === 'restaurant' ? 'text-accent' : 'text-success'}`}>
           {sectionLabel}
         </span>
       </div>
@@ -69,11 +69,11 @@ export default function InventoryTabs({
               onPress={() => onSubTabChange(id)}
               variant={isActive ? 'primary' : 'ghost'}
               size="sm"
-              className={`flex items-center gap-1.5 rounded-full ${isActive ? '' : 'border border-[var(--glass-border)] hover:border-[var(--primary)]/30'}`}
+              className={`flex items-center gap-1.5 rounded-full ${isActive ? '' : 'border border-separator hover:border-accent/30'}`}
             >
               {id === 'history' && <History size={11} />}
               {label}
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${isActive ? 'bg-white/20 text-white' : 'bg-[var(--glass-bg)] text-[var(--text-muted)]'}`}>
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${isActive ? 'bg-white/20 text-white' : 'bg-default/50 text-muted'}`}>
                 {count}
               </span>
             </Button>

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+﻿import { useEffect } from 'react';
 import { Check, Trash2 } from 'lucide-react';
 import { Button } from '@heroui/react';
 import {
@@ -91,12 +91,12 @@ export default function InventoryItemDrawer({ item, isOpen, onClose }: Props) {
         <DrawerContent
           placement={isDesktop ? 'right' : 'bottom'}
           className={isDesktop
-            ? "fixed right-0 top-0 bottom-0 z-[201] w-96 outline-none border-l border-[var(--glass-border)] bg-[var(--popover)] backdrop-blur-[var(--glass-blur)] shadow-2xl"
-            : "fixed bottom-0 left-0 right-0 z-[201] max-h-[90dvh] rounded-t-2xl outline-none border-x border-t border-[var(--glass-border)] bg-[var(--popover)] backdrop-blur-[var(--glass-blur)] shadow-2xl"
+            ? "fixed right-0 top-0 bottom-0 z-[201] w-96 outline-none border-l border-separator bg-overlay backdrop-blur-xl shadow-2xl"
+            : "fixed bottom-0 left-0 right-0 z-[201] max-h-[90dvh] rounded-t-2xl outline-none border-x border-t border-separator bg-overlay backdrop-blur-xl shadow-2xl"
           }
         >
           <DrawerDialog aria-label="Chỉnh sửa mặt hàng" className="relative outline-none p-4 space-y-3">
-            <p className="font-bold text-[var(--text-primary)] text-sm">Chỉnh sửa: {item.name}</p>
+            <p className="font-bold text-foreground text-sm">Chỉnh sửa: {item.name}</p>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
               <Controller
@@ -111,7 +111,7 @@ export default function InventoryItemDrawer({ item, isOpen, onClose }: Props) {
                   />
                 )}
               />
-              {errors.name && <p className="text-xs text-[var(--danger)] -mt-2">{errors.name.message}</p>}
+              {errors.name && <p className="text-xs text-danger -mt-2">{errors.name.message}</p>}
 
               <Controller
                 name="current"
@@ -170,7 +170,7 @@ export default function InventoryItemDrawer({ item, isOpen, onClose }: Props) {
                   type="button"
                   onPress={onClose}
                   variant="ghost"
-                  className="flex-1 rounded-xl border border-[var(--glass-border)]"
+                  className="flex-1 rounded-xl border border-separator"
                 >
                   Hủy
                 </Button>
@@ -179,7 +179,7 @@ export default function InventoryItemDrawer({ item, isOpen, onClose }: Props) {
                   onPress={handleDelete}
                   variant="ghost"
                   isIconOnly
-                  className="px-3 rounded-xl text-[var(--danger)] bg-[var(--danger)]/10 hover:bg-[var(--danger)]/20"
+                  className="px-3 rounded-xl text-danger bg-danger/10 hover:bg-danger/20"
                   aria-label={`Xóa ${item.name}`}
                 >
                   <Trash2 size={15} />

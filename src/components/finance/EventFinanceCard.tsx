@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Pencil } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { useNavigate } from 'react-router-dom';
@@ -13,11 +13,11 @@ function BarRow({ label, value, maxVal, color }: {
   const pct = maxVal > 0 ? Math.round((value / maxVal) * 100) : 0;
   return (
     <div className="flex items-center gap-2">
-      <span className="text-xs text-[var(--text-muted)] w-20 shrink-0">{label}</span>
-      <div className="flex-1 bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-full h-2 overflow-hidden">
+      <span className="text-xs text-muted w-20 shrink-0">{label}</span>
+      <div className="flex-1 bg-default/50 border border-separator rounded-full h-2 overflow-hidden">
         <div className={`h-full rounded-full ${color} transition-all`} style={{ width: `${pct}%` }} />
       </div>
-      <span className="text-xs font-medium text-[var(--text-secondary)] w-14 text-right shrink-0">
+      <span className="text-xs font-medium text-foreground/80 w-14 text-right shrink-0">
         {value.toLocaleString('fr-FR')}€
       </span>
     </div>
@@ -74,7 +74,7 @@ export default function EventFinanceCard({ event }: Props) {
   const maxVal = Math.max(event.financials.income, expTotal, 1);
 
   return (
-    <div className="glass-card rounded-xl p-4">
+    <div className="bg-surface border border-separator rounded-xl rounded-xl p-4">
       <div className="flex justify-between items-start mb-3">
         <Button
           variant="ghost"
@@ -82,8 +82,8 @@ export default function EventFinanceCard({ event }: Props) {
           className="h-auto min-w-0 flex-1 justify-start rounded-none p-0 text-left"
         >
           <div className="min-w-0">
-            <p className="font-semibold text-[var(--text-primary)] truncate">{event.name}</p>
-            <p className="text-xs text-[var(--text-muted)] mt-0.5">{event.date}</p>
+            <p className="font-semibold text-foreground truncate">{event.name}</p>
+            <p className="text-xs text-muted mt-0.5">{event.date}</p>
           </div>
         </Button>
         <div className="flex items-center gap-2 shrink-0 ml-2">
@@ -93,7 +93,7 @@ export default function EventFinanceCard({ event }: Props) {
             variant="ghost"
             isIconOnly
             size="sm"
-            className="rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+            className="rounded-lg text-muted hover:text-foreground"
           >
             <Pencil size={14} />
           </Button>
@@ -127,17 +127,17 @@ export default function EventFinanceCard({ event }: Props) {
       ) : (
         <>
           <div className="space-y-1.5">
-            <BarRow label="Doanh thu" value={event.financials.income} maxVal={maxVal} color="bg-[var(--success)]" />
-            <BarRow label="Chi phí"   value={expTotal}                maxVal={maxVal} color="bg-[var(--danger)]"  />
+            <BarRow label="Doanh thu" value={event.financials.income} maxVal={maxVal} color="bg-success" />
+            <BarRow label="Chi phí"   value={expTotal}                maxVal={maxVal} color="bg-danger"  />
           </div>
           {approvedReceiptsForEvent > 0 && (
-            <p className="text-xs text-[var(--text-muted)] mt-1">
+            <p className="text-xs text-muted mt-1">
               Bao gồm {approvedReceiptsForEvent.toLocaleString('fr-FR')}€ chi phí nhân viên
             </p>
           )}
           <div className="mt-3 flex justify-between text-xs font-semibold">
-            <span className="text-[var(--text-muted)]">Lợi nhuận</span>
-            <span className={profit >= 0 ? 'text-[var(--success)]' : 'text-[var(--danger)]'}>
+            <span className="text-muted">Lợi nhuận</span>
+            <span className={profit >= 0 ? 'text-success' : 'text-danger'}>
               {profit >= 0 ? '+' : ''}{profit.toLocaleString('fr-FR')}€
             </span>
           </div>

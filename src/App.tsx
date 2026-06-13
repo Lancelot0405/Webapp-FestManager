@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+﻿import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useApp } from './context/AppContext';
 import LoginScreen    from './components/layout/LoginScreen';
@@ -17,7 +17,7 @@ const Clients     = lazy(() => import('./components/clients/Clients'));
 function PageLoader() {
   return (
     <div className="flex items-center justify-center py-20">
-      <div className="w-8 h-8 border-[3px] border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" />
+      <div className="w-8 h-8 border-[3px] border-accent/30 border-t-[var(--accent)] rounded-full animate-spin" />
     </div>
   );
 }

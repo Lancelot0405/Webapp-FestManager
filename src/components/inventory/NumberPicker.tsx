@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Pencil } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { Input } from '@/components/shared/GlassInput';
@@ -34,7 +34,7 @@ export default function NumberPicker({
 
   return (
     <div>
-      <label className="text-xs font-semibold text-[var(--text-secondary)]">{label}</label>
+      <label className="text-xs font-semibold text-foreground/80">{label}</label>
       <div className="mt-1.5 flex flex-wrap gap-1.5">
         {QUICK_VALUES.map(v => (
           <Button
@@ -43,8 +43,8 @@ export default function NumberPicker({
             onPress={() => { onChange(String(v)); setCustom(false); }}
             className={`h-auto min-w-0 px-2.5 py-1 rounded-lg text-xs font-bold border transition-all active:scale-95 ${
               !custom && numVal === v
-                ? 'bg-[var(--primary)] text-[var(--background)] border-[var(--primary)]'
-                : 'bg-[var(--glass-bg)] text-[var(--text-secondary)] border-[var(--glass-border)] hover:border-[var(--primary)]/40'
+                ? 'bg-accent text-white dark:text-foreground border-accent'
+                : 'bg-default/50 text-foreground/80 border-separator hover:border-accent/40'
             }`}
           >
             {v}
@@ -55,8 +55,8 @@ export default function NumberPicker({
           onPress={() => { setCustom(true); if (isQuick) onChange(''); }}
           className={`h-auto min-w-0 px-2.5 py-1 rounded-lg text-xs font-bold border transition-all flex items-center gap-1 active:scale-95 ${
             custom
-              ? 'bg-[var(--primary)] text-[var(--background)] border-[var(--primary)]'
-              : 'bg-[var(--glass-bg)] text-[var(--text-secondary)] border-[var(--glass-border)] hover:border-[var(--primary)]/40'
+              ? 'bg-accent text-white dark:text-foreground border-accent'
+              : 'bg-default/50 text-foreground/80 border-separator hover:border-accent/40'
           }`}
         >
           <Pencil size={10} /> Tùy chỉnh
@@ -78,7 +78,7 @@ export default function NumberPicker({
         />
       )}
       {error && !custom && (
-        <p className="text-xs text-[var(--danger)] mt-1">{error}</p>
+        <p className="text-xs text-danger mt-1">{error}</p>
       )}
       {!custom && required && value === '' && (
         <input type="number" required value="" onChange={() => {}} className="sr-only" aria-hidden />

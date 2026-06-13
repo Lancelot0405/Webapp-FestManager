@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, User, Trash2, ShieldCheck, Check, X } from 'lucide-react';
 import { Button, ScrollShadow } from '@heroui/react';
@@ -74,24 +74,24 @@ export default function HRGlobal() {
       {list.map(s => (
         <div
           key={s.id}
-          className="group glass-card rounded-xl overflow-hidden flex flex-row items-stretch hover:shadow-[var(--shadow-warm)] active:scale-[0.99] transition-all duration-150"
+          className="group bg-surface border border-separator rounded-xl rounded-xl overflow-hidden flex flex-row items-stretch hover:shadow-lg active:scale-[0.99] transition-all duration-150"
         >
           <Button
             variant="ghost"
             onPress={() => navigate('/hr/' + s.id)}
-            className="flex-1 h-auto min-w-0 justify-start rounded-none p-4 text-left hover:bg-[var(--glass-bg)]"
+            className="flex-1 h-auto min-w-0 justify-start rounded-none p-4 text-left hover:bg-default/50"
           >
             <div className="flex w-full items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[var(--primary)]/10 flex items-center justify-center shrink-0">
-                <User size={18} className="text-[var(--primary)]" />
+              <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                <User size={18} className="text-accent" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-[var(--text-primary)]">{s.name}</p>
-                <p className="text-xs text-[var(--text-muted)]">{s.city}</p>
+                <p className="font-semibold text-foreground">{s.name}</p>
+                <p className="text-xs text-muted">{s.city}</p>
               </div>
               <div className="text-right shrink-0">
-                <p className="text-xs text-[var(--text-muted)]">{eventCountMap.get(s.id) ?? 0} sự kiện</p>
-                <p className="text-xs text-[var(--text-muted)]">{s.contracts.length} hợp đồng</p>
+                <p className="text-xs text-muted">{eventCountMap.get(s.id) ?? 0} sự kiện</p>
+                <p className="text-xs text-muted">{s.contracts.length} hợp đồng</p>
               </div>
             </div>
           </Button>
@@ -100,7 +100,7 @@ export default function HRGlobal() {
               isIconOnly
               variant="ghost"
               onPress={e => handleDelete(e as unknown as React.MouseEvent, s.id, s.name)}
-              className="px-3 text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 border-l border-[var(--glass-border)] rounded-none rounded-r-xl h-auto transition-colors"
+              className="px-3 text-muted hover:text-danger hover:bg-danger/10 border-l border-separator rounded-none rounded-r-xl h-auto transition-colors"
             >
               <Trash2 size={15} />
             </Button>
@@ -125,7 +125,7 @@ export default function HRGlobal() {
               <Plus size={16} /> Thêm nhân viên
             </Button>
           </div>
-          <Button onPress={() => setShowForm(true)} isIconOnly aria-label="Thêm nhân viên" className="md:hidden fixed bottom-24 right-4 z-30 h-14 w-14 rounded-full bg-[var(--primary)] text-[var(--background)] shadow-[var(--shadow-hero)] active:scale-95 transition-transform">
+          <Button onPress={() => setShowForm(true)} isIconOnly aria-label="Thêm nhân viên" className="md:hidden fixed bottom-24 right-4 z-30 h-14 w-14 rounded-full bg-accent text-white dark:text-foreground shadow-xl active:scale-95 transition-transform">
           <Plus size={24} />
         </Button>
         </>
@@ -161,28 +161,28 @@ export default function HRGlobal() {
               {pendingRegistrations.map(req => (
                 <div
                   key={req.id}
-                  className="glass-card rounded-xl p-3"
+                  className="bg-surface border border-separator rounded-xl rounded-xl p-3"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-indigo-500/10 flex items-center justify-center shrink-0">
                       <ShieldCheck size={16} className="text-indigo-400" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-[var(--text-primary)]">{req.displayName}</p>
+                      <p className="text-sm font-semibold text-foreground">{req.displayName}</p>
                       <p className="text-xs text-indigo-400">Quản lý · Chờ duyệt</p>
                     </div>
                     <div className="flex gap-1.5 shrink-0">
                       <Button
                         size="sm"
                         onPress={() => approveRegistrationMutation.mutate(req.userId)}
-                        className="text-xs font-medium bg-[var(--success)]/10 text-[var(--success)] border border-[var(--success)]/20 rounded-lg flex items-center gap-1 hover:bg-[var(--success)]/20 transition-colors"
+                        className="text-xs font-medium bg-success/10 text-success border border-success/20 rounded-lg flex items-center gap-1 hover:bg-success/20 transition-colors"
                       >
                         <Check size={12} /> Duyệt
                       </Button>
                       <Button
                         size="sm"
                         onPress={() => rejectRegistrationMutation.mutate(req.userId)}
-                        className="text-xs font-medium bg-[var(--danger)]/10 text-[var(--danger)] border border-[var(--danger)]/20 rounded-lg flex items-center gap-1 hover:bg-[var(--danger)]/20 transition-colors"
+                        className="text-xs font-medium bg-danger/10 text-danger border border-danger/20 rounded-lg flex items-center gap-1 hover:bg-danger/20 transition-colors"
                       >
                         <X size={12} /> Từ chối
                       </Button>
@@ -212,8 +212,8 @@ export default function HRGlobal() {
               onPress={() => setTypeFilter(t)}
               className={`h-auto min-w-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
                 typeFilter === t
-                  ? 'bg-[var(--primary)] text-[var(--background)] border-[var(--primary)]'
-                  : 'bg-[var(--glass-bg)] text-[var(--text-secondary)] border-[var(--glass-border)] hover:border-[var(--primary)]/30'
+                  ? 'bg-accent text-white dark:text-foreground border-accent'
+                  : 'bg-default/50 text-foreground/80 border-separator hover:border-accent/30'
               }`}
             >
               {t}
@@ -229,13 +229,13 @@ export default function HRGlobal() {
       {isLoading ? (
         <ListSkeleton count={4} />
       ) : filtered.length === 0 ? (
-        <p className="text-sm text-[var(--text-muted)] text-center py-10">Chưa có nhân viên</p>
+        <p className="text-sm text-muted text-center py-10">Chưa có nhân viên</p>
       ) : typeFilter === 'Tất cả' && canViewAll ? (
         <>
           {permanent.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-[var(--primary)] bg-[var(--primary)]/10 px-2.5 py-1 rounded-full border border-[var(--primary)]/20">
+                <span className="text-xs font-semibold text-accent bg-accent/10 px-2.5 py-1 rounded-full border border-accent/20">
                   Nhân viên cứng · {permanent.length}
                 </span>
               </div>

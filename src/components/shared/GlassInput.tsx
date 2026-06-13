@@ -1,4 +1,4 @@
-import * as React from "react"
+﻿import * as React from "react"
 import {
   TextField,
   Label,
@@ -52,13 +52,13 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {...props}
       >
         {label && (
-          <Label className="text-xs font-medium text-[var(--text-secondary)]">
+          <Label className="text-xs font-medium text-foreground/80">
             {label}
           </Label>
         )}
         <div className="relative flex items-center">
           {startContent && (
-            <span className="pointer-events-none absolute left-3 z-10 text-[var(--text-muted)] [&_svg]:size-4">
+            <span className="pointer-events-none absolute left-3 z-10 text-muted [&_svg]:size-4">
               {startContent}
             </span>
           )}
@@ -72,31 +72,31 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             minLength={minLength}
             autoFocus={autoFocus}
             className={cn(
-              "h-10 w-full rounded-2xl border bg-[var(--glass-bg)] px-3 py-2 text-sm text-[var(--text-primary)] transition-colors",
-              "border-[var(--glass-border)] backdrop-blur-[var(--glass-blur)]",
-              "placeholder:text-[var(--text-muted)]",
-              "focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]/30",
+              "h-10 w-full rounded-2xl border bg-default/50 px-3 py-2 text-sm text-foreground transition-colors",
+              "border-separator backdrop-blur-xl",
+              "placeholder:text-muted",
+              "focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               "disabled:cursor-not-allowed disabled:opacity-50",
               type === "date" && "[color-scheme:light] dark:[color-scheme:dark]",
               startContent && "pl-9",
               endContent && "pr-9",
-              error && "border-[var(--danger)] focus:border-[var(--danger)] focus:ring-[var(--danger)]/30",
+              error && "border-danger focus:border-danger focus:ring-danger/30",
               inputClassName
             )}
           />
           {endContent && (
-            <span className="absolute right-3 z-10 text-[var(--text-muted)] [&_svg]:size-4">
+            <span className="absolute right-3 z-10 text-muted [&_svg]:size-4">
               {endContent}
             </span>
           )}
         </div>
         {error && (
-          <FieldError className="text-xs text-[var(--danger)]">
+          <FieldError className="text-xs text-danger">
             {error}
           </FieldError>
         )}
         {hint && !error && (
-          <Description className="text-xs text-[var(--text-muted)]">
+          <Description className="text-xs text-muted">
             {hint}
           </Description>
         )}

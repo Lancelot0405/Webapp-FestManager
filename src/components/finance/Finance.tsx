@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Button } from '@heroui/react';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
 import FinanceSummaryCards from './FinanceSummaryCards';
@@ -42,8 +42,8 @@ export default function Finance() {
               onPress={() => setSelectedMonth(m)}
               className={`h-auto min-w-0 shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
                 selectedMonth === m
-                  ? 'bg-[var(--primary)] text-[var(--background)]'
-                  : 'bg-[var(--glass-bg)] border border-[var(--glass-border)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                  ? 'bg-accent text-white dark:text-foreground'
+                  : 'bg-default/50 border border-separator text-muted hover:text-foreground'
               }`}
             >
               {m === 'all' ? 'Tất cả' : m}
@@ -57,7 +57,7 @@ export default function Finance() {
       <ExpenseList filteredEvents={filteredEvents} />
 
       <div>
-        <h2 className="text-sm font-semibold text-[var(--text-secondary)] mb-3">Theo sự kiện</h2>
+        <h2 className="text-sm font-semibold text-foreground/80 mb-3">Theo sự kiện</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {filteredEvents.map(event => (
             <EventFinanceCard key={event.id} event={event} />

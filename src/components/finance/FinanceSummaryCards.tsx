@@ -1,5 +1,6 @@
 import React from 'react';
 import { TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
+import { Card } from '@heroui/react';
 import type { FestivalEvent } from '../../types';
 
 interface Props {
@@ -8,11 +9,11 @@ interface Props {
 
 type SummaryType = 'income' | 'expense' | 'profit' | 'loss';
 
-const summaryConfig: Record<SummaryType, { bg: string; icon: string; value: string }> = {
-  income:  { bg: 'bg-[var(--success)]/10 border-[var(--success)]/15',  icon: 'text-[var(--success)]', value: 'text-[var(--success)]' },
-  expense: { bg: 'bg-[var(--danger)]/10 border-[var(--danger)]/15',    icon: 'text-[var(--danger)]',  value: 'text-[var(--danger)]'  },
-  profit:  { bg: 'glass-card',                                           icon: 'text-[var(--primary)]', value: 'text-[var(--primary)]' },
-  loss:    { bg: 'bg-[var(--warning)]/10 border-[var(--warning)]/15',  icon: 'text-[var(--warning)]', value: 'text-[var(--warning)]' },
+const summaryConfig: Record<SummaryType, { iconClass: string; valueClass: string }> = {
+  income:  { iconClass: 'text-success',  valueClass: 'text-success'  },
+  expense: { iconClass: 'text-danger',   valueClass: 'text-danger'   },
+  profit:  { iconClass: 'text-accent',   valueClass: 'text-accent'   },
+  loss:    { iconClass: 'text-warning',  valueClass: 'text-warning'  },
 };
 
 function SummaryCard({ icon, label, value, type }: {
@@ -20,13 +21,13 @@ function SummaryCard({ icon, label, value, type }: {
 }) {
   const cfg = summaryConfig[type];
   return (
-    <div className={`rounded-xl p-4 flex items-center gap-3 border ${cfg.bg}`}>
-      <div className={`shrink-0 ${cfg.icon}`}>{icon}</div>
+    <Card className="p-4 flex-row items-center gap-3">
+      <div className={`shrink-0 ${cfg.iconClass}`}>{icon}</div>
       <div className="flex-1 flex justify-between items-center">
-        <p className="text-sm text-[var(--text-secondary)]">{label}</p>
-        <p className={`text-xl font-bold ${cfg.value}`}>{value.toLocaleString('fr-FR')}€</p>
+        <p className="text-sm text-muted">{label}</p>
+        <p className={`text-xl font-bold ${cfg.valueClass}`}>{value.toLocaleString('fr-FR')}€</p>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -38,15 +39,15 @@ function BarRow({ label, value, maxVal, color, showPct, totalVal }: {
   const pctOfTotal = totalVal && totalVal > 0 ? Math.round((value / totalVal) * 100) : null;
   return (
     <div className="flex items-center gap-2">
-      <span className="text-xs text-[var(--text-muted)] w-20 shrink-0">{label}</span>
-      <div className="flex-1 bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-full h-2 overflow-hidden">
+      <span className="text-xs text-muted w-20 shrink-0">{label}</span>
+      <div className="flex-1 bg-default rounded-full h-2 overflow-hidden">
         <div className={`h-full rounded-full ${color} transition-all`} style={{ width: `${pct}%` }} />
       </div>
-      <span className="text-xs font-medium text-[var(--text-secondary)] w-14 text-right shrink-0">
+      <span className="text-xs font-medium text-foreground w-14 text-right shrink-0">
         {value.toLocaleString('fr-FR')}€
       </span>
       {showPct && pctOfTotal !== null && (
-        <span className="text-xs text-[var(--text-muted)] w-8 text-right shrink-0">{pctOfTotal}%</span>
+        <span className="text-xs text-muted w-8 text-right shrink-0">{pctOfTotal}%</span>
       )}
     </div>
   );
@@ -84,17 +85,17 @@ export default function FinanceSummaryCards({ filteredEvents }: Props) {
       </div>
 
       {totalExpense > 0 && (
-        <div className="glass-card rounded-xl p-4">
-          <h2 className="text-sm font-semibold text-[var(--text-secondary)] mb-3">Phân bổ chi phí</h2>
+        <Card className="p-4">
+          <h2 className="text-sm font-semibold text-muted mb-3">Phân bổ chi phí</h2>
           <div className="space-y-2.5">
-            {breakdownRent > 0         && <BarRow label="Booth/Thuê"  value={breakdownRent}        maxVal={totalExpense} color="bg-purple-400"         showPct totalVal={totalExpense} />}
-            {breakdownIngredients > 0  && <BarRow label="Nguyên liệu" value={breakdownIngredients}  maxVal={totalExpense} color="bg-[var(--warning)]"    showPct totalVal={totalExpense} />}
-            {breakdownTransport > 0    && <BarRow label="Vận chuyển"  value={breakdownTransport}    maxVal={totalExpense} color="bg-indigo-400"           showPct totalVal={totalExpense} />}
-            {breakdownStaff > 0        && <BarRow label="Lương NV"    value={breakdownStaff}        maxVal={totalExpense} color="bg-[var(--success)]"     showPct totalVal={totalExpense} />}
-            {approvedReceiptsTotal > 0 && <BarRow label="Chi phí NV"  value={approvedReceiptsTotal} maxVal={totalExpense} color="bg-pink-400"             showPct totalVal={totalExpense} />}
-            {breakdownOther > 0        && <BarRow label="Khác"        value={breakdownOther}        maxVal={totalExpense} color="bg-[var(--text-muted)]"  showPct totalVal={totalExpense} />}
+            {breakdownRent > 0         && <BarRow label="Booth/Thuê"  value={breakdownRent}        maxVal={totalExpense} color="bg-violet-400"   showPct totalVal={totalExpense} />}
+            {breakdownIngredients > 0  && <BarRow label="Nguyên liệu" value={breakdownIngredients}  maxVal={totalExpense} color="bg-warning"       showPct totalVal={totalExpense} />}
+            {breakdownTransport > 0    && <BarRow label="Vận chuyển"  value={breakdownTransport}    maxVal={totalExpense} color="bg-blue-400"      showPct totalVal={totalExpense} />}
+            {breakdownStaff > 0        && <BarRow label="Lương NV"    value={breakdownStaff}        maxVal={totalExpense} color="bg-success"       showPct totalVal={totalExpense} />}
+            {approvedReceiptsTotal > 0 && <BarRow label="Chi phí NV"  value={approvedReceiptsTotal} maxVal={totalExpense} color="bg-pink-400"      showPct totalVal={totalExpense} />}
+            {breakdownOther > 0        && <BarRow label="Khác"        value={breakdownOther}        maxVal={totalExpense} color="bg-muted"         showPct totalVal={totalExpense} />}
           </div>
-        </div>
+        </Card>
       )}
     </>
   );

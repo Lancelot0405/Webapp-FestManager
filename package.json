@@ -14,8 +14,6 @@
   "dependencies": {
     "@heroui/react": "^3.1.0",
     "@hookform/resolvers": "^3.10.0",
-    "@radix-ui/react-dialog": "^1.1.16",
-    "@radix-ui/react-slot": "^1.2.5",
     "@react-pdf/renderer": "^4.5.1",
     "@supabase/supabase-js": "^2.107.0",
     "@tailwindcss/vite": "^4.3.0",

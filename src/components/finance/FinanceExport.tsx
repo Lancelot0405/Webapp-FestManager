@@ -1,4 +1,4 @@
-import { FileSpreadsheet } from 'lucide-react';
+﻿import { FileSpreadsheet } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
 
@@ -34,7 +34,7 @@ export default function FinanceExport() {
       onPress={handleExport}
       variant="ghost"
       size="sm"
-      className="flex items-center gap-1.5 rounded-xl bg-[var(--success)]/10 text-[var(--success)] hover:bg-[var(--success)]/20 border border-[var(--success)]/20"
+      className="flex items-center gap-1.5 rounded-xl bg-success/10 text-success hover:bg-success/20 border border-success/20"
     >
       <FileSpreadsheet size={15} /> Xuất Excel
     </Button>

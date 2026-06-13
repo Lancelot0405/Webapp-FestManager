@@ -1,10 +1,10 @@
-import { Skeleton } from '@heroui/react';
+import { Card, Skeleton } from '@heroui/react';
 
 export default function CardSkeleton({ count = 1 }: { count?: number }) {
   return (
     <>
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="glass-card rounded-xl p-4 space-y-3">
+        <Card key={i} className="p-4 space-y-3">
           <div className="flex justify-between items-start">
             <Skeleton className="h-5 w-32 rounded-lg" />
             <Skeleton className="h-5 w-16 rounded-full" />
@@ -15,7 +15,7 @@ export default function CardSkeleton({ count = 1 }: { count?: number }) {
             <Skeleton className="h-8 w-20 rounded-xl" />
             <Skeleton className="h-8 w-20 rounded-xl" />
           </div>
-        </div>
+        </Card>
       ))}
     </>
   );

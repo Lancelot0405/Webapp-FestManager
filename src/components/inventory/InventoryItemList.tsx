@@ -21,7 +21,7 @@ export default function InventoryItemList({ items, isLoading, onEditItem, itemLa
 
   if (items.length === 0) {
     return (
-      <p className="text-sm text-[var(--text-muted)] text-center py-10">
+      <p className="text-sm text-muted text-center py-10">
         Chưa có {itemLabel} nào trong kho {sectionLabel}
       </p>
     );

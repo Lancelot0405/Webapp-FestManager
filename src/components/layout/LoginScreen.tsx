@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Download, Smartphone, X, ShieldCheck, Store, Tent, UtensilsCrossed, Sun, Moon } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { Input } from '@/components/shared/GlassInput';
@@ -122,22 +122,22 @@ export default function LoginScreen() {
   };
 
   return (
-    <div className="w-full max-w-md flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-[var(--background)]">
+    <div className="w-full max-w-md flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-background">
 
       {/* Card */}
-      <div className="w-full glass-card rounded-3xl p-8 shadow-[var(--shadow-hero)]">
+      <div className="w-full bg-surface border border-separator rounded-xl rounded-3xl p-8 shadow-xl">
 
         {/* Logo */}
         <div className="flex flex-col items-center mb-7">
-          <div className="w-16 h-16 rounded-2xl bg-[var(--primary)] flex items-center justify-center mb-3 shadow-[var(--shadow-hero)]">
-            <UtensilsCrossed size={28} className="text-[var(--background)]" />
+          <div className="w-16 h-16 rounded-2xl bg-accent flex items-center justify-center mb-3 shadow-xl">
+            <UtensilsCrossed size={28} className="text-white dark:text-foreground" />
           </div>
-          <h1 className="text-2xl font-black text-[var(--text-primary)] tracking-tight">FestManager</h1>
-          <p className="text-[var(--text-muted)] text-sm mt-0.5">Hệ thống quản lý F&amp;B lưu động</p>
+          <h1 className="text-2xl font-black text-foreground tracking-tight">FestManager</h1>
+          <p className="text-muted text-sm mt-0.5">Hệ thống quản lý F&amp;B lưu động</p>
         </div>
 
         {/* Tab */}
-        <div className="flex w-full bg-[var(--glass-bg)] rounded-xl p-1 mb-6 border border-[var(--glass-border)]">
+        <div className="flex w-full bg-default/50 rounded-xl p-1 mb-6 border border-separator">
           {(['login', 'register'] as Mode[]).map(m => (
             <Button
               key={m}
@@ -145,8 +145,8 @@ export default function LoginScreen() {
               onPress={() => reset(m)}
               className={`flex-1 h-auto min-w-0 py-2 text-sm font-semibold rounded-lg transition-all ${
                 mode === m
-                  ? 'bg-[var(--card)] text-[var(--text-primary)] shadow-[var(--shadow-card)]'
-                  : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+                  ? 'bg-surface text-foreground shadow-[0 1px 3px 0 rgb(0 0 0 / 0.07)]'
+                  : 'text-muted hover:text-foreground/80'
               }`}
             >
               {m === 'login' ? 'Đăng nhập' : 'Đăng ký'}
@@ -180,7 +180,7 @@ export default function LoginScreen() {
                   variant="ghost"
                   aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                   onPress={() => setShowPw(v => !v)}
-                  className="h-auto min-w-0 p-0 bg-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                  className="h-auto min-w-0 p-0 bg-transparent text-muted hover:text-foreground transition-colors"
                 >
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </Button>
@@ -193,7 +193,7 @@ export default function LoginScreen() {
               type="submit"
               isDisabled={loading}
               fullWidth
-              className="w-full bg-[var(--primary)] text-[var(--background)] font-semibold py-3 rounded-xl active:scale-[0.98] transition-all hover:opacity-90"
+              className="w-full bg-accent text-white dark:text-foreground font-semibold py-3 rounded-xl active:scale-[0.98] transition-all hover:opacity-90"
             >
               {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
             </Button>
@@ -203,13 +203,13 @@ export default function LoginScreen() {
         {/* ── REGISTER ── */}
         {mode === 'register' && (
           <form onSubmit={handleRegister} className="w-full space-y-4">
-            <div className="bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-3 py-2.5 text-xs text-[var(--text-secondary)]">
+            <div className="bg-default/50 border border-separator rounded-xl px-3 py-2.5 text-xs text-foreground/80">
               💡 Nếu admin đã tạo tài khoản cho bạn, hãy dùng thông tin do admin cung cấp.
             </div>
 
             {/* Role */}
             <div>
-              <label className="text-xs font-semibold text-[var(--text-secondary)] mb-1.5 block">Đăng ký với vai trò</label>
+              <label className="text-xs font-semibold text-foreground/80 mb-1.5 block">Đăng ký với vai trò</label>
               <div className="grid grid-cols-2 gap-2">
                 <RoleBtn
                   active={registerRole === 'staff'}
@@ -235,7 +235,7 @@ export default function LoginScreen() {
             {/* Department */}
             {registerRole === 'staff' && (
               <div>
-                <label className="text-xs font-semibold text-[var(--text-secondary)] mb-1.5 block">Bộ phận</label>
+                <label className="text-xs font-semibold text-foreground/80 mb-1.5 block">Bộ phận</label>
                 <div className="grid grid-cols-2 gap-2">
                   <RoleBtn
                     active={registerDept === 'restaurant'}
@@ -283,7 +283,7 @@ export default function LoginScreen() {
                   variant="ghost"
                   aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                   onPress={() => setShowPw(v => !v)}
-                  className="h-auto min-w-0 p-0 bg-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                  className="h-auto min-w-0 p-0 bg-transparent text-muted hover:text-foreground transition-colors"
                 >
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </Button>
@@ -301,7 +301,7 @@ export default function LoginScreen() {
 
             {error   && <AlertBox msg={error} />}
             {success && (
-              <div className="flex items-center gap-2 bg-[var(--success-light)] border border-[var(--success)]/30 rounded-xl px-3 py-2.5 text-sm text-[var(--success)]">
+              <div className="flex items-center gap-2 bg-[color-mix(in oklch, var(--success) 15%, transparent)] border border-success/30 rounded-xl px-3 py-2.5 text-sm text-success">
                 <CheckCircle size={15} className="shrink-0" /> {success}
               </div>
             )}
@@ -313,7 +313,7 @@ export default function LoginScreen() {
               className={`w-full font-semibold py-3 rounded-xl active:scale-[0.98] transition-all hover:opacity-90 ${
                 registerRole === 'manager'
                   ? 'bg-indigo-500 text-white'
-                  : 'bg-[var(--primary)] text-[var(--background)]'
+                  : 'bg-accent text-white dark:text-foreground'
               }`}
             >
               {loading ? 'Đang xử lý...' : registerRole === 'manager' ? 'Gửi yêu cầu đăng ký' : 'Tạo tài khoản'}
@@ -322,28 +322,28 @@ export default function LoginScreen() {
         )}
 
         {/* Footer */}
-        <div className="border-t border-[var(--glass-border)] mt-6 pt-4 flex items-center justify-center gap-3">
+        <div className="border-t border-separator mt-6 pt-4 flex items-center justify-center gap-3">
           <div className="relative">
             <Button
               variant="ghost"
               onPress={handleInstallClick}
-              className="h-auto min-w-0 flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--glass-bg)] hover:bg-[var(--muted)] border border-[var(--glass-border)] text-[var(--text-secondary)] text-xs font-medium transition-colors"
+              className="h-auto min-w-0 flex items-center gap-2 px-3 py-2 rounded-xl bg-default/50 hover:bg-default border border-separator text-foreground/80 text-xs font-medium transition-colors"
             >
               <Download size={14} /> Cài đặt app
             </Button>
             {showInstallModal && (
-              <div className="absolute bottom-11 right-0 w-72 glass-card rounded-2xl shadow-[var(--shadow-warm)] z-50 p-4 animate-fade-in">
+              <div className="absolute bottom-11 right-0 w-72 bg-surface border border-separator rounded-xl rounded-2xl shadow-lg z-50 p-4 animate-fade-in">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <Smartphone size={16} className="text-[var(--text-secondary)]" />
-                    <p className="text-sm font-semibold text-[var(--text-primary)]">
+                    <Smartphone size={16} className="text-foreground/80" />
+                    <p className="text-sm font-semibold text-foreground">
                       {isStandalone ? 'Đã cài đặt' : 'Cài FestManager'}
                     </p>
                   </div>
-                  <Button isIconOnly variant="ghost" onPress={() => setShowInstallModal(false)} aria-label="Đóng" className="h-auto min-w-0 p-0 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"><X size={15} /></Button>
+                  <Button isIconOnly variant="ghost" onPress={() => setShowInstallModal(false)} aria-label="Đóng" className="h-auto min-w-0 p-0 text-muted hover:text-foreground transition-colors"><X size={15} /></Button>
                 </div>
                 {isStandalone ? (
-                  <p className="text-sm text-[var(--text-secondary)]">FestManager đã được cài 🎉</p>
+                  <p className="text-sm text-foreground/80">FestManager đã được cài 🎉</p>
                 ) : isIos ? (
                   <div className="space-y-2.5">
                     <InstallStep n={1} text='Bấm nút Chia sẻ ↑ ở thanh dưới Safari' />
@@ -351,9 +351,9 @@ export default function LoginScreen() {
                     <InstallStep n={3} text='Bấm "Thêm" góc trên phải' />
                   </div>
                 ) : (
-                  <p className="text-sm text-[var(--text-secondary)]">Dùng menu trình duyệt → "Cài đặt ứng dụng".</p>
+                  <p className="text-sm text-foreground/80">Dùng menu trình duyệt → "Cài đặt ứng dụng".</p>
                 )}
-                <p className="text-xs text-[var(--text-muted)] mt-3">Yêu cầu Safari iOS 16.4+ hoặc Chrome Android</p>
+                <p className="text-xs text-muted mt-3">Yêu cầu Safari iOS 16.4+ hoặc Chrome Android</p>
               </div>
             )}
           </div>
@@ -362,7 +362,7 @@ export default function LoginScreen() {
             variant="ghost"
             onPress={() => toggleTheme()}
             aria-label={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
-            className="h-auto min-w-0 flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--glass-bg)] hover:bg-[var(--muted)] border border-[var(--glass-border)] text-[var(--text-secondary)] text-xs font-medium transition-colors"
+            className="h-auto min-w-0 flex items-center gap-2 px-3 py-2 rounded-xl bg-default/50 hover:bg-default border border-separator text-foreground/80 text-xs font-medium transition-colors"
           >
             {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
             {theme === 'dark' ? 'Sáng' : 'Tối'}
@@ -383,9 +383,9 @@ function RoleBtn({ active, onPress, icon, label, activeColor = 'primary' }: {
   activeColor?: 'primary' | 'indigo' | 'success';
 }) {
   const activeStyles: Record<string, string> = {
-    primary: 'bg-[var(--primary)] text-[var(--background)] border-[var(--primary)]',
+    primary: 'bg-accent text-white dark:text-foreground border-accent',
     indigo:  'bg-indigo-500 text-white border-indigo-500',
-    success: 'bg-[var(--success)] text-white border-[var(--success)]',
+    success: 'bg-success text-white border-[var(--success)]',
   };
 
   return (
@@ -395,7 +395,7 @@ function RoleBtn({ active, onPress, icon, label, activeColor = 'primary' }: {
       className={`w-full h-auto min-w-0 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-1.5 active:scale-[0.97] border ${
         active
           ? activeStyles[activeColor]
-          : 'bg-[var(--glass-bg)] text-[var(--text-secondary)] border-[var(--glass-border)] hover:border-[var(--primary)]/40 hover:text-[var(--text-primary)]'
+          : 'bg-default/50 text-foreground/80 border-separator hover:border-accent/40 hover:text-foreground'
       }`}
     >
       {icon} {label}
@@ -405,7 +405,7 @@ function RoleBtn({ active, onPress, icon, label, activeColor = 'primary' }: {
 
 function AlertBox({ msg }: { msg: string }) {
   return (
-    <div className="flex items-center gap-2 bg-[var(--danger-light)] border border-[var(--danger)]/30 rounded-xl px-3 py-2.5 text-sm text-[var(--danger)]">
+    <div className="flex items-center gap-2 bg-[color-mix(in oklch, var(--danger) 15%, transparent)] border border-danger/30 rounded-xl px-3 py-2.5 text-sm text-danger">
       <AlertCircle size={15} className="shrink-0" /> {msg}
     </div>
   );
@@ -414,8 +414,8 @@ function AlertBox({ msg }: { msg: string }) {
 function InstallStep({ n, text }: { n: number; text: string }) {
   return (
     <div className="flex gap-2.5 items-start">
-      <span className="w-5 h-5 rounded-full bg-[var(--primary)] text-[var(--background)] text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">{n}</span>
-      <p className="text-xs text-[var(--text-secondary)] leading-snug">{text}</p>
+      <span className="w-5 h-5 rounded-full bg-accent text-white dark:text-foreground text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">{n}</span>
+      <p className="text-xs text-foreground/80 leading-snug">{text}</p>
     </div>
   );
 }

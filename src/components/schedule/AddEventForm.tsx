@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+﻿import { X } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -50,9 +50,9 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
   };
 
   return (
-    <div className="glass-card rounded-xl p-4">
+    <div className="bg-surface border border-separator rounded-xl rounded-xl p-4">
       <div className="flex justify-between items-center mb-4">
-        <p className="font-semibold text-sm text-[var(--text-primary)]">Thêm sự kiện mới</p>
+        <p className="font-semibold text-sm text-foreground">Thêm sự kiện mới</p>
         <Button onPress={onClose} variant="ghost" isIconOnly size="sm" className="rounded-full" aria-label="Đóng">
           <X size={16} />
         </Button>

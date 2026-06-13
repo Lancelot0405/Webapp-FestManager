@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Plus, X, Pencil, Trash2, Phone, Mail, MapPin, Building2, Check, Search } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { Controller, useForm } from 'react-hook-form';
@@ -104,16 +104,16 @@ export default function Clients() {
           <Plus size={15} /> Thêm
         </Button>
       </div>
-      <Button onPress={openAdd} isIconOnly aria-label="Thêm khách hàng" className="md:hidden fixed bottom-24 right-4 z-30 h-14 w-14 rounded-full bg-[var(--primary)] text-[var(--background)] shadow-[var(--shadow-hero)] active:scale-95 transition-transform">
+      <Button onPress={openAdd} isIconOnly aria-label="Thêm khách hàng" className="md:hidden fixed bottom-24 right-4 z-30 h-14 w-14 rounded-full bg-accent text-white dark:text-foreground shadow-xl active:scale-95 transition-transform">
           <Plus size={24} />
         </Button>
 
       <Input value={search} onChange={setSearch} placeholder="Tìm kiếm khách hàng..." startContent={<Search size={15} />} />
 
       {showForm && (
-        <div className="glass-card rounded-xl p-4">
+        <div className="bg-surface border border-separator rounded-xl rounded-xl p-4">
           <div className="flex justify-between items-center mb-3">
-            <p className="font-semibold text-sm text-[var(--text-primary)]">{editingId ? 'Chỉnh sửa' : 'Thêm khách hàng mới'}</p>
+            <p className="font-semibold text-sm text-foreground">{editingId ? 'Chỉnh sửa' : 'Thêm khách hàng mới'}</p>
             <Button onPress={() => setShowForm(false)} variant="ghost" isIconOnly size="sm" className="rounded-full"><X size={16} /></Button>
           </div>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-2.5">
@@ -205,7 +205,7 @@ export default function Clients() {
       )}
 
       {filtered.length === 0 ? (
-        <div className="text-center py-12 text-[var(--text-muted)]">
+        <div className="text-center py-12 text-muted">
           <Building2 size={36} className="mx-auto mb-2 opacity-30" />
           <p className="text-sm">{search ? 'Không tìm thấy kết quả' : 'Chưa có khách hàng nào'}</p>
         </div>
@@ -214,32 +214,32 @@ export default function Clients() {
           {filtered.map(client => {
             const clientEvents = events.filter(e => client.eventIds.includes(e.id));
             return (
-              <div key={client.id} className="glass-card rounded-2xl p-4">
+              <div key={client.id} className="bg-surface border border-separator rounded-xl rounded-2xl p-4">
                 <div className="flex justify-between items-start">
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-[var(--text-primary)] truncate">{client.name}</p>
+                    <p className="font-semibold text-foreground truncate">{client.name}</p>
                     {client.contactName && (
-                      <p className="text-xs text-[var(--text-secondary)] mt-0.5 flex items-center gap-1">
+                      <p className="text-xs text-foreground/80 mt-0.5 flex items-center gap-1">
                         <Check size={11} /> {client.contactName}
                       </p>
                     )}
                   </div>
                   <div className="flex gap-1 ml-2">
-                    <Button onPress={() => openEdit(client)} variant="ghost" isIconOnly size="sm" className="rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)]"><Pencil size={14} /></Button>
-                    <Button onPress={() => handleDelete(client.id)} variant="ghost" isIconOnly size="sm" className="rounded-lg text-[var(--text-muted)] hover:text-[var(--danger)]"><Trash2 size={14} /></Button>
+                    <Button onPress={() => openEdit(client)} variant="ghost" isIconOnly size="sm" className="rounded-lg text-muted hover:text-foreground"><Pencil size={14} /></Button>
+                    <Button onPress={() => handleDelete(client.id)} variant="ghost" isIconOnly size="sm" className="rounded-lg text-muted hover:text-danger"><Trash2 size={14} /></Button>
                   </div>
                 </div>
                 <div className="mt-2 space-y-1">
-                  {client.phone && <p className="text-xs text-[var(--text-muted)] flex items-center gap-1.5"><Phone size={11} /> {client.phone}</p>}
-                  {client.email && <p className="text-xs text-[var(--text-muted)] flex items-center gap-1.5"><Mail size={11} /> {client.email}</p>}
-                  {client.city  && <p className="text-xs text-[var(--text-muted)] flex items-center gap-1.5"><MapPin size={11} /> {client.city}</p>}
+                  {client.phone && <p className="text-xs text-muted flex items-center gap-1.5"><Phone size={11} /> {client.phone}</p>}
+                  {client.email && <p className="text-xs text-muted flex items-center gap-1.5"><Mail size={11} /> {client.email}</p>}
+                  {client.city  && <p className="text-xs text-muted flex items-center gap-1.5"><MapPin size={11} /> {client.city}</p>}
                 </div>
                 {clientEvents.length > 0 && (
-                  <div className="mt-2 pt-2 border-t border-[var(--glass-border)]">
-                    <p className="text-xs text-[var(--text-muted)]">{clientEvents.length} sự kiện liên quan</p>
+                  <div className="mt-2 pt-2 border-t border-separator">
+                    <p className="text-xs text-muted">{clientEvents.length} sự kiện liên quan</p>
                   </div>
                 )}
-                {client.notes && <p className="text-xs text-[var(--text-muted)] mt-1.5 italic">{client.notes}</p>}
+                {client.notes && <p className="text-xs text-muted mt-1.5 italic">{client.notes}</p>}
               </div>
             );
           })}
