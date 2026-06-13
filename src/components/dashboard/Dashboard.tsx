@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Users, Package, Clock, TrendingUp, ChevronRight, ArrowUpRight } from 'lucide-react';
-import { Avatar } from '@heroui/react';
+import { Avatar, Button, Card } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
 import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
@@ -62,14 +62,14 @@ export default function Dashboard() {
             Xin chào, {currentUser.name} 👋
           </h1>
           {activeEvent ? (
-            <button
-              onClick={() => navigate("/schedule/" + activeEvent.id)}
-              className="mt-3 inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 border border-white/20 rounded-xl px-3.5 py-2 text-sm font-semibold text-white transition-all active:scale-[0.98]"
+            <Button
+              onPress={() => navigate("/schedule/" + activeEvent.id)}
+              className="mt-3 inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 border border-white/20 rounded-xl px-3.5 py-2 text-sm font-semibold text-white h-auto"
             >
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               Đang diễn ra: {activeEvent.name}
               <ChevronRight size={14} />
-            </button>
+            </Button>
           ) : (
             <p className="text-indigo-200 text-sm mt-1.5">
               {upcomingEvents.length > 0
@@ -142,23 +142,28 @@ export default function Dashboard() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {displayEvents.map(event => (
-              <button
+              <Card
                 key={event.id}
-                onClick={() => navigate("/schedule/" + event.id)}
-                className="w-full text-left bg-surface border border-separator rounded-xl shadow-sm p-4 hover:border-accent/30 hover:shadow-md transition-all duration-150 active:scale-[0.99] group"
+                className="p-0 overflow-hidden border border-separator hover:border-accent/30 hover:shadow-md transition-all duration-150 group"
               >
-                <div className="flex w-full justify-between items-start gap-2">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-foreground truncate group-hover:text-accent transition-colors">{event.name}</p>
-                    <p className="text-xs text-muted mt-0.5">{event.date} · {event.location}</p>
-                    <StaffAvatars members={event.staff} />
+                <Button
+                  variant="ghost"
+                  onPress={() => navigate("/schedule/" + event.id)}
+                  className="w-full h-auto rounded-none p-4 text-left hover:bg-default/30 active:scale-[0.99]"
+                >
+                  <div className="flex w-full justify-between items-start gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-foreground truncate group-hover:text-accent transition-colors">{event.name}</p>
+                      <p className="text-xs text-muted mt-0.5">{event.date} · {event.location}</p>
+                      <StaffAvatars members={event.staff} />
+                    </div>
+                    <div className="flex flex-col items-end gap-1.5 shrink-0">
+                      <StatusBadge status={event.status} />
+                      <ArrowUpRight size={13} className="text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
                   </div>
-                  <div className="flex flex-col items-end gap-1.5 shrink-0">
-                    <StatusBadge status={event.status} />
-                    <ArrowUpRight size={13} className="text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                </div>
-              </button>
+                </Button>
+              </Card>
             ))}
           </div>
         )}
@@ -170,13 +175,13 @@ export default function Dashboard() {
           <SectionHeader title="Chi phí chờ duyệt" />
           <div className="space-y-2">
             {myPendingExpenses.map(exp => (
-              <div key={exp.id} className="bg-surface border border-separator rounded-xl shadow-sm p-3.5 flex justify-between items-center">
+              <Card key={exp.id} className="flex-row justify-between items-center p-3.5">
                 <div>
                   <p className="text-sm font-semibold text-foreground">{exp.type}</p>
                   <p className="text-xs text-muted mt-0.5">{exp.date}</p>
                 </div>
                 <span className="text-sm font-bold text-accent">{exp.amount}€</span>
-              </div>
+              </Card>
             ))}
           </div>
         </div>
@@ -215,18 +220,21 @@ function StatCard({ icon, label, value, color = 'indigo', onClick }: {
 }) {
   const c = statColorMap[color];
   return (
-    <button
-      onClick={onClick}
-      className="saas-card p-4 flex flex-col gap-3 w-full text-left hover:border-accent/30 hover:shadow-md transition-all duration-150 active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40"
-    >
-      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${c.iconBg}`}>
-        <span className={c.iconText}>{icon}</span>
-      </div>
-      <div>
-        <p className={`text-2xl font-bold leading-none ${c.value}`}>{value}</p>
-        <p className="text-xs text-muted mt-1 leading-tight">{label}</p>
-      </div>
-    </button>
+    <Card className="p-0 overflow-hidden hover:shadow-md transition-all duration-150">
+      <Button
+        variant="ghost"
+        onPress={onClick}
+        className="w-full h-auto rounded-none p-4 flex flex-col gap-3 text-left hover:bg-default/30 active:scale-[0.97]"
+      >
+        <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${c.iconBg}`}>
+          <span className={c.iconText}>{icon}</span>
+        </div>
+        <div>
+          <p className={`text-2xl font-bold leading-none ${c.value}`}>{value}</p>
+          <p className="text-xs text-muted mt-1 leading-tight">{label}</p>
+        </div>
+      </Button>
+    </Card>
   );
 }
 
@@ -267,12 +275,13 @@ function SectionHeader({ title, onMore, icon }: { title: string; onMore?: () => 
         {title}
       </h2>
       {onMore && (
-        <button
-          onClick={onMore}
-          className="flex items-center gap-1 text-xs text-accent font-medium hover:underline transition-colors focus:outline-none"
+        <Button
+          variant="ghost"
+          onPress={onMore}
+          className="flex items-center gap-1 text-xs text-accent font-medium h-auto p-0 min-w-0 rounded-none hover:bg-transparent underline-offset-2 hover:underline"
         >
           Xem thêm <ChevronRight size={12} />
-        </button>
+        </Button>
       )}
     </div>
   );
@@ -280,9 +289,9 @@ function SectionHeader({ title, onMore, icon }: { title: string; onMore?: () => 
 
 function EmptyState({ text }: { text: string }) {
   return (
-    <div className="bg-surface border border-separator rounded-xl shadow-sm py-10 flex flex-col items-center gap-2">
+    <Card className="py-10 flex flex-col items-center gap-2">
       <p className="text-sm text-muted">{text}</p>
-    </div>
+    </Card>
   );
 }
 
@@ -302,13 +311,13 @@ function RevenueChart({ events }: { events: FestivalEvent[] }) {
     })
     .slice(-6);
   if (entries.length === 0) return (
-    <div className="saas-card rounded-xl py-8 flex items-center justify-center">
+    <Card className="py-8 flex items-center justify-center">
       <p className="text-sm text-muted">Chưa có dữ liệu</p>
-    </div>
+    </Card>
   );
   const maxVal = Math.max(...entries.map(([, v]) => v), 100000);
   return (
-    <div className="saas-card rounded-xl p-4">
+    <Card className="p-4">
       <div className="flex items-end gap-2 h-28">
         {entries.map(([month, val]) => {
           const pct = Math.max((val / maxVal) * 100, 4);
@@ -328,7 +337,7 @@ function RevenueChart({ events }: { events: FestivalEvent[] }) {
         })}
       </div>
       <p className="text-[10px] text-muted mt-2 text-right">Max: {maxVal.toLocaleString('fr-FR')}€</p>
-    </div>
+    </Card>
   );
 }
 
@@ -341,9 +350,9 @@ function TopStaffList({ events, staff }: { events: FestivalEvent[]; staff: Staff
     .map(([id, count]) => ({ member: staff.find(s => s.id === Number(id)), count }))
     .filter(x => x.member);
   if (top.length === 0) return (
-    <div className="saas-card rounded-xl py-8 flex items-center justify-center">
+    <Card className="py-8 flex items-center justify-center">
       <p className="text-sm text-muted">Chưa có dữ liệu</p>
-    </div>
+    </Card>
   );
   const rankConfig = [
     { bg: 'bg-amber-100 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400', label: '1' },
@@ -351,7 +360,7 @@ function TopStaffList({ events, staff }: { events: FestivalEvent[]; staff: Staff
     { bg: 'bg-orange-100 dark:bg-orange-500/15 text-orange-500 dark:text-orange-400', label: '3' },
   ];
   return (
-    <div className="saas-card rounded-xl divide-y divide-[var(--separator)]">
+    <Card className="p-0 divide-y divide-[var(--separator)]">
       {top.map(({ member, count }, i) => (
         <div key={member!.id} className="flex items-center gap-3 px-4 py-3">
           <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${rankConfig[i].bg}`}>
@@ -364,6 +373,6 @@ function TopStaffList({ events, staff }: { events: FestivalEvent[]; staff: Staff
           <span className="text-xs font-semibold text-muted shrink-0">{count} sự kiện</span>
         </div>
       ))}
-    </div>
+    </Card>
   );
 }
