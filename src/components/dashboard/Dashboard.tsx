@@ -4,10 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import {
   Calendar, Package, Clock,
   AlertTriangle,
-  Search, ChevronRight,
-  RotateCw, Bell, Download, SlidersHorizontal, ArrowUpDown, LayoutGrid,
+  ChevronRight,
+  RotateCw, Bell, Download,
 } from 'lucide-react';
-import { Button, Card } from '@heroui/react';
+import { Button, Card, Table, SearchField } from '@heroui/react';
 import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
 import { useApp } from '../../context/AppContext';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
@@ -103,7 +103,7 @@ function AdminDashboard({ events, staff, inventory, currentUser, navigate }: {
         </div>
         <div className="flex items-center gap-2">
           <Button variant="ghost" isIconOnly size="sm" className="rounded-full text-muted hover:bg-default/50" aria-label="Tìm kiếm">
-            <Search size={16} />
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </Button>
           <Button variant="ghost" isIconOnly size="sm" className="relative rounded-full text-muted hover:bg-default/50" aria-label="Thông báo">
             <Bell size={16} />
@@ -334,61 +334,66 @@ function HRTab({ events, staff, navigate }: {
       <Card className="overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-separator flex-wrap gap-2">
           <h3 className="text-sm font-semibold text-foreground">Danh sách nhân viên <span className="text-muted font-normal">({staff.length})</span></h3>
-          <div className="relative">
-            <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted" />
-            <input
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Tìm kiếm..."
-              className="pl-7 pr-3 py-1.5 text-xs rounded-lg bg-default/60 border border-separator text-foreground placeholder:text-muted outline-none focus:border-accent/50 transition-colors w-44"
-            />
-          </div>
+          <SearchField value={search} onChange={setSearch} className="w-44">
+            <SearchField.Group>
+              <SearchField.SearchIcon />
+              <SearchField.Input placeholder="Tìm kiếm..." />
+              <SearchField.ClearButton />
+            </SearchField.Group>
+          </SearchField>
         </div>
 
-        {/* Table header */}
-        <div className="hidden md:grid grid-cols-[1fr_1fr_1fr_auto] gap-4 px-4 py-2 text-xs font-semibold text-muted border-b border-separator bg-default/30">
-          <span>Nhân viên</span>
-          <span>Thành phố</span>
-          <span>Loại hợp đồng</span>
-          <span>Sự kiện</span>
-        </div>
-
-        <div className="divide-y divide-[var(--separator)]">
-          {filtered.length === 0 ? (
-            <p className="text-sm text-muted text-center py-8">Không tìm thấy nhân viên</p>
-          ) : (
-            filtered.map(s => (
-              <div
-                key={s.id}
-                className="flex md:grid md:grid-cols-[1fr_1fr_1fr_auto] items-center gap-3 md:gap-4 px-4 py-3 hover:bg-default/30 transition-colors cursor-pointer"
-                onClick={() => navigate('/hr')}
-              >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
-                    <span className="text-[11px] font-bold text-accent">{initials(s.name)}</span>
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{s.name}</p>
-                    <p className="text-xs text-muted md:hidden">{s.city}</p>
-                  </div>
-                </div>
-                <p className="hidden md:block text-sm text-muted">{s.city}</p>
-                <div className="hidden md:block">
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                    s.staffType === 'permanent'
-                      ? 'bg-indigo-100 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400'
-                      : 'bg-amber-100 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400'
-                  }`}>
-                    {s.staffType === 'permanent' ? 'Cố định' : 'Bán thời gian'}
-                  </span>
-                </div>
-                <span className="text-sm font-semibold text-foreground ml-auto md:ml-0">
-                  {eventCounts[s.id] ?? 0}
-                </span>
-              </div>
-            ))
-          )}
-        </div>
+        <Table variant="secondary">
+          <Table.ScrollContainer>
+            <Table.Content aria-label="Danh sách nhân viên">
+              <Table.Header>
+                <Table.Column isRowHeader className="text-xs font-semibold text-muted px-1 py-2">Nhân viên</Table.Column>
+                <Table.Column className="text-xs font-semibold text-muted px-1 py-2 hidden md:table-cell">Thành phố</Table.Column>
+                <Table.Column className="text-xs font-semibold text-muted px-1 py-2 hidden md:table-cell">Loại hợp đồng</Table.Column>
+                <Table.Column className="text-xs font-semibold text-muted px-1 py-2">Sự kiện</Table.Column>
+              </Table.Header>
+              <Table.Body renderEmptyState={() => (
+                <p className="text-sm text-muted text-center py-8">Không tìm thấy nhân viên</p>
+              )}>
+                {filtered.map(s => (
+                  <Table.Row
+                    key={s.id}
+                    id={String(s.id)}
+                    className="cursor-pointer hover:bg-default/30"
+                    onPress={() => navigate('/hr')}
+                  >
+                    <Table.Cell className="py-2.5 px-1">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                          <span className="text-[11px] font-bold text-accent">{initials(s.name)}</span>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">{s.name}</p>
+                          <p className="text-xs text-muted md:hidden">{s.city}</p>
+                        </div>
+                      </div>
+                    </Table.Cell>
+                    <Table.Cell className="py-2.5 px-1 hidden md:table-cell">
+                      <p className="text-sm text-muted">{s.city}</p>
+                    </Table.Cell>
+                    <Table.Cell className="py-2.5 px-1 hidden md:table-cell">
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                        s.staffType === 'permanent'
+                          ? 'bg-indigo-100 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400'
+                          : 'bg-amber-100 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400'
+                      }`}>
+                        {s.staffType === 'permanent' ? 'Cố định' : 'Bán thời gian'}
+                      </span>
+                    </Table.Cell>
+                    <Table.Cell className="py-2.5 px-1">
+                      <span className="text-sm font-semibold text-foreground">{eventCounts[s.id] ?? 0}</span>
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table.Content>
+          </Table.ScrollContainer>
+        </Table>
       </Card>
     </div>
   );
@@ -423,33 +428,47 @@ function InventoryTab({ inventory, navigate }: {
               Xem tất cả <ChevronRight size={12} />
             </Button>
           </div>
-          <div className="hidden md:grid grid-cols-[1fr_auto_auto_auto] gap-4 px-4 py-2 text-xs font-semibold text-muted border-b border-separator bg-default/30">
-            <span>Tên hàng</span>
-            <span>Hiện tại</span>
-            <span>Ngưỡng cảnh báo</span>
-            <span>Trạng thái</span>
-          </div>
-          <div className="divide-y divide-[var(--separator)]">
-            {low.map(item => (
-              <div key={item.id} className="flex md:grid md:grid-cols-[1fr_auto_auto_auto] items-center gap-3 md:gap-4 px-4 py-3 hover:bg-default/30 transition-colors">
-                <p className="text-sm font-medium text-foreground flex-1">{item.name}</p>
-                <span className="text-sm font-bold text-danger">{item.current} {item.unit}</span>
-                <span className="hidden md:inline text-sm text-muted">{item.threshold} {item.unit}</span>
-                <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
-                  item.current === 0
-                    ? 'bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400'
-                    : 'bg-amber-100 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400'
-                }`}>
-                  {item.current === 0 ? 'Hết hàng' : 'Sắp hết'}
-                </span>
-              </div>
-            ))}
-            {critical.length > 0 && (
-              <div className="px-4 py-2 bg-red-50 dark:bg-red-500/5">
-                <p className="text-xs text-danger font-medium">{critical.length} mặt hàng đã hết hoàn toàn</p>
-              </div>
-            )}
-          </div>
+          <Table variant="secondary">
+            <Table.ScrollContainer>
+              <Table.Content aria-label="Hàng cần bổ sung">
+                <Table.Header>
+                  <Table.Column isRowHeader className="text-xs font-semibold text-muted px-1 py-2">Tên hàng</Table.Column>
+                  <Table.Column className="text-xs font-semibold text-muted px-1 py-2">Hiện tại</Table.Column>
+                  <Table.Column className="text-xs font-semibold text-muted px-1 py-2 hidden md:table-cell">Ngưỡng cảnh báo</Table.Column>
+                  <Table.Column className="text-xs font-semibold text-muted px-1 py-2">Trạng thái</Table.Column>
+                </Table.Header>
+                <Table.Body>
+                  {low.map(item => (
+                    <Table.Row key={item.id} id={String(item.id)}>
+                      <Table.Cell className="py-2.5 px-1">
+                        <p className="text-sm font-medium text-foreground">{item.name}</p>
+                      </Table.Cell>
+                      <Table.Cell className="py-2.5 px-1">
+                        <span className="text-sm font-bold text-danger">{item.current} {item.unit}</span>
+                      </Table.Cell>
+                      <Table.Cell className="py-2.5 px-1 hidden md:table-cell">
+                        <span className="text-sm text-muted">{item.threshold} {item.unit}</span>
+                      </Table.Cell>
+                      <Table.Cell className="py-2.5 px-1">
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
+                          item.current === 0
+                            ? 'bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400'
+                            : 'bg-amber-100 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400'
+                        }`}>
+                          {item.current === 0 ? 'Hết hàng' : 'Sắp hết'}
+                        </span>
+                      </Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table.Content>
+            </Table.ScrollContainer>
+          </Table>
+          {critical.length > 0 && (
+            <div className="px-4 py-2 bg-red-50 dark:bg-red-500/5">
+              <p className="text-xs text-danger font-medium">{critical.length} mặt hàng đã hết hoàn toàn</p>
+            </div>
+          )}
         </Card>
       )}
 
@@ -568,68 +587,61 @@ function EventsTable({ events, navigate, title, emptyText }: {
         </div>
       </div>
 
-      {/* Actions & Filters */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 pb-3 border-b border-separator/50">
-        <div className="flex items-center gap-2 flex-wrap">
-          <Button variant="ghost" size="sm" className="rounded-xl border border-separator text-muted font-medium hover:bg-default/50 flex items-center gap-1.5 px-3 py-1.5 h-auto text-xs">
-            <SlidersHorizontal size={13} /> Lọc
-          </Button>
-          <Button variant="ghost" size="sm" className="rounded-xl border border-separator text-muted font-medium hover:bg-default/50 flex items-center gap-1.5 px-3 py-1.5 h-auto text-xs">
-            <ArrowUpDown size={13} /> Sắp xếp
-          </Button>
-          <Button variant="ghost" size="sm" className="rounded-xl border border-separator text-muted font-medium hover:bg-default/50 flex items-center gap-1.5 px-3 py-1.5 h-auto text-xs">
-            <LayoutGrid size={13} /> Cột
-          </Button>
-        </div>
-        <div className="relative w-full sm:w-auto">
-          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
-          <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Tìm kiếm..."
-            className="pl-8 pr-3 py-1.5 text-xs rounded-xl bg-default/50 border border-separator text-foreground placeholder:text-muted outline-none focus:border-accent/50 transition-colors w-full sm:w-44"
-          />
-        </div>
+      {/* Search */}
+      <div className="flex items-center justify-end px-4 pb-3 border-b border-separator/50">
+        <SearchField value={search} onChange={setSearch} className="w-full sm:w-52">
+          <SearchField.Group>
+            <SearchField.SearchIcon />
+            <SearchField.Input placeholder="Tìm kiếm..." />
+            <SearchField.ClearButton />
+          </SearchField.Group>
+        </SearchField>
       </div>
 
-      {/* Column headers — desktop only */}
-      <div className="hidden md:grid md:grid-cols-[2fr_1fr_1.5fr_1fr_auto] gap-4 px-4 py-2 text-xs font-semibold text-muted border-b border-separator bg-default/30">
-        <span>Sự kiện</span>
-        <span>Ngày</span>
-        <span>Địa điểm</span>
-        <span>Nhân viên</span>
-        <span>Trạng thái</span>
-      </div>
-
-      {/* Rows */}
-      <div className="divide-y divide-[var(--separator)]">
-        {sorted.length === 0 ? (
-          <p className="text-sm text-muted text-center py-10">{emptyText}</p>
-        ) : (
-          sorted.map(event => (
-            <button
-              key={event.id}
-              onClick={() => navigate('/schedule/' + event.id)}
-              className="w-full text-left flex md:grid md:grid-cols-[2fr_1fr_1.5fr_1fr_auto] items-center gap-3 md:gap-4 px-4 py-3 hover:bg-default/30 transition-colors group"
-            >
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate group-hover:text-accent transition-colors">
-                  {event.name}
-                </p>
-                <p className="text-xs text-muted md:hidden">{event.date} · {event.location}</p>
-              </div>
-              <p className="hidden md:block text-sm text-muted shrink-0">{event.date}</p>
-              <p className="hidden md:block text-sm text-muted truncate">{event.location}</p>
-              <div className="hidden md:flex items-center gap-1.5">
-                <StaffAvatarGroup members={event.staff} />
-              </div>
-              <div className="ml-auto md:ml-0 shrink-0">
-                <StatusBadge status={event.status} />
-              </div>
-            </button>
-          ))
-        )}
-      </div>
+      <Table variant="secondary">
+        <Table.ScrollContainer>
+          <Table.Content aria-label="Danh sách sự kiện">
+            <Table.Header>
+              <Table.Column isRowHeader className="text-xs font-semibold text-muted px-1 py-2">Sự kiện</Table.Column>
+              <Table.Column className="text-xs font-semibold text-muted px-1 py-2 hidden md:table-cell">Ngày</Table.Column>
+              <Table.Column className="text-xs font-semibold text-muted px-1 py-2 hidden md:table-cell">Địa điểm</Table.Column>
+              <Table.Column className="text-xs font-semibold text-muted px-1 py-2 hidden md:table-cell">Nhân viên</Table.Column>
+              <Table.Column className="text-xs font-semibold text-muted px-1 py-2">Trạng thái</Table.Column>
+            </Table.Header>
+            <Table.Body renderEmptyState={() => (
+              <p className="text-sm text-muted text-center py-10">{emptyText}</p>
+            )}>
+              {sorted.map(event => (
+                <Table.Row
+                  key={event.id}
+                  id={String(event.id)}
+                  className="cursor-pointer hover:bg-default/30"
+                  onPress={() => navigate('/schedule/' + event.id)}
+                >
+                  <Table.Cell className="py-2.5 px-1">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{event.name}</p>
+                      <p className="text-xs text-muted md:hidden">{event.date} · {event.location}</p>
+                    </div>
+                  </Table.Cell>
+                  <Table.Cell className="py-2.5 px-1 hidden md:table-cell">
+                    <p className="text-sm text-muted shrink-0">{event.date}</p>
+                  </Table.Cell>
+                  <Table.Cell className="py-2.5 px-1 hidden md:table-cell">
+                    <p className="text-sm text-muted truncate">{event.location}</p>
+                  </Table.Cell>
+                  <Table.Cell className="py-2.5 px-1 hidden md:table-cell">
+                    <StaffAvatarGroup members={event.staff} />
+                  </Table.Cell>
+                  <Table.Cell className="py-2.5 px-1">
+                    <StatusBadge status={event.status} />
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table.Content>
+        </Table.ScrollContainer>
+      </Table>
     </Card>
   );
 }

@@ -1,6 +1,6 @@
-﻿import { useState } from 'react';
-import { X, ShieldCheck, Building2 } from 'lucide-react';
-import { Button } from '@heroui/react';
+import { useState } from 'react';
+import { ShieldCheck, Building2 } from 'lucide-react';
+import { Button, Modal, ToggleButtonGroup, ToggleButton } from '@heroui/react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -89,173 +89,141 @@ export default function AddStaffForm({ onClose }: Props) {
   };
 
   return (
-    <div className="bg-surface border border-separator rounded-xl shadow-sm p-4">
-      <div className="flex justify-between items-center mb-3">
-        <p className="font-semibold text-sm text-foreground">Thêm nhân viên mới</p>
-        <Button
-          onPress={onClose}
-          variant="ghost"
-          isIconOnly
-          size="sm"
-          className="rounded-full"
-          aria-label="Đóng"
-        >
-          <X size={16} />
-        </Button>
-      </div>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-2.5">
-        <Controller
-          name="name"
-          control={control}
-          render={({ field }) => (
-            <Input
-              label="Tên *"
-              placeholder="Nguyễn Văn A"
-              value={field.value}
-              onChange={field.onChange}
-              error={errors.name?.message}
-            />
-          )}
-        />
+    <Modal isOpen onOpenChange={(open) => { if (!open) onClose(); }}>
+      <Modal.Backdrop isDismissable>
+        <Modal.Container placement="center" size="md">
+          <Modal.Dialog aria-label="Thêm nhân viên mới">
+            <Modal.Header className="px-5 pt-5 pb-0">
+              <Modal.Heading className="text-base font-bold text-foreground">Thêm nhân viên mới</Modal.Heading>
+            </Modal.Header>
+            <Modal.Body className="px-5 py-4 overflow-y-auto max-h-[70vh]">
+              <form id="add-staff-form" onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+                <Controller
+                  name="name"
+                  control={control}
+                  render={({ field }) => (
+                    <Input label="Tên *" placeholder="Nguyễn Văn A" value={field.value} onChange={field.onChange} error={errors.name?.message} />
+                  )}
+                />
 
-        <div>
-          <Controller
-            name="username"
-            control={control}
-            render={({ field }) => (
-              <Input
-                label="Tên đăng nhập (để tạo tài khoản)"
-                placeholder="nguyenvana"
-                value={field.value ?? ''}
-                onChange={(v) => field.onChange(v.replace(/\s/g, '').toLowerCase())}
-                autoComplete="off"
-                endContent={<span className="font-mono text-xs">@fm.com</span>}
-              />
-            )}
-          />
-          <p className="text-xs text-muted mt-1">
-            Mật khẩu mặc định: <span className="font-semibold text-foreground">fest1234</span>
-          </p>
-        </div>
-
-        {(isAdmin || isManager) && (
-          <div className="bg-default/50 border border-separator rounded-xl p-3 space-y-3 backdrop-blur-xl">
-            {isAdmin && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-1.5">
-                  <ShieldCheck size={13} className="text-muted" />
-                  <span className="text-xs font-semibold text-foreground/80">Quyền tài khoản</span>
+                <div>
+                  <Controller
+                    name="username"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        label="Tên đăng nhập (để tạo tài khoản)"
+                        placeholder="nguyenvana"
+                        value={field.value ?? ''}
+                        onChange={(v) => field.onChange(v.replace(/\s/g, '').toLowerCase())}
+                        autoComplete="off"
+                        endContent={<span className="font-mono text-xs">@fm.com</span>}
+                      />
+                    )}
+                  />
+                  <p className="text-xs text-muted mt-1">
+                    Mật khẩu mặc định: <span className="font-semibold text-foreground">fest1234</span>
+                  </p>
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  {(['staff', 'manager', 'admin'] as UserRole[]).map(r => (
-                    <Button
-                      key={r}
-                      variant="ghost"
-                      onPress={() => setRole(r)}
-                      className={`w-full h-auto min-w-0 py-2 rounded-xl text-xs font-semibold border transition-colors ${
-                        role === r
-                          ? r === 'admin'
-                            ? 'bg-danger/10 text-danger border-danger/30'
-                            : r === 'manager'
-                              ? 'bg-warning/10 text-warning border-warning/30'
-                              : 'bg-accent/10 text-accent border-accent/30'
-                          : 'bg-default/50 text-foreground/80 border-separator hover:border-accent/30'
-                      }`}
-                    >
-                      {r === 'staff' ? 'Nhân viên' : r === 'manager' ? 'Quản lý' : 'Admin'}
-                    </Button>
-                  ))}
+
+                {(isAdmin || isManager) && (
+                  <div className="bg-default/50 border border-separator rounded-xl p-3 space-y-3">
+                    {isAdmin && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-1.5">
+                          <ShieldCheck size={13} className="text-muted" />
+                          <span className="text-xs font-semibold text-foreground/80">Quyền tài khoản</span>
+                        </div>
+                        <ToggleButtonGroup
+                          selectionMode="single"
+                          disallowEmptySelection
+                          selectedKeys={new Set([role])}
+                          onSelectionChange={(keys) => { const k = [...keys][0]; if (k) setRole(k as UserRole); }}
+                          className="w-full"
+                        >
+                          {(['staff', 'manager', 'admin'] as UserRole[]).map(r => (
+                            <ToggleButton key={r} id={r} className="flex-1 rounded-xl text-xs py-2">
+                              {r === 'staff' ? 'Nhân viên' : r === 'manager' ? 'Quản lý' : 'Admin'}
+                            </ToggleButton>
+                          ))}
+                        </ToggleButtonGroup>
+                      </div>
+                    )}
+
+                    {(!isAdmin || role !== 'admin') && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-1.5">
+                          <Building2 size={13} className="text-muted" />
+                          <span className="text-xs font-semibold text-foreground/80">Bộ phận kho hàng</span>
+                        </div>
+                        <ToggleButtonGroup
+                          selectionMode="single"
+                          disallowEmptySelection
+                          selectedKeys={new Set([department])}
+                          onSelectionChange={(keys) => { const k = [...keys][0]; if (k) setDepartment(k as UserDepartment); }}
+                          className="w-full"
+                        >
+                          {([
+                            { id: 'restaurant' as UserDepartment, label: 'Nhà hàng' },
+                            { id: 'festival'   as UserDepartment, label: 'Festival' },
+                            { id: 'both'       as UserDepartment, label: 'Cả hai'   },
+                          ]).map(({ id, label }) => (
+                            <ToggleButton key={id} id={id} className="flex-1 rounded-xl text-xs py-2">
+                              {label}
+                            </ToggleButton>
+                          ))}
+                        </ToggleButtonGroup>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <Controller
+                  name="dob"
+                  control={control}
+                  render={({ field }) => (
+                    <Input type="date" label="Ngày sinh" value={field.value ?? ''} onChange={field.onChange} />
+                  )}
+                />
+
+                <Controller
+                  name="city"
+                  control={control}
+                  render={({ field }) => (
+                    <Input label="Thành phố *" placeholder="Paris" value={field.value} onChange={field.onChange} error={errors.city?.message} />
+                  )}
+                />
+
+                <div>
+                  <label className="text-xs font-medium text-foreground/80 mb-1.5 block">Loại nhân viên</label>
+                  <ToggleButtonGroup
+                    selectionMode="single"
+                    disallowEmptySelection
+                    selectedKeys={new Set([staffType])}
+                    onSelectionChange={(keys) => { const k = [...keys][0]; if (k) setStaffType(k as StaffType); }}
+                    className="w-full"
+                  >
+                    <ToggleButton id="permanent" className="flex-1 rounded-xl text-xs py-2">Nhân viên cứng</ToggleButton>
+                    <ToggleButton id="part-time" className="flex-1 rounded-xl text-xs py-2">Part-time</ToggleButton>
+                  </ToggleButtonGroup>
                 </div>
-              </div>
-            )}
-
-            {(!isAdmin || role !== 'admin') && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-1.5">
-                  <Building2 size={13} className="text-muted" />
-                  <span className="text-xs font-semibold text-foreground/80">Bộ phận kho hàng</span>
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  {([
-                    { id: 'restaurant' as UserDepartment, label: 'Nhà hàng' },
-                    { id: 'festival'   as UserDepartment, label: 'Festival' },
-                    { id: 'both'       as UserDepartment, label: 'Cả hai'   },
-                  ]).map(({ id, label }) => (
-                    <Button
-                      key={id}
-                      variant="ghost"
-                      onPress={() => setDepartment(id)}
-                      className={`w-full h-auto min-w-0 py-2 rounded-xl text-xs font-semibold border transition-colors ${
-                        department === id
-                          ? 'bg-success/10 text-success border-success/30'
-                          : 'bg-default/50 text-foreground/80 border-separator hover:border-success/30'
-                      }`}
-                    >
-                      {label}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        <Controller
-          name="dob"
-          control={control}
-          render={({ field }) => (
-            <Input
-              type="date"
-              label="Ngày sinh"
-              value={field.value ?? ''}
-              onChange={field.onChange}
-            />
-          )}
-        />
-
-        <Controller
-          name="city"
-          control={control}
-          render={({ field }) => (
-            <Input
-              label="Thành phố *"
-              placeholder="Paris"
-              value={field.value}
-              onChange={field.onChange}
-              error={errors.city?.message}
-            />
-          )}
-        />
-
-        <div>
-          <label className="text-xs font-medium text-foreground/80 mb-1 block">Loại nhân viên</label>
-          <div className="grid grid-cols-2 gap-2">
-            {([
-              { id: 'permanent' as StaffType, label: 'Nhân viên cứng' },
-              { id: 'part-time' as StaffType, label: 'Part-time'       },
-            ]).map(({ id, label }) => (
+              </form>
+            </Modal.Body>
+            <Modal.Footer className="px-5 pb-5 flex gap-2 justify-end">
+              <Button variant="ghost" onPress={onClose} className="rounded-xl">Hủy</Button>
               <Button
-                key={id}
-                variant="ghost"
-                onPress={() => setStaffType(id)}
-                className={`w-full h-auto min-w-0 py-2.5 rounded-xl text-xs font-semibold border transition-colors ${
-                  staffType === id
-                    ? id === 'part-time'
-                      ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30'
-                      : 'bg-accent/10 text-accent border-accent/30'
-                    : 'bg-default/50 text-foreground/80 border-separator hover:border-accent/30'
-                }`}
+                type="submit"
+                form="add-staff-form"
+                variant="primary"
+                className="rounded-xl"
+                isDisabled={loading}
               >
-                {label}
+                {loading ? 'Đang tạo...' : 'Thêm nhân viên'}
               </Button>
-            ))}
-          </div>
-        </div>
-
-        <Button type="submit" variant="primary" fullWidth className="rounded-lg" isDisabled={loading}>
-          {loading ? 'Đang tạo...' : 'Thêm nhân viên'}
-        </Button>
-      </form>
-    </div>
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
+    </Modal>
   );
 }

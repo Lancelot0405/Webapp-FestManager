@@ -1,5 +1,4 @@
-﻿import { X } from 'lucide-react';
-import { Button } from '@heroui/react';
+import { Button, Modal } from '@heroui/react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -50,75 +49,89 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
   };
 
   return (
-    <div className="bg-surface border border-separator rounded-xl shadow-sm p-4">
-      <div className="flex justify-between items-center mb-4">
-        <p className="font-semibold text-sm text-foreground">Thêm sự kiện mới</p>
-        <Button onPress={onClose} variant="ghost" isIconOnly size="sm" className="rounded-full" aria-label="Đóng">
-          <X size={16} />
-        </Button>
-      </div>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-2.5">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5">
-          <Controller
-            name="name"
-            control={control}
-            render={({ field }) => (
-              <Input
-                label="Tên sự kiện *"
-                placeholder="Nhập tên sự kiện..."
-                value={field.value}
-                onChange={field.onChange}
-                error={errors.name?.message}
-                className="lg:col-span-2"
-              />
-            )}
-          />
-          <Controller
-            name="startDate"
-            control={control}
-            render={({ field }) => (
-              <Input
-                type="date"
-                label="Ngày bắt đầu *"
-                value={field.value}
-                onChange={field.onChange}
-                error={errors.startDate?.message}
-              />
-            )}
-          />
-          <Controller
-            name="endDate"
-            control={control}
-            render={({ field }) => (
-              <Input
-                type="date"
-                label="Ngày kết thúc"
-                value={field.value ?? ''}
-                min={startDate}
-                onChange={field.onChange}
-                error={errors.endDate?.message}
-              />
-            )}
-          />
-          <Controller
-            name="location"
-            control={control}
-            render={({ field }) => (
-              <Input
-                label="Địa điểm *"
-                placeholder="Nhập địa điểm..."
-                value={field.value}
-                onChange={field.onChange}
-                error={errors.location?.message}
-                className="lg:col-span-2"
-              />
-            )}
-          />
-        </div>
-        <Button type="submit" variant="primary" fullWidth className="rounded-lg" isDisabled={createEvent.isPending}>
-          {createEvent.isPending ? 'Đang tạo...' : 'Tạo sự kiện'}
-        </Button>
-      </form>
-    </div>
+    <Modal isOpen onOpenChange={(open) => { if (!open) onClose(); }}>
+      <Modal.Backdrop isDismissable>
+        <Modal.Container placement="center" size="md">
+          <Modal.Dialog aria-label="Thêm sự kiện mới">
+            <Modal.Header className="px-5 pt-5 pb-0">
+              <Modal.Heading className="text-base font-bold text-foreground">Thêm sự kiện mới</Modal.Heading>
+            </Modal.Header>
+            <Modal.Body className="px-5 py-4">
+              <form id="add-event-form" onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Controller
+                    name="name"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        label="Tên sự kiện *"
+                        placeholder="Nhập tên sự kiện..."
+                        value={field.value}
+                        onChange={field.onChange}
+                        error={errors.name?.message}
+                        className="sm:col-span-2"
+                      />
+                    )}
+                  />
+                  <Controller
+                    name="startDate"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        type="date"
+                        label="Ngày bắt đầu *"
+                        value={field.value}
+                        onChange={field.onChange}
+                        error={errors.startDate?.message}
+                      />
+                    )}
+                  />
+                  <Controller
+                    name="endDate"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        type="date"
+                        label="Ngày kết thúc"
+                        value={field.value ?? ''}
+                        min={startDate}
+                        onChange={field.onChange}
+                        error={errors.endDate?.message}
+                      />
+                    )}
+                  />
+                  <Controller
+                    name="location"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        label="Địa điểm *"
+                        placeholder="Nhập địa điểm..."
+                        value={field.value}
+                        onChange={field.onChange}
+                        error={errors.location?.message}
+                        className="sm:col-span-2"
+                      />
+                    )}
+                  />
+                </div>
+              </form>
+            </Modal.Body>
+            <Modal.Footer className="px-5 pb-5 flex gap-2 justify-end">
+              <Button variant="ghost" onPress={onClose} className="rounded-xl">Hủy</Button>
+              <Button
+                type="submit"
+                form="add-event-form"
+                variant="primary"
+                className="rounded-xl"
+                isDisabled={createEvent.isPending}
+              >
+                {createEvent.isPending ? 'Đang tạo...' : 'Tạo sự kiện'}
+              </Button>
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
+    </Modal>
   );
 }

@@ -1,12 +1,5 @@
-﻿import { useEffect } from 'react';
-import { X } from 'lucide-react';
-import { Button } from '@heroui/react';
-import {
-  ModalRoot,
-  ModalBackdrop,
-  ModalContainer,
-  ModalDialog,
-} from '@heroui/react';
+import { useEffect } from 'react';
+import { Button, Modal } from '@heroui/react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -74,97 +67,86 @@ export default function InventoryAddModal({ isOpen, onClose, mainTab, subTab }: 
   };
 
   return (
-    <ModalRoot isOpen={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <ModalBackdrop
-        isDismissable
-        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm"
-      >
-        <ModalContainer className="relative z-[201] w-full max-w-lg rounded-xl outline-none border border-separator bg-overlay backdrop-blur-xl shadow-2xl">
-          <ModalDialog aria-label="Thêm mặt hàng" className="relative outline-none">
-            <form onSubmit={handleSubmit(onSubmit)} className="p-4 space-y-3">
-              <div className="flex justify-between items-center">
-                <p className="font-bold text-foreground text-sm">
-                  Thêm {itemLabel} — {sectionLabel}
-                </p>
-                <Button
-                  type="button"
-                  onPress={onClose}
-                  variant="ghost"
-                  isIconOnly
-                  size="sm"
-                  aria-label="Đóng"
-                  className="text-muted hover:text-foreground"
-                >
-                  <X size={15} />
-                </Button>
-              </div>
+    <Modal isOpen={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <Modal.Backdrop isDismissable>
+        <Modal.Container placement="center" size="md">
+          <Modal.Dialog aria-label="Thêm mặt hàng">
+            <Modal.Header className="px-5 pt-5 pb-0">
+              <Modal.Heading className="text-sm font-bold text-foreground">
+                Thêm {itemLabel} — {sectionLabel}
+              </Modal.Heading>
+            </Modal.Header>
+            <Modal.Body className="px-5 py-4">
+              <form id="inventory-add-form" onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+                <Controller
+                  name="name"
+                  control={control}
+                  render={({ field }) => (
+                    <FoodNameSelect
+                      value={field.value}
+                      onChange={field.onChange}
+                      itemType={subTab === 'equipment' ? 'equipment' : 'food'}
+                      required
+                    />
+                  )}
+                />
+                {errors.name && <p className="text-xs text-danger -mt-2">{errors.name.message}</p>}
 
-              <Controller
-                name="name"
-                control={control}
-                render={({ field }) => (
-                  <FoodNameSelect
-                    value={field.value}
-                    onChange={field.onChange}
-                    itemType={subTab === 'equipment' ? 'equipment' : 'food'}
-                    required
-                  />
-                )}
-              />
-              {errors.name && <p className="text-xs text-danger -mt-2">{errors.name.message}</p>}
+                <Controller
+                  name="current"
+                  control={control}
+                  render={({ field }) => (
+                    <NumberPicker
+                      label="Số lượng"
+                      value={field.value}
+                      onChange={field.onChange}
+                      required
+                      min={0}
+                      step={0.1}
+                      error={errors.current?.message}
+                    />
+                  )}
+                />
 
-              <Controller
-                name="current"
-                control={control}
-                render={({ field }) => (
-                  <NumberPicker
-                    label="Số lượng"
-                    value={field.value}
-                    onChange={field.onChange}
-                    required
-                    min={0}
-                    step={0.1}
-                    error={errors.current?.message}
-                  />
-                )}
-              />
+                <Controller
+                  name="threshold"
+                  control={control}
+                  render={({ field }) => (
+                    <NumberPicker
+                      label="Cảnh báo"
+                      value={field.value ?? ''}
+                      onChange={field.onChange}
+                      min={0}
+                      step={0.1}
+                      placeholder="0"
+                    />
+                  )}
+                />
 
-              <Controller
-                name="threshold"
-                control={control}
-                render={({ field }) => (
-                  <NumberPicker
-                    label="Cảnh báo"
-                    value={field.value ?? ''}
-                    onChange={field.onChange}
-                    min={0}
-                    step={0.1}
-                    placeholder="0"
-                  />
-                )}
-              />
-
-              <Controller
-                name="unit"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    label="Đơn vị"
-                    value={field.value}
-                    onChange={field.onChange}
-                    options={unitOptions.map(u => ({ value: u, label: u }))}
-                    error={errors.unit?.message}
-                  />
-                )}
-              />
-
-              <Button type="submit" variant="primary" fullWidth className="rounded-xl">
+                <Controller
+                  name="unit"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      label="Đơn vị"
+                      value={field.value}
+                      onChange={field.onChange}
+                      options={unitOptions.map(u => ({ value: u, label: u }))}
+                      error={errors.unit?.message}
+                    />
+                  )}
+                />
+              </form>
+            </Modal.Body>
+            <Modal.Footer className="px-5 pb-5 flex gap-2 justify-end">
+              <Button variant="ghost" onPress={onClose} className="rounded-xl">Hủy</Button>
+              <Button type="submit" form="inventory-add-form" variant="primary" className="rounded-xl">
                 Thêm vào kho
               </Button>
-            </form>
-          </ModalDialog>
-        </ModalContainer>
-      </ModalBackdrop>
-    </ModalRoot>
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
+    </Modal>
   );
 }
