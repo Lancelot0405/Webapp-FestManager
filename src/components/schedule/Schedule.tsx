@@ -108,7 +108,7 @@ export default function Schedule() {
 
   const tz = getLocalTimeZone();
   const [selectedDate,  setSelectedDate]  = useState<CalendarDate>(today(tz));
-  const [rangeMode,     setRangeMode]     = useState<RangeMode>('day');
+  const [rangeMode,     setRangeMode]     = useState<RangeMode>('month');
   const [statusFilter,  setStatusFilter]  = useState<StatusFilter>('Tất cả');
   const [showAddForm,   setShowAddForm]   = useState(false);
 
@@ -186,9 +186,9 @@ export default function Schedule() {
             }}
             className="w-full"
           >
-            <ToggleButton id="day"   className="flex-1 text-xs">Ngày</ToggleButton>
-            <ToggleButton id="week"  className="flex-1 text-xs">Tuần</ToggleButton>
             <ToggleButton id="month" className="flex-1 text-xs">Tháng</ToggleButton>
+            <ToggleButton id="week"  className="flex-1 text-xs">Tuần</ToggleButton>
+            <ToggleButton id="day"   className="flex-1 text-xs">Ngày</ToggleButton>
           </ToggleButtonGroup>
         </div>
 

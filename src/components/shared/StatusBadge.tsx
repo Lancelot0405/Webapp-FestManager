@@ -4,7 +4,7 @@ import type { EventStatus, ExpenseStatus } from '../../types';
 interface EventStatusBadgeProps { status: EventStatus }
 
 const EVENT_COLOR: Record<EventStatus, 'default' | 'accent' | 'success' | 'warning'> = {
-  'Lên kế hoạch': 'default',
+  'Lên kế hoạch': 'warning',
   'Sắp tới':       'accent',
   'Đang diễn ra':  'success',
   'Đã hoàn thành': 'default',

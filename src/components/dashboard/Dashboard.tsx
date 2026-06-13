@@ -6,8 +6,9 @@ import {
   AlertTriangle,
   ChevronRight,
   RotateCw, Bell, Download,
+  Eye,
 } from 'lucide-react';
-import { Button, Card, Table, SearchField } from '@heroui/react';
+import { Button, Card, Chip, Table, SearchField } from '@heroui/react';
 import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
 import { useApp } from '../../context/AppContext';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
@@ -40,6 +41,22 @@ function pct(cur: number, prev: number): number | null {
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/);
   return (parts[parts.length - 1]?.[0] ?? name[0] ?? '?').toUpperCase();
+}
+
+const AVATAR_GRADIENTS = [
+  'from-violet-400 via-purple-400 to-blue-500',
+  'from-pink-400 to-rose-500',
+  'from-teal-400 to-cyan-500',
+  'from-blue-400 to-indigo-500',
+  'from-emerald-400 to-green-500',
+  'from-amber-400 to-orange-400',
+  'from-sky-400 to-blue-500',
+  'from-fuchsia-400 to-pink-500',
+];
+
+function avatarGradient(id: number | string): string {
+  const n = typeof id === 'number' ? id : id.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+  return AVATAR_GRADIENTS[Math.abs(n) % AVATAR_GRADIENTS.length];
 }
 
 function greeting(): string {
@@ -331,10 +348,15 @@ function HRTab({ events, staff, navigate }: {
         <StatCard label="Bán thời gian"    value={String(partTime)}     onClick={() => navigate('/hr')} />
       </div>
 
-      <Card className="overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-separator flex-wrap gap-2">
-          <h3 className="text-sm font-semibold text-foreground">Danh sách nhân viên <span className="text-muted font-normal">({staff.length})</span></h3>
-          <SearchField value={search} onChange={setSearch} className="w-44">
+      <Card className="overflow-hidden rounded-2xl">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-default-200 flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-foreground">Danh sách nhân viên</h3>
+            <Chip size="sm" variant="soft" color="default" className="text-[11px] h-5 px-1.5">
+              {staff.length}
+            </Chip>
+          </div>
+          <SearchField value={search} onChange={setSearch} className="w-48">
             <SearchField.Group>
               <SearchField.SearchIcon />
               <SearchField.Input placeholder="Tìm kiếm..." />
@@ -343,50 +365,59 @@ function HRTab({ events, staff, navigate }: {
           </SearchField>
         </div>
 
-        <Table variant="secondary">
+        <Table>
           <Table.ScrollContainer>
             <Table.Content aria-label="Danh sách nhân viên">
               <Table.Header>
-                <Table.Column isRowHeader className="text-xs font-semibold text-muted px-1 py-2">Nhân viên</Table.Column>
-                <Table.Column className="text-xs font-semibold text-muted px-1 py-2 hidden md:table-cell">Thành phố</Table.Column>
-                <Table.Column className="text-xs font-semibold text-muted px-1 py-2 hidden md:table-cell">Loại hợp đồng</Table.Column>
-                <Table.Column className="text-xs font-semibold text-muted px-1 py-2">Sự kiện</Table.Column>
+                <Table.Column isRowHeader className="text-xs font-medium text-default-500 py-3 pl-5 pr-4 bg-default-50 dark:bg-default-100/20">Nhân viên</Table.Column>
+                <Table.Column className="text-xs font-medium text-default-500 py-3 px-4 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">Thành phố</Table.Column>
+                <Table.Column className="text-xs font-medium text-default-500 py-3 px-4 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">Loại hợp đồng</Table.Column>
+                <Table.Column className="text-xs font-medium text-default-500 py-3 px-4 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">Sự kiện</Table.Column>
+                <Table.Column className="text-xs font-medium text-default-500 py-3 pr-5 pl-4 text-right bg-default-50 dark:bg-default-100/20">Hành động</Table.Column>
               </Table.Header>
               <Table.Body renderEmptyState={() => (
-                <p className="text-sm text-muted text-center py-8">Không tìm thấy nhân viên</p>
+                <p className="text-sm text-muted text-center py-10">Không tìm thấy nhân viên</p>
               )}>
                 {filtered.map(s => (
-                  <Table.Row
-                    key={s.id}
-                    id={String(s.id)}
-                    className="cursor-pointer hover:bg-default/30"
-                    onPress={() => navigate('/hr')}
-                  >
-                    <Table.Cell className="py-2.5 px-1">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
-                          <span className="text-[11px] font-bold text-accent">{initials(s.name)}</span>
+                  <Table.Row key={s.id} id={String(s.id)} className="border-b border-default-100 dark:border-default-200/20 last:border-0">
+                    <Table.Cell className="py-3.5 pl-5 pr-4">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${avatarGradient(s.id)} flex items-center justify-center shrink-0 shadow-sm`}>
+                          <span className="text-xs font-bold text-white">{initials(s.name)}</span>
                         </div>
                         <div className="min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">{s.name}</p>
-                          <p className="text-xs text-muted md:hidden">{s.city}</p>
+                          <p className="text-sm font-semibold text-foreground truncate">{s.name}</p>
+                          <p className="text-xs text-default-400 truncate md:hidden">{s.city}</p>
                         </div>
                       </div>
                     </Table.Cell>
-                    <Table.Cell className="py-2.5 px-1 hidden md:table-cell">
-                      <p className="text-sm text-muted">{s.city}</p>
+                    <Table.Cell className="py-3.5 px-4 hidden md:table-cell">
+                      <p className="text-sm text-default-500">{s.city}</p>
                     </Table.Cell>
-                    <Table.Cell className="py-2.5 px-1 hidden md:table-cell">
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                        s.staffType === 'permanent'
-                          ? 'bg-indigo-100 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400'
-                          : 'bg-amber-100 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400'
-                      }`}>
+                    <Table.Cell className="py-3.5 px-4 hidden md:table-cell">
+                      <Chip
+                        size="sm"
+                        variant="soft"
+                        color={s.staffType === 'permanent' ? 'accent' : 'warning'}
+                        className="text-[11px]"
+                      >
                         {s.staffType === 'permanent' ? 'Cố định' : 'Bán thời gian'}
-                      </span>
+                      </Chip>
                     </Table.Cell>
-                    <Table.Cell className="py-2.5 px-1">
-                      <span className="text-sm font-semibold text-foreground">{eventCounts[s.id] ?? 0}</span>
+                    <Table.Cell className="py-3.5 px-4 hidden md:table-cell">
+                      <p className="text-sm font-medium text-foreground">{eventCounts[s.id] ?? 0}</p>
+                    </Table.Cell>
+                    <Table.Cell className="py-3.5 pr-5 pl-4">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          isIconOnly size="sm" variant="ghost"
+                          onPress={() => navigate('/hr/' + s.id)}
+                          aria-label="Xem hồ sơ"
+                          className="w-8 h-8 rounded-lg text-default-400 hover:text-foreground hover:bg-default-100"
+                        >
+                          <Eye size={14} />
+                        </Button>
+                      </div>
                     </Table.Cell>
                   </Table.Row>
                 ))}
@@ -576,19 +607,15 @@ function EventsTable({ events, navigate, title, emptyText }: {
   [filtered]);
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden rounded-2xl">
       {/* Header */}
-      <div className="px-4 pt-4 pb-2">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-default-200 flex-wrap gap-3">
         <div className="flex items-center gap-2">
-          <h2 className="text-sm font-bold text-foreground">{title}</h2>
-          <span className="bg-default text-default-foreground px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0">
+          <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+          <Chip size="sm" variant="soft" color="default" className="text-[11px] h-5 px-1.5">
             {events.length}
-          </span>
+          </Chip>
         </div>
-      </div>
-
-      {/* Search */}
-      <div className="flex items-center justify-end px-4 pb-3 border-b border-separator/50">
         <SearchField value={search} onChange={setSearch} className="w-full sm:w-52">
           <SearchField.Group>
             <SearchField.SearchIcon />
@@ -598,43 +625,51 @@ function EventsTable({ events, navigate, title, emptyText }: {
         </SearchField>
       </div>
 
-      <Table variant="secondary">
+      <Table>
         <Table.ScrollContainer>
           <Table.Content aria-label="Danh sách sự kiện">
             <Table.Header>
-              <Table.Column isRowHeader className="text-xs font-semibold text-muted px-1 py-2">Sự kiện</Table.Column>
-              <Table.Column className="text-xs font-semibold text-muted px-1 py-2 hidden md:table-cell">Ngày</Table.Column>
-              <Table.Column className="text-xs font-semibold text-muted px-1 py-2 hidden md:table-cell">Địa điểm</Table.Column>
-              <Table.Column className="text-xs font-semibold text-muted px-1 py-2 hidden md:table-cell">Nhân viên</Table.Column>
-              <Table.Column className="text-xs font-semibold text-muted px-1 py-2">Trạng thái</Table.Column>
+              <Table.Column isRowHeader className="text-xs font-medium text-default-500 py-3 pl-5 pr-4 bg-default-50 dark:bg-default-100/20">Sự kiện</Table.Column>
+              <Table.Column className="text-xs font-medium text-default-500 py-3 px-4 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">Ngày</Table.Column>
+              <Table.Column className="text-xs font-medium text-default-500 py-3 px-4 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">Địa điểm</Table.Column>
+              <Table.Column className="text-xs font-medium text-default-500 py-3 px-4 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">Nhân viên</Table.Column>
+              <Table.Column className="text-xs font-medium text-default-500 py-3 px-4 bg-default-50 dark:bg-default-100/20">Trạng thái</Table.Column>
+              <Table.Column className="text-xs font-medium text-default-500 py-3 pr-5 pl-4 text-right bg-default-50 dark:bg-default-100/20">Hành động</Table.Column>
             </Table.Header>
             <Table.Body renderEmptyState={() => (
               <p className="text-sm text-muted text-center py-10">{emptyText}</p>
             )}>
               {sorted.map(event => (
-                <Table.Row
-                  key={event.id}
-                  id={String(event.id)}
-                  className="cursor-pointer hover:bg-default/30"
-                  onPress={() => navigate('/schedule/' + event.id)}
-                >
-                  <Table.Cell className="py-2.5 px-1">
+                <Table.Row key={event.id} id={String(event.id)} className="border-b border-default-100 dark:border-default-200/20 last:border-0">
+                  <Table.Cell className="py-3.5 pl-5 pr-4">
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{event.name}</p>
-                      <p className="text-xs text-muted md:hidden">{event.date} · {event.location}</p>
+                      <p className="text-sm font-semibold text-foreground truncate">{event.name}</p>
+                      <p className="text-xs text-default-400 truncate md:hidden">{event.date} · {event.location}</p>
                     </div>
                   </Table.Cell>
-                  <Table.Cell className="py-2.5 px-1 hidden md:table-cell">
-                    <p className="text-sm text-muted shrink-0">{event.date}</p>
+                  <Table.Cell className="py-3.5 px-4 hidden md:table-cell">
+                    <p className="text-sm text-default-500 whitespace-nowrap">{event.date}</p>
                   </Table.Cell>
-                  <Table.Cell className="py-2.5 px-1 hidden md:table-cell">
-                    <p className="text-sm text-muted truncate">{event.location}</p>
+                  <Table.Cell className="py-3.5 px-4 hidden md:table-cell">
+                    <p className="text-sm text-default-500 truncate">{event.location}</p>
                   </Table.Cell>
-                  <Table.Cell className="py-2.5 px-1 hidden md:table-cell">
+                  <Table.Cell className="py-3.5 px-4 hidden md:table-cell">
                     <StaffAvatarGroup members={event.staff} />
                   </Table.Cell>
-                  <Table.Cell className="py-2.5 px-1">
+                  <Table.Cell className="py-3.5 px-4">
                     <StatusBadge status={event.status} />
+                  </Table.Cell>
+                  <Table.Cell className="py-3.5 pr-5 pl-4">
+                    <div className="flex items-center justify-end gap-1">
+                      <Button
+                        isIconOnly size="sm" variant="ghost"
+                        onPress={() => navigate('/schedule/' + event.id)}
+                        aria-label="Xem chi tiết"
+                        className="w-8 h-8 rounded-lg text-default-400 hover:text-foreground hover:bg-default-100"
+                      >
+                        <Eye size={14} />
+                      </Button>
+                    </div>
                   </Table.Cell>
                 </Table.Row>
               ))}
@@ -704,19 +739,19 @@ function StatCard({ label, value, delta, onClick, icon, color }: StatCardProps) 
 // ─── Staff Avatar Group ───────────────────────────────────────────────────────
 
 function StaffAvatarGroup({ members }: { members: StaffRef[] }) {
-  if (members.length === 0) return <span className="text-xs text-muted">–</span>;
+  if (members.length === 0) return <span className="text-xs text-default-400">–</span>;
   const shown = members.slice(0, 3);
   const extra = members.length - shown.length;
   return (
     <div className="flex items-center -space-x-1.5">
       {shown.map(m => (
-        <div key={m.id} className="w-6 h-6 rounded-full bg-accent/10 ring-2 ring-[var(--surface)] flex items-center justify-center">
-          <span className="text-[9px] font-bold text-accent">{initials(m.name)}</span>
+        <div key={m.id} className={`w-7 h-7 rounded-full bg-gradient-to-br ${avatarGradient(m.id)} ring-2 ring-background flex items-center justify-center shadow-sm`}>
+          <span className="text-[9px] font-bold text-white">{initials(m.name)}</span>
         </div>
       ))}
       {extra > 0 && (
-        <div className="w-6 h-6 rounded-full bg-default/80 ring-2 ring-[var(--surface)] flex items-center justify-center">
-          <span className="text-[9px] font-semibold text-muted">+{extra}</span>
+        <div className="w-7 h-7 rounded-full bg-default-200 dark:bg-default-700 ring-2 ring-background flex items-center justify-center">
+          <span className="text-[9px] font-semibold text-default-600 dark:text-default-300">+{extra}</span>
         </div>
       )}
     </div>
