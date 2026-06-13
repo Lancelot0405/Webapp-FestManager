@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Button, Popover } from '@heroui/react';
+import { Button, Chip, Popover, Separator } from '@heroui/react';
 import {
   LayoutDashboard,
   Calendar,
@@ -11,8 +11,8 @@ import {
   Building2,
   HelpCircle,
   LogOut,
-  ChevronLeft,
-  ChevronRight,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
@@ -54,7 +54,7 @@ const STAFF_TABS = [
 ];
 
 const roleLabel: Record<string, string> = {
-  admin: 'Quản trị viên', manager: 'Quản lý', staff: 'Nhân viên',
+  admin: 'Admin', manager: 'Quản lý', staff: 'Nhân viên',
 };
 
 function getCollapsed(): boolean {
@@ -63,13 +63,12 @@ function getCollapsed(): boolean {
 
 export default function Sidebar({ onOpenSheet, notifCount = 0, notifications, clearAll, clearOne, onLogout }: SidebarProps) {
   const { currentUser, logout } = useApp();
-  const navigate   = useNavigate();
-  const location   = useLocation();
+  const navigate    = useNavigate();
+  const location    = useLocation();
   const { data: events = [] } = useEventsQuery();
   const [isCollapsed, setIsCollapsed] = useState(getCollapsed);
   const [popoverOpen, setPopoverOpen] = useState(false);
 
-  // suppress unused warning — onOpenSheet is for mobile BottomNav compatibility
   void onOpenSheet;
 
   const toggleCollapse = () => {
@@ -87,120 +86,135 @@ export default function Sidebar({ onOpenSheet, notifCount = 0, notifications, cl
              : STAFF_TABS;
 
   const pendingExpenses = events.reduce(
-    (sum, e) => sum + e.receipts.filter(r => r.status === 'pending').length,
-    0
+    (sum, e) => sum + e.receipts.filter(r => r.status === 'pending').length, 0
   );
-  const badgeFor = (path: string) =>
-    path === 'finance' && pendingExpenses > 0 ? pendingExpenses : 0;
+  const badgeFor = (path: string) => path === 'finance' && pendingExpenses > 0 ? pendingExpenses : 0;
 
   const activeSegment = location.pathname.split('/')[1] || 'dashboard';
 
-  const avatarBtn = (
-    <div className="relative w-9 h-9 rounded-full accent-gradient flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm cursor-pointer">
-      {currentUser.name.charAt(0).toUpperCase()}
-      {notifCount > 0 && (
-        <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-danger text-danger-foreground text-[8px] font-bold rounded-full flex items-center justify-center border-2 border-content1">
-          {notifCount > 9 ? '9+' : notifCount}
-        </span>
-      )}
-    </div>
-  );
-
-  const w = isCollapsed ? 'w-16' : 'w-64';
+  const w = isCollapsed ? 'w-[72px]' : 'w-[240px]';
 
   return (
-    <aside className={`hidden md:flex flex-col ${w} shrink-0 sticky top-0 h-screen bg-content1 border-r-2 border-separator transition-[width] duration-200 overflow-hidden`}>
+    <aside className={`hidden md:flex flex-col ${w} shrink-0 sticky top-0 h-screen bg-background border-r border-default-200 transition-[width] duration-200 overflow-hidden`}>
 
-      {/* User Profile (Top) */}
-      <div className="h-20 w-full flex items-center px-3 justify-center border-b border-separator/40 shrink-0">
-        {/* Desktop: Popover */}
-        <Popover isOpen={popoverOpen} onOpenChange={setPopoverOpen}>
-          <Popover.Trigger className="w-full">
-            <Button
-              variant="ghost"
-              className={`w-full flex items-center gap-3 px-2 py-2.5 rounded-xl hover:bg-default/40 h-auto ${isCollapsed ? 'justify-center' : 'justify-start'}`}
-            >
-              {avatarBtn}
-              {!isCollapsed && (
-                <div className="min-w-0 flex-1 text-left overflow-hidden">
-                  <p className="text-[13.5px] font-bold text-foreground truncate leading-tight">
-                    {currentUser.name}
-                  </p>
-                  <p className="text-[11px] text-default-500 font-medium mt-0.5">
-                    {roleLabel[currentUser.role]}
-                  </p>
-                </div>
+      {/* ── User Profile ── */}
+      <Popover isOpen={popoverOpen} onOpenChange={setPopoverOpen}>
+        <Popover.Trigger className="w-full shrink-0">
+          <Button
+            variant="ghost"
+            className={`w-full h-auto px-3 py-4 rounded-none hover:bg-default-100 transition-colors ${isCollapsed ? 'justify-center' : 'justify-start gap-3'}`}
+          >
+            {/* Avatar */}
+            <div className="relative shrink-0">
+              <div className="w-10 h-10 rounded-full accent-gradient flex items-center justify-center text-white text-sm font-bold shadow-sm">
+                {currentUser.name.charAt(0).toUpperCase()}
+              </div>
+              {notifCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-danger text-white text-[8px] font-bold rounded-full flex items-center justify-center border-2 border-background">
+                  {notifCount > 9 ? '9+' : notifCount}
+                </span>
               )}
-            </Button>
-          </Popover.Trigger>
-          <Popover.Content className="p-0 w-72 overflow-hidden rounded-2xl border border-separator shadow-xl">
-            <Popover.Dialog aria-label="Tài khoản người dùng">
-              <UserSheetContent
-                onClose={() => setPopoverOpen(false)}
-                onLogout={() => { setPopoverOpen(false); onLogout(); }}
-                notifications={notifications}
-                clearAll={clearAll}
-                clearOne={clearOne}
-              />
-            </Popover.Dialog>
-          </Popover.Content>
-        </Popover>
-      </div>
+            </div>
 
-      {/* Nav items */}
-      <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
+            {!isCollapsed && (
+              <div className="min-w-0 flex-1 text-left">
+                <p className="text-sm font-semibold text-foreground truncate leading-snug">
+                  {currentUser.name}
+                </p>
+                <p className="text-xs text-default-500 truncate leading-snug mt-0.5">
+                  {roleLabel[currentUser.role]}
+                </p>
+              </div>
+            )}
+          </Button>
+        </Popover.Trigger>
+        <Popover.Content className="p-0 w-72 overflow-hidden rounded-2xl border border-default-200 shadow-xl">
+          <Popover.Dialog aria-label="Tài khoản người dùng">
+            <UserSheetContent
+              onClose={() => setPopoverOpen(false)}
+              onLogout={() => { setPopoverOpen(false); onLogout(); }}
+              notifications={notifications}
+              clearAll={clearAll}
+              clearOne={clearOne}
+            />
+          </Popover.Dialog>
+        </Popover.Content>
+      </Popover>
+
+      <Separator />
+
+      {/* ── Nav items ── */}
+      <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
         {tabs.map(({ path, icon, label, badge }) => {
-          const isActive = activeSegment === path;
-          const normalBadge = badgeFor(path);
+          const isActive    = activeSegment === path;
+          const numBadge    = badgeFor(path);
+
           return (
             <Button
               key={path}
               variant="ghost"
               onPress={() => navigate('/' + path)}
               aria-current={isActive ? 'page' : undefined}
-              className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium h-auto transition-all ${isCollapsed ? 'justify-center' : 'justify-start'} ${
-                isActive
-                  ? 'bg-primary/15 text-primary font-semibold border-l-2 border-primary shadow-sm'
-                  : 'text-default-700 dark:text-default-400 hover:text-foreground hover:bg-default/50 dark:hover:bg-white/5'
-              }`}
+              className={`
+                w-full h-auto px-3 py-2.5 rounded-xl text-sm font-medium
+                flex items-center gap-3 transition-colors
+                ${isCollapsed ? 'justify-center' : 'justify-start'}
+                ${isActive
+                  ? 'bg-default-100 text-foreground font-semibold'
+                  : 'text-default-500 hover:text-foreground hover:bg-default-100 dark:hover:bg-default-100/20'
+                }
+              `}
             >
-              <span className="shrink-0">{icon}</span>
-              {!isCollapsed && <span>{label}</span>}
-              {!isCollapsed && normalBadge > 0 && (
-                <span className="ml-auto h-5 min-w-5 px-1.5 flex items-center justify-center rounded-full text-[10px] font-bold bg-danger text-danger-foreground">
-                  {normalBadge > 9 ? '9+' : normalBadge}
-                </span>
+              <span className={`shrink-0 ${isActive ? 'text-foreground' : 'text-default-400'}`}>
+                {icon}
+              </span>
+
+              {!isCollapsed && (
+                <>
+                  <span className="flex-1 text-left">{label}</span>
+
+                  {numBadge > 0 && (
+                    <Chip size="sm" variant="soft" color="danger" className="text-[10px] h-5 min-w-0 px-1.5">
+                      {numBadge > 9 ? '9+' : numBadge}
+                    </Chip>
+                  )}
+
+                  {badge === 'New' && numBadge === 0 && (
+                    <Chip size="sm" variant="soft" color="success" className="text-[10px] h-5 min-w-0 px-1.5">
+                      New
+                    </Chip>
+                  )}
+                </>
               )}
-              {isCollapsed && normalBadge > 0 && (
+
+              {/* Collapsed: dot badge */}
+              {isCollapsed && numBadge > 0 && (
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full" />
-              )}
-              {!isCollapsed && badge === 'New' && (
-                <span className="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-500">
-                  New
-                </span>
               )}
             </Button>
           );
         })}
       </nav>
 
-      {/* Bottom Actions */}
-      <div className="px-2 py-4 border-t border-separator/50 flex flex-col gap-1 shrink-0">
+      <Separator />
+
+      {/* ── Bottom Actions ── */}
+      <div className="px-2 py-3 flex flex-col gap-0.5 shrink-0">
         <Button
           variant="ghost"
           onPress={() => navigate('/profile')}
-          className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium h-auto text-default-700 dark:text-default-400 hover:text-foreground hover:bg-default/50 dark:hover:bg-white/5 ${isCollapsed ? 'justify-center' : 'justify-start'}`}
+          className={`w-full h-auto px-3 py-2.5 rounded-xl text-sm font-medium flex items-center gap-3 text-default-500 hover:text-foreground hover:bg-default-100 dark:hover:bg-default-100/20 transition-colors ${isCollapsed ? 'justify-center' : 'justify-start'}`}
         >
-          <span className="shrink-0"><HelpCircle size={18} /></span>
+          <span className="shrink-0 text-default-400"><HelpCircle size={18} /></span>
           {!isCollapsed && <span>Trợ giúp & Thông tin</span>}
         </Button>
 
         <Button
           variant="ghost"
           onPress={logout}
-          className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium h-auto text-default-700 dark:text-default-400 hover:text-danger hover:bg-danger/10 ${isCollapsed ? 'justify-center' : 'justify-start'}`}
+          className={`w-full h-auto px-3 py-2.5 rounded-xl text-sm font-medium flex items-center gap-3 text-default-500 hover:text-danger hover:bg-danger/10 transition-colors ${isCollapsed ? 'justify-center' : 'justify-start'}`}
         >
-          <span className="shrink-0"><LogOut size={18} /></span>
+          <span className="shrink-0 text-default-400 group-hover:text-danger"><LogOut size={18} /></span>
           {!isCollapsed && <span>Đăng xuất</span>}
         </Button>
 
@@ -209,9 +223,12 @@ export default function Sidebar({ onOpenSheet, notifCount = 0, notifications, cl
           variant="ghost"
           onPress={toggleCollapse}
           aria-label={isCollapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'}
-          className="relative w-full flex items-center justify-center px-3 py-2 rounded-xl text-sm h-auto text-default-400 hover:text-foreground hover:bg-default/40 transition-all mt-1"
+          className="w-full h-auto px-3 py-2 rounded-xl text-default-400 hover:text-foreground hover:bg-default-100 dark:hover:bg-default-100/20 transition-colors flex items-center justify-center mt-1"
         >
-          {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          {isCollapsed
+            ? <PanelLeftOpen  size={16} />
+            : <PanelLeftClose size={16} />
+          }
         </Button>
       </div>
     </aside>
