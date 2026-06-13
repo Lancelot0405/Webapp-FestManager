@@ -3,7 +3,7 @@ import { Pencil, ChevronDown, Settings } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { supabase } from '../../lib/supabase';
 import { useApp } from '../../context/AppContext';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/shared/GlassInput';
 import FoodTemplateManager from './FoodTemplateManager';
 
 interface FoodTemplate {

@@ -72,7 +72,7 @@ export default function Layout() {
             ref={mainRef}
             className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 py-5 pb-24 md:pb-8 scroll-smooth-ios animate-fade-up"
           >
-            <div className="max-w-5xl mx-auto w-full">
+            <div className="max-w-5xl xl:max-w-7xl mx-auto w-full">
               <Outlet />
             </div>
           </main>

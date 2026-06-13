@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Lock, User, Eye, EyeOff, AlertCircle, CheckCircle, Download, Smartphone, X, ShieldCheck, Store, Tent, UtensilsCrossed, Sun, Moon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from '@heroui/react';
+import { Input } from '@/components/shared/GlassInput';
 import { useTheme } from '../../context/ThemeContext';
 import { supabase } from '../../lib/supabase';
 import { adminApi } from '../../lib/adminApi';
@@ -191,7 +191,7 @@ export default function LoginScreen() {
 
             <Button
               type="submit"
-              loading={loading}
+              isDisabled={loading}
               fullWidth
               className="w-full bg-[var(--primary)] text-[var(--background)] font-semibold py-3 rounded-xl active:scale-[0.98] transition-all hover:opacity-90"
             >
@@ -308,7 +308,7 @@ export default function LoginScreen() {
 
             <Button
               type="submit"
-              loading={loading}
+              isDisabled={loading}
               fullWidth
               className={`w-full font-semibold py-3 rounded-xl active:scale-[0.98] transition-all hover:opacity-90 ${
                 registerRole === 'manager'

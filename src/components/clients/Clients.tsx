@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Plus, X, Pencil, Trash2, Phone, Mail, MapPin, Building2, Check, Search } from 'lucide-react';
 import { Button } from '@heroui/react';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Fab } from '@/components/ui/fab';
+import { Input } from '@/components/shared/GlassInput';
+import { Textarea } from '@/components/shared/GlassTextarea';
+
 import { useClientsQuery } from '../../hooks/queries/useClientsQuery';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
 import { useAddClient } from '../../hooks/queries/mutations/useAddClient';
@@ -81,7 +81,9 @@ export default function Clients() {
           <Plus size={15} /> Thêm
         </Button>
       </div>
-      <Fab onPress={openAdd} label="Thêm khách hàng" icon={<Plus size={24} />} />
+      <Button onPress={openAdd} isIconOnly aria-label="Thêm khách hàng" className="md:hidden fixed bottom-24 right-4 z-30 h-14 w-14 rounded-full bg-[var(--primary)] text-[var(--background)] shadow-[var(--shadow-hero)] active:scale-95 transition-transform">
+          <Plus size={24} />
+        </Button>
 
       <Input value={search} onChange={setSearch} placeholder="Tìm kiếm khách hàng..." startContent={<Search size={15} />} />
 

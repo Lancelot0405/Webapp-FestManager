@@ -1,4 +1,4 @@
-import { SkeletonList } from '@/components/ui/skeleton';
+import ListSkeleton from '@/components/shared/skeletons/ListSkeleton';
 import type { InventoryItem } from '../../types';
 import InventoryItemRow from './InventoryItemRow';
 
@@ -13,8 +13,8 @@ interface Props {
 export default function InventoryItemList({ items, isLoading, onEditItem, itemLabel, sectionLabel }: Props) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-        <SkeletonList count={3} variant="row" />
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
+        <ListSkeleton count={3} />
       </div>
     );
   }
@@ -28,7 +28,7 @@ export default function InventoryItemList({ items, isLoading, onEditItem, itemLa
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
       {items.map(item => (
         <InventoryItemRow key={item.id} item={item} onEdit={onEditItem} />
       ))}

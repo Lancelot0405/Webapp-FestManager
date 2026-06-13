@@ -1,4 +1,4 @@
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@heroui/react';
 import type { InventoryItem } from '../../types';
 
@@ -18,12 +18,12 @@ export default function InventoryItemRow({ item, onEdit }: Props) {
   const isWarn = !isLow && item.threshold > 0 && item.current < item.threshold * 1.5;
 
   return (
-    <div className={`rounded-2xl overflow-hidden transition-all ${itemCls(isLow, isWarn)}`}>
+    <div className={`group rounded-2xl overflow-hidden transition-all cursor-pointer ${itemCls(isLow, isWarn)}`}>
       <Button
         onPress={() => onEdit(item)}
         variant="ghost"
         aria-label={`Chỉnh sửa ${item.name}`}
-        className="w-full flex items-center justify-between px-4 py-3 text-left h-auto rounded-none hover:bg-[var(--glass-bg)]"
+        className="w-full flex items-center justify-between px-4 py-3 text-left h-auto rounded-none hover:bg-[var(--glass-bg)] active:scale-[0.99] transition-all"
       >
         <div className="flex-1 min-w-0">
           <p className={`font-semibold text-sm ${isLow ? 'text-[var(--danger)]' : 'text-[var(--text-primary)]'}`}>
@@ -37,7 +37,11 @@ export default function InventoryItemRow({ item, onEdit }: Props) {
             {item.current}
           </span>
           <span className="text-xs text-[var(--text-muted)]">{item.unit}</span>
-          <ChevronDown size={14} className="text-[var(--text-muted)]" />
+          <ChevronDown size={14} className="text-[var(--text-muted)] md:hidden" />
+          <ChevronRight
+            size={14}
+            className="hidden md:block text-[var(--text-muted)] opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all duration-150"
+          />
         </div>
       </Button>
     </div>

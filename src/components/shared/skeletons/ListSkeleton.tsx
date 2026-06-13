@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@heroui/react';
 
 export default function ListSkeleton({ count = 5 }: { count?: number }) {
   return (

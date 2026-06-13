@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pencil } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { useNavigate } from 'react-router-dom';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/shared/GlassInput';
 import { useUpdateEvent } from '../../hooks/queries/mutations/useUpdateEvent';
 import StatusBadge from '../shared/StatusBadge';
 import type { FestivalEvent } from '../../types';

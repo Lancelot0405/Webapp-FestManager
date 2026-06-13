@@ -8,8 +8,8 @@ import { useUpdateInventoryUnit } from '../../../hooks/queries/mutations/useUpda
 import { useCreateInventoryItem } from '../../../hooks/queries/mutations/useCreateInventoryItem';
 import { useDeleteInventoryItem } from '../../../hooks/queries/mutations/useDeleteInventoryItem';
 import { useAddInventoryLog } from '../../../hooks/queries/mutations/useAddInventoryLog';
-import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
+import { Input } from '@/components/shared/GlassInput';
+import { Select } from '@/components/shared/GlassSelect';
 import type { FestivalEvent, InventoryUnit } from '../../../types';
 
 const UNITS: InventoryUnit[] = ['kg', 'g', 'lít', 'ml', 'cái', 'lon', 'hộp', 'túi', 'xiên', 'thùng', 'phần'];

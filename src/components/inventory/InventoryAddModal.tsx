@@ -7,7 +7,7 @@ import {
   ModalContainer,
   ModalDialog,
 } from '@heroui/react';
-import { Select } from '@/components/ui/select';
+import { Select } from '@/components/shared/GlassSelect';
 import { useApp } from '../../context/AppContext';
 import { useCreateInventoryItem } from '../../hooks/queries/mutations/useCreateInventoryItem';
 import { useAddInventoryLog } from '../../hooks/queries/mutations/useAddInventoryLog';

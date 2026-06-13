@@ -5,7 +5,7 @@ import { useApp } from '../../context/AppContext';
 import { adminApi } from '../../lib/adminApi';
 import { useToast } from '../../context/ToastContext';
 import { useCreateStaff } from '../../hooks/queries/mutations/useCreateStaff';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/shared/GlassInput';
 import type { StaffMember, StaffType, UserRole, UserDepartment } from '../../types';
 
 const DOMAIN = '@fm.com';

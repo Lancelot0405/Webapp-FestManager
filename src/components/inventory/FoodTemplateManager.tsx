@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, Plus, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { supabase } from '../../lib/supabase';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/shared/GlassInput';
 
 interface FoodTemplate {
   id:         number;

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@heroui/react';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/shared/GlassInput';
 import { useCreateEvent } from '../../hooks/queries/mutations/useCreateEvent';
 import { computeEventStatus } from '../../lib/eventStatus';
 import type { FestivalEvent } from '../../types';
@@ -55,12 +55,12 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
         </Button>
       </div>
       <form onSubmit={handleSubmit} className="space-y-2.5">
-        <Input label="Tên sự kiện *" placeholder="Nhập tên sự kiện..." value={name} onChange={setName} isRequired />
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5">
+          <Input label="Tên sự kiện *" placeholder="Nhập tên sự kiện..." value={name} onChange={setName} isRequired className="lg:col-span-2" />
           <Input type="date" label="Ngày bắt đầu *" value={startDate} onChange={(v) => { setStartDate(v); if (endDate && v > endDate) setEndDate(''); }} isRequired />
           <Input type="date" label="Ngày kết thúc" value={endDate} min={startDate} onChange={setEndDate} />
+          <Input label="Địa điểm *" placeholder="Nhập địa điểm..." value={location} onChange={setLocation} isRequired className="lg:col-span-2" />
         </div>
-        <Input label="Địa điểm *" placeholder="Nhập địa điểm..." value={location} onChange={setLocation} isRequired />
         <Button type="submit" variant="primary" fullWidth className="rounded-lg" isDisabled={createEvent.isPending}>
           {createEvent.isPending ? 'Đang tạo...' : 'Tạo sự kiện'}
         </Button>

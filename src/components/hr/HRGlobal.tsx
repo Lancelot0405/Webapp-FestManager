@@ -10,9 +10,9 @@ import { useDeleteStaff } from '../../hooks/queries/mutations/useDeleteStaff';
 import { useApproveRegistration } from '../../hooks/queries/mutations/useApproveRegistration';
 import { useRejectRegistration } from '../../hooks/queries/mutations/useRejectRegistration';
 import AddStaffForm from './AddStaffForm';
-import { Input } from '@/components/ui/input';
-import { Fab } from '@/components/ui/fab';
-import { SkeletonList } from '@/components/ui/skeleton';
+import { Input } from '@/components/shared/GlassInput';
+
+import ListSkeleton from '@/components/shared/skeletons/ListSkeleton';
 import type { StaffMember } from '../../types';
 
 type TypeFilter = 'Tất cả' | 'Nhân viên cứng' | 'Part-time';
@@ -74,12 +74,12 @@ export default function HRGlobal() {
       {list.map(s => (
         <div
           key={s.id}
-          className="glass-card rounded-xl overflow-hidden flex flex-row items-stretch"
+          className="group glass-card rounded-xl overflow-hidden flex flex-row items-stretch hover:shadow-[var(--shadow-warm)] active:scale-[0.99] transition-all duration-150"
         >
           <Button
             variant="ghost"
             onPress={() => navigate('/hr/' + s.id)}
-            className="flex-1 h-auto min-w-0 justify-start rounded-none p-4 text-left active:bg-[var(--glass-bg)]"
+            className="flex-1 h-auto min-w-0 justify-start rounded-none p-4 text-left hover:bg-[var(--glass-bg)]"
           >
             <div className="flex w-full items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-[var(--primary)]/10 flex items-center justify-center shrink-0">
@@ -125,7 +125,9 @@ export default function HRGlobal() {
               <Plus size={16} /> Thêm nhân viên
             </Button>
           </div>
-          <Fab onPress={() => setShowForm(true)} label="Thêm nhân viên" icon={<Plus size={24} />} />
+          <Button onPress={() => setShowForm(true)} isIconOnly aria-label="Thêm nhân viên" className="md:hidden fixed bottom-24 right-4 z-30 h-14 w-14 rounded-full bg-[var(--primary)] text-[var(--background)] shadow-[var(--shadow-hero)] active:scale-95 transition-transform">
+          <Plus size={24} />
+        </Button>
         </>
       )}
 
@@ -225,7 +227,7 @@ export default function HRGlobal() {
       )}
 
       {isLoading ? (
-        <SkeletonList count={4} variant="row" />
+        <ListSkeleton count={4} />
       ) : filtered.length === 0 ? (
         <p className="text-sm text-[var(--text-muted)] text-center py-10">Chưa có nhân viên</p>
       ) : typeFilter === 'Tất cả' && canViewAll ? (

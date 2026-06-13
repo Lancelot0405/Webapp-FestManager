@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
 import { Search } from 'lucide-react';
 import { Button } from '@heroui/react';
-import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
+import { Input } from '@/components/shared/GlassInput';
+import { Select } from '@/components/shared/GlassSelect';
 import type { InventoryLogEntry } from '../../types';
 
 interface Props { logs: InventoryLogEntry[] }

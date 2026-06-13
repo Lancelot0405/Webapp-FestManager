@@ -1,4 +1,5 @@
-import { Skeleton, SkeletonList } from '@/components/ui/skeleton';
+import { Skeleton } from '@heroui/react';
+import CardSkeleton from './CardSkeleton';
 
 export default function PageSkeleton() {
   return (
@@ -13,7 +14,7 @@ export default function PageSkeleton() {
         <Skeleton className="h-20 rounded-xl" />
         <Skeleton className="h-20 rounded-xl" />
       </div>
-      <SkeletonList count={4} variant="card" />
+      <CardSkeleton count={4} />
     </div>
   );
 }

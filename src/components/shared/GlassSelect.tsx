@@ -90,6 +90,6 @@ const Select = ({
     </SelectRoot>
   )
 }
-Select.displayName = "Select"
+Select.displayName = "GlassSelect"
 
 export { Select }

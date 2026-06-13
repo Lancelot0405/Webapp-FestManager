@@ -7,7 +7,7 @@ import { getErrorMessage } from '../../lib/errors';
 import { useInventoryQuery } from '../../hooks/queries/useInventoryQuery';
 import { useInventoryLogsQuery } from '../../hooks/queries/useInventoryLogsQuery';
 import { useCreateInventoryItem } from '../../hooks/queries/mutations/useCreateInventoryItem';
-import { Fab } from '@/components/ui/fab';
+
 import type { InventoryItem } from '../../types';
 import InventoryLogList from './InventoryLogList';
 import InventoryTabs from './InventoryTabs';
@@ -82,7 +82,9 @@ export default function Inventory() {
       )}
 
       {filters.subTab !== 'history' && (
-        <Fab onPress={() => setShowAddModal(true)} label="Thêm vào kho" icon={<Plus size={24} />} />
+        <Button onPress={() => setShowAddModal(true)} isIconOnly aria-label="Thêm vào kho" className="md:hidden fixed bottom-24 right-4 z-30 h-14 w-14 rounded-full bg-[var(--primary)] text-[var(--background)] shadow-[var(--shadow-hero)] active:scale-95 transition-transform">
+          <Plus size={24} />
+        </Button>
       )}
 
       <InventoryTabs

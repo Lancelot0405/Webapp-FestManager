@@ -365,6 +365,39 @@ input[type="date"] {
 .dark ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); }
 .dark ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
 
+/* ── Design Tokens (semantic spacing, typography, z-index) ───────────── */
+:root {
+  --space-xs: 0.25rem;   --space-sm: 0.5rem;
+  --space-md: 1rem;      --space-lg: 1.5rem;
+  --space-xl: 2rem;      --space-2xl: 3rem;
+
+  --text-xs: 0.75rem;    --text-sm: 0.875rem;
+  --text-base: 1rem;     --text-lg: 1.125rem;
+  --text-xl: 1.25rem;    --text-2xl: 1.5rem;
+  --heading-weight: 800;
+
+  --radius-sm: 0.5rem;   --radius-md: 0.75rem;
+  --radius-lg: 1rem;     --radius-xl: 1.25rem;
+  --radius-2xl: 1.5rem;
+
+  --shadow-modal: 0 20px 60px -10px rgb(0 0 0 / 0.3);
+
+  --z-dropdown: 50;      --z-modal: 100;
+  --z-drawer: 110;       --z-toast: 200;
+}
+
+/* ── Typography utilities ─────────────────────────────────────────────── */
+.page-title {
+  font-size: clamp(1.25rem, 2.5vw, 1.875rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.section-title {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-weight: 700;
+}
+
 /* ── Bottom nav pill ─────────────────────────────────────────────────── */
 .bottom-nav-pill {
   background: rgba(255, 255, 255, 0.88);

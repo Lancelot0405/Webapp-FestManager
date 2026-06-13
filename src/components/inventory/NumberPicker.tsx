@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pencil } from 'lucide-react';
 import { Button } from '@heroui/react';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/shared/GlassInput';
 
 interface NumberPickerProps {
   value:        string;

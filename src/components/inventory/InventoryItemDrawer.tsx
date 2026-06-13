@@ -7,7 +7,8 @@ import {
   DrawerContent,
   DrawerDialog,
 } from '@heroui/react';
-import { Select } from '@/components/ui/select';
+import { Select } from '@/components/shared/GlassSelect';
+import { useIsDesktop } from '@/hooks/useIsDesktop';
 import { useApp } from '../../context/AppContext';
 import { useUpdateInventoryItem } from '../../hooks/queries/mutations/useUpdateInventoryItem';
 import { useDeleteInventoryItem } from '../../hooks/queries/mutations/useDeleteInventoryItem';
@@ -25,6 +26,7 @@ interface Props {
 
 export default function InventoryItemDrawer({ item, isOpen, onClose }: Props) {
   const { currentUser } = useApp();
+  const isDesktop = useIsDesktop();
   const updateMutation = useUpdateInventoryItem();
   const deleteMutation = useDeleteInventoryItem();
   const addLogMutation = useAddInventoryLog();
@@ -78,8 +80,11 @@ export default function InventoryItemDrawer({ item, isOpen, onClose }: Props) {
         className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm"
       >
         <DrawerContent
-          placement="bottom"
-          className="fixed bottom-0 left-0 right-0 z-[201] max-h-[90dvh] rounded-t-2xl outline-none border-x border-t border-[var(--glass-border)] bg-[var(--popover)] backdrop-blur-[var(--glass-blur)] shadow-2xl"
+          placement={isDesktop ? 'right' : 'bottom'}
+          className={isDesktop
+            ? "fixed right-0 top-0 bottom-0 z-[201] w-96 outline-none border-l border-[var(--glass-border)] bg-[var(--popover)] backdrop-blur-[var(--glass-blur)] shadow-2xl"
+            : "fixed bottom-0 left-0 right-0 z-[201] max-h-[90dvh] rounded-t-2xl outline-none border-x border-t border-[var(--glass-border)] bg-[var(--popover)] backdrop-blur-[var(--glass-blur)] shadow-2xl"
+          }
         >
           <DrawerDialog aria-label="Chỉnh sửa mặt hàng" className="relative outline-none p-4 space-y-3">
             <p className="font-bold text-[var(--text-primary)] text-sm">Chỉnh sửa: {item.name}</p>

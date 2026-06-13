@@ -2,15 +2,15 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Trash2, Search } from 'lucide-react';
 import { Button, ScrollShadow } from '@heroui/react';
-import { Input } from '@/components/ui/input';
-import { Fab } from '@/components/ui/fab';
+import { Input } from '@/components/shared/GlassInput';
+
 import { useApp } from '../../context/AppContext';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
 import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
 import { useDeleteEvent } from '../../hooks/queries/mutations/useDeleteEvent';
 import StatusBadge from '../shared/StatusBadge';
 import AddEventForm from './AddEventForm';
-import { SkeletonList } from '@/components/ui/skeleton';
+import CardSkeleton from '@/components/shared/skeletons/CardSkeleton';
 import { computeEventStatus } from '../../lib/eventStatus';
 import type { EventStatus, FestivalEvent } from '../../types';
 
@@ -74,7 +74,9 @@ export default function Schedule() {
               Thêm sự kiện
             </Button>
           </div>
-          <Fab onPress={() => setShowAddForm(true)} label="Thêm sự kiện" icon={<Plus size={24} />} />
+          <Button onPress={() => setShowAddForm(true)} isIconOnly aria-label="Thêm sự kiện" className="md:hidden fixed bottom-24 right-4 z-30 h-14 w-14 rounded-full bg-[var(--primary)] text-[var(--background)] shadow-[var(--shadow-hero)] active:scale-95 transition-transform">
+          <Plus size={24} />
+        </Button>
         </>
       )}
 
@@ -92,7 +94,7 @@ export default function Schedule() {
       {showAddForm && isAdmin && <AddEventForm onClose={() => setShowAddForm(false)} />}
 
       {isLoading ? (
-        <SkeletonList count={3} variant="card" />
+        <CardSkeleton count={3} />
       ) : sorted.length === 0 ? (
         <p className="text-sm text-[var(--text-muted)] text-center py-10">Chưa có sự kiện nào</p>
       ) : (
@@ -122,8 +124,8 @@ function EventCard({ event, isAdmin, onSelect, onDelete }: {
   const dateDisplay = event.endDate && event.endDate !== event.date
     ? `${event.date} → ${event.endDate}` : event.date;
   return (
-    <div className="glass-card rounded-xl overflow-hidden flex items-stretch active:bg-[var(--glass-bg)] transition-all">
-      <Button variant="ghost" onPress={onSelect} className="flex-1 h-auto min-w-0 justify-start rounded-none p-4 text-left">
+    <div className="group glass-card rounded-xl overflow-hidden flex items-stretch hover:shadow-[var(--shadow-warm)] active:scale-[0.99] transition-all duration-150">
+      <Button variant="ghost" onPress={onSelect} className="flex-1 h-auto min-w-0 justify-start rounded-none p-4 text-left hover:bg-[var(--glass-bg)]">
         <div className="flex w-full justify-between items-start gap-2">
           <div className="flex-1 min-w-0">
             <p className="font-semibold text-[var(--text-primary)] truncate">{event.name}</p>

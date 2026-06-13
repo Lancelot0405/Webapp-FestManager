@@ -69,24 +69,24 @@ export default function Sidebar({ onOpenSheet, notifCount = 0 }: SidebarProps) {
   const activeSegment = location.pathname.split('/')[1] || 'dashboard';
 
   return (
-    <aside className="hidden md:flex flex-col w-56 lg:w-64 glass-card border-r border-[var(--glass-border)] shrink-0 sticky top-0 h-screen animate-slide-left">
+    <aside className="hidden md:flex flex-col w-16 lg:w-64 glass-card border-r border-[var(--glass-border)] shrink-0 sticky top-0 h-screen animate-slide-left transition-all duration-300">
 
       {/* Logo */}
       <Button
         variant="ghost"
         onPress={() => navigate('/dashboard')}
-        className="h-16 min-w-0 justify-start rounded-none flex items-center gap-2.5 px-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]/40 border-b border-[var(--glass-border)]"
+        className="h-16 min-w-0 rounded-none flex items-center gap-2.5 px-3 lg:px-5 justify-center lg:justify-start focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]/40 border-b border-[var(--glass-border)]"
       >
-        <div className="w-8 h-8 rounded-xl bg-[var(--primary)] flex items-center justify-center shadow-[var(--shadow-float)]">
+        <div className="w-8 h-8 rounded-xl bg-[var(--primary)] flex items-center justify-center shadow-[var(--shadow-float)] shrink-0">
           <UtensilsCrossed size={16} className="text-[var(--background)]" />
         </div>
-        <span className="text-lg font-black tracking-tight text-[var(--text-primary)] select-none">
+        <span className="hidden lg:block text-lg font-black tracking-tight text-[var(--text-primary)] select-none">
           FestManager
         </span>
       </Button>
 
       {/* Nav items */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-2 lg:px-3 py-4 space-y-1 overflow-y-auto">
         {tabs.map(({ path, icon, label }) => {
           const isActive = activeSegment === path;
           const badge    = badgeFor(path);
@@ -97,22 +97,25 @@ export default function Sidebar({ onOpenSheet, notifCount = 0 }: SidebarProps) {
               onPress={() => navigate('/' + path)}
               aria-current={isActive ? 'page' : undefined}
               fullWidth
-              className={`flex items-center gap-3 px-3 py-2.5 justify-start text-sm md:text-base font-semibold h-auto rounded-xl ${
+              className={`relative flex items-center gap-3 px-0 lg:px-3 py-2.5 justify-center lg:justify-start text-sm font-semibold h-auto rounded-xl ${
                 isActive
                   ? 'bg-[var(--primary)] text-[var(--background)]'
                   : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--glass-bg)]'
               }`}
             >
-              <span className={isActive ? 'text-[var(--background)]' : 'text-[var(--text-muted)]'}>
+              <span className={`shrink-0 ${isActive ? 'text-[var(--background)]' : 'text-[var(--text-muted)]'}`}>
                 {icon}
               </span>
-              {label}
+              <span className="hidden lg:block">{label}</span>
               {badge > 0 && (
-                <span className={`ml-auto min-w-5 px-1.5 py-0.5 rounded-full text-[10px] font-bold text-center ${
-                  isActive ? 'bg-[var(--background)]/20 text-[var(--background)]' : 'bg-[var(--danger)] text-white'
-                }`}>
-                  {badge > 9 ? '9+' : badge}
-                </span>
+                <>
+                  <span className={`hidden lg:block ml-auto min-w-5 px-1.5 py-0.5 rounded-full text-[10px] font-bold text-center ${
+                    isActive ? 'bg-[var(--background)]/20 text-[var(--background)]' : 'bg-[var(--danger)] text-white'
+                  }`}>
+                    {badge > 9 ? '9+' : badge}
+                  </span>
+                  <span className="lg:hidden absolute top-1 right-1 w-2 h-2 bg-[var(--danger)] rounded-full" />
+                </>
               )}
             </Button>
           );
@@ -120,11 +123,11 @@ export default function Sidebar({ onOpenSheet, notifCount = 0 }: SidebarProps) {
       </nav>
 
       {/* User info footer */}
-      <div className="px-3 py-3 border-t border-[var(--glass-border)]">
+      <div className="px-2 lg:px-3 py-3 border-t border-[var(--glass-border)]">
         <Button
           variant="ghost"
           onPress={onOpenSheet}
-          className="w-full h-auto justify-start flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-[var(--glass-bg)] transition-colors"
+          className="w-full h-auto flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-[var(--glass-bg)] transition-colors justify-center lg:justify-start"
           aria-label="Mở tài khoản và cài đặt"
         >
           <div className="relative w-8 h-8 rounded-full bg-[var(--primary)] flex items-center justify-center text-[var(--background)] text-xs font-bold shrink-0">
@@ -135,7 +138,7 @@ export default function Sidebar({ onOpenSheet, notifCount = 0 }: SidebarProps) {
               </span>
             )}
           </div>
-          <div className="min-w-0 flex-1 text-left">
+          <div className="hidden lg:block min-w-0 flex-1 text-left">
             <p className="text-sm font-semibold text-[var(--text-primary)] truncate">
               {currentUser.name}
             </p>
@@ -143,7 +146,7 @@ export default function Sidebar({ onOpenSheet, notifCount = 0 }: SidebarProps) {
               {roleLabel[currentUser.role]}
             </p>
           </div>
-          <ChevronUp size={16} className="text-[var(--text-muted)] shrink-0" />
+          <ChevronUp size={16} className="hidden lg:block text-[var(--text-muted)] shrink-0" />
         </Button>
       </div>
     </aside>
