@@ -1,4 +1,4 @@
-import { Card, Divider, Chip } from '@heroui/react';
+import { Card, Separator, Chip } from '@heroui/react';
 import type { FestivalEvent } from '../../../types';
 import StatusBadge from '../../shared/StatusBadge';
 
@@ -39,7 +39,7 @@ export default function EventInfoTab({ event }: Props) {
             <span className="text-muted">Chi phí</span>
             <span className="font-semibold text-danger">{totalExpense.toLocaleString('fr-FR')}€</span>
           </div>
-          <Divider className="my-1" />
+          <Separator className="my-1" />
           <div className="flex justify-between text-sm font-bold">
             <span className="text-foreground">Lợi nhuận</span>
             <span className={profit >= 0 ? 'text-success' : 'text-danger'}>
