@@ -10,6 +10,7 @@ import { useUpdateStaff } from '../../hooks/queries/mutations/useUpdateStaff';
 import { useAddContract } from '../../hooks/queries/mutations/useAddContract';
 import { useAddExpense } from '../../hooks/queries/mutations/useAddExpense';
 import { Input } from '@/components/shared/GlassInput';
+import AppDatePicker from '@/components/shared/AppDatePicker';
 import { Select } from '@/components/shared/GlassSelect';
 import { ExpenseStatusBadge } from '../shared/StatusBadge';
 import DocThumbnail from '../shared/DocThumbnail';
@@ -601,9 +602,8 @@ export default function StaffProfile() {
                 onChange={setFormAmount}
               />
             </div>
-            <Input
+            <AppDatePicker
               label="Ngày"
-              type="date"
               isRequired
               value={formDate}
               onChange={setFormDate}

@@ -9,6 +9,7 @@ import { useApp } from '../../../context/AppContext';
 import { useToast } from '../../../context/ToastContext';
 import { ExpenseStatusBadge } from '../../shared/StatusBadge';
 import { Input } from '@/components/shared/GlassInput';
+import AppDatePicker from '@/components/shared/AppDatePicker';
 import { Select } from '@/components/shared/GlassSelect';
 import { supabase } from '../../../lib/supabase';
 import { getErrorMessage } from '../../../lib/errors';
@@ -227,8 +228,7 @@ export default function EventExpensesTab({ event }: Props) {
                           name="date"
                           control={control}
                           render={({ field }) => (
-                            <Input
-                              type="date"
+                            <AppDatePicker
                               label="Ngày"
                               value={field.value}
                               onChange={field.onChange}

@@ -109,7 +109,7 @@ export default function Sidebar({ onOpenSheet, notifCount = 0, notifications, cl
   const w = isCollapsed ? 'w-16' : 'w-64';
 
   return (
-    <aside className={`hidden md:flex flex-col ${w} shrink-0 sticky top-0 h-screen bg-content1 border-r border-separator/80 transition-[width] duration-200 overflow-hidden`}>
+    <aside className={`hidden md:flex flex-col ${w} shrink-0 sticky top-0 h-screen bg-content1 border-r-2 border-separator transition-[width] duration-200 overflow-hidden`}>
 
       {/* User Profile (Top) */}
       <div className="h-20 w-full flex items-center px-3 justify-center border-b border-separator/40 shrink-0">
@@ -160,8 +160,8 @@ export default function Sidebar({ onOpenSheet, notifCount = 0, notifications, cl
               aria-current={isActive ? 'page' : undefined}
               className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium h-auto transition-all ${isCollapsed ? 'justify-center' : 'justify-start'} ${
                 isActive
-                  ? 'bg-primary/10 text-primary font-semibold shadow-sm'
-                  : 'text-default-500 hover:text-foreground hover:bg-default/40 dark:hover:bg-white/5'
+                  ? 'bg-primary/15 text-primary font-semibold border-l-2 border-primary shadow-sm'
+                  : 'text-default-700 dark:text-default-400 hover:text-foreground hover:bg-default/50 dark:hover:bg-white/5'
               }`}
             >
               <span className="shrink-0">{icon}</span>
@@ -189,7 +189,7 @@ export default function Sidebar({ onOpenSheet, notifCount = 0, notifications, cl
         <Button
           variant="ghost"
           onPress={() => navigate('/profile')}
-          className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium h-auto text-default-500 hover:text-foreground hover:bg-default/40 dark:hover:bg-white/5 ${isCollapsed ? 'justify-center' : 'justify-start'}`}
+          className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium h-auto text-default-700 dark:text-default-400 hover:text-foreground hover:bg-default/50 dark:hover:bg-white/5 ${isCollapsed ? 'justify-center' : 'justify-start'}`}
         >
           <span className="shrink-0"><HelpCircle size={18} /></span>
           {!isCollapsed && <span>Trợ giúp & Thông tin</span>}
@@ -198,7 +198,7 @@ export default function Sidebar({ onOpenSheet, notifCount = 0, notifications, cl
         <Button
           variant="ghost"
           onPress={logout}
-          className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium h-auto text-default-500 hover:text-danger hover:bg-danger/10 ${isCollapsed ? 'justify-center' : 'justify-start'}`}
+          className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium h-auto text-default-700 dark:text-default-400 hover:text-danger hover:bg-danger/10 ${isCollapsed ? 'justify-center' : 'justify-start'}`}
         >
           <span className="shrink-0"><LogOut size={18} /></span>
           {!isCollapsed && <span>Đăng xuất</span>}

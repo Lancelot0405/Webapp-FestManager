@@ -3,6 +3,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Input } from '@/components/shared/GlassInput';
+import AppDatePicker from '@/components/shared/AppDatePicker';
 import { useCreateEvent } from '../../hooks/queries/mutations/useCreateEvent';
 import { computeEventStatus } from '../../lib/eventStatus';
 import { eventSchema } from '../../lib/validations';
@@ -77,9 +78,9 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
                     name="startDate"
                     control={control}
                     render={({ field }) => (
-                      <Input
-                        type="date"
-                        label="Ngày bắt đầu *"
+                      <AppDatePicker
+                        label="Ngày bắt đầu"
+                        isRequired
                         value={field.value}
                         onChange={field.onChange}
                         error={errors.startDate?.message}
@@ -90,11 +91,10 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
                     name="endDate"
                     control={control}
                     render={({ field }) => (
-                      <Input
-                        type="date"
+                      <AppDatePicker
                         label="Ngày kết thúc"
                         value={field.value ?? ''}
-                        min={startDate}
+                        minValue={startDate}
                         onChange={field.onChange}
                         error={errors.endDate?.message}
                       />

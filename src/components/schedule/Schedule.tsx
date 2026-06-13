@@ -1,11 +1,12 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Trash2, MapPin, Users } from 'lucide-react';
 import {
-  Button, Calendar, Card, Chip, ScrollShadow,
+  Button, Card, Chip, ScrollShadow,
   ToggleButtonGroup, ToggleButton,
 } from '@heroui/react';
 import { today, getLocalTimeZone, CalendarDate } from '@internationalized/date';
+import { CalendarWithYearPicker } from '@/components/shared/AppDatePicker';
 
 import { useApp } from '../../context/AppContext';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
@@ -168,26 +169,10 @@ export default function Schedule() {
       <div className="flex flex-col md:flex-row md:gap-6 md:items-start">
         {/* ── Left panel: Calendar + Range toggle ── */}
         <div className="flex flex-col items-center gap-3 md:sticky md:top-4 md:flex-shrink-0">
-          <Calendar
-            aria-label="Lịch sự kiện"
+          <CalendarWithYearPicker
             value={selectedDate}
-            onChange={(val) => { if (val) setSelectedDate(val); }}
-            className="w-full"
-          >
-            <Calendar.Header>
-              <Calendar.NavButton slot="previous" />
-              <Calendar.Heading />
-              <Calendar.NavButton slot="next" />
-            </Calendar.Header>
-            <Calendar.Grid>
-              <Calendar.GridHeader>
-                {(day: string) => <Calendar.HeaderCell>{day}</Calendar.HeaderCell>}
-              </Calendar.GridHeader>
-              <Calendar.GridBody>
-                {(date: CalendarDate) => <Calendar.Cell date={date} />}
-              </Calendar.GridBody>
-            </Calendar.Grid>
-          </Calendar>
+            onChange={setSelectedDate}
+          />
 
           <ToggleButtonGroup
             selectionMode="single"
@@ -264,51 +249,84 @@ function EventCard({ event, isAdmin, onSelect, onDelete }: {
     ? `${event.date} → ${event.endDate}`
     : event.date;
 
+  const startXRef = useRef(0);
+  const [revealed, setRevealed] = useState(false);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    startXRef.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const dx = startXRef.current - e.changedTouches[0].clientX;
+    if (dx > 60)  setRevealed(true);
+    if (dx < -30) setRevealed(false);
+  };
+
   return (
-    <Card className={`border-l-4 ${STATUS_BORDER[event.status]} shadow-sm`}>
-      <Card.Content className="p-0">
-        <div className="flex items-stretch">
+    <div className="relative overflow-hidden rounded-xl">
+      {/* Swipe-to-delete reveal layer (mobile only) */}
+      {isAdmin && (
+        <div className="md:hidden absolute inset-y-0 right-0 flex items-center bg-danger px-5 rounded-r-xl z-0">
           <Button
-            variant="ghost"
-            onPress={onSelect}
-            className="flex-1 h-auto min-w-0 justify-start rounded-none rounded-r-none p-3 text-left"
+            isIconOnly variant="ghost" size="sm"
+            onPress={() => { setRevealed(false); onDelete(); }}
+            aria-label="Xóa sự kiện"
+            className="text-white hover:bg-white/20"
           >
-            <div className="flex flex-col gap-1 w-full">
-              <div className="flex items-center gap-2">
-                <p className="font-semibold text-foreground truncate">{event.name}</p>
-                <StatusBadge status={event.status} />
-              </div>
-
-              <div className="flex items-center gap-1 text-xs text-foreground/60">
-                <MapPin size={11} className="flex-shrink-0" />
-                <span className="truncate">{event.location}</span>
-              </div>
-
-              <p className="text-xs text-foreground/50">{dateDisplay}</p>
-
-              <div className="flex items-center gap-2">
-                <Users size={11} className="text-foreground/40 flex-shrink-0" />
-                <MiniAvatarGroup members={event.staff} />
-                {event.staff.length > 0 && (
-                  <span className="text-xs text-foreground/50">{event.staff.length} nhân viên</span>
-                )}
-              </div>
-            </div>
+            <Trash2 size={16} />
           </Button>
-
-          {isAdmin && (
-            <Button
-              isIconOnly
-              variant="ghost"
-              onPress={onDelete}
-              aria-label="Xóa sự kiện"
-              className="h-auto rounded-none rounded-r-xl px-3 text-foreground/40 hover:text-danger hover:bg-danger/10 border-l border-separator transition-colors"
-            >
-              <Trash2 size={15} />
-            </Button>
-          )}
         </div>
-      </Card.Content>
-    </Card>
+      )}
+
+      {/* Card sliding layer */}
+      <div
+        style={{ transform: revealed ? 'translateX(-72px)' : 'translateX(0)', transition: 'transform 0.22s ease' }}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onClick={revealed ? () => setRevealed(false) : undefined}
+      >
+        <Card className={`border-l-4 ${STATUS_BORDER[event.status]} shadow-sm hover:shadow-md hover:bg-default/30 dark:hover:bg-white/5 transition-all duration-150 rounded-xl`}>
+          <Card.Content className="p-0">
+            <div className="flex items-stretch">
+              <Button
+                variant="ghost"
+                onPress={!revealed ? onSelect : undefined}
+                className="flex-1 h-auto min-w-0 justify-start rounded-none rounded-r-none p-3 text-left hover:bg-transparent"
+              >
+                <div className="flex flex-col gap-1 w-full">
+                  <div className="flex items-center gap-2">
+                    <p className="font-semibold text-foreground truncate">{event.name}</p>
+                    <StatusBadge status={event.status} />
+                  </div>
+                  <div className="flex items-center gap-1 text-xs text-foreground/60">
+                    <MapPin size={11} className="flex-shrink-0" />
+                    <span className="truncate">{event.location}</span>
+                  </div>
+                  <p className="text-xs text-foreground/50">{dateDisplay}</p>
+                  <div className="flex items-center gap-2">
+                    <Users size={11} className="text-foreground/40 flex-shrink-0" />
+                    <MiniAvatarGroup members={event.staff} />
+                    {event.staff.length > 0 && (
+                      <span className="text-xs text-foreground/50">{event.staff.length} nhân viên</span>
+                    )}
+                  </div>
+                </div>
+              </Button>
+
+              {/* Desktop: always-visible delete button */}
+              {isAdmin && (
+                <Button
+                  isIconOnly variant="ghost"
+                  onPress={onDelete}
+                  aria-label="Xóa sự kiện"
+                  className="hidden md:flex h-auto rounded-none rounded-r-xl px-3 text-foreground/40 hover:text-danger hover:bg-danger/10 border-l border-separator transition-colors"
+                >
+                  <Trash2 size={15} />
+                </Button>
+              )}
+            </div>
+          </Card.Content>
+        </Card>
+      </div>
+    </div>
   );
 }

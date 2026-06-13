@@ -9,6 +9,7 @@ import { adminApi } from '../../lib/adminApi';
 import { useToast } from '../../context/ToastContext';
 import { useCreateStaff } from '../../hooks/queries/mutations/useCreateStaff';
 import { Input } from '@/components/shared/GlassInput';
+import AppDatePicker from '@/components/shared/AppDatePicker';
 import { staffSchema } from '../../lib/validations';
 import type { StaffMember, StaffType, UserRole, UserDepartment } from '../../types';
 
@@ -182,7 +183,7 @@ export default function AddStaffForm({ onClose }: Props) {
                   name="dob"
                   control={control}
                   render={({ field }) => (
-                    <Input type="date" label="Ngày sinh" value={field.value ?? ''} onChange={field.onChange} />
+                    <AppDatePicker label="Ngày sinh" value={field.value ?? ''} onChange={field.onChange} />
                   )}
                 />
 

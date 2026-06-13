@@ -75,11 +75,13 @@ export default function Layout() {
           </main>
 
           {!isDetail && (
-            <BottomNav
-              navVisible={navVisible}
-              onOpenSheet={() => setShowUserSheet(true)}
-              notifCount={notifications.length}
-            />
+            <div className="md:hidden">
+              <BottomNav
+                navVisible={navVisible}
+                onOpenSheet={() => setShowUserSheet(true)}
+                notifCount={notifications.length}
+              />
+            </div>
           )}
         </div>
       </div>
