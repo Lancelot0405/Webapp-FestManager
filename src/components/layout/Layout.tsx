@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { useApp } from '../../context/AppContext';
 import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
+import TopBar    from './TopBar';
 import Sidebar   from './Sidebar';
 import BottomNav from './BottomNav';
 import UserSheet from './UserSheet';
@@ -61,22 +62,22 @@ export default function Layout() {
         />
 
         <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
+          <TopBar
+            onOpenSheet={() => setShowUserSheet(true)}
+            navVisible={navVisible}
+            notifCount={notifications.length}
+          />
+
           <main
             ref={mainRef}
-            className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 pt-safe py-5 pb-28 md:pb-8 scroll-smooth-ios animate-fade-up"
+            className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 py-5 pb-24 md:pb-8 scroll-smooth-ios animate-fade-up"
           >
             <div className="max-w-5xl xl:max-w-7xl mx-auto w-full">
               <Outlet />
             </div>
           </main>
 
-          {!isDetail && (
-            <BottomNav
-              navVisible={navVisible}
-              onOpenSheet={() => setShowUserSheet(true)}
-              notifCount={notifications.length}
-            />
-          )}
+          {!isDetail && <BottomNav navVisible={navVisible} />}
         </div>
       </div>
 
