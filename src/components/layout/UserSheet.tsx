@@ -26,8 +26,7 @@ const roleLabel: Record<string, string> = {
 };
 
 export default function UserSheet({ onClose, onLogout, notifications, clearAll, clearOne }: UserSheetProps) {
-  const { state }       = useApp();
-  const { currentUser } = state;
+  const { currentUser } = useApp();
   const { theme, toggleTheme } = useTheme();
   const isAdmin   = currentUser?.role === 'admin';
   const isManager = currentUser?.role === 'manager';

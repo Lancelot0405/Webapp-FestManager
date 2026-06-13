@@ -4,6 +4,7 @@ import { Button } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { adminApi } from '../../lib/adminApi';
 import { useToast } from '../../context/ToastContext';
+import { useCreateStaff } from '../../hooks/queries/mutations/useCreateStaff';
 import { Input } from '@/components/ui/input';
 import type { StaffMember, StaffType, UserRole, UserDepartment } from '../../types';
 
@@ -14,8 +15,10 @@ interface Props {
 }
 
 export default function AddStaffForm({ onClose }: Props) {
-  const { addStaff, state: { currentUser } } = useApp();
+  const { currentUser } = useApp();
   const showToast = useToast();
+  const createStaffMutation = useCreateStaff();
+
   const [name,       setName]       = useState('');
   const [dob,        setDob]        = useState('');
   const [city,       setCity]       = useState('');
@@ -65,10 +68,19 @@ export default function AddStaffForm({ onClose }: Props) {
       staffType,
       contracts: [],
     };
-    addStaff(newStaff, userId);
-    showToast('Đã thêm nhân viên', 'success');
-    setLoading(false);
-    onClose();
+    createStaffMutation.mutate(
+      { staff: newStaff, userId },
+      {
+        onSuccess: () => {
+          showToast('Đã thêm nhân viên', 'success');
+          setLoading(false);
+          onClose();
+        },
+        onError: () => {
+          setLoading(false);
+        },
+      }
+    );
   };
 
   return (

@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { UserMinus, UserPlus, Check } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { useApp } from '../../../context/AppContext';
+import { useStaffQuery } from '../../../hooks/queries/useStaffQuery';
+import { useAddStaffToEvent } from '../../../hooks/queries/mutations/useAddStaffToEvent';
+import { useRemoveStaffFromEvent } from '../../../hooks/queries/mutations/useRemoveStaffFromEvent';
 import type { FestivalEvent } from '../../../types';
 
 interface Props {
@@ -9,13 +12,17 @@ interface Props {
 }
 
 export default function EventStaffTab({ event }: Props) {
-  const { state, addStaffToEvent, removeStaffFromEvent } = useApp();
-  const isAdmin = state.currentUser?.role === 'admin';
+  const { currentUser } = useApp();
+  const { data: staff = [] } = useStaffQuery();
+  const addStaffToEventMutation = useAddStaffToEvent();
+  const removeStaffFromEventMutation = useRemoveStaffFromEvent();
+
+  const isAdmin = currentUser?.role === 'admin';
   const [showAdd, setShowAdd] = useState(false);
   const [selected, setSelected] = useState<Set<number>>(new Set());
 
   const assignedIds = new Set(event.staff.map(s => s.id));
-  const availableStaff = state.staff.filter(s => !assignedIds.has(s.id));
+  const availableStaff = staff.filter(s => !assignedIds.has(s.id));
 
   const toggleSelect = (id: number) => {
     setSelected(prev => {
@@ -26,9 +33,9 @@ export default function EventStaffTab({ event }: Props) {
   };
 
   const handleConfirmAdd = () => {
-    state.staff
+    staff
       .filter(s => selected.has(s.id))
-      .forEach(s => addStaffToEvent(event.id, { id: s.id, name: s.name, city: s.city }));
+      .forEach(s => addStaffToEventMutation.mutate({ eventId: event.id, staffRef: { id: s.id, name: s.name, city: s.city } }));
     setSelected(new Set());
     setShowAdd(false);
   };
@@ -101,7 +108,7 @@ export default function EventStaffTab({ event }: Props) {
                 <Button
                   isIconOnly
                   variant="ghost"
-                  onPress={() => removeStaffFromEvent(event.id, s.id)}
+                  onPress={() => removeStaffFromEventMutation.mutate({ eventId: event.id, staffId: s.id })}
                   aria-label="Gỡ nhân viên"
                   className="h-auto min-w-0 p-1.5 text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 rounded-lg transition-colors"
                 >

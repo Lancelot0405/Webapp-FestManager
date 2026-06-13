@@ -29,8 +29,8 @@ export default function FoodNameSelect({
   placeholder,
   required,
 }: FoodNameSelectProps) {
-  const { state }  = useApp();
-  const canManage  = state.currentUser?.role === 'admin' || state.currentUser?.role === 'manager';
+  const { currentUser } = useApp();
+  const canManage = currentUser?.role === 'admin' || currentUser?.role === 'manager';
 
   const [templates,    setTemplates]    = useState<FoodTemplate[]>([]);
   const [loading,      setLoading]      = useState(true);

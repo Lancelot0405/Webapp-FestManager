@@ -5,6 +5,9 @@ import { Button, ScrollShadow } from '@heroui/react';
 import { Input } from '@/components/ui/input';
 import { Fab } from '@/components/ui/fab';
 import { useApp } from '../../context/AppContext';
+import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
+import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
+import { useDeleteEvent } from '../../hooks/queries/mutations/useDeleteEvent';
 import StatusBadge from '../shared/StatusBadge';
 import AddEventForm from './AddEventForm';
 import { SkeletonList } from '@/components/ui/skeleton';
@@ -20,17 +23,16 @@ function parseDate(d: string): number {
 type StatusFilter = 'Tất cả' | EventStatus;
 
 const STATUS_FILTERS: StatusFilter[] = [
-  'Tất cả',
-  'Sắp tới',
-  'Đang diễn ra',
-  'Đã hoàn thành',
-  'Lên kế hoạch',
+  'Tất cả', 'Sắp tới', 'Đang diễn ra', 'Đã hoàn thành', 'Lên kế hoạch',
 ];
 
 export default function Schedule() {
   const navigate = useNavigate();
-  const { state, deleteEvent } = useApp();
-  const { events, currentUser, staff } = state;
+  const { currentUser }                   = useApp();
+  const { data: events = [], isLoading }  = useEventsQuery();
+  const { data: staff = [] }              = useStaffQuery();
+  const deleteEventMutation               = useDeleteEvent();
+
   const isAdmin   = currentUser?.role === 'admin';
   const isManager = currentUser?.role === 'manager';
   const canViewAll = isAdmin || isManager;
@@ -67,12 +69,7 @@ export default function Schedule() {
       {isAdmin && (
         <>
           <div className="hidden md:flex justify-end">
-            <Button
-              onPress={() => setShowAddForm(true)}
-              variant="primary"
-              size="sm"
-              className="flex items-center gap-1 rounded-xl font-semibold"
-            >
+            <Button onPress={() => setShowAddForm(true)} variant="primary" size="sm" className="flex items-center gap-1 rounded-xl font-semibold">
               <Plus size={16} />
               Thêm sự kiện
             </Button>
@@ -81,38 +78,20 @@ export default function Schedule() {
         </>
       )}
 
-      {/* Search input */}
-      <Input
-        type="text"
-        placeholder="Tìm theo tên hoặc địa điểm..."
-        value={search}
-        onChange={setSearch}
-        startContent={<Search size={15} />}
-      />
+      <Input type="text" placeholder="Tìm theo tên hoặc địa điểm..." value={search} onChange={setSearch} startContent={<Search size={15} />} />
 
-      {/* Status filter pills */}
       <div className="flex flex-wrap gap-1.5">
         {STATUS_FILTERS.map(s => (
-          <Button
-            key={s}
-            variant="ghost"
-            onPress={() => setStatusFilter(s)}
-            className={`h-auto min-w-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-              statusFilter === s
-                ? 'bg-[var(--primary)] text-[var(--background)] border-[var(--primary)]'
-                : 'glass-card border-[var(--glass-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-            }`}
-          >
+          <Button key={s} variant="ghost" onPress={() => setStatusFilter(s)}
+            className={`h-auto min-w-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${statusFilter === s ? 'bg-[var(--primary)] text-[var(--background)] border-[var(--primary)]' : 'glass-card border-[var(--glass-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
             {s}
           </Button>
         ))}
       </div>
 
-      {showAddForm && isAdmin && (
-        <AddEventForm onClose={() => setShowAddForm(false)} />
-      )}
+      {showAddForm && isAdmin && <AddEventForm onClose={() => setShowAddForm(false)} />}
 
-      {state.loading ? (
+      {isLoading ? (
         <SkeletonList count={3} variant="card" />
       ) : sorted.length === 0 ? (
         <p className="text-sm text-[var(--text-muted)] text-center py-10">Chưa có sự kiện nào</p>
@@ -126,7 +105,7 @@ export default function Schedule() {
               onSelect={() => navigate('/schedule/' + event.id)}
               onDelete={() => {
                 if (window.confirm(`Xóa sự kiện "${event.name}"?\nThao tác này không thể hoàn tác.`)) {
-                  deleteEvent(event.id);
+                  deleteEventMutation.mutate(event.id);
                 }
               }}
             />
@@ -137,28 +116,14 @@ export default function Schedule() {
   );
 }
 
-function EventCard({
-  event,
-  isAdmin,
-  onSelect,
-  onDelete,
-}: {
-  event: FestivalEvent;
-  isAdmin: boolean;
-  onSelect: () => void;
-  onDelete: () => void;
+function EventCard({ event, isAdmin, onSelect, onDelete }: {
+  event: FestivalEvent; isAdmin: boolean; onSelect: () => void; onDelete: () => void;
 }) {
   const dateDisplay = event.endDate && event.endDate !== event.date
-    ? `${event.date} → ${event.endDate}`
-    : event.date;
-
+    ? `${event.date} → ${event.endDate}` : event.date;
   return (
     <div className="glass-card rounded-xl overflow-hidden flex items-stretch active:bg-[var(--glass-bg)] transition-all">
-      <Button
-        variant="ghost"
-        onPress={onSelect}
-        className="flex-1 h-auto min-w-0 justify-start rounded-none p-4 text-left"
-      >
+      <Button variant="ghost" onPress={onSelect} className="flex-1 h-auto min-w-0 justify-start rounded-none p-4 text-left">
         <div className="flex w-full justify-between items-start gap-2">
           <div className="flex-1 min-w-0">
             <p className="font-semibold text-[var(--text-primary)] truncate">{event.name}</p>
@@ -170,13 +135,8 @@ function EventCard({
         </div>
       </Button>
       {isAdmin && (
-        <Button
-          isIconOnly
-          variant="ghost"
-          onPress={onDelete}
-          aria-label="Xóa sự kiện"
-          className="h-auto rounded-none px-3 text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 border-l border-[var(--glass-border)] transition-colors"
-        >
+        <Button isIconOnly variant="ghost" onPress={onDelete} aria-label="Xóa sự kiện"
+          className="h-auto rounded-none px-3 text-[var(--text-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 border-l border-[var(--glass-border)] transition-colors">
           <Trash2 size={16} />
         </Button>
       )}

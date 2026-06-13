@@ -1,16 +1,20 @@
+import React from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TrendingUp, TrendingDown, DollarSign, FileSpreadsheet, Pencil, Check, X } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { Input } from '@/components/ui/input';
-import { useApp } from '../../context/AppContext';
+import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
+import { useUpdateEvent } from '../../hooks/queries/mutations/useUpdateEvent';
+import { useUpdateExpenseStatus } from '../../hooks/queries/mutations/useUpdateExpenseStatus';
 import StatusBadge from '../shared/StatusBadge';
-import type { ExpenseStatus, FestivalEvent } from '../../types';
+import type { FestivalEvent } from '../../types';
 
 export default function Finance() {
   const navigate = useNavigate();
-  const { state, updateEvent, updateExpenseStatus } = useApp();
-  const { events } = state;
+  const { data: events = [] } = useEventsQuery();
+  const updateEventMutation = useUpdateEvent();
+  const updateExpenseStatusMutation = useUpdateExpenseStatus();
 
   const [selectedMonth, setSelectedMonth] = useState<string>('all');
   const [editingEventId, setEditingEventId] = useState<number | null>(null);
@@ -77,7 +81,7 @@ export default function Finance() {
   };
 
   const saveEditing = (event: FestivalEvent) => {
-    updateEvent({
+    updateEventMutation.mutate({
       ...event,
       financials: {
         income: editIncome,
@@ -217,7 +221,7 @@ export default function Finance() {
                 </div>
                 <div className="flex gap-1.5 shrink-0">
                   <Button
-                    onPress={() => updateExpenseStatus(r.eventId, r.id, 'approved' as ExpenseStatus)}
+                    onPress={() => updateExpenseStatusMutation.mutate({ eventId: r.eventId, expenseId: r.id, status: 'approved' })}
                     variant="ghost"
                     size="sm"
                     className="flex items-center gap-0.5 bg-[var(--success)]/10 hover:bg-[var(--success)]/20 text-[var(--success)] rounded-lg border border-[var(--success)]/20"
@@ -225,7 +229,7 @@ export default function Finance() {
                     <Check size={12} /> Duyệt
                   </Button>
                   <Button
-                    onPress={() => updateExpenseStatus(r.eventId, r.id, 'rejected' as ExpenseStatus)}
+                    onPress={() => updateExpenseStatusMutation.mutate({ eventId: r.eventId, expenseId: r.id, status: 'rejected' })}
                     variant="ghost"
                     size="sm"
                     className="flex items-center gap-0.5 rounded-lg text-[var(--danger)] bg-[var(--danger-light)] hover:bg-[var(--danger)]/20 border border-[var(--danger)]/20"

@@ -2,6 +2,12 @@ import { useState } from 'react';
 import { Check, X, ChevronDown, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { useApp } from '../../../context/AppContext';
+import { useInventoryQuery } from '../../../hooks/queries/useInventoryQuery';
+import { useSetInventoryItem } from '../../../hooks/queries/mutations/useSetInventoryItem';
+import { useUpdateInventoryUnit } from '../../../hooks/queries/mutations/useUpdateInventoryUnit';
+import { useCreateInventoryItem } from '../../../hooks/queries/mutations/useCreateInventoryItem';
+import { useDeleteInventoryItem } from '../../../hooks/queries/mutations/useDeleteInventoryItem';
+import { useAddInventoryLog } from '../../../hooks/queries/mutations/useAddInventoryLog';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import type { FestivalEvent, InventoryUnit } from '../../../types';
@@ -12,9 +18,13 @@ const UNIT_OPTIONS = UNITS.map(u => ({ value: u, label: u }));
 interface Props { event: FestivalEvent; }
 
 export default function EventInventoryTab({ event }: Props) {
-  const { state, setInventoryItem, updateInventoryUnit, addInventoryLog,
-          createInventoryItem, deleteInventoryItem } = useApp();
-  const { inventory, currentUser } = state;
+  const { currentUser } = useApp();
+  const { data: inventory = [] } = useInventoryQuery();
+  const setInventoryItemMutation = useSetInventoryItem();
+  const updateInventoryUnitMutation = useUpdateInventoryUnit();
+  const createInventoryItemMutation = useCreateInventoryItem();
+  const deleteInventoryItemMutation = useDeleteInventoryItem();
+  const addInventoryLogMutation = useAddInventoryLog();
 
   const [editingId,  setEditingId]  = useState<number | null>(null);
   const [editQty,    setEditQty]    = useState('');
@@ -34,11 +44,11 @@ export default function EventInventoryTab({ event }: Props) {
   const handleSave = (itemId: number, itemName: string) => {
     const qty = parseFloat(editQty);
     if (isNaN(qty) || qty < 0) return;
-    setInventoryItem(itemId, qty);
+    setInventoryItemMutation.mutate({ itemId, qty });
     const prevUnit = inventory.find(i => i.id === itemId)?.unit;
-    if (editUnit !== prevUnit) updateInventoryUnit(itemId, editUnit);
+    if (editUnit !== prevUnit) updateInventoryUnitMutation.mutate({ itemId, unit: editUnit });
     if (currentUser) {
-      addInventoryLog({
+      addInventoryLogMutation.mutate({
         id: new Date().getTime(), itemId, itemName, qty, unit: editUnit,
         action: 'set', festivalId: event.id, festivalName: event.name,
         timestamp: new Date().toLocaleString('vi-VN', { hour12: false }),
@@ -51,9 +61,9 @@ export default function EventInventoryTab({ event }: Props) {
   const handleAddItem = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim() || !newCurrent) return;
-    createInventoryItem({ name: newName.trim(), current: parseFloat(newCurrent), threshold: parseFloat(newThreshold) || 0, unit: newUnit });
+    createInventoryItemMutation.mutate({ name: newName.trim(), current: parseFloat(newCurrent), threshold: parseFloat(newThreshold) || 0, unit: newUnit });
     if (currentUser) {
-      addInventoryLog({
+      addInventoryLogMutation.mutate({
         id: Date.now(), itemId: Date.now() + 1, itemName: newName.trim(),
         qty: parseFloat(newCurrent), unit: newUnit, action: 'created',
         festivalId: event.id, festivalName: event.name,
@@ -67,7 +77,7 @@ export default function EventInventoryTab({ event }: Props) {
 
   const handleDelete = (itemId: number, itemName: string) => {
     if (window.confirm(`Xóa "${itemName}" khỏi kho hàng?\nThao tác này không thể hoàn tác.`)) {
-      deleteInventoryItem(itemId);
+      deleteInventoryItemMutation.mutate(itemId);
     }
   };
 
@@ -224,7 +234,7 @@ export default function EventInventoryTab({ event }: Props) {
                                     key={u}
                                     variant="ghost"
                                     className={`w-full h-auto min-w-0 justify-start rounded-none text-left px-3 py-1.5 text-sm hover:bg-[var(--glass-bg)] transition-colors ${u === item.unit ? 'text-[var(--primary)] font-semibold' : 'text-[var(--text-primary)]'}`}
-                                    onPress={() => { updateInventoryUnit(item.id, u); setUnitMenuId(null); }}
+                                    onPress={() => { updateInventoryUnitMutation.mutate({ itemId: item.id, unit: u }); setUnitMenuId(null); }}
                                   >
                                     {u}
                                   </Button>

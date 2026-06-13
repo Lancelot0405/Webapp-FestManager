@@ -9,6 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { supabase } from '../../../lib/supabase';
 import { getErrorMessage } from '../../../lib/errors';
+import { useStaffQuery } from '../../../hooks/queries/useStaffQuery';
+import { useAddExpense } from '../../../hooks/queries/mutations/useAddExpense';
+import { useUpdateExpenseStatus } from '../../../hooks/queries/mutations/useUpdateExpenseStatus';
 import type { FestivalEvent, ExpenseCategory, Expense } from '../../../types';
 
 interface Props {
@@ -20,9 +23,12 @@ const CATEGORY_OPTIONS = CATEGORIES.map(c => ({ value: c, label: c }));
 const MAX_FILE_MB = 5;
 
 export default function EventExpensesTab({ event }: Props) {
-  const { state, addExpense, updateExpenseStatus } = useApp();
+  const { currentUser } = useApp();
   const showToast = useToast();
-  const { currentUser, staff } = state;
+  const { data: staff = [] } = useStaffQuery();
+  const addExpenseMutation = useAddExpense();
+  const updateExpenseStatusMutation = useUpdateExpenseStatus();
+
   const isAdmin   = currentUser?.role === 'admin';
   const isManager = currentUser?.role === 'manager';
   const canViewAll = isAdmin || isManager;
@@ -80,7 +86,7 @@ export default function EventExpensesTab({ event }: Props) {
         imageUrl,
         status: 'pending',
       };
-      addExpense(event.id, newExpense);
+      addExpenseMutation.mutate({ eventId: event.id, expense: newExpense });
       resetForm();
       setShowFormForStaff(null);
       setExpandedStaff(myNumericStaffId);
@@ -276,14 +282,14 @@ export default function EventExpensesTab({ event }: Props) {
                             <div className="flex gap-2 mt-2">
                               <Button
                                 variant="ghost"
-                                onPress={() => updateExpenseStatus(event.id, r.id, 'approved')}
+                                onPress={() => updateExpenseStatusMutation.mutate({ eventId: event.id, expenseId: r.id, status: 'approved' })}
                                 className="flex-1 h-auto text-xs bg-[var(--success)]/10 text-[var(--success)] font-semibold py-1.5 rounded-xl border border-[var(--success)]/20 hover:bg-[var(--success)]/20 transition-colors"
                               >
                                 Duyệt
                               </Button>
                               <Button
                                 variant="ghost"
-                                onPress={() => updateExpenseStatus(event.id, r.id, 'rejected')}
+                                onPress={() => updateExpenseStatusMutation.mutate({ eventId: event.id, expenseId: r.id, status: 'rejected' })}
                                 className="flex-1 h-auto text-xs bg-[var(--danger)]/10 text-[var(--danger)] font-semibold py-1.5 rounded-xl border border-[var(--danger)]/20 hover:bg-[var(--danger)]/20 transition-colors"
                               >
                                 Từ chối

@@ -4,6 +4,11 @@ import { ArrowLeft, FileText, Plus, Upload, Image, X, Loader, Pencil, Check, Cre
 import { Button } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
+import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
+import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
+import { useUpdateStaff } from '../../hooks/queries/mutations/useUpdateStaff';
+import { useAddContract } from '../../hooks/queries/mutations/useAddContract';
+import { useAddExpense } from '../../hooks/queries/mutations/useAddExpense';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { ExpenseStatusBadge } from '../shared/StatusBadge';
@@ -19,9 +24,13 @@ const MAX_FILE_MB = 5;
 export default function StaffProfile() {
   const { staffId: paramStaffId } = useParams<{ staffId?: string }>();
   const navigate = useNavigate();
-  const { state, addExpense, addContract, updateStaff } = useApp();
+  const { currentUser } = useApp();
   const showToast = useToast();
-  const { staff, events, currentUser } = state;
+  const { data: staff = [] } = useStaffQuery();
+  const { data: events = [] } = useEventsQuery();
+  const updateStaffMutation = useUpdateStaff();
+  const addContractMutation = useAddContract();
+  const addExpenseMutation = useAddExpense();
 
   // Khi ở /hr/:staffId → dùng params; khi ở /profile → tìm staff của chính mình
   const staffId = paramStaffId ?? (() => {
@@ -135,7 +144,7 @@ export default function StaffProfile() {
   };
 
   const saveEdit = async () => {
-    updateStaff({
+    updateStaffMutation.mutate({
       ...member,
       name: editName.trim(),
       dob: editDob.trim(),
@@ -188,7 +197,7 @@ export default function StaffProfile() {
     setUploadingContract(true);
     try {
       const url = await uploadFile(file, 'contracts', `staff-${member.id}`);
-      addContract(member.id, { id: Date.now(), date: nowStr(), url, fileName: file.name });
+      addContractMutation.mutate({ staffId: member.id, contract: { id: Date.now(), date: nowStr(), url, fileName: file.name } });
     } catch (err) { showToast(getErrorMessage(err, 'Upload thất bại.'), 'error'); }
     finally { setUploadingContract(false); if (contractFileRef.current) contractFileRef.current.value = ''; }
   };
@@ -204,7 +213,7 @@ export default function StaffProfile() {
     try {
       const url = await uploadFile(file, 'documents', `staff-${member.id}/${docType}`);
       const doc: StaffDocument = { url, fileName: file.name, uploadedAt: nowStr() };
-      updateStaff({ ...member, [docType]: doc });
+      updateStaffMutation.mutate({ ...member, [docType]: doc });
     } catch (err) { showToast(getErrorMessage(err, 'Upload thất bại.'), 'error'); }
     finally { setUploading(false); if (ref.current) ref.current.value = ''; }
   };
@@ -217,11 +226,11 @@ export default function StaffProfile() {
       let imageUrl = '';
       if (expenseFile) imageUrl = await uploadFile(expenseFile, 'expenses', `staff-${member.id}`);
       const [yyyy, mm, dd] = formDate.split('-');
-      addExpense(formEventId as number, {
+      addExpenseMutation.mutate({ eventId: formEventId as number, expense: {
         id: Date.now(), staffId: String(member.id), staffName: member.name,
         festivalId: formEventId as number, type: formCategory,
         amount: parseFloat(formAmount), date: `${dd}-${mm}-${yyyy}`, imageUrl, status: 'pending',
-      });
+      }});
       setShowExpenseForm(false);
       setFormAmount(''); setFormDate(''); setFormEventId(''); setExpenseFile(null);
     } catch (err) { showToast(getErrorMessage(err, 'Upload thất bại.'), 'error'); }

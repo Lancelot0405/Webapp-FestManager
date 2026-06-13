@@ -10,8 +10,7 @@ interface TopBarProps {
 }
 
 export default function TopBar({ onOpenSheet, navVisible = true, notifCount = 0 }: TopBarProps) {
-  const { state }       = useApp();
-  const { currentUser } = state;
+  const { currentUser } = useApp();
   const navigate        = useNavigate();
 
   if (!currentUser) return null;

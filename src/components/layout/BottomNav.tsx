@@ -41,8 +41,7 @@ const STAFF_TABS = [
 ];
 
 export default function BottomNav({ navVisible = true }: BottomNavProps) {
-  const { state }       = useApp();
-  const { currentUser } = state;
+  const { currentUser } = useApp();
   const navigate        = useNavigate();
   const location        = useLocation();
 
@@ -71,7 +70,6 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
                : STAFF_TABS;
   const compact = tabs.length >= 6;
 
-  // Detect active tab from current path segment
   const activeSegment = location.pathname.split('/')[1] || 'dashboard';
 
   return (

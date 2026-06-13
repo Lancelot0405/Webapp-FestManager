@@ -27,9 +27,9 @@ function Lazy({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const { state } = useApp();
+  const { currentUser, loading } = useApp();
 
-  if (state.loading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-brand-gradient flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
@@ -42,7 +42,7 @@ export default function App() {
     );
   }
 
-  if (!state.currentUser) {
+  if (!currentUser) {
     return (
       <div className="min-h-screen bg-brand-gradient flex justify-center">
         <LoginScreen />

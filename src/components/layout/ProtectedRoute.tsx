@@ -2,7 +2,7 @@ import { Navigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { state } = useApp();
-  const canView = state.currentUser?.role === 'admin' || state.currentUser?.role === 'manager';
+  const { currentUser } = useApp();
+  const canView = currentUser?.role === 'admin' || currentUser?.role === 'manager';
   return canView ? <>{children}</> : <Navigate to="/dashboard" replace />;
 }

@@ -9,8 +9,7 @@ import BottomNav from './BottomNav';
 import UserSheet from './UserSheet';
 
 export default function Layout() {
-  const { state, logout: contextLogout } = useApp();
-  const { currentUser } = state;
+  const { currentUser, logout: contextLogout } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -50,7 +49,6 @@ export default function Layout() {
   const isAdminOrManager = currentUser?.role === 'admin' || currentUser?.role === 'manager';
   const { notifications, clearAll, clearOne } = useRealtimeNotifications(!!currentUser && isAdminOrManager);
 
-  // Ẩn BottomNav khi đang ở màn hình detail
   const isDetail = /^\/(schedule|hr)\/.+/.test(location.pathname);
 
   return (

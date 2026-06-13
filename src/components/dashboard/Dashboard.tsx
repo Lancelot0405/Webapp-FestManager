@@ -3,13 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { Calendar, Users, Package, Clock, TrendingUp, ChevronRight } from 'lucide-react';
 import { Button, Avatar } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
+import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
+import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
+import { useInventoryQuery } from '../../hooks/queries/useInventoryQuery';
 import StatusBadge from '../shared/StatusBadge';
 import type { FestivalEvent, StaffMember, StaffRef } from '../../types';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { state } = useApp();
-  const { currentUser, events, inventory, staff } = state;
+  const { currentUser } = useApp();
+  const { data: events = [] }    = useEventsQuery();
+  const { data: inventory = [] } = useInventoryQuery();
+  const { data: staff = [] }     = useStaffQuery();
 
   if (!currentUser) return null;
 
@@ -78,49 +83,15 @@ export default function Dashboard() {
       {/* ── Stat cards ── */}
       {canViewAll ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <StatCard
-            icon={<Calendar size={18} />}
-            label="Sự kiện sắp tới"
-            value={upcomingEvents.length}
-            onClick={() => navigate("/schedule")}
-          />
-          <StatCard
-            icon={<Users size={18} />}
-            label="Tổng nhân viên"
-            value={staff.length}
-            accentColor="indigo"
-            onClick={() => navigate("/hr")}
-          />
-          <StatCard
-            icon={<Package size={18} />}
-            label="Kho sắp hết"
-            value={lowStockCount}
-            alert={lowStockCount > 0}
-            onClick={() => navigate("/inventory")}
-          />
-          <StatCard
-            icon={<Clock size={18} />}
-            label="Chi phí chờ duyệt"
-            value={pendingExpenses.length}
-            alert={pendingExpenses.length > 0}
-            onClick={() => navigate("/finance")}
-          />
+          <StatCard icon={<Calendar size={18} />} label="Sự kiện sắp tới" value={upcomingEvents.length} onClick={() => navigate("/schedule")} />
+          <StatCard icon={<Users size={18} />} label="Tổng nhân viên" value={staff.length} accentColor="indigo" onClick={() => navigate("/hr")} />
+          <StatCard icon={<Package size={18} />} label="Kho sắp hết" value={lowStockCount} alert={lowStockCount > 0} onClick={() => navigate("/inventory")} />
+          <StatCard icon={<Clock size={18} />} label="Chi phí chờ duyệt" value={pendingExpenses.length} alert={pendingExpenses.length > 0} onClick={() => navigate("/finance")} />
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-3">
-          <StatCard
-            icon={<Calendar size={18} />}
-            label="Sự kiện của tôi"
-            value={myEvents.length}
-            onClick={() => navigate("/schedule")}
-          />
-          <StatCard
-            icon={<Clock size={18} />}
-            label="Chi phí chờ duyệt"
-            value={myPendingExpenses.length}
-            alert={myPendingExpenses.length > 0}
-            onClick={() => navigate("/profile")}
-          />
+          <StatCard icon={<Calendar size={18} />} label="Sự kiện của tôi" value={myEvents.length} onClick={() => navigate("/schedule")} />
+          <StatCard icon={<Clock size={18} />} label="Chi phí chờ duyệt" value={myPendingExpenses.length} alert={myPendingExpenses.length > 0} onClick={() => navigate("/profile")} />
         </div>
       )}
 
@@ -190,37 +161,16 @@ export default function Dashboard() {
   );
 }
 
-// ── Sub-components ──────────────────────────────────────────────────────────
-
 function StatCard({ icon, label, value, alert, accentColor, onClick }: {
-  icon:         React.ReactNode;
-  label:        string;
-  value:        number;
-  alert?:       boolean;
-  accentColor?: 'indigo';
-  onClick?:     () => void;
+  icon: React.ReactNode; label: string; value: number;
+  alert?: boolean; accentColor?: 'indigo'; onClick?: () => void;
 }) {
-  const glowClass = alert ? 'glow-danger border-[var(--danger)]/20' : '';
-  const iconColor = alert
-    ? 'text-[var(--danger)]'
-    : accentColor === 'indigo'
-      ? 'text-indigo-400'
-      : 'text-[var(--primary)]';
-  const valueColor = alert
-    ? 'text-[var(--danger)]'
-    : accentColor === 'indigo'
-      ? 'text-indigo-400'
-      : 'text-[var(--text-primary)]';
-
+  const glowClass  = alert ? 'glow-danger border-[var(--danger)]/20' : '';
+  const iconColor  = alert ? 'text-[var(--danger)]' : accentColor === 'indigo' ? 'text-indigo-400' : 'text-[var(--primary)]';
+  const valueColor = alert ? 'text-[var(--danger)]' : accentColor === 'indigo' ? 'text-indigo-400' : 'text-[var(--text-primary)]';
   return (
-    <Button
-      variant="ghost"
-      onPress={onClick}
-      className={`glass-card rounded-2xl p-4 flex items-center gap-3 w-full h-auto justify-start text-left active:scale-[0.97] transition-all ${glowClass}`}
-    >
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[var(--glass-bg)] border border-[var(--glass-border)] ${iconColor}`}>
-        {icon}
-      </div>
+    <Button variant="ghost" onPress={onClick} className={`glass-card rounded-2xl p-4 flex items-center gap-3 w-full h-auto justify-start text-left active:scale-[0.97] transition-all ${glowClass}`}>
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[var(--glass-bg)] border border-[var(--glass-border)] ${iconColor}`}>{icon}</div>
       <div className="min-w-0">
         <p className={`text-2xl font-black leading-none ${valueColor}`}>{value}</p>
         <p className="text-xs text-[var(--text-muted)] leading-tight mt-1">{label}</p>
@@ -236,29 +186,18 @@ function initials(name: string) {
 }
 
 function StaffAvatars({ members }: { members: StaffRef[] }) {
-  if (members.length === 0) {
-    return <p className="text-xs text-[var(--text-muted)] mt-1">Chưa có nhân viên</p>;
-  }
+  if (members.length === 0) return <p className="text-xs text-[var(--text-muted)] mt-1">Chưa có nhân viên</p>;
   const shown = members.slice(0, 4);
   const extra = members.length - shown.length;
   return (
     <div className="flex items-center mt-1.5">
       <div className="flex -space-x-2">
         {shown.map(m => (
-          <Avatar
-            key={m.id}
-            className="w-6 h-6 ring-2 ring-[var(--card)]"
-          >
-            <Avatar.Fallback className="bg-[var(--primary)]/15 text-[var(--primary)] text-[10px] font-semibold">
-              {initials(m.name)}
-            </Avatar.Fallback>
+          <Avatar key={m.id} className="w-6 h-6 ring-2 ring-[var(--card)]">
+            <Avatar.Fallback className="bg-[var(--primary)]/15 text-[var(--primary)] text-[10px] font-semibold">{initials(m.name)}</Avatar.Fallback>
           </Avatar>
         ))}
-        {extra > 0 && (
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--glass-bg)] text-[10px] font-semibold text-[var(--text-muted)] ring-2 ring-[var(--card)]">
-            +{extra}
-          </span>
-        )}
+        {extra > 0 && <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--glass-bg)] text-[10px] font-semibold text-[var(--text-muted)] ring-2 ring-[var(--card)]">+{extra}</span>}
       </div>
       <span className="ml-2 text-xs text-[var(--text-muted)]">{members.length} nhân viên</span>
     </div>
@@ -268,19 +207,8 @@ function StaffAvatars({ members }: { members: StaffRef[] }) {
 function SectionHeader({ title, onMore, icon }: { title: string; onMore?: () => void; icon?: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between mb-3">
-      <h2 className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest">
-        {icon} {title}
-      </h2>
-      {onMore && (
-        <Button
-          onPress={onMore}
-          variant="ghost"
-          size="sm"
-          className="flex items-center gap-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] font-medium transition-colors"
-        >
-          Xem thêm <ChevronRight size={12} />
-        </Button>
-      )}
+      <h2 className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest">{icon} {title}</h2>
+      {onMore && <Button onPress={onMore} variant="ghost" size="sm" className="flex items-center gap-0.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] font-medium transition-colors">Xem thêm <ChevronRight size={12} /></Button>}
     </div>
   );
 }
@@ -304,23 +232,14 @@ function RevenueChart({ events }: { events: FestivalEvent[] }) {
       return new Date(`${ya}-${ma}-01`).getTime() - new Date(`${yb}-${mb}-01`).getTime();
     })
     .slice(-6);
-
   if (entries.length === 0) return <EmptyState text="Chưa có dữ liệu" />;
-
   const maxVal = Math.max(...entries.map(([, v]) => v), 100000);
-
   return (
     <div className="glass-card rounded-2xl p-4">
       <div className="flex items-end gap-2 h-24">
         {entries.map(([month, val]) => (
           <div key={month} className="flex-1 flex flex-col items-center gap-1">
-            <div
-              className="w-full rounded-t-lg transition-all"
-              style={{
-                height: `${Math.max((val / maxVal) * 80, 4)}px`,
-                background: 'linear-gradient(180deg, var(--primary), color-mix(in srgb, var(--primary) 60%, transparent))',
-              }}
-            />
+            <div className="w-full rounded-t-lg transition-all" style={{ height: `${Math.max((val / maxVal) * 80, 4)}px`, background: 'linear-gradient(180deg, var(--primary), color-mix(in srgb, var(--primary) 60%, transparent))' }} />
             <span className="text-[9px] text-[var(--text-muted)] leading-none">{month}</span>
           </div>
         ))}
@@ -338,22 +257,13 @@ function TopStaffList({ events, staff }: { events: FestivalEvent[]; staff: Staff
     .slice(0, 3)
     .map(([id, count]) => ({ member: staff.find(s => s.id === Number(id)), count }))
     .filter(x => x.member);
-
   if (top.length === 0) return <EmptyState text="Chưa có dữ liệu" />;
-
-  const rankColors = [
-    'bg-[var(--warning)]/15 text-[var(--warning)]',
-    'bg-[var(--glass-bg)] text-[var(--text-secondary)]',
-    'bg-[var(--success)]/10 text-[var(--success)]',
-  ];
-
+  const rankColors = ['bg-[var(--warning)]/15 text-[var(--warning)]', 'bg-[var(--glass-bg)] text-[var(--text-secondary)]', 'bg-[var(--success)]/10 text-[var(--success)]'];
   return (
     <div className="glass-card rounded-2xl divide-y divide-[var(--glass-border)]">
       {top.map(({ member, count }, i) => (
         <div key={member!.id} className="flex items-center gap-3 px-4 py-3">
-          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 border border-[var(--glass-border)] ${rankColors[i]}`}>
-            {i + 1}
-          </span>
+          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 border border-[var(--glass-border)] ${rankColors[i]}`}>{i + 1}</span>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{member!.name}</p>
             <p className="text-xs text-[var(--text-muted)]">{member!.city}</p>

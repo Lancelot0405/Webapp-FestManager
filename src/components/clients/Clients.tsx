@@ -4,16 +4,23 @@ import { Button } from '@heroui/react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Fab } from '@/components/ui/fab';
-import { useApp } from '../../context/AppContext';
+import { useClientsQuery } from '../../hooks/queries/useClientsQuery';
+import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
+import { useAddClient } from '../../hooks/queries/mutations/useAddClient';
+import { useUpdateClient } from '../../hooks/queries/mutations/useUpdateClient';
+import { useDeleteClient } from '../../hooks/queries/mutations/useDeleteClient';
 import { useToast } from '../../context/ToastContext';
 import type { Client } from '../../types';
 
 export default function Clients() {
-  const { state, addClient, updateClient, deleteClient } = useApp();
   const showToast = useToast();
-  const { clients, events } = state;
+  const { data: clients = [] } = useClientsQuery();
+  const { data: events = [] }  = useEventsQuery();
+  const addClientMutation    = useAddClient();
+  const updateClientMutation = useUpdateClient();
+  const deleteClientMutation = useDeleteClient();
 
-  const [search, setSearch] = useState('');
+  const [search, setSearch]   = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
@@ -33,14 +40,10 @@ export default function Clients() {
   const openAdd = () => { resetForm(); setShowForm(true); };
 
   const openEdit = (client: Client) => {
-    setFName(client.name);
-    setFContactName(client.contactName);
-    setFPhone(client.phone);
-    setFEmail(client.email);
-    setFCity(client.city);
-    setFNotes(client.notes);
-    setEditingId(client.id);
-    setShowForm(true);
+    setFName(client.name); setFContactName(client.contactName);
+    setFPhone(client.phone); setFEmail(client.email);
+    setFCity(client.city); setFNotes(client.notes);
+    setEditingId(client.id); setShowForm(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -48,20 +51,21 @@ export default function Clients() {
     if (!fName.trim()) return;
     if (editingId !== null) {
       const existing = clients.find(c => c.id === editingId)!;
-      updateClient({ ...existing, name: fName.trim(), contactName: fContactName.trim(), phone: fPhone.trim(), email: fEmail.trim(), city: fCity.trim(), notes: fNotes.trim() });
-      showToast('Đã cập nhật khách hàng', 'success');
+      updateClientMutation.mutate(
+        { ...existing, name: fName.trim(), contactName: fContactName.trim(), phone: fPhone.trim(), email: fEmail.trim(), city: fCity.trim(), notes: fNotes.trim() },
+        { onSuccess: () => { showToast('Đã cập nhật khách hàng', 'success'); setShowForm(false); resetForm(); } }
+      );
     } else {
-      addClient({ id: Date.now(), name: fName.trim(), contactName: fContactName.trim(), phone: fPhone.trim(), email: fEmail.trim(), city: fCity.trim(), notes: fNotes.trim(), eventIds: [] });
-      showToast('Đã thêm khách hàng', 'success');
+      addClientMutation.mutate(
+        { id: Date.now(), name: fName.trim(), contactName: fContactName.trim(), phone: fPhone.trim(), email: fEmail.trim(), city: fCity.trim(), notes: fNotes.trim(), eventIds: [] },
+        { onSuccess: () => { showToast('Đã thêm khách hàng', 'success'); setShowForm(false); resetForm(); } }
+      );
     }
-    setShowForm(false);
-    resetForm();
   };
 
   const handleDelete = (id: number) => {
     if (!confirm('Xóa khách hàng này?')) return;
-    deleteClient(id);
-    showToast('Đã xóa', 'info');
+    deleteClientMutation.mutate(id, { onSuccess: () => showToast('Đã xóa', 'info') });
   };
 
   const filtered = clients.filter(c =>
@@ -79,12 +83,7 @@ export default function Clients() {
       </div>
       <Fab onPress={openAdd} label="Thêm khách hàng" icon={<Plus size={24} />} />
 
-      <Input
-        value={search}
-        onChange={setSearch}
-        placeholder="Tìm kiếm khách hàng..."
-        startContent={<Search size={15} />}
-      />
+      <Input value={search} onChange={setSearch} placeholder="Tìm kiếm khách hàng..." startContent={<Search size={15} />} />
 
       {showForm && (
         <div className="glass-card rounded-xl p-4">
@@ -100,14 +99,7 @@ export default function Clients() {
               <Input label="Email" value={fEmail} onChange={setFEmail} type="email" placeholder="email@..." />
             </div>
             <Input label="Thành phố" value={fCity} onChange={setFCity} placeholder="Paris" />
-            <Textarea
-              label="Ghi chú"
-              value={fNotes}
-              onChange={setFNotes}
-              placeholder="Thông tin thêm..."
-              minRows={2}
-              maxRows={4}
-            />
+            <Textarea label="Ghi chú" value={fNotes} onChange={setFNotes} placeholder="Thông tin thêm..." minRows={2} maxRows={4} />
             <Button type="submit" variant="primary" fullWidth className="rounded-lg">
               {editingId ? 'Lưu thay đổi' : 'Thêm khách hàng'}
             </Button>
@@ -136,12 +128,8 @@ export default function Clients() {
                     )}
                   </div>
                   <div className="flex gap-1 ml-2">
-                    <Button onPress={() => openEdit(client)} variant="ghost" isIconOnly size="sm" className="rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)]">
-                      <Pencil size={14} />
-                    </Button>
-                    <Button onPress={() => handleDelete(client.id)} variant="ghost" isIconOnly size="sm" className="rounded-lg text-[var(--text-muted)] hover:text-[var(--danger)]">
-                      <Trash2 size={14} />
-                    </Button>
+                    <Button onPress={() => openEdit(client)} variant="ghost" isIconOnly size="sm" className="rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)]"><Pencil size={14} /></Button>
+                    <Button onPress={() => handleDelete(client.id)} variant="ghost" isIconOnly size="sm" className="rounded-lg text-[var(--text-muted)] hover:text-[var(--danger)]"><Trash2 size={14} /></Button>
                   </div>
                 </div>
                 <div className="mt-2 space-y-1">
@@ -154,9 +142,7 @@ export default function Clients() {
                     <p className="text-xs text-[var(--text-muted)]">{clientEvents.length} sự kiện liên quan</p>
                   </div>
                 )}
-                {client.notes && (
-                  <p className="text-xs text-[var(--text-muted)] mt-1.5 italic">{client.notes}</p>
-                )}
+                {client.notes && <p className="text-xs text-[var(--text-muted)] mt-1.5 italic">{client.notes}</p>}
               </div>
             );
           })}

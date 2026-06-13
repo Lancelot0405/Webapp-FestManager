@@ -5,6 +5,12 @@ import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import { getErrorMessage } from '../../lib/errors';
 import { SkeletonList } from '@/components/ui/skeleton';
+import { useInventoryQuery } from '../../hooks/queries/useInventoryQuery';
+import { useInventoryLogsQuery } from '../../hooks/queries/useInventoryLogsQuery';
+import { useCreateInventoryItem } from '../../hooks/queries/mutations/useCreateInventoryItem';
+import { useDeleteInventoryItem } from '../../hooks/queries/mutations/useDeleteInventoryItem';
+import { useUpdateInventoryItem } from '../../hooks/queries/mutations/useUpdateInventoryItem';
+import { useAddInventoryLog } from '../../hooks/queries/mutations/useAddInventoryLog';
 import type { InventoryUnit, InventoryCategory, InventoryItem } from '../../types';
 import InventoryLogList from './InventoryLogList';
 import NumberPicker from './NumberPicker';
@@ -35,9 +41,14 @@ function matchCategory(item: InventoryItem, main: MainTab, sub: SubTab): boolean
 }
 
 export default function Inventory() {
-  const { state, createInventoryItem, deleteInventoryItem, updateInventoryItem, addInventoryLog } = useApp();
+  const { currentUser } = useApp();
   const showToast = useToast();
-  const { inventory, inventoryLogs, currentUser } = state;
+  const { data: inventory = [], isLoading } = useInventoryQuery();
+  const { data: inventoryLogs = [] } = useInventoryLogsQuery();
+  const createInventoryItemMutation = useCreateInventoryItem();
+  const deleteInventoryItemMutation = useDeleteInventoryItem();
+  const updateInventoryItemMutation = useUpdateInventoryItem();
+  const addInventoryLogMutation = useAddInventoryLog();
 
   const dept             = currentUser?.role === 'admin' ? 'both' : (currentUser?.department ?? 'both');
   const canSeeRestaurant = dept === 'restaurant' || dept === 'both';
@@ -82,9 +93,9 @@ export default function Inventory() {
     const qty = parseFloat(editQty);
     const thr = parseFloat(editThreshold) || 0;
     if (isNaN(qty) || qty < 0 || !editName.trim()) return;
-    updateInventoryItem(item.id, editName.trim(), qty, thr, editUnit);
+    updateInventoryItemMutation.mutate({ itemId: item.id, name: editName.trim(), current: qty, threshold: thr, unit: editUnit });
     if (currentUser && (qty !== item.current || editUnit !== item.unit)) {
-      addInventoryLog({
+      addInventoryLogMutation.mutate({
         id: Date.now(), itemId: item.id, itemName: editName.trim(), qty, unit: editUnit,
         action: 'set', festivalId: null, festivalName: 'Kiểm kho tổng',
         timestamp: new Date().toLocaleString('vi-VN', { hour12: false }),
@@ -98,9 +109,9 @@ export default function Inventory() {
     e.preventDefault();
     if (!newName.trim() || !newCurrent) return;
     const category = getCategory(mainTab, subTab);
-    createInventoryItem({ name: newName.trim(), current: parseFloat(newCurrent), threshold: parseFloat(newThreshold) || 0, unit: newUnit, category });
+    createInventoryItemMutation.mutate({ name: newName.trim(), current: parseFloat(newCurrent), threshold: parseFloat(newThreshold) || 0, unit: newUnit, category });
     if (currentUser) {
-      addInventoryLog({
+      addInventoryLogMutation.mutate({
         id: Date.now(), itemId: Date.now() + 1, itemName: newName.trim(),
         qty: parseFloat(newCurrent), unit: newUnit, action: 'created',
         festivalId: null, festivalName: mainTab === 'restaurant' ? 'Nhà hàng' : 'Festival',
@@ -114,7 +125,7 @@ export default function Inventory() {
 
   const handleDelete = (item: InventoryItem) => {
     if (window.confirm(`Xóa "${item.name}"?\nThao tác này không thể hoàn tác.`)) {
-      deleteInventoryItem(item.id);
+      deleteInventoryItemMutation.mutate(item.id);
       if (expandedId === item.id) setExpandedId(null);
     }
   };
@@ -135,7 +146,7 @@ export default function Inventory() {
         rows.forEach((row, i) => {
           const nameRaw = String(row[0] ?? '').trim();
           if (!nameRaw || (i === 0 && isNaN(Number(row[1])))) return;
-          createInventoryItem({ name: nameRaw, current: parseFloat(String(row[1] ?? '0')) || 0, threshold: 0, unit: 'cái', category });
+          createInventoryItemMutation.mutate({ name: nameRaw, current: parseFloat(String(row[1] ?? '0')) || 0, threshold: 0, unit: 'cái', category });
           imported++;
         });
         showToast(`Đã import ${imported} mặt hàng thành công.`, 'success');
@@ -306,7 +317,7 @@ export default function Inventory() {
 
       {/* ── Item list ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-        {state.loading ? (
+        {isLoading ? (
           <SkeletonList count={3} variant="row" />
         ) : filteredItems.length === 0 && subTab !== 'history' ? (
           <p className="text-sm text-[var(--text-muted)] text-center py-10">

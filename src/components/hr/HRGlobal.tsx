@@ -3,6 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, User, Trash2, ShieldCheck, Check, X } from 'lucide-react';
 import { Button, ScrollShadow } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
+import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
+import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
+import { usePendingRegistrationsQuery } from '../../hooks/queries/usePendingRegistrationsQuery';
+import { useDeleteStaff } from '../../hooks/queries/mutations/useDeleteStaff';
+import { useApproveRegistration } from '../../hooks/queries/mutations/useApproveRegistration';
+import { useRejectRegistration } from '../../hooks/queries/mutations/useRejectRegistration';
 import AddStaffForm from './AddStaffForm';
 import { Input } from '@/components/ui/input';
 import { Fab } from '@/components/ui/fab';
@@ -13,8 +19,14 @@ type TypeFilter = 'Tất cả' | 'Nhân viên cứng' | 'Part-time';
 
 export default function HRGlobal() {
   const navigate = useNavigate();
-  const { state, deleteStaff, approveRegistration, rejectRegistration } = useApp();
-  const { staff, events, currentUser, pendingRegistrations } = state;
+  const { currentUser } = useApp();
+  const { data: staff = [], isLoading } = useStaffQuery();
+  const { data: events = [] } = useEventsQuery();
+  const { data: pendingRegistrations = [] } = usePendingRegistrationsQuery();
+  const deleteStaffMutation = useDeleteStaff();
+  const approveRegistrationMutation = useApproveRegistration();
+  const rejectRegistrationMutation = useRejectRegistration();
+
   const isAdmin   = currentUser?.role === 'admin';
   const isManager = currentUser?.role === 'manager';
   const canViewAll = isAdmin || isManager;
@@ -34,7 +46,7 @@ export default function HRGlobal() {
   const handleDelete = (e: React.MouseEvent, staffId: number, staffName: string) => {
     e.stopPropagation();
     if (window.confirm(`Xóa nhân viên "${staffName}"?\nThao tác này không thể hoàn tác.`)) {
-      deleteStaff(staffId);
+      deleteStaffMutation.mutate(staffId);
     }
   };
 
@@ -160,14 +172,14 @@ export default function HRGlobal() {
                     <div className="flex gap-1.5 shrink-0">
                       <Button
                         size="sm"
-                        onPress={() => approveRegistration(req.userId)}
+                        onPress={() => approveRegistrationMutation.mutate(req.userId)}
                         className="text-xs font-medium bg-[var(--success)]/10 text-[var(--success)] border border-[var(--success)]/20 rounded-lg flex items-center gap-1 hover:bg-[var(--success)]/20 transition-colors"
                       >
                         <Check size={12} /> Duyệt
                       </Button>
                       <Button
                         size="sm"
-                        onPress={() => rejectRegistration(req.userId)}
+                        onPress={() => rejectRegistrationMutation.mutate(req.userId)}
                         className="text-xs font-medium bg-[var(--danger)]/10 text-[var(--danger)] border border-[var(--danger)]/20 rounded-lg flex items-center gap-1 hover:bg-[var(--danger)]/20 transition-colors"
                       >
                         <X size={12} /> Từ chối
@@ -212,7 +224,7 @@ export default function HRGlobal() {
         <AddStaffForm onClose={() => setShowForm(false)} />
       )}
 
-      {state.loading ? (
+      {isLoading ? (
         <SkeletonList count={4} variant="row" />
       ) : filtered.length === 0 ? (
         <p className="text-sm text-[var(--text-muted)] text-center py-10">Chưa có nhân viên</p>

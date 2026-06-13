@@ -12,6 +12,7 @@ import {
   ChevronUp,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
 
 interface SidebarProps {
   onOpenSheet?: () => void;
@@ -47,10 +48,10 @@ const roleLabel: Record<string, string> = {
 };
 
 export default function Sidebar({ onOpenSheet, notifCount = 0 }: SidebarProps) {
-  const { state }       = useApp();
-  const { currentUser } = state;
+  const { currentUser } = useApp();
   const navigate        = useNavigate();
   const location        = useLocation();
+  const { data: events = [] } = useEventsQuery();
 
   if (!currentUser) return null;
 
@@ -58,7 +59,7 @@ export default function Sidebar({ onOpenSheet, notifCount = 0 }: SidebarProps) {
              : currentUser.role === 'manager' ? MANAGER_TABS
              : STAFF_TABS;
 
-  const pendingExpenses = state.events.reduce(
+  const pendingExpenses = events.reduce(
     (sum, e) => sum + e.receipts.filter(r => r.status === 'pending').length,
     0
   );

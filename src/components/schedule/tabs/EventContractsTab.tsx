@@ -4,6 +4,8 @@ import { Button } from '@heroui/react';
 import DocThumbnail from '../../shared/DocThumbnail';
 import { useApp } from '../../../context/AppContext';
 import { useToast } from '../../../context/ToastContext';
+import { useStaffQuery } from '../../../hooks/queries/useStaffQuery';
+import { useAddContract } from '../../../hooks/queries/mutations/useAddContract';
 import { supabase } from '../../../lib/supabase';
 import { getErrorMessage } from '../../../lib/errors';
 import type { FestivalEvent } from '../../../types';
@@ -15,9 +17,11 @@ interface Props {
 const MAX_FILE_MB = 10;
 
 export default function EventContractsTab({ event }: Props) {
-  const { state, addContract } = useApp();
+  const { currentUser } = useApp();
   const showToast = useToast();
-  const { currentUser, staff } = state;
+  const { data: staff = [] } = useStaffQuery();
+  const addContractMutation = useAddContract();
+
   const isAdmin    = currentUser?.role === 'admin';
   const isManager  = currentUser?.role === 'manager';
   const canViewAll = isAdmin || isManager;
@@ -53,13 +57,13 @@ export default function EventContractsTab({ event }: Props) {
       const today = new Date();
       const date  = `${String(today.getDate()).padStart(2,'0')}-${String(today.getMonth()+1).padStart(2,'0')}-${today.getFullYear()}`;
 
-      addContract(staffId, {
+      addContractMutation.mutate({ staffId, contract: {
         id: Date.now(),
         date,
         url,
         fileName: file.name,
         festivalId: event.id,
-      });
+      }});
 
       setExpandedStaff(staffId);
     } catch (err) {
