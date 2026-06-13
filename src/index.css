@@ -198,6 +198,12 @@ input[type="date"] {
   min-height: 44px;
 }
 
+/* ── saas-card — card nền surface, viền separator ────────────────────── */
+.saas-card {
+  background-color: var(--surface);
+  border: 1px solid var(--separator);
+}
+
 /* ── Accent gradient — replaces icon-primary-gradient ────────────────── */
 .accent-gradient {
   background: linear-gradient(135deg,

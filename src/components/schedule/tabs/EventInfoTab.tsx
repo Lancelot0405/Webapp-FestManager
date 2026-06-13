@@ -54,7 +54,7 @@ export default function EventInfoTab({ event }: Props) {
             <p className="text-xs font-semibold text-muted uppercase tracking-wide mb-2">Chi tiết chi phí</p>
             <div className="flex flex-wrap gap-1.5">
               {Object.entries(event.financials.expenses ?? {}).map(([key, val]) => (
-                <Chip key={key} size="sm" variant="flat">
+                <Chip key={key} size="sm" variant="soft">
                   {key}: {(val ?? 0).toLocaleString('fr-FR')}€
                 </Chip>
               ))}
