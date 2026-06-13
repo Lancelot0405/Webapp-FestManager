@@ -95,13 +95,13 @@ function AdminDashboard({ events, staff, inventory, currentUser, navigate }: {
       </div>
 
       {/* Tab bar */}
-      <div className="flex items-center overflow-x-auto pb-0.5 -mb-0.5 no-scrollbar">
-        <div className="flex items-center gap-0.5 p-1 bg-default-100 dark:bg-default-100 rounded-full shrink-0">
+      <div className="flex">
+        <div className="inline-flex items-center gap-0.5 p-1 bg-default-100 rounded-full">
           {TABS.map(t => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
+              className={`px-3.5 py-1 rounded-full text-[13px] font-medium transition-all whitespace-nowrap ${
                 tab === t.key
                   ? 'bg-white dark:bg-default-200 text-foreground shadow-sm'
                   : 'text-default-500 hover:text-foreground'
