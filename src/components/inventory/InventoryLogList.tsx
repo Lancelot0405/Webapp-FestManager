@@ -76,7 +76,7 @@ export default function InventoryLogList({ logs }: Props) {
       ) : (
         <div className="space-y-2">
           {displayed.map(log => (
-            <div key={log.id} className="bg-surface border border-separator rounded-xl rounded-xl p-3">
+            <div key={log.id} className="bg-surface border border-separator rounded-xl shadow-sm p-3">
               <div className="flex justify-between items-start gap-2">
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-foreground truncate">{log.itemName}</p>

@@ -142,7 +142,7 @@ export default function EventExpensesTab({ event }: Props) {
             const showForm     = showFormForStaff === staffId;
 
             return (
-              <div key={staffId} className="bg-surface border border-separator rounded-xl rounded-xl overflow-hidden">
+              <div key={staffId} className="bg-surface border border-separator rounded-xl shadow-sm overflow-hidden">
                 {/* Header */}
                 <Button
                   variant="ghost"

@@ -89,7 +89,7 @@ export default function AddStaffForm({ onClose }: Props) {
   };
 
   return (
-    <div className="bg-surface border border-separator rounded-xl rounded-xl p-4">
+    <div className="bg-surface border border-separator rounded-xl shadow-sm p-4">
       <div className="flex justify-between items-center mb-3">
         <p className="font-semibold text-sm text-foreground">Thêm nhân viên mới</p>
         <Button

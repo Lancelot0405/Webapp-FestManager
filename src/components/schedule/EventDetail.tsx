@@ -144,7 +144,7 @@ export default function EventDetail() {
       {/* 2-panel layout: info panel cố định bên trái trên desktop */}
       <div className="lg:grid lg:grid-cols-[320px_1fr] lg:gap-6 lg:items-start">
         {/* Panel trái: thông tin sự kiện — chỉ hiện trên desktop */}
-        <aside className="hidden lg:block bg-surface border border-separator rounded-xl rounded-xl overflow-hidden">
+        <aside className="hidden lg:block bg-surface border border-separator rounded-xl shadow-sm overflow-hidden">
           <EventInfoTab event={event} />
         </aside>
 

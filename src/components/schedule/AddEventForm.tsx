@@ -50,7 +50,7 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
   };
 
   return (
-    <div className="bg-surface border border-separator rounded-xl rounded-xl p-4">
+    <div className="bg-surface border border-separator rounded-xl shadow-sm p-4">
       <div className="flex justify-between items-center mb-4">
         <p className="font-semibold text-sm text-foreground">Thêm sự kiện mới</p>
         <Button onPress={onClose} variant="ghost" isIconOnly size="sm" className="rounded-full" aria-label="Đóng">

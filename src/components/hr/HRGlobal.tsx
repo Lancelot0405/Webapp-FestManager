@@ -74,7 +74,7 @@ export default function HRGlobal() {
       {list.map(s => (
         <div
           key={s.id}
-          className="group bg-surface border border-separator rounded-xl rounded-xl overflow-hidden flex flex-row items-stretch hover:shadow-lg active:scale-[0.99] transition-all duration-150"
+          className="group bg-surface border border-separator rounded-xl shadow-sm overflow-hidden flex flex-row items-stretch hover:shadow-lg active:scale-[0.99] transition-all duration-150"
         >
           <Button
             variant="ghost"
@@ -161,7 +161,7 @@ export default function HRGlobal() {
               {pendingRegistrations.map(req => (
                 <div
                   key={req.id}
-                  className="bg-surface border border-separator rounded-xl rounded-xl p-3"
+                  className="bg-surface border border-separator rounded-xl shadow-sm p-3"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-indigo-500/10 flex items-center justify-center shrink-0">

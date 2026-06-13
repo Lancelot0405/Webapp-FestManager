@@ -332,7 +332,7 @@ export default function LoginScreen() {
               <Download size={14} /> Cài đặt app
             </Button>
             {showInstallModal && (
-              <div className="absolute bottom-11 right-0 w-72 bg-surface border border-separator rounded-xl rounded-2xl shadow-lg z-50 p-4 animate-fade-in">
+              <div className="absolute bottom-11 right-0 w-72 bg-surface border border-separator rounded-2xl shadow-lg z-50 p-4 animate-fade-in">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <Smartphone size={16} className="text-foreground/80" />

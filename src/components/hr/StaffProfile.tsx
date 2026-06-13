@@ -252,7 +252,7 @@ export default function StaffProfile() {
       {/* ── CỘT TRÁI: Thông tin + Tài khoản ──────────────────────────── */}
       <div className="space-y-5">
       {/* ── THÔNG TIN CÁ NHÂN ──────────────────────────────────────────── */}
-      <div className="bg-surface border border-separator rounded-xl rounded-xl p-4">
+      <div className="bg-surface border border-separator rounded-xl shadow-sm p-4">
         <div className="flex justify-between items-center mb-3">
           <p className="text-sm font-semibold text-foreground">Thông tin cá nhân</p>
           {canEdit && !editing && (
@@ -395,7 +395,7 @@ export default function StaffProfile() {
 
       {/* ── QUẢN LÝ TÀI KHOẢN (chỉ admin) ─────────────────────────────── */}
       {isAdmin && member.userId && (
-        <div className="bg-surface border border-separator rounded-xl rounded-xl p-4 space-y-4">
+        <div className="bg-surface border border-separator rounded-xl shadow-sm p-4 space-y-4">
           <p className="text-sm font-semibold text-foreground flex items-center gap-2">
             <KeyRound size={15} className="text-warning" /> Quản lý tài khoản
           </p>
@@ -533,14 +533,14 @@ export default function StaffProfile() {
           )}
         </div>
         {member.contracts.length === 0 ? (
-          <p className="text-xs text-muted py-4 text-center bg-surface border border-separator rounded-xl rounded-xl border-dashed">
+          <p className="text-xs text-muted py-4 text-center bg-surface border border-separator rounded-xl border-dashed">
             Chưa có hợp đồng
           </p>
         ) : (
           <div className="space-y-2">
             {member.contracts.map(c => (
               <a key={c.id} href={c.url} target="_blank" rel="noreferrer"
-                className="flex items-center gap-3 bg-surface border border-separator rounded-xl rounded-xl p-3 hover:border-accent/30 transition-colors">
+                className="flex items-center gap-3 bg-surface border border-separator rounded-xl shadow-sm p-3 hover:border-accent/30 transition-colors">
                 <FileText size={18} className="text-accent shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-foreground truncate">{c.fileName ?? 'Hợp đồng'}</p>
@@ -569,7 +569,7 @@ export default function StaffProfile() {
         </div>
 
         {showExpenseForm && (
-          <form onSubmit={handleSubmitExpense} className="bg-surface border border-separator rounded-xl rounded-xl p-4 space-y-3 mb-3">
+          <form onSubmit={handleSubmitExpense} className="bg-surface border border-separator rounded-xl shadow-sm p-4 space-y-3 mb-3">
             <div className="flex justify-between items-center">
               <p className="text-sm font-semibold text-success">Nộp chi phí mới</p>
               <Button isIconOnly variant="ghost" size="sm" className="text-muted h-auto min-w-0 p-0 hover:text-danger" onPress={() => setShowExpenseForm(false)}>
@@ -651,11 +651,11 @@ export default function StaffProfile() {
         )}
 
         {allExpenses.length === 0 ? (
-          <p className="text-xs text-muted text-center py-6 bg-surface border border-separator rounded-xl rounded-xl border-dashed">Chưa có chi phí nào</p>
+          <p className="text-xs text-muted text-center py-6 bg-surface border border-separator rounded-xl border-dashed">Chưa có chi phí nào</p>
         ) : (
           <div className="space-y-2">
             {allExpenses.map(exp => (
-              <div key={exp.id} className="bg-surface border border-separator rounded-xl rounded-xl p-3">
+              <div key={exp.id} className="bg-surface border border-separator rounded-xl shadow-sm p-3">
                 <div className="flex justify-between items-start">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground">{exp.type}</p>
@@ -709,7 +709,7 @@ function DocCard({
 }) {
   const copied = copiedField === copyKey;
   return (
-    <div className="bg-surface border border-separator rounded-xl rounded-xl p-3 space-y-2">
+    <div className="bg-surface border border-separator rounded-xl shadow-sm p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {icon}

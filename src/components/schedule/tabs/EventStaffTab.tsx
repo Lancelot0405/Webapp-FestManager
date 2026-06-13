@@ -58,7 +58,7 @@ export default function EventStaffTab({ event }: Props) {
 
       {/* Multi-select staff panel */}
       {showAdd && isAdmin && (
-        <div className="bg-surface border border-separator rounded-xl rounded-xl p-3 space-y-2">
+        <div className="bg-surface border border-separator rounded-xl shadow-sm p-3 space-y-2">
           <p className="text-xs font-semibold text-foreground/80">Chọn nhân viên để thêm</p>
           {availableStaff.length === 0 ? (
             <p className="text-xs text-muted py-2 text-center">Tất cả nhân viên đã được phân công</p>
@@ -98,7 +98,7 @@ export default function EventStaffTab({ event }: Props) {
           {event.staff.map(s => (
             <div
               key={s.id}
-              className="bg-surface border border-separator rounded-xl rounded-xl p-3 flex justify-between items-center"
+              className="bg-surface border border-separator rounded-xl shadow-sm p-3 flex justify-between items-center"
             >
               <div>
                 <p className="font-medium text-foreground text-sm">{s.name}</p>

@@ -17,7 +17,7 @@ export default function ExpenseList({ filteredEvents }: Props) {
   );
 
   return (
-    <div className="bg-surface border border-separator rounded-xl rounded-xl p-4">
+    <div className="bg-surface border border-separator rounded-xl shadow-sm p-4">
       <h2 className="text-sm font-semibold text-foreground/80 mb-3">Chi phí nhân viên chờ duyệt</h2>
       {pendingReceipts.length === 0 ? (
         <p className="text-sm text-success">Không có chi phí chờ duyệt ✓</p>

@@ -105,7 +105,7 @@ export default function EventContractsTab({ event }: Props) {
         if (!canViewAll && !isMe) return null;
 
         return (
-          <div key={ref.id} className="bg-surface border border-separator rounded-xl rounded-xl overflow-hidden">
+          <div key={ref.id} className="bg-surface border border-separator rounded-xl shadow-sm overflow-hidden">
             {/* Header */}
             <Button
               variant="ghost"

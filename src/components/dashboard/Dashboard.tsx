@@ -145,7 +145,7 @@ export default function Dashboard() {
               <button
                 key={event.id}
                 onClick={() => navigate("/schedule/" + event.id)}
-                className="w-full text-left bg-surface border border-separator rounded-xl rounded-xl p-4 hover:border-accent/30 hover:shadow-md transition-all duration-150 active:scale-[0.99] group"
+                className="w-full text-left bg-surface border border-separator rounded-xl shadow-sm p-4 hover:border-accent/30 hover:shadow-md transition-all duration-150 active:scale-[0.99] group"
               >
                 <div className="flex w-full justify-between items-start gap-2">
                   <div className="flex-1 min-w-0">
@@ -170,7 +170,7 @@ export default function Dashboard() {
           <SectionHeader title="Chi phí chờ duyệt" />
           <div className="space-y-2">
             {myPendingExpenses.map(exp => (
-              <div key={exp.id} className="bg-surface border border-separator rounded-xl rounded-xl p-3.5 flex justify-between items-center">
+              <div key={exp.id} className="bg-surface border border-separator rounded-xl shadow-sm p-3.5 flex justify-between items-center">
                 <div>
                   <p className="text-sm font-semibold text-foreground">{exp.type}</p>
                   <p className="text-xs text-muted mt-0.5">{exp.date}</p>
@@ -280,7 +280,7 @@ function SectionHeader({ title, onMore, icon }: { title: string; onMore?: () => 
 
 function EmptyState({ text }: { text: string }) {
   return (
-    <div className="bg-surface border border-separator rounded-xl rounded-xl py-10 flex flex-col items-center gap-2">
+    <div className="bg-surface border border-separator rounded-xl shadow-sm py-10 flex flex-col items-center gap-2">
       <p className="text-sm text-muted">{text}</p>
     </div>
   );

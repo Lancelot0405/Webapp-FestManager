@@ -74,7 +74,7 @@ export default function EventFinanceCard({ event }: Props) {
   const maxVal = Math.max(event.financials.income, expTotal, 1);
 
   return (
-    <div className="bg-surface border border-separator rounded-xl rounded-xl p-4">
+    <div className="bg-surface border border-separator rounded-xl shadow-sm p-4">
       <div className="flex justify-between items-start mb-3">
         <Button
           variant="ghost"

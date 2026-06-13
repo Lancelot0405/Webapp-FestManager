@@ -111,7 +111,7 @@ export default function Clients() {
       <Input value={search} onChange={setSearch} placeholder="Tìm kiếm khách hàng..." startContent={<Search size={15} />} />
 
       {showForm && (
-        <div className="bg-surface border border-separator rounded-xl rounded-xl p-4">
+        <div className="bg-surface border border-separator rounded-xl shadow-sm p-4">
           <div className="flex justify-between items-center mb-3">
             <p className="font-semibold text-sm text-foreground">{editingId ? 'Chỉnh sửa' : 'Thêm khách hàng mới'}</p>
             <Button onPress={() => setShowForm(false)} variant="ghost" isIconOnly size="sm" className="rounded-full"><X size={16} /></Button>
@@ -214,7 +214,7 @@ export default function Clients() {
           {filtered.map(client => {
             const clientEvents = events.filter(e => client.eventIds.includes(e.id));
             return (
-              <div key={client.id} className="bg-surface border border-separator rounded-xl rounded-2xl p-4">
+              <div key={client.id} className="bg-surface border border-separator rounded-xl shadow-sm p-4">
                 <div className="flex justify-between items-start">
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-foreground truncate">{client.name}</p>

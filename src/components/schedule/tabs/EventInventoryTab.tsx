@@ -99,7 +99,7 @@ export default function EventInventoryTab({ event }: Props) {
       {showAdd && (
         <form
           onSubmit={handleAddItem}
-          className="bg-surface border border-separator rounded-xl rounded-xl p-4 space-y-3"
+          className="bg-surface border border-separator rounded-xl shadow-sm p-4 space-y-3"
           onClick={e => e.stopPropagation()}
         >
           <div className="flex justify-between items-center">
@@ -271,7 +271,7 @@ export default function EventInventoryTab({ event }: Props) {
           <p className="text-sm font-semibold text-foreground mb-2">Báo cáo cuối sự kiện</p>
           <div className="space-y-2">
             {event.inventoryReported.map((item, i) => (
-              <div key={i} className="bg-surface border border-separator rounded-xl rounded-xl p-3 flex justify-between items-center">
+              <div key={i} className="bg-surface border border-separator rounded-xl shadow-sm p-3 flex justify-between items-center">
                 <p className="text-sm text-foreground">{item.name}</p>
                 <span className="text-sm text-muted">{item.current} {item.unit}</span>
               </div>
