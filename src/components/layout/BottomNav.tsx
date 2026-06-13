@@ -13,7 +13,9 @@ import {
 import { useApp } from '../../context/AppContext';
 
 interface BottomNavProps {
-  navVisible?: boolean;
+  navVisible?:   boolean;
+  onOpenSheet?:  () => void;
+  notifCount?:   number;
 }
 
 const ADMIN_TABS = [
@@ -40,7 +42,7 @@ const STAFF_TABS = [
   { path: 'profile',   icon: (c: boolean) => <User            size={c ? 18 : 20} />, label: 'Hồ sơ'      },
 ];
 
-export default function BottomNav({ navVisible = true }: BottomNavProps) {
+export default function BottomNav({ navVisible = true, onOpenSheet, notifCount = 0 }: BottomNavProps) {
   const { currentUser } = useApp();
   const navigate        = useNavigate();
   const location        = useLocation();
@@ -68,7 +70,9 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
   const tabs    = currentUser.role === 'admin'   ? ADMIN_TABS
                : currentUser.role === 'manager' ? MANAGER_TABS
                : STAFF_TABS;
-  const compact = tabs.length >= 6;
+  const compact = tabs.length >= 5;
+
+  const initials = currentUser.name.trim().split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
 
   const activeSegment = location.pathname.split('/')[1] || 'dashboard';
 
@@ -115,6 +119,23 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
             </Button>
           );
         })}
+
+        {/* Separator + Avatar */}
+        <div className="w-px h-8 bg-separator self-center mx-0.5 shrink-0" />
+        <Button
+          variant="ghost"
+          isIconOnly
+          onPress={onOpenSheet}
+          aria-label="Tài khoản"
+          className="relative flex-shrink-0 w-9 h-9 min-w-0 rounded-full accent-gradient shadow-sm hover:opacity-90 active:scale-95 transition-all mx-1"
+        >
+          <span className="text-[12px] font-bold text-white">{initials}</span>
+          {notifCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-danger text-danger-foreground text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-[var(--surface)]">
+              {notifCount > 9 ? '9+' : notifCount}
+            </span>
+          )}
+        </Button>
       </div>
     </nav>
   );
