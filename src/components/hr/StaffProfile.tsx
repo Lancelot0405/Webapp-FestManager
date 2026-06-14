@@ -1,7 +1,7 @@
 ﻿import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, Plus, Upload, Image, X, Pencil, Check, CreditCard, ShieldCheck, KeyRound, Copy, CheckCheck, Building2 } from 'lucide-react';
-import { Button, Link, Spinner } from '@heroui/react';
+import { Button, Card, Label, Link, Spinner, ToggleButton, ToggleButtonGroup } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
@@ -253,7 +253,7 @@ export default function StaffProfile() {
       {/* ── CỘT TRÁI: Thông tin + Tài khoản ──────────────────────────── */}
       <div className="space-y-5">
       {/* ── THÔNG TIN CÁ NHÂN ──────────────────────────────────────────── */}
-      <div className="bg-surface border border-separator rounded-xl shadow-sm p-4">
+      <Card className="p-4">
         <div className="flex justify-between items-center mb-3">
           <p className="text-sm font-semibold text-foreground">Thông tin cá nhân</p>
           {canEdit && !editing && (
@@ -284,71 +284,50 @@ export default function StaffProfile() {
             {isAdmin && (
               <>
                 <div>
-                  <label className="text-xs text-muted font-medium mb-1 block">Loại nhân viên</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button variant="ghost" onPress={() => setEditStaffType('permanent')}
-                      className={`w-full h-auto min-w-0 py-2 rounded-lg text-sm font-medium border transition-colors ${
-                        editStaffType === 'permanent'
-                          ? 'bg-accent/10 text-accent border-accent/30'
-                          : 'bg-default/50 text-foreground/80 border-separator hover:border-accent/30'
-                      }`}>
-                      Nhân viên cứng
-                    </Button>
-                    <Button variant="ghost" onPress={() => setEditStaffType('part-time')}
-                      className={`w-full h-auto min-w-0 py-2 rounded-lg text-sm font-medium border transition-colors ${
-                        editStaffType === 'part-time'
-                          ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30'
-                          : 'bg-default/50 text-foreground/80 border-separator hover:border-indigo-500/30'
-                      }`}>
-                      Part-time
-                    </Button>
-                  </div>
+                  <Label className="text-xs text-muted font-medium mb-1 block">Loại nhân viên</Label>
+                  <ToggleButtonGroup
+                    selectionMode="single"
+                    disallowEmptySelection
+                    selectedKeys={new Set([editStaffType])}
+                    onSelectionChange={keys => { const k = [...keys][0] as 'permanent' | 'part-time'; if (k) setEditStaffType(k); }}
+                    className="w-full"
+                  >
+                    <ToggleButton id="permanent" className="flex-1 text-sm">Nhân viên cứng</ToggleButton>
+                    <ToggleButton id="part-time" className="flex-1 text-sm">Part-time</ToggleButton>
+                  </ToggleButtonGroup>
                 </div>
                 {member.userId && (
                   <div className="space-y-3">
                     <div>
-                      <label className="text-xs text-muted font-medium flex items-center gap-1 mb-1">
+                      <Label className="text-xs text-muted font-medium flex items-center gap-1 mb-1">
                         <ShieldCheck size={12} /> Quyền tài khoản
-                      </label>
-                      <div className="grid grid-cols-2 gap-2">
-                        <Button variant="ghost" onPress={() => setEditRole('staff')}
-                          className={`w-full h-auto min-w-0 py-2 rounded-lg text-sm font-medium border transition-colors ${
-                            editRole === 'staff'
-                              ? 'bg-accent/10 text-accent border-accent/30'
-                              : 'bg-default/50 text-foreground/80 border-separator hover:border-accent/30'
-                          }`}>
-                          Nhân viên
-                        </Button>
-                        <Button variant="ghost" onPress={() => setEditRole('manager')}
-                          className={`w-full h-auto min-w-0 py-2 rounded-lg text-sm font-medium border transition-colors ${
-                            editRole === 'manager'
-                              ? 'bg-warning/10 text-warning border-warning/30'
-                              : 'bg-default/50 text-foreground/80 border-separator hover:border-warning/30'
-                          }`}>
-                          Quản lý
-                        </Button>
-                      </div>
+                      </Label>
+                      <ToggleButtonGroup
+                        selectionMode="single"
+                        disallowEmptySelection
+                        selectedKeys={new Set([editRole])}
+                        onSelectionChange={keys => { const k = [...keys][0] as UserRole; if (k) setEditRole(k); }}
+                        className="w-full"
+                      >
+                        <ToggleButton id="staff"   className="flex-1 text-sm">Nhân viên</ToggleButton>
+                        <ToggleButton id="manager" className="flex-1 text-sm">Quản lý</ToggleButton>
+                      </ToggleButtonGroup>
                     </div>
                     <div>
-                      <label className="text-xs text-muted font-medium flex items-center gap-1 mb-1">
+                      <Label className="text-xs text-muted font-medium flex items-center gap-1 mb-1">
                         <Building2 size={12} /> Bộ phận kho hàng
-                      </label>
-                      <div className="grid grid-cols-3 gap-2">
-                        {([
-                          { id: 'restaurant' as UserDepartment, label: 'Nhà hàng' },
-                          { id: 'festival'   as UserDepartment, label: 'Festival' },
-                          { id: 'both'       as UserDepartment, label: 'Cả hai'  },
-                        ]).map(({ id, label }) => (
-                          <Button key={id} variant="ghost" onPress={() => setEditDepartment(id)}
-                            className={`w-full h-auto min-w-0 py-2 rounded-lg text-xs font-medium border transition-colors ${
-                              editDepartment === id
-                                ? 'bg-success/10 text-success border-success/30'
-                                : 'bg-default/50 text-foreground/80 border-separator hover:border-success/30'
-                            }`}>
-                            {label}
-                          </Button>
-                        ))}
-                      </div>
+                      </Label>
+                      <ToggleButtonGroup
+                        selectionMode="single"
+                        disallowEmptySelection
+                        selectedKeys={new Set([editDepartment])}
+                        onSelectionChange={keys => { const k = [...keys][0] as UserDepartment; if (k) setEditDepartment(k); }}
+                        className="w-full"
+                      >
+                        <ToggleButton id="restaurant" className="flex-1 text-xs">Nhà hàng</ToggleButton>
+                        <ToggleButton id="festival"   className="flex-1 text-xs">Festival</ToggleButton>
+                        <ToggleButton id="both"       className="flex-1 text-xs">Cả hai</ToggleButton>
+                      </ToggleButtonGroup>
                     </div>
                   </div>
                 )}
@@ -392,18 +371,18 @@ export default function StaffProfile() {
             )}
           </div>
         )}
-      </div>
+      </Card>
 
       {/* ── QUẢN LÝ TÀI KHOẢN (chỉ admin) ─────────────────────────────── */}
       {isAdmin && member.userId && (
-        <div className="bg-surface border border-separator rounded-xl shadow-sm p-4 space-y-4">
+        <Card className="p-4 space-y-4">
           <p className="text-sm font-semibold text-foreground flex items-center gap-2">
             <KeyRound size={15} className="text-warning" /> Quản lý tài khoản
           </p>
 
           {/* Username */}
           <div>
-            <label className="text-xs text-muted font-medium block mb-1">Tên đăng nhập</label>
+            <Label className="text-xs text-muted font-medium block mb-1">Tên đăng nhập</Label>
             {currentUsername && (
               <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-default/50 rounded-lg border border-separator">
                 <span className="text-xs text-muted shrink-0">Hiện tại:</span>
@@ -440,7 +419,7 @@ export default function StaffProfile() {
           {/* Mật khẩu */}
           <div>
             <div className="flex justify-between items-center mb-1">
-              <label className="text-xs text-muted font-medium">Mật khẩu</label>
+              <Label className="text-xs text-muted font-medium">Mật khẩu</Label>
               <Button
                 size="sm"
                 variant="ghost"
@@ -477,7 +456,7 @@ export default function StaffProfile() {
           {pwMsg && (
             <p className={`text-xs ${pwMsg.startsWith('Lỗi') ? 'text-danger' : 'text-success'}`}>{pwMsg}</p>
           )}
-        </div>
+        </Card>
       )}
       </div>
       {/* ── CỘT PHẢI: Tài liệu + Hợp đồng + Chi phí ──────────────────── */}
@@ -570,7 +549,8 @@ export default function StaffProfile() {
         </div>
 
         {showExpenseForm && (
-          <form onSubmit={handleSubmitExpense} className="bg-surface border border-separator rounded-xl shadow-sm p-4 space-y-3 mb-3">
+          <Card className="mb-3">
+          <form onSubmit={handleSubmitExpense} className="p-4 space-y-3">
             <div className="flex justify-between items-center">
               <p className="text-sm font-semibold text-success">Nộp chi phí mới</p>
               <Button isIconOnly variant="ghost" size="sm" className="text-muted h-auto min-w-0 p-0 hover:text-danger" onPress={() => setShowExpenseForm(false)}>
@@ -609,7 +589,7 @@ export default function StaffProfile() {
               onChange={setFormDate}
             />
             <div>
-              <label className="text-xs text-foreground/80 font-medium block mb-1">Ảnh hóa đơn (không bắt buộc, tối đa 5MB)</label>
+              <Label className="text-xs text-foreground/80 font-medium block mb-1">Ảnh hóa đơn (không bắt buộc, tối đa 5MB)</Label>
               {expenseFile ? (
                 <div className="flex items-center gap-2 bg-surface border border-separator rounded-xl rounded-lg px-3 py-2">
                   <Image size={15} className="text-success shrink-0" />
@@ -648,6 +628,7 @@ export default function StaffProfile() {
               </Button>
             </div>
           </form>
+          </Card>
         )}
 
         {allExpenses.length === 0 ? (
@@ -655,7 +636,7 @@ export default function StaffProfile() {
         ) : (
           <div className="space-y-2">
             {allExpenses.map(exp => (
-              <div key={exp.id} className="bg-surface border border-separator rounded-xl shadow-sm p-3">
+              <Card key={exp.id} className="p-3">
                 <div className="flex justify-between items-start">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground">{exp.type}</p>
@@ -671,7 +652,7 @@ export default function StaffProfile() {
                     <DocThumbnail url={exp.imageUrl} fileName="Hóa đơn" />
                   </div>
                 )}
-              </div>
+              </Card>
             ))}
           </div>
         )}
@@ -709,7 +690,7 @@ function DocCard({
 }) {
   const copied = copiedField === copyKey;
   return (
-    <div className="bg-surface border border-separator rounded-xl shadow-sm p-3 space-y-2">
+    <Card className="p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {icon}
@@ -753,6 +734,6 @@ function DocCard({
       ) : (
         <p className="text-xs text-muted">Chưa có tài liệu</p>
       )}
-    </div>
+    </Card>
   );
 }
