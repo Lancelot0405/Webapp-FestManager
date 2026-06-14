@@ -9,7 +9,6 @@ import {
   Eye,
 } from 'lucide-react';
 import { Button, Card, Chip, Table, SearchField, Tabs } from '@heroui/react';
-import { SharedElementTransition } from 'react-aria-components';
 import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
 import { useApp } from '../../context/AppContext';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
@@ -139,14 +138,16 @@ function AdminDashboard({ events, staff, inventory, currentUser, navigate }: {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-separator/50 pb-3">
         {/* Tab bar */}
         <Tabs selectedKey={tab} onSelectionChange={(key) => setTab(key as TabKey)}>
-          <SharedElementTransition>
+          <Tabs.ListContainer>
             <Tabs.List aria-label="Dashboard tabs">
               {TABS.map(t => (
-                <Tabs.Tab key={t.key} id={t.key}>{t.label}</Tabs.Tab>
+                <Tabs.Tab key={t.key} id={t.key}>
+                  {t.label}
+                  <Tabs.Indicator />
+                </Tabs.Tab>
               ))}
-              <Tabs.Indicator />
             </Tabs.List>
-          </SharedElementTransition>
+          </Tabs.ListContainer>
         </Tabs>
 
         {/* Filters */}

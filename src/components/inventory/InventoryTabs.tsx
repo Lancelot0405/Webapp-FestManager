@@ -1,6 +1,5 @@
 import { Store, Tent, History } from 'lucide-react';
 import { Button, Chip, Tabs } from '@heroui/react';
-import { SharedElementTransition } from 'react-aria-components';
 import type { MainTab, SubTab } from './useInventoryFilters';
 
 interface Props {
@@ -27,14 +26,20 @@ export default function InventoryTabs({
         <Tabs
           selectedKey={mainTab}
           onSelectionChange={(key) => onMainTabChange(key as MainTab)}
+          className="w-full"
         >
-          <SharedElementTransition>
+          <Tabs.ListContainer>
             <Tabs.List aria-label="Khu vực kho">
-              <Tabs.Tab id="restaurant"><span className="flex items-center gap-1.5"><Store size={14} />Nhà hàng</span></Tabs.Tab>
-              <Tabs.Tab id="festival"><span className="flex items-center gap-1.5"><Tent size={14} />Festival</span></Tabs.Tab>
-              <Tabs.Indicator />
+              <Tabs.Tab id="restaurant">
+                <span className="flex items-center gap-1.5"><Store size={14} />Nhà hàng</span>
+                <Tabs.Indicator />
+              </Tabs.Tab>
+              <Tabs.Tab id="festival">
+                <span className="flex items-center gap-1.5"><Tent size={14} />Festival</span>
+                <Tabs.Indicator />
+              </Tabs.Tab>
             </Tabs.List>
-          </SharedElementTransition>
+          </Tabs.ListContainer>
         </Tabs>
       )}
 

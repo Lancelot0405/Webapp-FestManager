@@ -2,7 +2,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trash2, Download, Copy } from 'lucide-react';
 import { Tooltip, Button, Tabs } from '@heroui/react';
-import { SharedElementTransition } from 'react-aria-components';
 import { useApp } from '../../context/AppContext';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
 import { useDeleteEvent } from '../../hooks/queries/mutations/useDeleteEvent';
@@ -154,18 +153,18 @@ export default function EventDetail() {
           <Tabs
             selectedKey={activeTab}
             onSelectionChange={(key) => setActiveTab(key as Tab)}
-            className="mb-4"
+            className="mb-4 w-full"
           >
-            <SharedElementTransition>
+            <Tabs.ListContainer>
               <Tabs.List aria-label="Chi tiết sự kiện">
                 {TABS.map(tab => (
                   <Tabs.Tab key={tab.id} id={tab.id} className={tab.id === 'info' ? 'lg:hidden' : ''}>
                     {tab.label}
+                    <Tabs.Indicator />
                   </Tabs.Tab>
                 ))}
-                <Tabs.Indicator />
               </Tabs.List>
-            </SharedElementTransition>
+            </Tabs.ListContainer>
           </Tabs>
 
           {/* Tab info: chỉ render trên mobile (desktop dùng panel trái) */}
