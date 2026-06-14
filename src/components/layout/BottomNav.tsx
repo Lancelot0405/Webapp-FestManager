@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, useSpring } from 'framer-motion';
 import { Tabs } from '@heroui/react';
 import {
   LayoutDashboard,
@@ -44,12 +44,8 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
   const location        = useLocation();
 
   const [hovered, setHovered] = useState<string | null>(null);
-  const trackHover = (e: React.PointerEvent<HTMLElement>) => {
-    const el = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
-    const tab = el?.closest('[data-navtab]') as HTMLElement | null;
-    setHovered(tab?.dataset.navtab ?? null);
-  };
-  const clearHover = () => setHovered(null);
+  const pillStretch = useSpring(1, { stiffness: 420, damping: 24 });
+  const pillShift   = useSpring(0, { stiffness: 420, damping: 28 });
 
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   useEffect(() => {
@@ -73,6 +69,27 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
              : STAFF_TABS;
 
   const activeSegment = location.pathname.split('/')[1] || 'dashboard';
+
+  const trackHover = (e: React.PointerEvent<HTMLElement>) => {
+    const el  = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
+    const tab = el?.closest('[data-navtab]') as HTMLElement | null;
+    setHovered(tab?.dataset.navtab ?? null);
+
+    const activeEl = e.currentTarget.querySelector(
+      `[data-navtab="${activeSegment}"]`
+    ) as HTMLElement | null;
+    if (activeEl) {
+      const r = activeEl.getBoundingClientRect();
+      const delta = e.clientX - (r.left + r.width / 2);
+      pillShift.set(Math.max(-16, Math.min(16, delta * 0.22)));
+      pillStretch.set(1 + Math.min(Math.abs(delta) / 240, 1) * 0.22);
+    }
+  };
+  const clearHover = () => {
+    setHovered(null);
+    pillStretch.set(1);
+    pillShift.set(0);
+  };
 
   return (
     <div
@@ -115,12 +132,15 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
                     id={path}
                     aria-label={label}
                     data-navtab={path}
-                    className={`
-                      group relative flex items-center justify-center h-auto min-w-0 rounded-full cursor-pointer
-                      outline-none select-none p-2.5 transition-transform active:scale-90
-                      ${isActive ? 'bg-accent shadow-sm' : ''}
-                    `}
+                    className="group relative flex items-center justify-center h-auto min-w-0 rounded-full cursor-pointer outline-none select-none p-2.5"
                   >
+                    {isActive && (
+                      <motion.span
+                        aria-hidden
+                        className="absolute inset-0 rounded-full bg-accent shadow-sm"
+                        style={{ scaleX: pillStretch, x: pillShift }}
+                      />
+                    )}
                     {!isActive && hovered === path && (
                       <motion.span
                         layoutId="navHoverPill"
