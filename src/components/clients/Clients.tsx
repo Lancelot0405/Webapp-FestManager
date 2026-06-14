@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useKeyboardOffset } from '../../hooks/useKeyboardOffset';
 import { Pencil, Trash2, Phone, Mail, MapPin, Building2 } from 'lucide-react';
 import { AlertDialog, Button, Card, EmptyState, Modal, SearchField } from '@heroui/react';
 import { Controller, useForm } from 'react-hook-form';
@@ -32,6 +33,7 @@ export default function Clients() {
   const [showForm, setShowForm]       = useState(false);
   const [editingId, setEditingId]     = useState<number | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Client | null>(null);
+  const keyboardOffset = useKeyboardOffset(showForm);
 
   const { control, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(clientSchema),
@@ -120,6 +122,7 @@ export default function Clients() {
           <Modal.Container placement="bottom" size="md" className="sm:items-center">
             <Modal.Dialog
               aria-label={editingId ? 'Chỉnh sửa khách hàng' : 'Thêm khách hàng mới'}
+              style={{ marginBottom: keyboardOffset }}
               className="max-h-[85dvh] flex flex-col rounded-t-2xl sm:rounded-2xl"
             >
               <Modal.Header className="px-5 pt-5 pb-0 shrink-0">

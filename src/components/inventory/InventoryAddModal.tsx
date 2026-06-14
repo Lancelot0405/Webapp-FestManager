@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useKeyboardOffset } from '../../hooks/useKeyboardOffset';
 import { Button, Modal } from '@heroui/react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -24,6 +25,7 @@ interface Props {
 type FormValues = z.infer<typeof inventoryItemSchema>;
 
 export default function InventoryAddModal({ isOpen, onClose, mainTab, subTab }: Props) {
+  const keyboardOffset = useKeyboardOffset(isOpen);
   const { currentUser } = useApp();
   const createMutation  = useCreateInventoryItem();
   const addLogMutation  = useAddInventoryLog();
@@ -70,7 +72,7 @@ export default function InventoryAddModal({ isOpen, onClose, mainTab, subTab }: 
     <Modal isOpen={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <Modal.Backdrop isDismissable>
         <Modal.Container placement="bottom" size="md" className="sm:items-center">
-          <Modal.Dialog aria-label="Thêm mặt hàng" className="max-h-[85dvh] flex flex-col rounded-t-2xl sm:rounded-2xl">
+          <Modal.Dialog aria-label="Thêm mặt hàng" style={{ marginBottom: keyboardOffset }} className="max-h-[85dvh] flex flex-col rounded-t-2xl sm:rounded-2xl">
             <Modal.Header className="px-5 pt-5 pb-0 shrink-0">
               <Modal.Heading className="text-sm font-bold text-foreground">
                 Thêm {itemLabel} — {sectionLabel}

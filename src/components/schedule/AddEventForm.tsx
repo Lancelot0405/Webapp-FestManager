@@ -7,6 +7,7 @@ import AppDatePicker from '@/components/shared/AppDatePicker';
 import { useCreateEvent } from '../../hooks/queries/mutations/useCreateEvent';
 import { computeEventStatus } from '../../lib/eventStatus';
 import { eventSchema } from '../../lib/validations';
+import { useKeyboardOffset } from '../../hooks/useKeyboardOffset';
 import type { FestivalEvent } from '../../types';
 
 interface AddEventFormProps {
@@ -16,6 +17,7 @@ interface AddEventFormProps {
 type FormValues = z.infer<typeof eventSchema>;
 
 export default function AddEventForm({ onClose }: AddEventFormProps) {
+  const keyboardOffset = useKeyboardOffset(true);
   const createEvent = useCreateEvent();
   const { control, handleSubmit, watch, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(eventSchema),
@@ -53,7 +55,7 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
     <Modal isOpen onOpenChange={(open) => { if (!open) onClose(); }}>
       <Modal.Backdrop isDismissable>
         <Modal.Container placement="bottom" size="md" className="sm:items-center">
-          <Modal.Dialog aria-label="Thêm sự kiện mới" className="max-h-[85dvh] flex flex-col rounded-t-2xl sm:rounded-2xl">
+          <Modal.Dialog aria-label="Thêm sự kiện mới" style={{ marginBottom: keyboardOffset }} className="max-h-[85dvh] flex flex-col rounded-t-2xl sm:rounded-2xl">
             <Modal.Header className="px-5 pt-5 pb-0 shrink-0">
               <Modal.Heading className="text-base font-bold text-foreground">Thêm sự kiện mới</Modal.Heading>
             </Modal.Header>
