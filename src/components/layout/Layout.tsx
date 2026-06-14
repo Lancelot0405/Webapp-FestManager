@@ -120,17 +120,14 @@ export default function Layout() {
         </Button>
       )}
 
-      <AnimatePresence>
-      {showUserSheet && (
-        <UserSheet
-          onClose={() => setShowUserSheet(false)}
-          onLogout={handleLogout}
-          notifications={notifications}
-          clearAll={clearAll}
-          clearOne={clearOne}
-        />
-      )}
-      </AnimatePresence>
+      <UserSheet
+        isOpen={showUserSheet}
+        onClose={() => setShowUserSheet(false)}
+        onLogout={handleLogout}
+        notifications={notifications}
+        clearAll={clearAll}
+        clearOne={clearOne}
+      />
     </div>
   );
 }

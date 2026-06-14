@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Sun, Moon, Bell, BellPlus, Smartphone, X, Check, Info } from 'lucide-react';
-import { Avatar, Button, Chip, Switch } from '@heroui/react';
+import { Avatar, Badge, Button, Chip, Disclosure, Switch } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
 import { usePushNotifications } from '../../hooks/usePushNotifications';
@@ -34,7 +34,6 @@ export default function UserSheetContent({ onClose, onLogout, notifications, cle
   const isManager = currentUser?.role === 'manager';
   const { subscribed, loading: pushLoading, subscribe } = usePushNotifications();
   const { isIos, isStandalone, triggerInstall } = useInstallPrompt();
-  const [showNotifs, setShowNotifs] = useState(false);
   const [installMsg, setInstallMsg] = useState<string | null>(null);
 
   if (!currentUser) return null;
@@ -103,25 +102,29 @@ export default function UserSheetContent({ onClose, onLogout, notifications, cle
         </Switch>
 
         {(isAdmin || isManager) && (
-          <div>
-            <Button
-              variant="ghost"
-              onPress={() => setShowNotifs(v => !v)}
-              className="w-full h-auto justify-start flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-accent/5 transition-colors"
-            >
-              <div className="w-8 h-8 rounded-xl bg-accent/10 flex items-center justify-center shrink-0 relative">
-                <Bell size={15} className="text-accent" />
-                {notifications.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-danger text-danger-foreground text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-surface">
-                    {notifications.length > 9 ? '9+' : notifications.length}
-                  </span>
+          <Disclosure>
+            <Disclosure.Heading>
+              <Disclosure.Trigger className="w-full h-auto justify-start flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-accent/5 transition-colors outline-none">
+                {notifications.length > 0 ? (
+                  <Badge color="danger" size="sm" placement="top-right">
+                    <Badge.Anchor>
+                      <div className="w-8 h-8 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
+                        <Bell size={15} className="text-accent" />
+                      </div>
+                    </Badge.Anchor>
+                    <Badge.Label>{notifications.length > 9 ? '9+' : notifications.length}</Badge.Label>
+                  </Badge>
+                ) : (
+                  <div className="w-8 h-8 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
+                    <Bell size={15} className="text-accent" />
+                  </div>
                 )}
-              </div>
-              <span className="flex-1 text-sm font-medium text-foreground text-left">Thông báo</span>
-              <span className="text-xs text-muted">{showNotifs ? '▲' : '▼'}</span>
-            </Button>
-            {showNotifs && (
-              <div className="mx-1 mb-1 rounded-xl overflow-hidden bg-default/30 border border-separator">
+                <span className="flex-1 text-sm font-medium text-foreground text-left">Thông báo</span>
+                <Disclosure.Indicator />
+              </Disclosure.Trigger>
+            </Disclosure.Heading>
+            <Disclosure.Content>
+              <Disclosure.Body className="mx-1 mb-1 rounded-xl overflow-hidden bg-default/30 border border-separator">
                 {notifications.length === 0 ? (
                   <p className="text-xs text-muted text-center py-3">Không có thông báo mới</p>
                 ) : (
@@ -143,9 +146,9 @@ export default function UserSheetContent({ onClose, onLogout, notifications, cle
                     </div>
                   </>
                 )}
-              </div>
-            )}
-          </div>
+              </Disclosure.Body>
+            </Disclosure.Content>
+          </Disclosure>
         )}
 
         {!isAdmin && !isManager && (
