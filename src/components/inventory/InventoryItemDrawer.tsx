@@ -92,7 +92,7 @@ export default function InventoryItemDrawer({ item, isOpen, onClose }: Props) {
           placement={isDesktop ? 'right' : 'bottom'}
           className={isDesktop
             ? "fixed right-0 top-0 bottom-0 z-[201] w-96 outline-none border-l border-separator bg-overlay backdrop-blur-xl shadow-2xl"
-            : "fixed bottom-0 left-0 right-0 z-[201] max-h-[90dvh] rounded-t-2xl outline-none border-x border-t border-separator bg-overlay backdrop-blur-xl shadow-2xl pb-safe"
+            : "fixed bottom-0 left-0 right-0 z-[201] max-h-[90dvh] rounded-t-2xl outline-none border-x border-t border-separator bg-overlay backdrop-blur-xl shadow-2xl"
           }
         >
           <DrawerDialog aria-label="Chỉnh sửa mặt hàng" className="relative outline-none p-4 space-y-3">
@@ -187,6 +187,12 @@ export default function InventoryItemDrawer({ item, isOpen, onClose }: Props) {
               </div>
             </form>
           </DrawerDialog>
+          {!isDesktop && (
+            <div
+              className="bg-overlay"
+              style={{ height: 'env(safe-area-inset-bottom, 0px)' }}
+            />
+          )}
         </DrawerContent>
       </DrawerBackdrop>
     </DrawerRoot>
