@@ -1,7 +1,7 @@
 ﻿import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, Plus, Upload, Image, X, Pencil, Check, CreditCard, ShieldCheck, KeyRound, Copy, CheckCheck, Building2 } from 'lucide-react';
-import { Button, Spinner } from '@heroui/react';
+import { Button, Link, Spinner } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
@@ -540,14 +540,14 @@ export default function StaffProfile() {
         ) : (
           <div className="space-y-2">
             {member.contracts.map(c => (
-              <a key={c.id} href={c.url} target="_blank" rel="noreferrer"
-                className="flex items-center gap-3 bg-surface border border-separator rounded-xl shadow-sm p-3 hover:border-accent/30 transition-colors">
+              <Link key={c.id} href={c.url} target="_blank"
+                className="flex items-center gap-3 bg-surface border border-separator rounded-xl shadow-sm p-3 hover:border-accent/30 transition-colors no-underline w-full">
                 <FileText size={18} className="text-accent shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-foreground truncate">{c.fileName ?? 'Hợp đồng'}</p>
                   <p className="text-xs text-muted">{c.date}</p>
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
         )}
