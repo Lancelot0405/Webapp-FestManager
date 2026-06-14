@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Button, Chip, Popover, Separator } from '@heroui/react';
+import { Avatar, Badge, Button, Chip, Popover, Separator } from '@heroui/react';
 import {
   LayoutDashboard,
   Calendar,
@@ -117,13 +117,23 @@ export default function Sidebar({ onOpenSheet, notifCount = 0, notifications, cl
               whileTap={{ scale: 0.93 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
             >
-              <div className="w-10 h-10 rounded-full accent-gradient flex items-center justify-center text-white text-sm font-bold shadow-sm">
-                {currentUser.name.charAt(0).toUpperCase()}
-              </div>
-              {notifCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-danger text-white text-[8px] font-bold rounded-full flex items-center justify-center border-2 border-background">
-                  {notifCount > 9 ? '9+' : notifCount}
-                </span>
+              {notifCount > 0 ? (
+                <Badge color="danger" size="sm" placement="top-right">
+                  <Badge.Anchor>
+                    <Avatar className="size-10 shadow-sm">
+                      <Avatar.Fallback className="accent-gradient text-white text-sm font-bold">
+                        {currentUser.name.charAt(0).toUpperCase()}
+                      </Avatar.Fallback>
+                    </Avatar>
+                  </Badge.Anchor>
+                  <Badge.Label>{notifCount > 9 ? '9+' : notifCount}</Badge.Label>
+                </Badge>
+              ) : (
+                <Avatar className="size-10 shadow-sm">
+                  <Avatar.Fallback className="accent-gradient text-white text-sm font-bold">
+                    {currentUser.name.charAt(0).toUpperCase()}
+                  </Avatar.Fallback>
+                </Avatar>
               )}
             </motion.div>
 

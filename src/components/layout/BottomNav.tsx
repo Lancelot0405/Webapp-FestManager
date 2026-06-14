@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Tabs } from '@heroui/react';
 import {
   LayoutDashboard,
@@ -14,8 +14,6 @@ import { useApp } from '../../context/AppContext';
 
 interface BottomNavProps {
   navVisible?: boolean;
-  onOpenSheet?: () => void;
-  notifCount?: number;
 }
 
 const ADMIN_TABS = [
@@ -25,7 +23,6 @@ const ADMIN_TABS = [
   { path: 'finance',   icon: <DollarSign      size={19} />, label: 'Tài chính'  },
   { path: 'hr',        icon: <Users           size={19} />, label: 'Nhân sự'    },
   { path: 'clients',   icon: <Building2       size={19} />, label: 'Khách hàng' },
-  { path: 'profile',   icon: null,                          label: 'Hồ sơ'      },
 ];
 
 const MANAGER_TABS = [
@@ -33,17 +30,15 @@ const MANAGER_TABS = [
   { path: 'schedule',  icon: <Calendar        size={19} />, label: 'Lịch trình' },
   { path: 'inventory', icon: <Package         size={19} />, label: 'Kho hàng'   },
   { path: 'hr',        icon: <Users           size={19} />, label: 'Nhân sự'    },
-  { path: 'profile',   icon: null,                          label: 'Hồ sơ'      },
 ];
 
 const STAFF_TABS = [
   { path: 'dashboard', icon: <LayoutDashboard size={19} />, label: 'Tổng quan'  },
   { path: 'schedule',  icon: <Calendar        size={19} />, label: 'Lịch trình' },
   { path: 'inventory', icon: <Package         size={19} />, label: 'Kho hàng'   },
-  { path: 'profile',   icon: null,                          label: 'Hồ sơ'      },
 ];
 
-export default function BottomNav({ navVisible = true, onOpenSheet, notifCount = 0 }: BottomNavProps) {
+export default function BottomNav({ navVisible = true }: BottomNavProps) {
   const { currentUser } = useApp();
   const navigate        = useNavigate();
   const location        = useLocation();
@@ -82,7 +77,6 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
              : currentUser.role === 'manager' ? MANAGER_TABS
              : STAFF_TABS;
 
-  const initials = currentUser.name.trim().split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || '';
   const activeSegment = location.pathname.split('/')[1] || 'dashboard';
 
   return (
@@ -98,10 +92,7 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
       >
         <Tabs
           selectedKey={activeSegment}
-          onSelectionChange={(key) => {
-            if (key === 'profile') { onOpenSheet?.(); }
-            else { navigate('/' + key.toString()); }
-          }}
+          onSelectionChange={(key) => navigate('/' + key.toString())}
           className="w-full"
         >
           <Tabs.ListContainer
@@ -131,8 +122,7 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
               className="relative w-full flex justify-around items-center gap-0.5 !bg-transparent !p-0 !shadow-none"
             >
               {tabs.map(({ path, icon, label }) => {
-                const isActive  = activeSegment === path;
-                const isProfile = path === 'profile';
+                const isActive = activeSegment === path;
                 return (
                   <Tabs.Tab
                     key={path}
@@ -147,40 +137,12 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
                     <span className={`shrink-0 transition-colors duration-200 ${
                       isActive ? 'text-white' : 'text-muted group-hover:text-accent'
                     }`}>
-                      {isProfile ? (
-                        <motion.div
-                          className="relative"
-                          whileHover={{ scale: 1.15 }}
-                          whileTap={{ scale: 0.9 }}
-                          transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-                        >
-                          <div className={`w-5 h-5 rounded-full accent-gradient flex items-center justify-center text-white text-[9px] font-bold ${
-                            isActive ? 'ring-2 ring-white/70' : ''
-                          }`}>
-                            {initials}
-                          </div>
-                          <AnimatePresence>
-                            {notifCount > 0 && (
-                              <motion.span
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                exit={{ scale: 0 }}
-                                transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                                className="absolute -top-0.5 -right-1 w-3 h-3 bg-danger text-white text-[7px] font-bold rounded-full flex items-center justify-center border-2 border-surface"
-                              >
-                                {notifCount > 9 ? '9+' : notifCount}
-                              </motion.span>
-                            )}
-                          </AnimatePresence>
-                        </motion.div>
-                      ) : (
-                        <motion.span
-                          animate={isActive ? { scale: [1, 1.25, 1] } : { scale: 1 }}
-                          transition={{ duration: 0.3, ease: 'easeOut' }}
-                        >
-                          {icon}
-                        </motion.span>
-                      )}
+                      <motion.span
+                        animate={isActive ? { scale: [1, 1.25, 1] } : { scale: 1 }}
+                        transition={{ duration: 0.3, ease: 'easeOut' }}
+                      >
+                        {icon}
+                      </motion.span>
                     </span>
                   </Tabs.Tab>
                 );

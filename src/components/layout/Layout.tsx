@@ -9,6 +9,7 @@ import { useApp } from '../../context/AppContext';
 import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
 import { animations } from '../../lib/animations';
 import Sidebar   from './Sidebar';
+import TopBar    from './TopBar';
 import BottomNav from './BottomNav';
 import UserSheet from './UserSheet';
 
@@ -71,9 +72,22 @@ export default function Layout() {
         />
 
         <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
+          {!isDetail && (
+            <div className="md:hidden">
+              <TopBar
+                navVisible={navVisible}
+                onOpenSheet={() => setShowUserSheet(true)}
+                notifCount={notifications.length}
+              />
+            </div>
+          )}
           <main
             ref={mainRef}
-            className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 pt-[calc(env(safe-area-inset-top)+1.25rem)] md:pt-5 pb-24 md:pb-8 scroll-smooth-ios"
+            className={`flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 ${
+              isDetail
+                ? 'pt-[calc(env(safe-area-inset-top)+1.25rem)]'
+                : 'pt-[calc(env(safe-area-inset-top)+4rem)]'
+            } md:pt-5 pb-24 md:pb-8 scroll-smooth-ios`}
           >
             <div className="max-w-5xl xl:max-w-7xl mx-auto w-full">
               <AnimatePresence mode="wait" initial={false}>
@@ -89,11 +103,7 @@ export default function Layout() {
 
           {!isDetail && (
             <div className="md:hidden">
-              <BottomNav
-                navVisible={navVisible}
-                onOpenSheet={() => setShowUserSheet(true)}
-                notifCount={notifications.length}
-              />
+              <BottomNav navVisible={navVisible} />
             </div>
           )}
         </div>

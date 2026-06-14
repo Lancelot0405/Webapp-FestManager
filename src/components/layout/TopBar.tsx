@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { UtensilsCrossed, Bell } from 'lucide-react';
-import { Button } from '@heroui/react';
+import { Avatar, Badge, Button } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 
 interface TopBarProps {
@@ -20,9 +20,9 @@ export default function TopBar({ onOpenSheet, navVisible = true, notifCount = 0 
 
   return (
     <header
-      className="md:hidden sticky z-10 transition-[top] duration-300 ease-out border-b border-separator"
+      className="md:hidden fixed top-0 left-0 right-0 z-20 border-b border-separator transition-transform duration-300 ease-out"
       style={{
-        top: navVisible ? 0 : '-3.75rem',
+        transform: navVisible ? 'translateY(0)' : 'translateY(-100%)',
         WebkitBackdropFilter: 'blur(25px)',
         backdropFilter: 'blur(25px)',
         backgroundColor: 'color-mix(in oklch, var(--surface) 85%, transparent)',
@@ -43,22 +43,36 @@ export default function TopBar({ onOpenSheet, navVisible = true, notifCount = 0 
           </span>
         </Button>
 
-        <div className="flex items-center gap-2">
-          {notifCount > 0 && (
+        <div className="flex items-center gap-1.5">
+          {notifCount > 0 ? (
+            <Badge color="danger" size="sm" placement="top-right">
+              <Badge.Anchor>
+                <Button
+                  variant="ghost"
+                  isIconOnly
+                  size="sm"
+                  onPress={onOpenSheet}
+                  aria-label={`${notifCount} thông báo`}
+                  className="rounded-full w-9 h-9"
+                >
+                  <Bell size={18} className="text-muted" />
+                </Button>
+              </Badge.Anchor>
+              <Badge.Label>{notifCount > 9 ? '9+' : notifCount}</Badge.Label>
+            </Badge>
+          ) : (
             <Button
               variant="ghost"
               isIconOnly
               size="sm"
               onPress={onOpenSheet}
-              aria-label={`${notifCount} thông báo`}
-              className="relative rounded-full w-9 h-9"
+              aria-label="Thông báo"
+              className="rounded-full w-9 h-9"
             >
               <Bell size={18} className="text-muted" />
-              <span className="absolute top-1 right-1 w-4 h-4 bg-danger text-danger-foreground text-[9px] font-bold rounded-full flex items-center justify-center">
-                {notifCount > 9 ? '9+' : notifCount}
-              </span>
             </Button>
           )}
+
           <motion.div
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
@@ -69,9 +83,13 @@ export default function TopBar({ onOpenSheet, navVisible = true, notifCount = 0 
               isIconOnly
               onPress={onOpenSheet}
               aria-label="Tài khoản"
-              className="relative w-9 h-9 min-w-0 rounded-full accent-gradient shadow-sm hover:bg-transparent"
+              className="w-9 h-9 min-w-0 p-0 rounded-full hover:bg-transparent"
             >
-              <span className="text-[13px] font-bold text-white">{initials}</span>
+              <Avatar className="size-8 shadow-sm">
+                <Avatar.Fallback className="accent-gradient text-white text-[13px] font-bold">
+                  {initials}
+                </Avatar.Fallback>
+              </Avatar>
             </Button>
           </motion.div>
         </div>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Sun, Moon, Bell, BellPlus, Smartphone, X, Check, Info } from 'lucide-react';
-import { Button, Chip, Switch } from '@heroui/react';
+import { Avatar, Button, Chip, Switch } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
 import { usePushNotifications } from '../../hooks/usePushNotifications';
@@ -58,9 +58,11 @@ export default function UserSheetContent({ onClose, onLogout, notifications, cle
     <div className="px-5 py-4">
       {/* User info */}
       <div className="flex items-center gap-4 py-4 border-b border-separator">
-        <div className="w-12 h-12 rounded-full accent-gradient flex items-center justify-center shadow-lg shrink-0">
-          <span className="text-lg font-bold text-white">{initials}</span>
-        </div>
+        <Avatar className="size-12 shadow-lg shrink-0">
+          <Avatar.Fallback className="accent-gradient text-white text-lg font-bold">
+            {initials}
+          </Avatar.Fallback>
+        </Avatar>
         <div className="flex-1 min-w-0">
           <p className="font-bold text-sm text-foreground truncate">{currentUser.name}</p>
           <div className="flex items-center gap-2 mt-1">
