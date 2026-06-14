@@ -97,7 +97,7 @@ export default function HRGlobal() {
           </Button>
           {isAdmin && (
             <>
-              <div className="w-[1px] bg-separator shrink-0" />
+              <div className="w-[1px] bg-separator group-hover:bg-accent/20 shrink-0 transition-colors duration-150" />
               <Button
                 isIconOnly
                 variant="ghost"
