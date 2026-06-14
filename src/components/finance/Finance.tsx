@@ -29,12 +29,8 @@ export default function Finance() {
 
   return (
     <div className="space-y-6 pb-20">
-      <div className="fixed bottom-24 right-4 md:bottom-8 z-30">
-        <FinanceExport />
-      </div>
-
-      {allMonths.length > 0 && (
-        <div className="overflow-x-auto pb-1">
+      <div className="flex items-center justify-between gap-3">
+        <div className="overflow-x-auto pb-1 flex-1 scrollbar-hide">
           <ToggleButtonGroup
             selectionMode="single"
             disallowEmptySelection
@@ -54,7 +50,10 @@ export default function Finance() {
             ))}
           </ToggleButtonGroup>
         </div>
-      )}
+        <div className="shrink-0">
+          <FinanceExport />
+        </div>
+      </div>
 
       <FinanceSummaryCards filteredEvents={filteredEvents} />
 

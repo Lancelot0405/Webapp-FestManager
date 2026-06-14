@@ -12,6 +12,7 @@ interface Props {
   sectionLabel: string;
   onMainTabChange: (tab: MainTab) => void;
   onSubTabChange: (tab: SubTab) => void;
+  actionSlot?: React.ReactNode;
 }
 
 export default function InventoryTabs({
@@ -19,6 +20,7 @@ export default function InventoryTabs({
   canSeeRestaurant, canSeeFestival,
   countFor, sectionLogsCount, sectionLabel,
   onMainTabChange, onSubTabChange,
+  actionSlot,
 }: Props) {
   return (
     <>
@@ -57,29 +59,32 @@ export default function InventoryTabs({
         </span>
       </div>
 
-      <div className="flex gap-1.5 flex-wrap">
-        {([
-          { id: 'food'      as SubTab, label: 'Kho thực phẩm',  count: countFor(mainTab, 'food')      },
-          { id: 'equipment' as SubTab, label: 'Trang thiết bị', count: countFor(mainTab, 'equipment') },
-          { id: 'history'   as SubTab, label: 'Lịch sử',        count: sectionLogsCount               },
-        ]).map(({ id, label, count }) => {
-          const isActive = subTab === id;
-          return (
-            <Button
-              key={id}
-              onPress={() => onSubTabChange(id)}
-              variant={isActive ? 'primary' : 'ghost'}
-              size="sm"
-              className={`flex items-center gap-1.5 rounded-full ${isActive ? '' : 'border border-separator hover:border-accent/30'}`}
-            >
-              {id === 'history' && <History size={11} />}
-              {label}
-              <Chip size="sm" className={`font-bold ${isActive ? 'bg-white/20 text-accent-foreground border-0' : ''}`}>
-                {count}
-              </Chip>
-            </Button>
-          );
-        })}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex gap-1.5 flex-wrap">
+          {([
+            { id: 'food'      as SubTab, label: 'Kho thực phẩm',  count: countFor(mainTab, 'food')      },
+            { id: 'equipment' as SubTab, label: 'Trang thiết bị', count: countFor(mainTab, 'equipment') },
+            { id: 'history'   as SubTab, label: 'Lịch sử',        count: sectionLogsCount               },
+          ]).map(({ id, label, count }) => {
+            const isActive = subTab === id;
+            return (
+              <Button
+                key={id}
+                onPress={() => onSubTabChange(id)}
+                variant={isActive ? 'primary' : 'ghost'}
+                size="sm"
+                className={`flex items-center gap-1.5 rounded-full ${isActive ? '' : 'border border-separator hover:border-accent/30'}`}
+              >
+                {id === 'history' && <History size={11} />}
+                {label}
+                <Chip size="sm" className={`font-bold ${isActive ? 'bg-white/20 text-accent-foreground border-0' : ''}`}>
+                  {count}
+                </Chip>
+              </Button>
+            );
+          })}
+        </div>
+        {actionSlot && <div className="shrink-0">{actionSlot}</div>}
       </div>
     </>
   );
