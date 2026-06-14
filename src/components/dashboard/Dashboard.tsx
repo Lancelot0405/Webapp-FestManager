@@ -485,15 +485,17 @@ function OverviewTab({ events, staff, inventory, navigate }: {
             {lowStock.slice(0, 4).map((item, i) => (
               <motion.div key={item.id} {...animations.listItem(i)} {...animations.press}>
                 <Card
-                  className="p-3 flex items-center gap-3 border-danger/15"
+                  className="border-danger/15"
                   style={{ boxShadow: '0 0 14px 2px rgba(239,68,68,0.10)' }}
                 >
-                  <div className="w-8 h-8 rounded-xl bg-danger/10 border border-danger/20 flex items-center justify-center shrink-0">
-                    <Package size={14} className="text-danger" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">{item.name}</p>
-                    <p className="text-xs text-danger">Còn {item.current} {item.unit} / Ngưỡng {item.threshold}</p>
+                  <div className="flex items-center gap-3 p-3">
+                    <div className="w-8 h-8 rounded-xl bg-danger/10 border border-danger/20 flex items-center justify-center shrink-0">
+                      <Package size={14} className="text-danger" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate">{item.name}</p>
+                      <p className="text-xs text-danger">Còn {item.current} {item.unit} / Ngưỡng {item.threshold}</p>
+                    </div>
                   </div>
                 </Card>
               </motion.div>
