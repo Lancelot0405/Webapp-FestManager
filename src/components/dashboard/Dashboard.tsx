@@ -485,7 +485,7 @@ function OverviewTab({ events, staff, inventory, navigate }: {
             {lowStock.slice(0, 4).map((item, i) => (
               <motion.div key={item.id} {...animations.listItem(i)} {...animations.press}>
                 <Card
-                  className="border-danger/15"
+                  className="!p-0 border-danger/15"
                   style={{ boxShadow: '0 0 14px 2px rgba(239,68,68,0.10)' }}
                 >
                   <div className="flex items-center gap-3 p-3">
