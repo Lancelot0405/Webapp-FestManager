@@ -1,7 +1,9 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Trash2, ShieldCheck, Check, X } from 'lucide-react';
 import { Avatar, Button, Card, Chip, ScrollShadow } from '@heroui/react';
+import { animations } from '../../lib/animations';
 import { useApp } from '../../context/AppContext';
 import { useFABRegister } from '../../hooks/useFABRegister';
 import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
@@ -77,10 +79,10 @@ export default function HRGlobal() {
   const renderList = (list: StaffMember[]) => (
     <ScrollShadow className="max-h-[60vh]">
       <div className="grid grid-cols-2 gap-3">
-        {list.map(s => (
+        {list.map((s, i) => (
+          <motion.div key={s.id} {...animations.listItem(i)} {...animations.press}>
           <Card
-            key={s.id}
-            className="group overflow-hidden transition-all duration-150 hover:border-accent/40 hover:shadow-md active:scale-[0.99] p-0 gap-0"
+            className="group overflow-hidden transition-all duration-150 hover:border-accent/40 hover:shadow-md p-0 gap-0"
           >
             {/* Main clickable area */}
             <Button
@@ -120,6 +122,7 @@ export default function HRGlobal() {
               )}
             </div>
           </Card>
+          </motion.div>
         ))}
       </div>
     </ScrollShadow>

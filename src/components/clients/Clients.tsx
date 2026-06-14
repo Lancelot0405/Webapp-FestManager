@@ -1,7 +1,9 @@
 import { useState, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { useKeyboardOffset } from '../../hooks/useKeyboardOffset';
 import { Pencil, Trash2, Phone, Mail, MapPin, Building2 } from 'lucide-react';
 import { AlertDialog, Button, Card, EmptyState, Modal, SearchField } from '@heroui/react';
+import { animations } from '../../lib/animations';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -203,10 +205,11 @@ export default function Clients() {
         </EmptyState>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
-          {filtered.map(client => {
+          {filtered.map((client, i) => {
             const clientEvents = events.filter(e => client.eventIds.includes(e.id));
             return (
-              <Card key={client.id}>
+              <motion.div key={client.id} {...animations.listItem(i)} {...animations.press}>
+              <Card>
                 <Card.Header className="px-4 pt-4 pb-2 flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <Card.Title className="text-sm font-semibold text-foreground truncate">{client.name}</Card.Title>
@@ -229,6 +232,7 @@ export default function Clients() {
                   {client.notes && <p className="text-xs text-muted italic">{client.notes}</p>}
                 </Card.Content>
               </Card>
+              </motion.div>
             );
           })}
         </div>

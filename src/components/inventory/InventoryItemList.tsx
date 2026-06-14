@@ -1,3 +1,5 @@
+import { motion } from 'framer-motion';
+import { animations } from '../../lib/animations';
 import ListSkeleton from '@/components/shared/skeletons/ListSkeleton';
 import type { InventoryItem } from '../../types';
 import InventoryItemRow from './InventoryItemRow';
@@ -29,8 +31,10 @@ export default function InventoryItemList({ items, isLoading, onEditItem, itemLa
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 items-start">
-      {items.map(item => (
-        <InventoryItemRow key={item.id} item={item} onEdit={onEditItem} />
+      {items.map((item, i) => (
+        <motion.div key={item.id} {...animations.listItem(i)}>
+          <InventoryItemRow item={item} onEdit={onEditItem} />
+        </motion.div>
       ))}
     </div>
   );
