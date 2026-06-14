@@ -229,7 +229,7 @@ export default function Schedule() {
                       return (
                         <Table.Row
                           key={event.id} id={String(event.id)}
-                          onClick={() => navigate('/schedule/' + event.id)}
+                          onAction={() => navigate('/schedule/' + event.id)}
                           className="border-b border-default-100 dark:border-default-200/20 last:border-0 cursor-pointer hover:bg-default-100/50 dark:hover:bg-default-100/5 transition-colors"
                         >
                           <Table.Cell className="py-3.5 pl-4 pr-3">
