@@ -138,10 +138,10 @@ function AdminDashboard({ events, staff, inventory, currentUser, navigate }: {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-separator/50 pb-3">
         {/* Tab bar */}
         <Tabs selectedKey={tab} onSelectionChange={(key) => setTab(key as TabKey)}>
-          <Tabs.ListContainer>
-            <Tabs.List aria-label="Dashboard tabs">
+          <Tabs.ListContainer className="overflow-x-auto scrollbar-hide">
+            <Tabs.List aria-label="Dashboard tabs" className="w-max min-w-full">
               {TABS.map(t => (
-                <Tabs.Tab key={t.key} id={t.key}>
+                <Tabs.Tab key={t.key} id={t.key} className="text-sm whitespace-nowrap">
                   {t.label}
                   <Tabs.Indicator />
                 </Tabs.Tab>
