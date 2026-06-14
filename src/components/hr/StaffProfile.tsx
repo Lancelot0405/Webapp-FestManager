@@ -259,8 +259,8 @@ export default function StaffProfile() {
           {canEdit && !editing && (
             <Button
               size="sm"
-              variant="ghost"
-              className="text-xs text-muted hover:text-foreground flex items-center gap-1 px-2.5 py-1.5 rounded-lg h-auto min-w-0 bg-default/50 border border-separator"
+              variant="outline"
+              className="h-auto min-w-0"
               onPress={startEdit}
             >
               <Pencil size={12} /> Chỉnh sửa
@@ -335,16 +335,17 @@ export default function StaffProfile() {
             )}
             <div className="flex gap-2 pt-1">
               <Button
-                className="flex-1 bg-accent text-white dark:text-foreground text-sm font-medium rounded-xl flex items-center justify-center gap-1.5"
+                variant="primary"
                 size="sm"
+                className="flex-1"
                 onPress={saveEdit}
               >
                 <Check size={14} /> Lưu
               </Button>
               <Button
-                variant="ghost"
-                className="flex-1 border border-separator text-sm text-foreground/80 rounded-xl"
+                variant="outline"
                 size="sm"
+                className="flex-1"
                 onPress={() => setEditing(false)}
               >
                 Huỷ
@@ -401,7 +402,7 @@ export default function StaffProfile() {
               />
               <Button
                 size="sm"
-                className="bg-accent text-white dark:text-foreground text-sm font-medium px-3 rounded-lg flex items-center gap-1"
+                variant="primary"
                 onPress={async () => {
                   if (!editUsername.trim()) return;
                   await supabase.from('users').update({ name: editUsername.trim() }).eq('id', member.userId!);
@@ -422,8 +423,8 @@ export default function StaffProfile() {
               <Label className="text-xs text-muted font-medium">Mật khẩu</Label>
               <Button
                 size="sm"
-                variant="ghost"
-                className="text-xs text-warning bg-warning/10 border border-warning/20 px-2.5 py-1 rounded-lg h-auto min-w-0 hover:bg-warning/20 transition-colors"
+                variant={showPwForm ? 'outline' : 'secondary'}
+                className="h-auto min-w-0"
                 onPress={() => { setShowPwForm(!showPwForm); setPwMsg(''); setNewPassword(''); }}
               >
                 {showPwForm ? 'Huỷ' : 'Đổi mật khẩu'}
@@ -444,7 +445,7 @@ export default function StaffProfile() {
                   type="submit"
                   isDisabled={pwLoading}
                   size="sm"
-                  className="bg-warning text-white dark:text-foreground text-sm font-medium px-3 rounded-lg flex items-center gap-1"
+                  variant="primary"
                 >
                   {pwLoading ? <Spinner size="sm" color="current" /> : <Check size={13} />}
                   Lưu
@@ -539,8 +540,8 @@ export default function StaffProfile() {
           {canEdit && (
             <Button
               size="sm"
-              variant="ghost"
-              className="bg-success/10 text-success border border-success/20 text-sm font-medium px-3 py-1.5 rounded-lg h-auto hover:bg-success/20 flex items-center gap-1 transition-colors"
+              variant="secondary"
+              className="h-auto"
               onPress={() => setShowExpenseForm(!showExpenseForm)}
             >
               <Plus size={14} /> Nộp chi phí
@@ -611,17 +612,18 @@ export default function StaffProfile() {
               <Button
                 type="submit"
                 isDisabled={uploadingExp}
-                className="flex-1 bg-success text-white dark:text-foreground text-sm font-medium py-2 rounded-lg flex items-center justify-center gap-1.5"
+                variant="primary"
                 size="sm"
+                className="flex-1"
               >
                 {uploadingExp && <Spinner size="sm" color="current" />}
                 {uploadingExp ? 'Đang gửi...' : 'Gửi'}
               </Button>
               <Button
                 type="button"
-                variant="ghost"
-                className="flex-1 border border-separator text-sm text-foreground/80 rounded-lg"
+                variant="outline"
                 size="sm"
+                className="flex-1"
                 onPress={() => setShowExpenseForm(false)}
               >
                 Huỷ
