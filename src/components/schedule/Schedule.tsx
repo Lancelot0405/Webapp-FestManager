@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, Eye } from 'lucide-react';
+import { Trash2, Eye } from 'lucide-react';
 import {
   Button, Chip, Table,
   ToggleButtonGroup, ToggleButton,
@@ -9,6 +9,7 @@ import { today, getLocalTimeZone, CalendarDate } from '@internationalized/date';
 import { CalendarWithYearPicker } from '@/components/shared/AppDatePicker';
 
 import { useApp } from '../../context/AppContext';
+import { useFABRegister } from '../../hooks/useFABRegister';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
 import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
 import { useDeleteEvent } from '../../hooks/queries/mutations/useDeleteEvent';
@@ -104,6 +105,8 @@ export default function Schedule() {
   const [rangeMode,     setRangeMode]     = useState<RangeMode>('month');
   const [statusFilter,  setStatusFilter]  = useState<StatusFilter>('Tất cả');
   const [showAddForm,   setShowAddForm]   = useState(false);
+  const openAddForm = useCallback(() => setShowAddForm(true), []);
+  useFABRegister(isAdmin ? openAddForm : null, 'Thêm sự kiện');
 
   const myStaffMember = !canViewAll && currentUser
     ? (staff.find(s => s.userId === currentUser.id)
@@ -146,17 +149,6 @@ export default function Schedule() {
 
   return (
     <div className="pb-32">
-      {isAdmin && (
-        <Button
-          onPress={() => setShowAddForm(true)}
-          isIconOnly
-          aria-label="Thêm sự kiện"
-          className="fixed bottom-32 right-4 md:bottom-8 z-30 h-14 w-14 rounded-full bg-accent text-white dark:text-foreground shadow-xl active:scale-95 transition-transform"
-        >
-          <Plus size={24} />
-        </Button>
-      )}
-
       {showAddForm && isAdmin && <AddEventForm onClose={() => setShowAddForm(false)} />}
 
       <div className="flex flex-col md:flex-row md:gap-6 md:items-start">

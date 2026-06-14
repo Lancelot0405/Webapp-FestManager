@@ -1,5 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Plus } from 'lucide-react';
+import { Button } from '@heroui/react';
+import { useFAB } from '../../context/FABContext';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { useApp } from '../../context/AppContext';
 import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
@@ -49,6 +52,7 @@ export default function Layout() {
   const { notifications, clearAll, clearOne } = useRealtimeNotifications(!!currentUser && isAdminOrManager);
 
   const isDetail = /^\/(schedule|hr)\/.+/.test(location.pathname);
+  const { fab } = useFAB();
 
   return (
     <div className="h-screen font-sans overflow-hidden">
@@ -85,6 +89,17 @@ export default function Layout() {
           )}
         </div>
       </div>
+
+      {fab && !isDetail && (
+        <Button
+          isIconOnly
+          aria-label={fab.label}
+          onPress={fab.onPress}
+          className="fixed bottom-32 right-4 md:bottom-8 z-30 h-14 w-14 rounded-full bg-accent text-white dark:text-foreground shadow-xl active:scale-95 transition-transform"
+        >
+          <Plus size={24} />
+        </Button>
+      )}
 
       {showUserSheet && (
         <UserSheet

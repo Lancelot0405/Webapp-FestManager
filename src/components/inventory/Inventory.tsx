@@ -1,6 +1,6 @@
-﻿import { useRef, useState } from 'react';
-import { Plus, Upload, FileSpreadsheet } from 'lucide-react';
-import { Button } from '@heroui/react';
+﻿import { useRef, useState, useCallback } from 'react';
+import { Upload, FileSpreadsheet } from 'lucide-react';
+import { useFABRegister } from '../../hooks/useFABRegister';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import { getErrorMessage } from '../../lib/errors';
@@ -29,6 +29,9 @@ export default function Inventory() {
   const importRef = useRef<HTMLInputElement>(null);
 
   const filters = useInventoryFilters(inventory, inventoryLogs, currentUser);
+
+  const openAddModal = useCallback(() => setShowAddModal(true), []);
+  useFABRegister(filters.subTab !== 'history' ? openAddModal : null, 'Thêm vào kho');
 
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -71,17 +74,6 @@ export default function Inventory() {
 
   return (
     <div className="space-y-4 pb-32">
-      {filters.subTab !== 'history' && (
-        <Button
-          onPress={() => setShowAddModal(true)}
-          isIconOnly
-          aria-label="Thêm vào kho"
-          className="fixed bottom-32 right-4 md:bottom-8 z-30 h-14 w-14 rounded-full bg-accent text-white dark:text-foreground shadow-xl active:scale-95 transition-transform"
-        >
-          <Plus size={24} />
-        </Button>
-      )}
-
       <InventoryTabs
         mainTab={filters.mainTab}
         subTab={filters.subTab}

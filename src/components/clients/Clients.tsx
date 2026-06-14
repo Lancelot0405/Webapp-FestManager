@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+﻿import { useState, useCallback } from 'react';
 import { Plus, X, Pencil, Trash2, Phone, Mail, MapPin, Building2, Check, Search } from 'lucide-react';
 import { Button, Card } from '@heroui/react';
 import { Controller, useForm } from 'react-hook-form';
@@ -13,6 +13,7 @@ import { useAddClient } from '../../hooks/queries/mutations/useAddClient';
 import { useUpdateClient } from '../../hooks/queries/mutations/useUpdateClient';
 import { useDeleteClient } from '../../hooks/queries/mutations/useDeleteClient';
 import { useToast } from '../../context/ToastContext';
+import { useFABRegister } from '../../hooks/useFABRegister';
 import { clientSchema } from '../../lib/validations';
 import type { Client } from '../../types';
 
@@ -35,11 +36,12 @@ export default function Clients() {
     defaultValues: { name: '', contactName: '', phone: '', email: '', city: '', notes: '' },
   });
 
-  const openAdd = () => {
+  const openAdd = useCallback(() => {
     reset({ name: '', contactName: '', phone: '', email: '', city: '', notes: '' });
     setEditingId(null);
     setShowForm(true);
-  };
+  }, [reset]);
+  useFABRegister(openAdd, 'Thêm khách hàng');
 
   const openEdit = (client: Client) => {
     reset({
@@ -104,10 +106,6 @@ export default function Clients() {
           <Plus size={15} /> Thêm
         </Button>
       </div>
-      <Button onPress={openAdd} isIconOnly aria-label="Thêm khách hàng" className="md:hidden fixed bottom-24 right-4 z-30 h-14 w-14 rounded-full bg-accent text-white dark:text-foreground shadow-xl active:scale-95 transition-transform">
-          <Plus size={24} />
-        </Button>
-
       <Input value={search} onChange={setSearch} placeholder="Tìm kiếm khách hàng..." startContent={<Search size={15} />} />
 
       {showForm && (

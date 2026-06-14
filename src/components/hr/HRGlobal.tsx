@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, ShieldCheck, Check, X } from 'lucide-react';
+import { Trash2, ShieldCheck, Check, X } from 'lucide-react';
 import { Avatar, Button, Card, Chip, ScrollShadow } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
+import { useFABRegister } from '../../hooks/useFABRegister';
 import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
 import { usePendingRegistrationsQuery } from '../../hooks/queries/usePendingRegistrationsQuery';
@@ -32,6 +33,8 @@ export default function HRGlobal() {
   const canViewAll = isAdmin || isManager;
 
   const [showForm,    setShowForm]    = useState(false);
+  const openForm = useCallback(() => setShowForm(true), []);
+  useFABRegister(isAdmin ? openForm : null, 'Thêm nhân viên');
   const [search,      setSearch]      = useState('');
   const [typeFilter,  setTypeFilter]  = useState<TypeFilter>('Tất cả');
   const [showPending, setShowPending] = useState(true);
@@ -124,12 +127,6 @@ export default function HRGlobal() {
 
   return (
     <div className="space-y-4 pb-32">
-      {isAdmin && (
-        <Button onPress={() => setShowForm(true)} isIconOnly aria-label="Thêm nhân viên" className="fixed bottom-32 right-4 md:bottom-8 z-30 h-14 w-14 rounded-full bg-accent text-white dark:text-foreground shadow-xl active:scale-95 transition-transform">
-          <Plus size={24} />
-        </Button>
-      )}
-
       {/* Pending registrations — admin only */}
       {isAdmin && (
         <div className="bg-indigo-500/10 border border-indigo-500/30 rounded-xl overflow-hidden">

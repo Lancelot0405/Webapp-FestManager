@@ -6,6 +6,7 @@ import { ThemeProvider as NextThemesProvider } from 'next-themes'
 import { AppProvider } from './context/AppContext'
 import { ToastProvider } from './context/ToastContext'
 import { ThemeProvider } from './context/ThemeContext'
+import { FABProvider } from './context/FABContext'
 import ErrorBoundary from './components/shared/ErrorBoundary'
 import './index.css'
 import App from './App.tsx'
@@ -28,7 +29,9 @@ createRoot(document.getElementById('root')!).render(
             <ErrorBoundary>
               <ToastProvider>
                 <AppProvider>
-                  <App />
+                  <FABProvider>
+                    <App />
+                  </FABProvider>
                 </AppProvider>
               </ToastProvider>
             </ErrorBoundary>
