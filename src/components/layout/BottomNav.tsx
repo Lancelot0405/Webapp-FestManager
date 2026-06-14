@@ -160,14 +160,6 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
                         style={{ scaleX: pillStretch, x: pillShift }}
                       />
                     )}
-                    {!isActive && hovered === path && (
-                      <motion.span
-                        layoutId="navHoverPill"
-                        aria-hidden
-                        className="absolute inset-0 rounded-full bg-foreground/10"
-                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                      />
-                    )}
                     <span className={`relative z-10 shrink-0 transition-colors duration-200 ${
                       isActive ? 'text-white' : hovered === path ? 'text-accent' : 'text-muted'
                     }`}>
