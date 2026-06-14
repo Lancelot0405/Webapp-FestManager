@@ -214,11 +214,11 @@ function DateBadge({ date, accent = false }: { date: string; accent?: boolean })
   const [dd, mm] = date.split('-');
   const label = MONTH_ABBR[Number(mm) - 1] ?? '';
   return (
-    <div className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center shrink-0 ${
+    <div className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center shrink-0 ${
       accent ? 'bg-accent/15 text-accent' : 'bg-default-100 dark:bg-default-200/20 text-foreground'
     }`}>
-      <span className="text-xl font-bold leading-tight">{dd}</span>
-      <span className="text-[10px] font-semibold uppercase mt-0.5" style={{ color: accent ? 'var(--accent)' : undefined, opacity: accent ? 0.8 : 0.5 }}>{label}</span>
+      <span className="text-base font-bold leading-tight">{dd}</span>
+      <span className="text-[9px] font-semibold uppercase" style={{ color: accent ? 'var(--accent)' : undefined, opacity: accent ? 0.7 : 0.45 }}>{label}</span>
     </div>
   );
 }
@@ -320,23 +320,23 @@ function OverviewTab({ events, staff, inventory, navigate }: {
             {activeEvents.map((event, i) => (
               <motion.div key={event.id} {...animations.listItem(i)}>
                 <Card
-                  className="p-5 flex items-start gap-4 cursor-pointer hover:border-accent/40 transition-colors"
-                  style={{ boxShadow: '0 0 20px 4px rgba(34,197,94,0.10)' }}
+                  className="p-4 flex items-center gap-3 cursor-pointer hover:border-accent/40 transition-colors"
+                  style={{ boxShadow: '0 0 16px 4px rgba(34,197,94,0.10)' }}
                   onClick={() => navigate('/schedule/' + event.id)}
                 >
                   <DateBadge date={event.date} accent />
-                  <div className="flex-1 min-w-0 space-y-1.5">
-                    <p className="text-xl font-bold text-foreground leading-tight">{event.name}</p>
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <p className="text-base font-bold text-foreground leading-tight truncate">{event.name}</p>
                     <StatusBadge status={event.status} />
-                    <div className="flex items-center gap-1.5 pt-0.5">
-                      <MapPin size={13} className="text-muted shrink-0" />
-                      <p className="text-sm text-muted">{event.location}</p>
+                    <div className="flex items-center gap-1">
+                      <MapPin size={11} className="text-muted shrink-0" />
+                      <p className="text-xs text-muted truncate">{event.location}</p>
                     </div>
                     {event.staff.length === 0 && (
-                      <p className="text-sm text-muted/50">Chưa có nhân viên</p>
+                      <p className="text-xs text-muted/50">Chưa có nhân viên</p>
                     )}
                   </div>
-                  <ChevronRight size={18} className="text-muted shrink-0 mt-1" />
+                  <ChevronRight size={16} className="text-muted shrink-0" />
                 </Card>
               </motion.div>
             ))}
@@ -367,20 +367,20 @@ function OverviewTab({ events, staff, inventory, navigate }: {
               .map((event, i) => (
               <motion.div key={event.id} {...animations.listItem(i)}>
                 <Card
-                  className="px-4 py-3.5 flex items-center gap-4 cursor-pointer hover:border-accent/30 transition-colors"
+                  className="px-4 py-3 flex items-center gap-3 cursor-pointer hover:border-accent/30 transition-colors"
                   onClick={() => navigate('/schedule/' + event.id)}
                 >
                   <DateBadge date={event.date} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-base font-bold text-foreground truncate">{event.name}</p>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <MapPin size={11} className="text-muted/60 shrink-0" />
-                      <p className="text-sm text-muted truncate">{event.location}</p>
+                    <p className="text-sm font-bold text-foreground truncate">{event.name}</p>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <MapPin size={10} className="text-muted/60 shrink-0" />
+                      <p className="text-xs text-muted truncate">{event.location}</p>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end gap-1 shrink-0">
-                    <span className="text-sm text-muted font-medium">{event.status}</span>
-                    <span className="text-xs text-muted/60">{event.staff.length} NV</span>
+                  <div className="flex flex-col items-end gap-0.5 shrink-0">
+                    <span className="text-xs text-muted font-medium">{event.status}</span>
+                    <span className="text-xs text-muted/50">{event.staff.length} NV</span>
                   </div>
                 </Card>
               </motion.div>
@@ -468,13 +468,13 @@ function OverviewTab({ events, staff, inventory, navigate }: {
           >
             {lowStock.slice(0, 5).map((item, i) => (
               <motion.div key={item.id} {...animations.listItem(i)}>
-                <Card className="px-4 py-3.5 flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-danger/15 flex items-center justify-center shrink-0">
-                    <Package size={20} className="text-danger" />
+                <Card className="px-4 py-3 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-danger/15 flex items-center justify-center shrink-0">
+                    <Package size={17} className="text-danger" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-base font-bold text-foreground truncate">{item.name}</p>
-                    <p className="text-sm text-danger font-medium mt-0.5">Còn {item.current} {item.unit} / Ngưỡng {item.threshold}</p>
+                    <p className="text-sm font-bold text-foreground truncate">{item.name}</p>
+                    <p className="text-xs text-danger font-medium mt-0.5">Còn {item.current} {item.unit} / Ngưỡng {item.threshold}</p>
                   </div>
                 </Card>
               </motion.div>
