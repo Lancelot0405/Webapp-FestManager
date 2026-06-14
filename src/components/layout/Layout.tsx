@@ -95,7 +95,7 @@ export default function Layout() {
           isIconOnly
           aria-label={fab.label}
           onPress={fab.onPress}
-          className="fixed bottom-32 right-4 md:bottom-8 z-30 h-14 w-14 rounded-full bg-accent text-white dark:text-foreground shadow-xl active:scale-95 transition-transform"
+          className={`fixed bottom-32 right-4 md:bottom-8 z-30 h-14 w-14 rounded-full bg-accent text-white dark:text-foreground shadow-xl active:scale-95 transition-all duration-300 ease-out ${navVisible ? 'translate-y-0 opacity-100' : 'translate-y-24 opacity-0 pointer-events-none'}`}
         >
           <Plus size={24} />
         </Button>
