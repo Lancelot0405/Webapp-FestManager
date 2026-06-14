@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Tabs } from '@heroui/react';
 import {
   LayoutDashboard,
@@ -122,7 +123,12 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
                     isActive ? 'text-white' : 'text-muted group-hover:text-accent'
                   }`}>
                     {isProfile ? (
-                      <div className="relative">
+                      <motion.div
+                        className="relative"
+                        whileHover={{ scale: 1.15 }}
+                        whileTap={{ scale: 0.9 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                      >
                         <div className={`w-5 h-5 rounded-full accent-gradient flex items-center justify-center text-white text-[9px] font-bold ${
                           isActive ? 'ring-2 ring-white/70' : ''
                         }`}>
@@ -133,7 +139,7 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
                             {notifCount > 9 ? '9+' : notifCount}
                           </span>
                         )}
-                      </div>
+                      </motion.div>
                     ) : (
                       icon
                     )}

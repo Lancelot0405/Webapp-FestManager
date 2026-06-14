@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { UtensilsCrossed, Bell } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
@@ -58,15 +59,21 @@ export default function TopBar({ onOpenSheet, navVisible = true, notifCount = 0 
               </span>
             </Button>
           )}
-          <Button
-            variant="ghost"
-            isIconOnly
-            onPress={onOpenSheet}
-            aria-label="Tài khoản"
-            className="relative w-9 h-9 min-w-0 rounded-full accent-gradient shadow-sm hover:bg-transparent"
+          <motion.div
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
           >
-            <span className="text-[13px] font-bold text-white">{initials}</span>
-          </Button>
+            <Button
+              variant="ghost"
+              isIconOnly
+              onPress={onOpenSheet}
+              aria-label="Tài khoản"
+              className="relative w-9 h-9 min-w-0 rounded-full accent-gradient shadow-sm hover:bg-transparent"
+            >
+              <span className="text-[13px] font-bold text-white">{initials}</span>
+            </Button>
+          </motion.div>
         </div>
       </div>
     </header>
