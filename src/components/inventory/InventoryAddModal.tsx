@@ -138,7 +138,7 @@ export default function InventoryAddModal({ isOpen, onClose, mainTab, subTab }: 
                 />
               </form>
             </Modal.Body>
-            <Modal.Footer className="px-5 pb-5 flex gap-2 justify-end shrink-0 border-t border-separator">
+            <Modal.Footer className="px-5 pb-5 flex gap-2 justify-end shrink-0">
               <Button variant="ghost" onPress={onClose} className="rounded-xl">Hủy</Button>
               <Button type="submit" form="inventory-add-form" variant="primary" className="rounded-xl">
                 Thêm vào kho
