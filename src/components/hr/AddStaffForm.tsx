@@ -10,6 +10,7 @@ import { useToast } from '../../context/ToastContext';
 import { useCreateStaff } from '../../hooks/queries/mutations/useCreateStaff';
 import { Input } from '@/components/shared/GlassInput';
 import AppDatePicker from '@/components/shared/AppDatePicker';
+import FranceCityAutocomplete from '@/components/shared/FranceCityAutocomplete';
 import { staffSchema } from '../../lib/validations';
 import type { StaffMember, StaffType, UserRole, UserDepartment } from '../../types';
 
@@ -191,7 +192,7 @@ export default function AddStaffForm({ onClose }: Props) {
                   name="city"
                   control={control}
                   render={({ field }) => (
-                    <Input label="Thành phố *" placeholder="Paris" value={field.value} onChange={field.onChange} error={errors.city?.message} />
+                    <FranceCityAutocomplete label="Thành phố *" value={field.value} onChange={field.onChange} error={errors.city?.message} />
                   )}
                 />
 

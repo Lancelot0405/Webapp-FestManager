@@ -11,6 +11,7 @@ import { useAddContract } from '../../hooks/queries/mutations/useAddContract';
 import { useAddExpense } from '../../hooks/queries/mutations/useAddExpense';
 import { Input } from '@/components/shared/GlassInput';
 import AppDatePicker from '@/components/shared/AppDatePicker';
+import FranceCityAutocomplete from '@/components/shared/FranceCityAutocomplete';
 import { Select } from '@/components/shared/GlassSelect';
 import { ExpenseStatusBadge } from '../shared/StatusBadge';
 import DocThumbnail from '../shared/DocThumbnail';
@@ -277,7 +278,7 @@ export default function StaffProfile() {
               value={editDob}
               onChange={setEditDob}
             />
-            <Input label="Nơi ở" value={editCity} onChange={setEditCity} placeholder="Paris, Lyon..." />
+            <FranceCityAutocomplete value={editCity} onChange={setEditCity} />
             <Input label="Số điện thoại" type="tel" value={editPhone} onChange={setEditPhone} placeholder="+33 6 XX XX XX XX" />
             <Input label="Số Carte Vitale" value={editCarteNum} onChange={setEditCarteNum} placeholder="1 85 01 75 XXX XXX XX" inputClassName="font-mono" />
             <Input label="Số Titre de Séjour" value={editTitreNum} onChange={setEditTitreNum} placeholder="XXXXXXXXX" inputClassName="font-mono" />
