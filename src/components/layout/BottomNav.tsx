@@ -44,9 +44,15 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
   const location        = useLocation();
 
   const [hovered, setHovered] = useState<string | null>(null);
-  const spotRef = useRef<HTMLDivElement>(null);
-  const pillStretch = useSpring(1, { stiffness: 420, damping: 24 });
-  const pillShift   = useSpring(0, { stiffness: 420, damping: 28 });
+  const spotRef    = useRef<HTMLDivElement>(null);
+  const lastSample = useRef<{ x: number; y: number; t: number } | null>(null);
+  const relaxTimer = useRef(0);
+
+  // Active pill: 2D magnetic follow + velocity/direction-based jelly stretch
+  const pillX  = useSpring(0, { stiffness: 500, damping: 32 });
+  const pillY  = useSpring(0, { stiffness: 500, damping: 32 });
+  const pillSX = useSpring(1, { stiffness: 320, damping: 17 });
+  const pillSY = useSpring(1, { stiffness: 320, damping: 17 });
 
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   useEffect(() => {
@@ -88,16 +94,41 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
       `[data-navtab="${activeSegment}"]`
     ) as HTMLElement | null;
     if (activeEl) {
-      const r = activeEl.getBoundingClientRect();
-      const delta = e.clientX - (r.left + r.width / 2);
-      pillShift.set(Math.max(-16, Math.min(16, delta * 0.22)));
-      pillStretch.set(1 + Math.min(Math.abs(delta) / 240, 1) * 0.22);
+      const r  = activeEl.getBoundingClientRect();
+      const dx = e.clientX - (r.left + r.width / 2);
+      const dy = e.clientY - (r.top + r.height / 2);
+
+      const now  = performance.now();
+      const prev = lastSample.current;
+      let vx = 0, vy = 0;
+      if (prev) {
+        const dt = Math.max(now - prev.t, 1);
+        vx = (e.clientX - prev.x) / dt;
+        vy = (e.clientY - prev.y) / dt;
+      }
+      lastSample.current = { x: e.clientX, y: e.clientY, t: now };
+
+      // Stretch along the swipe direction, squash the perpendicular axis (jelly)
+      const sx = Math.min(Math.abs(vx) * 0.5, 0.24);
+      const sy = Math.min(Math.abs(vy) * 0.5, 0.24);
+      pillX.set(Math.max(-14, Math.min(14, dx * 0.18)));
+      pillY.set(Math.max(-9,  Math.min(9,  dy * 0.5)));
+      pillSX.set(1 + sx - sy * 0.5);
+      pillSY.set(1 + sy - sx * 0.5);
+
+      // Relax the stretch when the finger pauses (no more move events)
+      clearTimeout(relaxTimer.current);
+      relaxTimer.current = window.setTimeout(() => { pillSX.set(1); pillSY.set(1); }, 110);
     }
   };
   const clearHover = () => {
     setHovered(null);
-    pillStretch.set(1);
-    pillShift.set(0);
+    clearTimeout(relaxTimer.current);
+    lastSample.current = null;
+    pillX.set(0);
+    pillY.set(0);
+    pillSX.set(1);
+    pillSY.set(1);
     if (spotRef.current) spotRef.current.style.opacity = '0';
   };
 
@@ -157,7 +188,7 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
                       <motion.span
                         aria-hidden
                         className="absolute inset-0 rounded-full bg-accent shadow-sm"
-                        style={{ scaleX: pillStretch, x: pillShift }}
+                        style={{ x: pillX, y: pillY, scaleX: pillSX, scaleY: pillSY }}
                       />
                     )}
                     <span className={`relative z-10 shrink-0 transition-colors duration-200 ${
