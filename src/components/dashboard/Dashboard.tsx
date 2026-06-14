@@ -355,116 +355,119 @@ function OverviewTab({ events, staff, inventory, navigate }: {
         </div>
       )}
 
-      {/* Sự kiện sắp tới */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xs font-bold text-muted uppercase tracking-widest">Sự kiện sắp tới</h2>
-          <button
-            onClick={() => navigate('/schedule')}
-            className="text-xs text-muted font-medium flex items-center gap-0.5 hover:text-foreground transition-colors"
-          >
-            Xem thêm <ChevronRight size={12} />
-          </button>
-        </div>
-        {upcomingEvents.length === 0 ? (
-          <Card className="py-8 flex flex-col items-center gap-2">
-            <p className="text-sm text-muted">Không có sự kiện sắp tới</p>
-          </Card>
-        ) : (
-          <div className="space-y-2">
-            {upcomingEvents
-              .sort((a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime())
-              .slice(0, 5)
-              .map((event, i) => (
-              <motion.div key={event.id} {...animations.listItem(i)} {...animations.press}>
-                <Card
-                  className="p-3.5 cursor-pointer hover:border-accent/25 hover:shadow-sm transition-all"
-                  onClick={() => navigate('/schedule/' + event.id)}
-                >
-                  <div className="flex items-center gap-3">
-                    {/* Date badge */}
-                    <div className="w-11 h-11 rounded-xl bg-default-100 dark:bg-default-200/20 border border-separator/60 flex flex-col items-center justify-center shrink-0">
-                      <span className="text-sm font-black text-foreground leading-none">{event.date.split('-')[0]}</span>
-                      <span className="text-[9px] font-bold text-muted uppercase">{MONTH_ABBR[Number(event.date.split('-')[1]) - 1]}</span>
-                    </div>
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-foreground truncate">{event.name}</p>
-                      <div className="flex items-center gap-1 text-[11px] text-muted mt-0.5">
-                        <MapPin size={10} className="shrink-0" />
-                        <span className="truncate">{event.location}</span>
+      {/* Desktop: 2-col grid — Sự kiện sắp tới (left) + Analytics (right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+        {/* Sự kiện sắp tới */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-bold text-muted uppercase tracking-widest">Sự kiện sắp tới</h2>
+            <button
+              onClick={() => navigate('/schedule')}
+              className="text-xs text-muted font-medium flex items-center gap-0.5 hover:text-foreground transition-colors"
+            >
+              Xem thêm <ChevronRight size={12} />
+            </button>
+          </div>
+          {upcomingEvents.length === 0 ? (
+            <Card className="py-8 flex flex-col items-center gap-2">
+              <p className="text-sm text-muted">Không có sự kiện sắp tới</p>
+            </Card>
+          ) : (
+            <div className="space-y-2">
+              {upcomingEvents
+                .sort((a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime())
+                .slice(0, 5)
+                .map((event, i) => (
+                <motion.div key={event.id} {...animations.listItem(i)} {...animations.press}>
+                  <Card
+                    className="p-3.5 cursor-pointer hover:border-accent/25 hover:shadow-sm transition-all"
+                    onClick={() => navigate('/schedule/' + event.id)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-xl bg-default-100 dark:bg-default-200/20 border border-separator/60 flex flex-col items-center justify-center shrink-0">
+                        <span className="text-sm font-black text-foreground leading-none">{event.date.split('-')[0]}</span>
+                        <span className="text-[9px] font-bold text-muted uppercase">{MONTH_ABBR[Number(event.date.split('-')[1]) - 1]}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground truncate">{event.name}</p>
+                        <div className="flex items-center gap-1 text-[11px] text-muted mt-0.5">
+                          <MapPin size={10} className="shrink-0" />
+                          <span className="truncate">{event.location}</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end gap-1.5 shrink-0">
+                        <StatusBadge status={event.status} />
+                        <span className="text-[10px] text-muted">{event.staff.length} NV</span>
                       </div>
                     </div>
-                    {/* Right: status + staff count */}
-                    <div className="flex flex-col items-end gap-1.5 shrink-0">
-                      <StatusBadge status={event.status} />
-                      <span className="text-[10px] text-muted">{event.staff.length} NV</span>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Doanh thu theo tháng */}
-      <div className="space-y-3">
-        <h2 className="text-sm font-bold text-foreground flex items-center gap-1.5">
-          <TrendingUp size={14} className="text-accent" /> Doanh thu theo tháng
-        </h2>
-        <Card className="p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-muted">6 tháng gần nhất</span>
-            <span className="text-base font-bold text-foreground">{totalIncome.toLocaleString('fr-FR')} €</span>
-          </div>
-          <RevenueBarChart events={events} />
-        </Card>
-      </div>
-
-      {/* Top nhân viên */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-bold text-foreground flex items-center gap-1.5">
-            ☆ Top nhân viên
-          </h2>
-          <button
-            onClick={() => navigate('/hr')}
-            className="text-xs text-accent font-medium flex items-center gap-0.5"
-          >
-            Xem thêm <ChevronRight size={12} />
-          </button>
-        </div>
-        <Card className="overflow-hidden">
-          {topStaff.length === 0 ? (
-            <div className="py-10 flex flex-col items-center gap-2">
-              <div className="w-8 h-8 rounded-full border-2 border-separator flex items-center justify-center">
-                <span className="text-muted text-xs">✓</span>
-              </div>
-              <p className="text-sm text-muted">Chưa có dữ liệu</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-separator/40">
-              {topStaff.map(({ member, count }, i) => (
-                <motion.div
-                  key={member.id}
-                  {...animations.listItem(i)}
-                  className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-default-50 dark:hover:bg-default-100/5 transition-colors"
-                  onClick={() => navigate('/hr/' + member.id)}
-                >
-                  <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${avatarGradient(member.id)} flex items-center justify-center shrink-0`}>
-                    <span className="text-xs font-bold text-white">{initials(member.name)}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">{member.name}</p>
-                    <p className="text-xs text-muted">{member.city}</p>
-                  </div>
-                  <span className="text-xs font-bold text-accent shrink-0">{count} sự kiện</span>
+                  </Card>
                 </motion.div>
               ))}
             </div>
           )}
-        </Card>
+        </div>
+
+        {/* Analytics: Doanh thu + Top nhân viên */}
+        <div className="space-y-5">
+          {/* Doanh thu theo tháng */}
+          <div className="space-y-3">
+            <h2 className="flex items-center gap-1.5 text-xs font-bold text-muted uppercase tracking-widest">
+              <TrendingUp size={13} /> Doanh thu theo tháng
+            </h2>
+            <Card className="p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted">6 tháng gần nhất</span>
+                <span className="text-sm font-bold text-foreground">{totalIncome.toLocaleString('fr-FR')} €</span>
+              </div>
+              <RevenueBarChart events={events} />
+            </Card>
+          </div>
+
+          {/* Top nhân viên */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xs font-bold text-muted uppercase tracking-widest">☆ Top nhân viên</h2>
+              <button
+                onClick={() => navigate('/hr')}
+                className="text-xs text-muted font-medium flex items-center gap-0.5 hover:text-foreground transition-colors"
+              >
+                Xem thêm <ChevronRight size={12} />
+              </button>
+            </div>
+            <Card className="overflow-hidden">
+              {topStaff.length === 0 ? (
+                <div className="py-8 flex flex-col items-center gap-2">
+                  <div className="w-8 h-8 rounded-full border-2 border-separator flex items-center justify-center">
+                    <span className="text-muted text-xs">✓</span>
+                  </div>
+                  <p className="text-sm text-muted">Chưa có dữ liệu</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-separator/40">
+                  {topStaff.map(({ member, count }, i) => (
+                    <motion.div
+                      key={member.id}
+                      {...animations.listItem(i)}
+                      className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-default-50 dark:hover:bg-default-100/5 transition-colors"
+                      onClick={() => navigate('/hr/' + member.id)}
+                    >
+                      <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${avatarGradient(member.id)} flex items-center justify-center shrink-0`}>
+                        <span className="text-xs font-bold text-white">{initials(member.name)}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground truncate">{member.name}</p>
+                        <p className="text-xs text-muted">{member.city}</p>
+                      </div>
+                      <span className="text-xs font-bold text-accent shrink-0">{count} sự kiện</span>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </div>
+        </div>
+
       </div>
 
       {/* Cảnh báo kho */}
