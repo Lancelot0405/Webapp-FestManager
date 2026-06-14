@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Bell } from 'lucide-react';
-import { Avatar, Badge, Button } from '@heroui/react';
+import { Bell, Sun, Moon } from 'lucide-react';
+import { Avatar, Button, Spinner } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
+import { useTheme } from '../../context/ThemeContext';
+import { usePushNotifications } from '../../hooks/usePushNotifications';
 
 interface TopBarProps {
   onOpenSheet:  () => void;
@@ -20,6 +22,8 @@ function greeting(): string {
 export default function TopBar({ onOpenSheet, navVisible = true, notifCount = 0 }: TopBarProps) {
   const { currentUser } = useApp();
   const navigate        = useNavigate();
+  const { theme, toggleTheme } = useTheme();
+  const { subscribed, loading: pushLoading, subscribe, supported: pushSupported } = usePushNotifications();
 
   if (!currentUser) return null;
 
@@ -42,33 +46,31 @@ export default function TopBar({ onOpenSheet, navVisible = true, notifCount = 0 
           </span>
         </Button>
 
-        <div className="flex items-center gap-1.5 shrink-0">
-          {notifCount > 0 ? (
-            <Badge color="danger" size="sm" placement="top-right">
-              <Badge.Anchor>
-                <Button
-                  variant="ghost"
-                  isIconOnly
-                  size="sm"
-                  onPress={onOpenSheet}
-                  aria-label={`${notifCount} thông báo`}
-                  className="rounded-full w-9 h-9"
-                >
-                  <Bell size={18} className="text-muted" />
-                </Button>
-              </Badge.Anchor>
-              <Badge.Label>{notifCount > 9 ? '9+' : notifCount}</Badge.Label>
-            </Badge>
-          ) : (
+        <div className="flex items-center gap-1 shrink-0">
+          <Button
+            variant="ghost" isIconOnly size="sm"
+            onPress={toggleTheme}
+            className="rounded-full text-muted hover:bg-default/50"
+            aria-label={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
+          >
+            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+          </Button>
+
+          {pushSupported && (
             <Button
-              variant="ghost"
-              isIconOnly
-              size="sm"
-              onPress={onOpenSheet}
-              aria-label="Thông báo"
-              className="rounded-full w-9 h-9"
+              variant="ghost" isIconOnly size="sm"
+              onPress={subscribe}
+              isDisabled={pushLoading || subscribed}
+              className="relative rounded-full text-muted hover:bg-default/50"
+              aria-label={subscribed ? 'Đã bật thông báo' : 'Bật thông báo'}
             >
-              <Bell size={18} className="text-muted" />
+              {pushLoading
+                ? <Spinner size="sm" color="current" />
+                : <Bell size={16} className={subscribed ? 'text-accent' : ''} />
+              }
+              {notifCount > 0 && (
+                <span className="absolute top-1 right-1 w-2 h-2 bg-danger rounded-full border border-background" />
+              )}
             </Button>
           )}
 

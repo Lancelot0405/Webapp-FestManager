@@ -7,17 +7,14 @@ import {
   Calendar, Package, Clock,
   AlertTriangle,
   ChevronRight,
-  Bell, Eye, Sun, Moon, Smartphone,
+  Eye, Smartphone,
   DollarSign, MapPin, Zap, TrendingUp,
 } from 'lucide-react';
-import { Button, Card, Chip, Table, SearchField, Tabs, Spinner } from '@heroui/react';
-import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
+import { Button, Card, Chip, Table, SearchField, Tabs } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
 import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
 import { useInventoryQuery } from '../../hooks/queries/useInventoryQuery';
-import { useTheme } from '../../context/ThemeContext';
-import { usePushNotifications } from '../../hooks/usePushNotifications';
 import { useInstallPrompt } from '../../hooks/useInstallPrompt';
 import { useToast } from '../../context/ToastContext';
 import StatusBadge from '../shared/StatusBadge';
@@ -106,11 +103,6 @@ function AdminDashboard({ events, staff, inventory, currentUser, navigate }: {
   navigate: ReturnType<typeof useNavigate>;
 }) {
   const [tab, setTab] = useState<TabKey>('overview');
-  const isAdminOrManager = currentUser?.role === 'admin' || currentUser?.role === 'manager';
-  const { notifications } = useRealtimeNotifications(isAdminOrManager);
-  const notifCount = notifications.length;
-  const { theme, toggleTheme } = useTheme();
-  const { subscribed, loading: pushLoading, subscribe, supported: pushSupported } = usePushNotifications();
   const { isIos, isStandalone, triggerInstall } = useInstallPrompt();
   const showToast = useToast();
 
@@ -135,35 +127,6 @@ function AdminDashboard({ events, staff, inventory, currentUser, navigate }: {
           {greeting()}, {currentUser.name}
         </h1>
         <div className="flex items-center gap-1 shrink-0 ml-auto">
-          {/* Theme toggle */}
-          <Button
-            variant="ghost" isIconOnly size="sm"
-            onPress={toggleTheme}
-            className="rounded-full text-muted hover:bg-default/50"
-            aria-label={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
-          >
-            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-          </Button>
-
-          {/* Push notification bell */}
-          {pushSupported && (
-            <Button
-              variant="ghost" isIconOnly size="sm"
-              onPress={subscribe}
-              isDisabled={pushLoading || subscribed}
-              className="relative rounded-full text-muted hover:bg-default/50"
-              aria-label={subscribed ? 'Đã bật thông báo' : 'Bật thông báo'}
-            >
-              {pushLoading
-                ? <Spinner size="sm" color="current" />
-                : <Bell size={16} className={subscribed ? 'text-accent' : ''} />
-              }
-              {notifCount > 0 && (
-                <span className="absolute top-1 right-1 w-2 h-2 bg-danger rounded-full border border-background" />
-              )}
-            </Button>
-          )}
-
           {/* PWA install */}
           {!isStandalone && (
             <Button
@@ -758,7 +721,7 @@ function StaffDashboard({ events, staff, currentUser, navigate }: {
 
   return (
     <div className="space-y-5">
-      <div>
+      <div className="hidden md:block">
         <p className="text-sm text-muted">{greeting()}</p>
         <h1 className="text-2xl font-bold text-foreground">{currentUser.name} 👋</h1>
       </div>
