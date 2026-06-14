@@ -376,7 +376,11 @@ function HRTab({ events, staff, navigate }: {
                 <p className="text-sm text-muted text-center py-10">Không tìm thấy nhân viên</p>
               )}>
                 {filtered.map(s => (
-                  <Table.Row key={s.id} id={String(s.id)} className="border-b border-default-100 dark:border-default-200/20 last:border-0">
+                  <Table.Row
+                    key={s.id} id={String(s.id)}
+                    onClick={() => navigate('/hr/' + s.id)}
+                    className="border-b border-default-100 dark:border-default-200/20 last:border-0 cursor-pointer hover:bg-default-100/50 dark:hover:bg-default-100/5 transition-colors"
+                  >
                     <Table.Cell className="py-3.5 pl-5 pr-4">
                       <div className="flex items-center gap-3 min-w-0">
                         <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${avatarGradient(s.id)} flex items-center justify-center shrink-0 shadow-sm`}>
@@ -404,7 +408,7 @@ function HRTab({ events, staff, navigate }: {
                     <Table.Cell className="py-3.5 px-4 hidden md:table-cell">
                       <p className="text-sm font-medium text-foreground">{eventCounts[s.id] ?? 0}</p>
                     </Table.Cell>
-                    <Table.Cell className="py-3.5 pr-5 pl-4">
+                    <Table.Cell className="py-3.5 pr-5 pl-4" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-1">
                         <Button
                           isIconOnly size="sm" variant="ghost"
@@ -633,7 +637,11 @@ function EventsTable({ events, navigate, title, emptyText }: {
               <p className="text-sm text-muted text-center py-10">{emptyText}</p>
             )}>
               {sorted.map(event => (
-                <Table.Row key={event.id} id={String(event.id)} className="border-b border-default-100 dark:border-default-200/20 last:border-0">
+                <Table.Row
+                  key={event.id} id={String(event.id)}
+                  onClick={() => navigate('/schedule/' + event.id)}
+                  className="border-b border-default-100 dark:border-default-200/20 last:border-0 cursor-pointer hover:bg-default-100/50 dark:hover:bg-default-100/5 transition-colors"
+                >
                   <Table.Cell className="py-3.5 pl-5 pr-4">
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-foreground truncate">{event.name}</p>
@@ -652,7 +660,7 @@ function EventsTable({ events, navigate, title, emptyText }: {
                   <Table.Cell className="py-3.5 px-4">
                     <StatusBadge status={event.status} />
                   </Table.Cell>
-                  <Table.Cell className="py-3.5 pr-5 pl-4">
+                  <Table.Cell className="py-3.5 pr-5 pl-4" onClick={e => e.stopPropagation()}>
                     <div className="flex items-center justify-end gap-1">
                       <Button
                         isIconOnly size="sm" variant="ghost"

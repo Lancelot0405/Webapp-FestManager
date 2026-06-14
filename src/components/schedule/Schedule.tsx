@@ -227,7 +227,11 @@ export default function Schedule() {
                         ? `${event.date} → ${event.endDate}`
                         : event.date;
                       return (
-                        <Table.Row key={event.id} id={String(event.id)} className="border-b border-default-100 dark:border-default-200/20 last:border-0">
+                        <Table.Row
+                          key={event.id} id={String(event.id)}
+                          onClick={() => navigate('/schedule/' + event.id)}
+                          className="border-b border-default-100 dark:border-default-200/20 last:border-0 cursor-pointer hover:bg-default-100/50 dark:hover:bg-default-100/5 transition-colors"
+                        >
                           <Table.Cell className="py-3.5 pl-4 pr-3">
                             <div className="min-w-0">
                               <p className="text-sm font-semibold text-foreground truncate">{event.name}</p>
@@ -246,7 +250,7 @@ export default function Schedule() {
                           <Table.Cell className="py-3.5 px-3">
                             <StatusBadge status={event.status} />
                           </Table.Cell>
-                          <Table.Cell className="py-3.5 pr-4 pl-3">
+                          <Table.Cell className="py-3.5 pr-4 pl-3" onClick={e => e.stopPropagation()}>
                             <div className="flex items-center justify-end gap-1">
                               <Button
                                 isIconOnly size="sm" variant="ghost"
