@@ -8,7 +8,8 @@ import {
   AlertTriangle,
   ChevronRight,
   Eye, Smartphone,
-  DollarSign, MapPin, Zap, TrendingUp,
+  DollarSign, MapPin, Zap, TrendingUp, TrendingDown,
+  Users, UserCheck, Briefcase, CheckCircle2,
 } from 'lucide-react';
 import { Button, Card, Chip, Table, SearchField, Tabs } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
@@ -465,10 +466,37 @@ function FinanceTab({ events, navigate }: {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard label="Doanh thu" value={totalIncome.toLocaleString('fr-FR') + ' €'} onClick={() => navigate('/finance')} />
-        <StatCard label="Chi phí"   value={totalExpenses.toLocaleString('fr-FR') + ' €'} onClick={() => navigate('/finance')} />
-        <StatCard label="Lợi nhuận" value={profit.toLocaleString('fr-FR') + ' €'} onClick={() => navigate('/finance')} />
-        <StatCard label="Chờ duyệt" value={String(pending.length)} onClick={() => navigate('/finance')} />
+        <StatCard
+          label="Doanh thu"
+          value={totalIncome.toLocaleString('fr-FR') + ' €'}
+          icon={<TrendingUp size={16} />}
+          color="emerald"
+          glow="success"
+          onClick={() => navigate('/finance')}
+        />
+        <StatCard
+          label="Chi phí"
+          value={totalExpenses.toLocaleString('fr-FR') + ' €'}
+          icon={<TrendingDown size={16} />}
+          color="danger"
+          onClick={() => navigate('/finance')}
+        />
+        <StatCard
+          label="Lợi nhuận"
+          value={profit.toLocaleString('fr-FR') + ' €'}
+          icon={<DollarSign size={16} />}
+          color={profit >= 0 ? 'emerald' : 'danger'}
+          glow={profit >= 0 ? 'success' : 'danger'}
+          valueColor={profit >= 0 ? 'success' : 'danger'}
+          onClick={() => navigate('/finance')}
+        />
+        <StatCard
+          label="Chờ duyệt"
+          value={String(pending.length)}
+          icon={<Clock size={16} />}
+          color={pending.length > 0 ? 'danger' : 'indigo'}
+          onClick={() => navigate('/finance')}
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -532,9 +560,26 @@ function HRTab({ events, staff, navigate }: {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        <StatCard label="Tổng nhân viên"   value={String(staff.length)} onClick={() => navigate('/hr')} />
-        <StatCard label="Cố định"          value={String(permanent)}    onClick={() => navigate('/hr')} />
-        <StatCard label="Bán thời gian"    value={String(partTime)}     onClick={() => navigate('/hr')} />
+        <StatCard
+          label="Tổng nhân viên"
+          value={String(staff.length)}
+          icon={<Users size={16} />}
+          onClick={() => navigate('/hr')}
+        />
+        <StatCard
+          label="Cố định"
+          value={String(permanent)}
+          icon={<UserCheck size={16} />}
+          color="indigo"
+          onClick={() => navigate('/hr')}
+        />
+        <StatCard
+          label="Bán thời gian"
+          value={String(partTime)}
+          icon={<Briefcase size={16} />}
+          color="emerald"
+          onClick={() => navigate('/hr')}
+        />
       </div>
 
       <Card className="overflow-hidden rounded-2xl">
@@ -636,9 +681,28 @@ function InventoryTab({ inventory, navigate }: {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        <StatCard label="Tổng mặt hàng" value={String(inventory.length)} onClick={() => navigate('/inventory')} />
-        <StatCard label="Sắp hết hàng"  value={String(low.length)}       onClick={() => navigate('/inventory')} />
-        <StatCard label="Đủ hàng"       value={String(ok.length)}        onClick={() => navigate('/inventory')} />
+        <StatCard
+          label="Tổng mặt hàng"
+          value={String(inventory.length)}
+          icon={<Package size={16} />}
+          onClick={() => navigate('/inventory')}
+        />
+        <StatCard
+          label="Sắp hết hàng"
+          value={String(low.length)}
+          icon={<AlertTriangle size={16} />}
+          color={low.length > 0 ? 'danger' : 'emerald'}
+          glow={low.length > 0 ? 'danger' : undefined}
+          valueColor={low.length > 0 ? 'danger' : undefined}
+          onClick={() => navigate('/inventory')}
+        />
+        <StatCard
+          label="Đủ hàng"
+          value={String(ok.length)}
+          icon={<CheckCircle2 size={16} />}
+          color="emerald"
+          onClick={() => navigate('/inventory')}
+        />
       </div>
 
       {low.length > 0 && (
