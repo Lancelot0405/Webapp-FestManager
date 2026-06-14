@@ -73,13 +73,12 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
   const activeSegment = location.pathname.split('/')[1] || 'dashboard';
 
   return (
-    <motion.nav
+    <div
       className="fixed bottom-3 left-1/2 z-20 pb-safe"
-      style={{
-        width: 'min(calc(100% - 24px), 480px)',
-        x: '-50%',
-        filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.12))',
-      }}
+      style={{ width: 'min(calc(100% - 24px), 480px)', transform: 'translateX(-50%)' }}
+    >
+    <motion.nav
+      style={{ filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.12))' }}
       initial={{ y: 80, opacity: 0 }}
       animate={{ y: navVisible ? 0 : 'calc(100% + 2rem)', opacity: navVisible ? 1 : 0 }}
       transition={{ type: 'spring', stiffness: 320, damping: 28 }}
@@ -173,5 +172,6 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
         </Tabs.ListContainer>
       </Tabs>
     </motion.nav>
+    </div>
   );
 }
