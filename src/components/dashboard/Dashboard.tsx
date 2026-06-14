@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'react';
 import type { ReactNode } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { animations } from '../../lib/animations';
 import { useNavigate } from 'react-router-dom';
 import {
   Calendar, Package, Clock,
@@ -196,10 +198,14 @@ function AdminDashboard({ events, staff, inventory, currentUser, navigate }: {
       </div>
 
       {/* Tab content */}
-      {tab === 'overview'  && <OverviewTab  events={events} staff={staff} navigate={navigate} />}
-      {tab === 'finance'   && <FinanceTab   events={events} navigate={navigate} />}
-      {tab === 'hr'        && <HRTab        events={events} staff={staff} navigate={navigate} />}
-      {tab === 'inventory' && <InventoryTab inventory={inventory} navigate={navigate} />}
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div key={tab} {...animations.pageEnter}>
+          {tab === 'overview'  && <OverviewTab  events={events} staff={staff} navigate={navigate} />}
+          {tab === 'finance'   && <FinanceTab   events={events} navigate={navigate} />}
+          {tab === 'hr'        && <HRTab        events={events} staff={staff} navigate={navigate} />}
+          {tab === 'inventory' && <InventoryTab inventory={inventory} navigate={navigate} />}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }
