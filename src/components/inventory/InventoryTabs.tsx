@@ -13,6 +13,7 @@ interface Props {
   onSubTabChange: (tab: SubTab) => void;
   actionSlot?: React.ReactNode;
   summarySlot?: React.ReactNode;
+  toolbarSlot?: React.ReactNode;
 }
 
 export default function InventoryTabs({
@@ -20,7 +21,7 @@ export default function InventoryTabs({
   canSeeRestaurant, canSeeFestival,
   countFor, sectionLogsCount,
   onMainTabChange, onSubTabChange,
-  actionSlot, summarySlot,
+  actionSlot, summarySlot, toolbarSlot,
 }: Props) {
   return (
     <>
@@ -46,6 +47,8 @@ export default function InventoryTabs({
       )}
 
       {summarySlot}
+
+      {toolbarSlot}
 
       <div className="flex items-center gap-2">
         <div className="flex gap-1.5 overflow-x-auto scrollbar-hide flex-1 min-w-0">

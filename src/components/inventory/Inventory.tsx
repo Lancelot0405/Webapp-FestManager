@@ -119,17 +119,18 @@ export default function Inventory() {
             />
           ) : null
         }
+        toolbarSlot={
+          filters.subTab !== 'history' && !isLoading && filters.filteredItems.length > 0 ? (
+            <InventoryToolbar
+              itemLabel={filters.itemLabel}
+              search={search}
+              onSearchChange={setSearch}
+              sort={sort}
+              onSortChange={setSort}
+            />
+          ) : null
+        }
       />
-
-      {filters.subTab !== 'history' && !isLoading && filters.filteredItems.length > 0 && (
-        <InventoryToolbar
-          itemLabel={filters.itemLabel}
-          search={search}
-          onSearchChange={setSearch}
-          sort={sort}
-          onSortChange={setSort}
-        />
-      )}
 
       {filters.subTab !== 'history' && (
         <InventoryItemList
