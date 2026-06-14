@@ -62,9 +62,9 @@ export default function Inventory() {
   };
 
   return (
-    <div className="space-y-4 pb-20">
+    <div className="space-y-4 pb-32">
       {filters.subTab !== 'history' && (
-        <div className="fixed bottom-24 right-4 md:bottom-8 z-30 flex flex-col gap-2 items-end">
+        <div className="fixed bottom-32 right-4 md:bottom-8 z-30 flex flex-col gap-2 items-end">
           <label className={`flex items-center gap-1.5 bg-success/10 text-success border border-success/20 text-xs font-bold px-3 py-2 rounded-xl cursor-pointer hover:bg-success/20 active:scale-95 transition-all shadow-lg ${importing ? 'opacity-60 pointer-events-none' : ''}`}>
             <FileSpreadsheet size={14} />
             {importing ? 'Đang import...' : 'Import'}

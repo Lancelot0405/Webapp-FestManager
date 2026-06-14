@@ -16,7 +16,7 @@ export default function StatusBadge({ status }: EventStatusBadgeProps) {
       size="sm"
       variant="soft"
       color={EVENT_COLOR[status]}
-      className="text-[10px] font-bold tracking-wide shrink-0"
+      className="text-[10px] font-bold tracking-wide shrink-0 whitespace-nowrap"
     >
       {status}
     </Chip>

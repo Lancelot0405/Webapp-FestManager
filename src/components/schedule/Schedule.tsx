@@ -145,13 +145,13 @@ export default function Schedule() {
   };
 
   return (
-    <div className="pb-24">
+    <div className="pb-32">
       {isAdmin && (
         <Button
           onPress={() => setShowAddForm(true)}
           isIconOnly
           aria-label="Thêm sự kiện"
-          className="fixed bottom-24 right-4 md:bottom-8 z-30 h-14 w-14 rounded-full bg-accent text-white dark:text-foreground shadow-xl active:scale-95 transition-transform"
+          className="fixed bottom-32 right-4 md:bottom-8 z-30 h-14 w-14 rounded-full bg-accent text-white dark:text-foreground shadow-xl active:scale-95 transition-transform"
         >
           <Plus size={24} />
         </Button>
@@ -217,7 +217,7 @@ export default function Schedule() {
                     <Table.Column className="text-xs font-medium text-default-500 py-3 px-3 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">Địa điểm</Table.Column>
                     <Table.Column className="text-xs font-medium text-default-500 py-3 px-3 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">Nhân viên</Table.Column>
                     <Table.Column className="text-xs font-medium text-default-500 py-3 px-3 bg-default-50 dark:bg-default-100/20">Trạng thái</Table.Column>
-                    <Table.Column className="text-xs font-medium text-default-500 py-3 pr-4 pl-3 text-right bg-default-50 dark:bg-default-100/20">Hành động</Table.Column>
+                    {isAdmin && <Table.Column className="text-xs font-medium text-default-500 py-3 pr-4 pl-3 text-right bg-default-50 dark:bg-default-100/20 hidden sm:table-cell">Hành động</Table.Column>}
                   </Table.Header>
                   <Table.Body renderEmptyState={() => (
                     <p className="text-sm text-foreground/50 text-center py-10">Chưa có sự kiện nào</p>
@@ -250,17 +250,17 @@ export default function Schedule() {
                           <Table.Cell className="py-3.5 px-3">
                             <StatusBadge status={event.status} />
                           </Table.Cell>
-                          <Table.Cell className="py-3.5 pr-4 pl-3" onClick={e => e.stopPropagation()}>
-                            <div className="flex items-center justify-end gap-1">
-                              <Button
-                                isIconOnly size="sm" variant="ghost"
-                                onPress={() => navigate('/schedule/' + event.id)}
-                                aria-label="Xem chi tiết"
-                                className="w-8 h-8 rounded-lg text-default-400 hover:text-foreground hover:bg-default-100"
-                              >
-                                <Eye size={14} />
-                              </Button>
-                              {isAdmin && (
+                          {isAdmin && (
+                            <Table.Cell className="py-3.5 pr-4 pl-3 hidden sm:table-cell" onClick={e => e.stopPropagation()}>
+                              <div className="flex items-center justify-end gap-1">
+                                <Button
+                                  isIconOnly size="sm" variant="ghost"
+                                  onPress={() => navigate('/schedule/' + event.id)}
+                                  aria-label="Xem chi tiết"
+                                  className="w-8 h-8 rounded-lg text-default-400 hover:text-foreground hover:bg-default-100"
+                                >
+                                  <Eye size={14} />
+                                </Button>
                                 <Button
                                   isIconOnly size="sm" variant="ghost"
                                   onPress={() => {
@@ -273,9 +273,9 @@ export default function Schedule() {
                                 >
                                   <Trash2 size={14} />
                                 </Button>
-                              )}
-                            </div>
-                          </Table.Cell>
+                              </div>
+                            </Table.Cell>
+                          )}
                         </Table.Row>
                       );
                     })}
