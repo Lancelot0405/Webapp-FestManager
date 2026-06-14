@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useKeyboardOffset } from '../../hooks/useKeyboardOffset';
-import { Pencil, Trash2, Phone, Mail, MapPin, Building2 } from 'lucide-react';
+import { Pencil, Trash2, Phone, Mail, MapPin, Building2, Calendar } from 'lucide-react';
 import { AlertDialog, Button, Card, EmptyState, Modal, SearchField } from '@heroui/react';
 import { animations } from '../../lib/animations';
 import { Controller, useForm } from 'react-hook-form';
@@ -207,31 +207,65 @@ export default function Clients() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
           {filtered.map((client, i) => {
             const clientEvents = events.filter(e => client.eventIds.includes(e.id));
+            const initials = client.name.trim().split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
             return (
               <motion.div key={client.id} {...animations.listItem(i)} {...animations.press}>
-              <Card>
-                <Card.Header className="px-4 pt-4 pb-2 flex items-start justify-between gap-2">
-                  <div className="min-w-0 flex-1">
-                    <Card.Title className="text-sm font-semibold text-foreground truncate">{client.name}</Card.Title>
-                    {client.contactName && (
-                      <Card.Description className="text-xs text-foreground/70 mt-0.5">{client.contactName}</Card.Description>
+                <Card className="p-0 overflow-hidden hover:shadow-md transition-shadow duration-200">
+                  {/* Header */}
+                  <div className="flex items-center gap-3 px-4 pt-4 pb-3">
+                    <div className="w-10 h-10 rounded-full accent-gradient flex items-center justify-center text-white text-sm font-bold shrink-0 shadow-sm">
+                      {initials}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-foreground truncate leading-tight">{client.name}</p>
+                      {client.contactName && (
+                        <p className="text-xs text-muted truncate mt-0.5">{client.contactName}</p>
+                      )}
+                    </div>
+                    <div className="flex gap-0.5 shrink-0">
+                      <Button onPress={() => openEdit(client)} variant="ghost" isIconOnly size="sm" className="rounded-lg text-muted hover:text-foreground w-7 h-7 min-w-0"><Pencil size={13} /></Button>
+                      <Button onPress={() => setDeleteTarget(client)} variant="ghost" isIconOnly size="sm" className="rounded-lg text-muted hover:text-danger w-7 h-7 min-w-0"><Trash2 size={13} /></Button>
+                    </div>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="border-t border-separator mx-4" />
+
+                  {/* Info */}
+                  <div className="px-4 py-3 space-y-1.5">
+                    {client.phone && (
+                      <div className="flex items-center gap-2">
+                        <Phone size={12} className="text-muted shrink-0" />
+                        <span className="text-xs text-foreground/80 truncate">{client.phone}</span>
+                      </div>
+                    )}
+                    {client.email && (
+                      <div className="flex items-center gap-2">
+                        <Mail size={12} className="text-muted shrink-0" />
+                        <span className="text-xs text-foreground/80 truncate">{client.email}</span>
+                      </div>
+                    )}
+                    {client.city && (
+                      <div className="flex items-center gap-2">
+                        <MapPin size={12} className="text-muted shrink-0" />
+                        <span className="text-xs text-foreground/80 truncate">{client.city}</span>
+                      </div>
+                    )}
+                    {client.notes && (
+                      <p className="text-xs text-muted italic truncate">{client.notes}</p>
                     )}
                   </div>
-                  <div className="flex gap-1 shrink-0">
-                    <Button onPress={() => openEdit(client)} variant="ghost" isIconOnly size="sm" className="rounded-lg text-muted hover:text-foreground"><Pencil size={14} /></Button>
-                    <Button onPress={() => setDeleteTarget(client)} variant="ghost" isIconOnly size="sm" className="rounded-lg text-muted hover:text-danger"><Trash2 size={14} /></Button>
-                  </div>
-                </Card.Header>
-                <Card.Content className="px-4 pb-4 space-y-1">
-                  {client.phone && <p className="text-xs text-muted flex items-center gap-1.5"><Phone size={11} /> {client.phone}</p>}
-                  {client.email && <p className="text-xs text-muted flex items-center gap-1.5"><Mail size={11} /> {client.email}</p>}
-                  {client.city  && <p className="text-xs text-muted flex items-center gap-1.5"><MapPin size={11} /> {client.city}</p>}
+
+                  {/* Footer badge */}
                   {clientEvents.length > 0 && (
-                    <p className="text-xs text-muted pt-1.5 mt-1.5 border-t border-separator">{clientEvents.length} sự kiện liên quan</p>
+                    <div className="px-4 pb-3">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-accent bg-accent/10 rounded-full px-2.5 py-0.5">
+                        <Calendar size={10} />
+                        {clientEvents.length} sự kiện
+                      </span>
+                    </div>
                   )}
-                  {client.notes && <p className="text-xs text-muted italic">{client.notes}</p>}
-                </Card.Content>
-              </Card>
+                </Card>
               </motion.div>
             );
           })}
