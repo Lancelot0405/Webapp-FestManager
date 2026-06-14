@@ -69,14 +69,14 @@ export default function InventoryAddModal({ isOpen, onClose, mainTab, subTab }: 
   return (
     <Modal isOpen={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <Modal.Backdrop isDismissable>
-        <Modal.Container placement="center" size="md">
-          <Modal.Dialog aria-label="Thêm mặt hàng">
-            <Modal.Header className="px-5 pt-5 pb-0">
+        <Modal.Container placement="bottom" size="md" className="sm:items-center">
+          <Modal.Dialog aria-label="Thêm mặt hàng" className="max-h-[85dvh] flex flex-col rounded-t-2xl sm:rounded-2xl">
+            <Modal.Header className="px-5 pt-5 pb-0 shrink-0">
               <Modal.Heading className="text-sm font-bold text-foreground">
                 Thêm {itemLabel} — {sectionLabel}
               </Modal.Heading>
             </Modal.Header>
-            <Modal.Body className="px-5 py-4">
+            <Modal.Body className="px-5 py-4 overflow-y-auto">
               <form id="inventory-add-form" onSubmit={handleSubmit(onSubmit)} className="space-y-3">
                 <Controller
                   name="name"
@@ -138,7 +138,7 @@ export default function InventoryAddModal({ isOpen, onClose, mainTab, subTab }: 
                 />
               </form>
             </Modal.Body>
-            <Modal.Footer className="px-5 pb-5 flex gap-2 justify-end">
+            <Modal.Footer className="px-5 pb-5 flex gap-2 justify-end shrink-0 border-t border-separator">
               <Button variant="ghost" onPress={onClose} className="rounded-xl">Hủy</Button>
               <Button type="submit" form="inventory-add-form" variant="primary" className="rounded-xl">
                 Thêm vào kho
