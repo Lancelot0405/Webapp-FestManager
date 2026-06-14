@@ -87,7 +87,7 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
         }}
         className="w-full"
       >
-        <Tabs.ListContainer className="w-full bg-zinc-900 dark:bg-zinc-800/95 rounded-full shadow-xl shadow-black/20 dark:shadow-black/50 border border-white/10 dark:border-white/10 p-1.5 backdrop-blur-xl">
+        <Tabs.ListContainer className="w-full bg-surface/85 dark:bg-zinc-900/90 rounded-full shadow-lg shadow-black/10 dark:shadow-black/50 border border-separator/70 dark:border-white/10 p-1.5 backdrop-blur-xl">
           <Tabs.List
             aria-label="Navigation"
             className="w-full flex justify-around items-center gap-0.5 !bg-transparent !p-0 !shadow-none"
@@ -99,44 +99,35 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
                 <Tabs.Tab
                   key={path}
                   id={path}
+                  aria-label={label}
                   className={`
                     flex items-center justify-center h-auto min-w-0 rounded-full cursor-pointer
-                    outline-none select-none transition-all duration-300 ease-out
+                    outline-none select-none transition-all duration-200 ease-out p-2.5
                     ${isActive
-                      ? 'bg-white px-3.5 py-2.5 shadow-sm'
-                      : 'px-3 py-2.5 hover:bg-white/10 active:bg-white/15'}
+                      ? 'bg-accent shadow-sm'
+                      : 'hover:bg-default/50 active:bg-default/70'}
                   `}
                 >
-                  <div className="flex items-center gap-2 overflow-hidden">
-                    {/* Icon */}
-                    <span className={`shrink-0 transition-colors duration-200 ${
-                      isActive ? 'text-accent' : 'text-zinc-400'
-                    }`}>
-                      {isProfile ? (
-                        <div className="relative">
-                          <div className="w-5 h-5 rounded-full accent-gradient flex items-center justify-center text-white text-[9px] font-bold">
-                            {initials}
-                          </div>
-                          {notifCount > 0 && (
-                            <span className="absolute -top-0.5 -right-1 w-3 h-3 bg-danger text-white text-[7px] font-bold rounded-full flex items-center justify-center border-2 border-zinc-900">
-                              {notifCount > 9 ? '9+' : notifCount}
-                            </span>
-                          )}
+                  <span className={`shrink-0 transition-colors duration-200 ${
+                    isActive ? 'text-white' : 'text-muted'
+                  }`}>
+                    {isProfile ? (
+                      <div className="relative">
+                        <div className={`w-5 h-5 rounded-full accent-gradient flex items-center justify-center text-white text-[9px] font-bold ${
+                          isActive ? 'ring-2 ring-white/70' : ''
+                        }`}>
+                          {initials}
                         </div>
-                      ) : (
-                        icon
-                      )}
-                    </span>
-
-                    {/* Label — only visible when active */}
-                    <span
-                      className={`text-xs font-semibold text-zinc-900 whitespace-nowrap transition-all duration-300 ease-out ${
-                        isActive ? 'max-w-[90px] opacity-100' : 'max-w-0 opacity-0'
-                      }`}
-                    >
-                      {label}
-                    </span>
-                  </div>
+                        {notifCount > 0 && (
+                          <span className="absolute -top-0.5 -right-1 w-3 h-3 bg-danger text-white text-[7px] font-bold rounded-full flex items-center justify-center border-2 border-surface">
+                            {notifCount > 9 ? '9+' : notifCount}
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      icon
+                    )}
+                  </span>
                 </Tabs.Tab>
               );
             })}
