@@ -8,6 +8,7 @@ import {
   AlertTriangle,
   ChevronRight,
   Bell, Eye, Sun, Moon, Smartphone,
+  Users, DollarSign, MapPin, Zap, TrendingUp,
 } from 'lucide-react';
 import { Button, Card, Chip, Table, SearchField, Tabs, Spinner } from '@heroui/react';
 import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
@@ -36,11 +37,6 @@ function monthKey(d: string): string {
 
 function sumExpenses(e: FestivalEvent): number {
   return Object.values(e.financials.expenses).reduce<number>((s, v) => s + (v ?? 0), 0);
-}
-
-function pct(cur: number, prev: number): number | null {
-  if (prev === 0) return null;
-  return ((cur - prev) / prev) * 100;
 }
 
 function initials(name: string): string {
@@ -200,7 +196,7 @@ function AdminDashboard({ events, staff, inventory, currentUser, navigate }: {
       {/* Tab content */}
       <AnimatePresence mode="wait" initial={false}>
         <motion.div key={tab} {...animations.pageEnter}>
-          {tab === 'overview'  && <OverviewTab  events={events} staff={staff} navigate={navigate} />}
+          {tab === 'overview'  && <OverviewTab  events={events} staff={staff} inventory={inventory} navigate={navigate} />}
           {tab === 'finance'   && <FinanceTab   events={events} navigate={navigate} />}
           {tab === 'hr'        && <HRTab        events={events} staff={staff} navigate={navigate} />}
           {tab === 'inventory' && <InventoryTab inventory={inventory} navigate={navigate} />}
@@ -210,88 +206,277 @@ function AdminDashboard({ events, staff, inventory, currentUser, navigate }: {
   );
 }
 
+// ─── Date Badge ───────────────────────────────────────────────────────────────
+
+const MONTH_ABBR = ['JAN','FÉV','MAR','AVR','MAI','JUN','JUL','AOÛ','SEP','OCT','NOV','DÉC'];
+
+function DateBadge({ date, accent = false }: { date: string; accent?: boolean }) {
+  const [dd, mm] = date.split('-');
+  const label = MONTH_ABBR[Number(mm) - 1] ?? '';
+  return (
+    <div className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center shrink-0 ${
+      accent ? 'bg-accent text-white' : 'bg-accent/10 text-accent'
+    }`}>
+      <span className="text-base font-bold leading-tight">{dd}</span>
+      <span className="text-[9px] font-semibold uppercase opacity-80">{label}</span>
+    </div>
+  );
+}
+
 // ─── Tab: Tổng quan ──────────────────────────────────────────────────────────
 
-function OverviewTab({ events, staff, navigate }: {
+function OverviewTab({ events, staff, inventory, navigate }: {
   events: FestivalEvent[];
   staff: StaffMember[];
+  inventory: InventoryItem[];
   navigate: ReturnType<typeof useNavigate>;
 }) {
-  const now  = new Date();
-  const curM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  const prevD = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const prevM = `${prevD.getFullYear()}-${String(prevD.getMonth() + 1).padStart(2, '0')}`;
+  const totalIncome    = events.reduce((s, e) => s + e.financials.income, 0);
+  const activeEvents   = events.filter(e => e.status === 'Đang diễn ra');
+  const upcomingEvents = events.filter(e => e.status === 'Sắp tới' || e.status === 'Lên kế hoạch');
+  const completedCount = events.filter(e => e.status === 'Đã hoàn thành').length;
+  const lowStock       = inventory.filter(i => i.current <= i.threshold);
+  const pendingCount   = events.flatMap(e => e.receipts).filter(r => r.status === 'pending').length;
 
-  const totalIncome   = events.reduce((s, e) => s + e.financials.income, 0);
-  const totalExpenses = events.reduce((s, e) => s + sumExpenses(e), 0);
-
-  const curIncome  = events.filter(e => monthKey(e.date) === curM).reduce((s, e) => s + e.financials.income, 0);
-  const prevIncome = events.filter(e => monthKey(e.date) === prevM).reduce((s, e) => s + e.financials.income, 0);
-  const curExpenses = events.filter(e => monthKey(e.date) === curM).reduce((s, e) => s + sumExpenses(e), 0);
-  const prevExpenses = events.filter(e => monthKey(e.date) === prevM).reduce((s, e) => s + sumExpenses(e), 0);
-  const curEvents  = events.filter(e => monthKey(e.date) === curM).length;
-  const prevEvents = events.filter(e => monthKey(e.date) === prevM).length;
-
-  const incomeDelta   = pct(curIncome, prevIncome);
-  const expensesDelta = pct(curExpenses, prevExpenses);
-  const eventsDelta   = pct(curEvents, prevEvents);
+  const topStaff = useMemo(() => {
+    const map: Record<number, { member: StaffMember; count: number }> = {};
+    events.forEach(e => e.staff.forEach(s => {
+      const m = staff.find(st => st.id === s.id);
+      if (m) map[s.id] = { member: m, count: (map[s.id]?.count ?? 0) + 1 };
+    }));
+    return Object.values(map).sort((a, b) => b.count - a.count).slice(0, 5);
+  }, [events, staff]);
 
   return (
-    <div className="space-y-5">
-      {/* Stat cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <div className="space-y-6">
+
+      {/* KPI cards 2×2 */}
+      <div className="grid grid-cols-2 gap-3">
         <StatCard
-          label="Tổng doanh thu"
-          value={totalIncome.toLocaleString('fr-FR') + ' €'}
-          delta={incomeDelta}
-          onClick={() => navigate('/finance')}
-        />
-        <StatCard
-          label="Tổng chi phí"
-          value={totalExpenses.toLocaleString('fr-FR') + ' €'}
-          delta={expensesDelta}
-          onClick={() => navigate('/finance')}
-        />
-        <StatCard
-          label="Sự kiện"
-          value={String(events.length)}
-          delta={eventsDelta}
+          label="Sự kiện sắp tới"
+          value={String(upcomingEvents.length + activeEvents.length)}
+          icon={<Calendar size={16} />}
+          subtext={`${completedCount} đã hoàn thành`}
           onClick={() => navigate('/schedule')}
         />
         <StatCard
-          label="Nhân viên"
-          value={String(staff.length)}
-          delta={null}
-          onClick={() => navigate('/hr')}
+          label="Doanh thu"
+          value={totalIncome.toLocaleString('fr-FR') + '€'}
+          icon={<DollarSign size={16} />}
+          subtext={`${events.length} sự kiện`}
+          glow="success"
+          color="emerald"
+          onClick={() => navigate('/finance')}
+        />
+        <StatCard
+          label="Kho sắp hết"
+          value={String(lowStock.length)}
+          icon={<Package size={16} />}
+          subtext={`${inventory.length} mặt hàng tổng`}
+          glow={lowStock.length > 0 ? 'danger' : undefined}
+          color={lowStock.length > 0 ? 'danger' : undefined}
+          valueColor={lowStock.length > 0 ? 'danger' : undefined}
+          onClick={() => navigate('/inventory')}
+        />
+        <StatCard
+          label="Chi phí chờ"
+          value={String(pendingCount)}
+          icon={<Clock size={16} />}
+          subtext="Cần phê duyệt"
+          onClick={() => navigate('/finance')}
         />
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-foreground">Doanh thu theo tháng</h3>
-            <span className="text-xs text-muted">6 tháng gần nhất</span>
-          </div>
-          <RevenueBarChart events={events} />
-        </Card>
+      {/* Truy cập nhanh */}
+      <div className="space-y-3">
+        <h2 className="text-sm font-bold text-foreground uppercase tracking-wider">Truy cập nhanh</h2>
+        <div className="grid grid-cols-4 gap-2">
+          {([
+            { icon: <Calendar size={20} />, label: 'Lịch sự kiện', path: '/schedule' },
+            { icon: <Package  size={20} />, label: 'Kho hàng',     path: '/inventory' },
+            { icon: <DollarSign size={20} />, label: 'Tài chính',  path: '/finance' },
+            { icon: <Users    size={20} />, label: 'Nhân sự',      path: '/hr' },
+          ] as const).map(({ icon, label, path }) => (
+            <motion.button
+              key={path}
+              whileTap={{ scale: 0.93 }}
+              onClick={() => navigate(path)}
+              className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-surface border border-separator/60 hover:border-accent/30 hover:bg-accent/5 transition-colors cursor-pointer"
+            >
+              <span className="text-accent">{icon}</span>
+              <span className="text-[10px] font-medium text-muted text-center leading-tight">{label}</span>
+            </motion.button>
+          ))}
+        </div>
+      </div>
 
-        <Card className="p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-foreground">Sự kiện theo tháng</h3>
-            <span className="text-xs text-muted">6 tháng gần nhất</span>
+      {/* Đang diễn ra */}
+      {activeEvents.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-sm font-bold text-foreground flex items-center gap-1.5">
+            <Zap size={14} className="text-accent" /> Đang diễn ra
+          </h2>
+          <div className="space-y-2">
+            {activeEvents.map((event, i) => (
+              <motion.div key={event.id} {...animations.listItem(i)}>
+                <Card
+                  className="p-4 flex items-center gap-3 cursor-pointer hover:border-accent/40 transition-colors"
+                  onClick={() => navigate('/schedule/' + event.id)}
+                >
+                  <DateBadge date={event.date} accent />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-foreground truncate">{event.name}</p>
+                    <StatusBadge status={event.status} />
+                    <div className="flex items-center gap-1 mt-1">
+                      <MapPin size={10} className="text-muted shrink-0" />
+                      <p className="text-xs text-muted truncate">{event.location}</p>
+                    </div>
+                    {event.staff.length === 0 && (
+                      <p className="text-xs text-muted/60 mt-0.5">Chưa có nhân viên</p>
+                    )}
+                  </div>
+                  <ChevronRight size={16} className="text-muted shrink-0" />
+                </Card>
+              </motion.div>
+            ))}
           </div>
-          <EventsLineChart events={events} />
+        </div>
+      )}
+
+      {/* Sự kiện sắp tới */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-bold text-foreground">Sự kiện sắp tới</h2>
+          <button
+            onClick={() => navigate('/schedule')}
+            className="text-xs text-accent font-medium flex items-center gap-0.5"
+          >
+            Xem thêm <ChevronRight size={12} />
+          </button>
+        </div>
+        <Card className="overflow-hidden divide-y divide-separator/40">
+          {upcomingEvents.length === 0 ? (
+            <p className="text-sm text-muted text-center py-8">Không có sự kiện sắp tới</p>
+          ) : upcomingEvents
+              .sort((a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime())
+              .slice(0, 5)
+              .map((event, i) => (
+            <motion.div
+              key={event.id}
+              {...animations.listItem(i)}
+              className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-default-50 dark:hover:bg-default-100/5 transition-colors"
+              onClick={() => navigate('/schedule/' + event.id)}
+            >
+              <DateBadge date={event.date} />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground truncate">{event.name}</p>
+                <div className="flex items-center gap-1 mt-0.5">
+                  <MapPin size={9} className="text-muted shrink-0" />
+                  <p className="text-xs text-muted truncate">{event.location}</p>
+                </div>
+              </div>
+              <div className="flex flex-col items-end gap-1 shrink-0">
+                <StatusBadge status={event.status} />
+                <span className="text-[10px] text-muted">{event.staff.length} NV</span>
+              </div>
+            </motion.div>
+          ))}
         </Card>
       </div>
 
-      {/* Events table */}
-      <EventsTable
-        events={events}
-        navigate={navigate}
-        title="Tất cả sự kiện"
-        emptyText="Chưa có sự kiện nào"
-      />
+      {/* Doanh thu theo tháng */}
+      <div className="space-y-3">
+        <h2 className="text-sm font-bold text-foreground flex items-center gap-1.5">
+          <TrendingUp size={14} className="text-accent" /> Doanh thu theo tháng
+        </h2>
+        <Card className="p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted">6 tháng gần nhất</span>
+            <span className="text-base font-bold text-foreground">{totalIncome.toLocaleString('fr-FR')} €</span>
+          </div>
+          <RevenueBarChart events={events} />
+        </Card>
+      </div>
+
+      {/* Top nhân viên */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-bold text-foreground flex items-center gap-1.5">
+            ☆ Top nhân viên
+          </h2>
+          <button
+            onClick={() => navigate('/hr')}
+            className="text-xs text-accent font-medium flex items-center gap-0.5"
+          >
+            Xem thêm <ChevronRight size={12} />
+          </button>
+        </div>
+        <Card className="overflow-hidden">
+          {topStaff.length === 0 ? (
+            <div className="py-10 flex flex-col items-center gap-2">
+              <div className="w-8 h-8 rounded-full border-2 border-separator flex items-center justify-center">
+                <span className="text-muted text-xs">✓</span>
+              </div>
+              <p className="text-sm text-muted">Chưa có dữ liệu</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-separator/40">
+              {topStaff.map(({ member, count }, i) => (
+                <motion.div
+                  key={member.id}
+                  {...animations.listItem(i)}
+                  className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-default-50 dark:hover:bg-default-100/5 transition-colors"
+                  onClick={() => navigate('/hr/' + member.id)}
+                >
+                  <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${avatarGradient(member.id)} flex items-center justify-center shrink-0`}>
+                    <span className="text-xs font-bold text-white">{initials(member.name)}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground truncate">{member.name}</p>
+                    <p className="text-xs text-muted">{member.city}</p>
+                  </div>
+                  <span className="text-xs font-bold text-accent shrink-0">{count} sự kiện</span>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </Card>
+      </div>
+
+      {/* Cảnh báo kho */}
+      {lowStock.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-bold text-foreground flex items-center gap-1.5">
+              <AlertTriangle size={14} className="text-danger" /> Cảnh báo kho ({lowStock.length})
+            </h2>
+            <button
+              onClick={() => navigate('/inventory')}
+              className="text-xs text-accent font-medium flex items-center gap-0.5"
+            >
+              Xem thêm <ChevronRight size={12} />
+            </button>
+          </div>
+          <Card className="overflow-hidden divide-y divide-separator/40">
+            {lowStock.slice(0, 5).map((item, i) => (
+              <motion.div
+                key={item.id}
+                {...animations.listItem(i)}
+                className="flex items-center gap-3 px-4 py-3"
+              >
+                <div className="w-10 h-10 rounded-xl bg-danger/10 flex items-center justify-center shrink-0">
+                  <Package size={16} className="text-danger" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground truncate">{item.name}</p>
+                  <p className="text-xs text-danger font-medium">Còn {item.current} {item.unit} / Ngưỡng {item.threshold}</p>
+                </div>
+              </motion.div>
+            ))}
+          </Card>
+        </div>
+      )}
+
     </div>
   );
 }
@@ -754,9 +939,12 @@ interface StatCardProps {
   onClick?: () => void;
   icon?: ReactNode;
   color?: string;
+  glow?: 'success' | 'danger';
+  subtext?: string;
+  valueColor?: 'danger' | 'success';
 }
 
-function StatCard({ label, value, delta, onClick, icon, color }: StatCardProps) {
+function StatCard({ label, value, delta, onClick, icon, color, glow, subtext, valueColor }: StatCardProps) {
   const colorClasses = useMemo(() => {
     if (!color) return { bg: 'bg-accent/10', text: 'text-accent' };
     switch (color) {
@@ -771,25 +959,37 @@ function StatCard({ label, value, delta, onClick, icon, color }: StatCardProps) 
     }
   }, [color]);
 
+  const glowStyle = useMemo(() => {
+    if (glow === 'success') return { boxShadow: '0 0 24px 6px rgba(34, 197, 94, 0.18)' };
+    if (glow === 'danger')  return { boxShadow: '0 0 24px 6px rgba(239, 68, 68, 0.22)' };
+    return {};
+  }, [glow]);
+
+  const valueClass = valueColor === 'danger' ? 'text-danger' : valueColor === 'success' ? 'text-success' : 'text-foreground';
+
   return (
     <Card
-      className="hover:shadow-lg hover:border-default-300 dark:hover:border-zinc-700 transition-all duration-200 cursor-pointer p-5 flex flex-col justify-between min-h-[104px] rounded-2xl bg-surface dark:bg-zinc-900/50 border border-separator/80 shadow-sm"
+      className="hover:shadow-lg hover:border-default-300 dark:hover:border-zinc-700 transition-all duration-200 cursor-pointer p-4 flex flex-col justify-between min-h-[104px] rounded-2xl bg-surface dark:bg-zinc-900/50 border border-separator/80 shadow-sm"
+      style={glowStyle}
       onClick={onClick}
     >
-      <div className="flex items-center justify-between">
-        <p className="text-xs font-semibold text-muted/80 uppercase tracking-wider">{label}</p>
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <p className="text-2xl font-bold tracking-tight mt-1 leading-none truncate" style={{ color: valueColor ? undefined : undefined }}>
+            <span className={valueClass}>{value}</span>
+          </p>
+          <p className="text-xs font-semibold text-muted mt-1.5 leading-tight">{label}</p>
+          {subtext && <p className="text-[10px] text-muted/60 mt-0.5 leading-tight">{subtext}</p>}
+          {delta != null && (
+            <Chip size="sm" variant="soft" color={delta >= 0 ? 'success' : 'danger'} className="mt-1.5 text-[11px] font-bold">
+              {delta >= 0 ? '↑' : '↓'} {Math.abs(delta).toFixed(1)}%
+            </Chip>
+          )}
+        </div>
         {icon && (
-          <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${colorClasses.bg} ${colorClasses.text}`}>
+          <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${colorClasses.bg} ${colorClasses.text}`}>
             {icon}
           </div>
-        )}
-      </div>
-      <div className="flex items-baseline justify-between mt-3">
-        <span className="text-2xl font-bold text-foreground tracking-tight">{value}</span>
-        {delta != null && (
-          <Chip size="sm" variant="soft" color={delta >= 0 ? 'success' : 'danger'} className="shrink-0 text-[11px] font-bold">
-            {delta >= 0 ? '↑' : '↓'} {Math.abs(delta).toFixed(1)}%
-          </Chip>
         )}
       </div>
     </Card>
@@ -873,62 +1073,6 @@ function RevenueBarChart({ events }: { events: FestivalEvent[] }) {
 }
 
 // ─── Events Line Chart (SVG) ──────────────────────────────────────────────────
-
-function EventsLineChart({ events }: { events: FestivalEvent[] }) {
-  const data = useMemo(() => {
-    const map: Record<string, number> = {};
-    events.forEach(e => {
-      const k = monthKey(e.date);
-      map[k] = (map[k] ?? 0) + 1;
-    });
-    return Object.entries(map)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .slice(-6)
-      .map(([k, v]) => ({ label: k.slice(5) + '/' + k.slice(2, 4), value: v }));
-  }, [events]);
-
-  if (data.length === 0) return <p className="text-sm text-muted py-6 text-center">Chưa có dữ liệu</p>;
-
-  const max = Math.max(...data.map(d => d.value), 1);
-  const W = 300; const H = 100; const PAD = 8;
-  const points = data.map((d, i) => {
-    const x = PAD + (i / Math.max(data.length - 1, 1)) * (W - PAD * 2);
-    const y = PAD + (1 - d.value / max) * (H - PAD * 2);
-    return { x, y, ...d };
-  });
-  const path = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
-  const area = `${path} L ${points[points.length - 1]!.x} ${H} L ${points[0]!.x} ${H} Z`;
-
-  return (
-    <div className="space-y-1.5">
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: 128 }}>
-        <defs>
-          <linearGradient id="evtGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.25" />
-            <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        {/* Horizontal grid lines */}
-        <line x1="0" y1="25" x2={W} y2="25" stroke="var(--separator)" strokeWidth="0.5" strokeDasharray="3 3" opacity="0.6" />
-        <line x1="0" y1="50" x2={W} y2="50" stroke="var(--separator)" strokeWidth="0.5" strokeDasharray="3 3" opacity="0.6" />
-        <line x1="0" y1="75" x2={W} y2="75" stroke="var(--separator)" strokeWidth="0.5" strokeDasharray="3 3" opacity="0.6" />
-
-        <path d={area} fill="url(#evtGrad)" />
-        <path d={path} fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        {points.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r="3" fill="var(--accent)" className="transition-all hover:r-4 cursor-pointer" />
-        ))}
-      </svg>
-      <div className="flex">
-        {points.map((p, i) => (
-          <div key={i} className="flex-1 text-center">
-            <span className="text-[9px] text-muted font-medium">{p.label}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 // ─── Income/Expense Chart (Finance tab) ───────────────────────────────────────
 
