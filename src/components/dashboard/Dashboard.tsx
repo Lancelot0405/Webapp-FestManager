@@ -16,6 +16,7 @@ import { useInventoryQuery } from '../../hooks/queries/useInventoryQuery';
 import { useTheme } from '../../context/ThemeContext';
 import { usePushNotifications } from '../../hooks/usePushNotifications';
 import { useInstallPrompt } from '../../hooks/useInstallPrompt';
+import { useToast } from '../../context/ToastContext';
 import StatusBadge from '../shared/StatusBadge';
 import type { FestivalEvent, StaffMember, InventoryItem, StaffRef, CurrentUser } from '../../types';
 
@@ -112,10 +113,20 @@ function AdminDashboard({ events, staff, inventory, currentUser, navigate }: {
   const notifCount = notifications.length;
   const { theme, toggleTheme } = useTheme();
   const { subscribed, loading: pushLoading, subscribe, supported: pushSupported } = usePushNotifications();
-  const { isStandalone, triggerInstall } = useInstallPrompt();
+  const { isIos, isStandalone, triggerInstall } = useInstallPrompt();
+  const showToast = useToast();
 
   const handleInstall = async () => {
-    await triggerInstall();
+    const result = await triggerInstall();
+    if (result === 'already') {
+      showToast('FestManager đã được cài trên thiết bị này.', 'info');
+    } else if (result === 'guide') {
+      if (isIos) {
+        showToast('Safari: bấm nút Chia sẻ ↑ → "Thêm vào màn hình chính"', 'info');
+      } else {
+        showToast('Dùng menu trình duyệt (⋮) → "Cài đặt ứng dụng"', 'info');
+      }
+    }
   };
 
   return (
