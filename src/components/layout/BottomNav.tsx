@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Tabs } from '@heroui/react';
@@ -43,18 +43,13 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
   const navigate        = useNavigate();
   const location        = useLocation();
 
-  const spotRef = useRef<HTMLDivElement>(null);
-  const moveSpot = (e: React.PointerEvent<HTMLElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const el = spotRef.current;
-    if (!el) return;
-    el.style.setProperty('--spot-x', `${e.clientX - rect.left}px`);
-    el.style.setProperty('--spot-y', `${e.clientY - rect.top}px`);
-    el.style.opacity = '1';
+  const [hovered, setHovered] = useState<string | null>(null);
+  const trackHover = (e: React.PointerEvent<HTMLElement>) => {
+    const el = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
+    const tab = el?.closest('[data-navtab]') as HTMLElement | null;
+    setHovered(tab?.dataset.navtab ?? null);
   };
-  const hideSpot = () => {
-    if (spotRef.current) spotRef.current.style.opacity = '0';
-  };
+  const clearHover = () => setHovered(null);
 
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   useEffect(() => {
@@ -96,7 +91,7 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
           className="w-full"
         >
           <Tabs.ListContainer
-            className="relative overflow-hidden w-full rounded-full p-1.5 border shadow-lg"
+            className="w-full rounded-full p-1.5 border shadow-lg"
             style={{
               WebkitBackdropFilter: 'blur(25px)',
               backdropFilter: 'blur(25px)',
@@ -104,19 +99,10 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
               borderColor: 'color-mix(in oklch, var(--surface-foreground) 10%, transparent)',
               boxShadow: '0 8px 32px color-mix(in oklch, var(--foreground) 8%, transparent)',
             }}
-            onPointerMove={moveSpot}
-            onPointerLeave={hideSpot}
-            onPointerCancel={hideSpot}
+            onPointerMove={trackHover}
+            onPointerLeave={clearHover}
+            onPointerCancel={clearHover}
           >
-            <div
-              ref={spotRef}
-              aria-hidden
-              className="pointer-events-none absolute inset-0 rounded-full opacity-0 transition-opacity duration-300"
-              style={{
-                background:
-                  'radial-gradient(130px circle at var(--spot-x, 50%) var(--spot-y, 50%), color-mix(in oklch, var(--accent) 24%, transparent), transparent 70%)',
-              }}
-            />
             <Tabs.List
               aria-label="Navigation"
               className="relative w-full flex justify-around items-center gap-0.5 !bg-transparent !p-0 !shadow-none"
@@ -128,14 +114,23 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
                     key={path}
                     id={path}
                     aria-label={label}
+                    data-navtab={path}
                     className={`
-                      group flex items-center justify-center h-auto min-w-0 rounded-full cursor-pointer
-                      outline-none select-none p-2.5
-                      ${isActive ? 'bg-accent shadow-sm' : 'hover:bg-white/60 hover:shadow-md'}
+                      group relative flex items-center justify-center h-auto min-w-0 rounded-full cursor-pointer
+                      outline-none select-none p-2.5 transition-transform active:scale-90
+                      ${isActive ? 'bg-accent shadow-sm' : ''}
                     `}
                   >
-                    <span className={`shrink-0 transition-colors duration-200 ${
-                      isActive ? 'text-white' : 'text-muted group-hover:text-accent'
+                    {!isActive && hovered === path && (
+                      <motion.span
+                        layoutId="navHoverPill"
+                        aria-hidden
+                        className="absolute inset-0 rounded-full bg-foreground/10"
+                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                      />
+                    )}
+                    <span className={`relative z-10 shrink-0 transition-colors duration-200 ${
+                      isActive ? 'text-white' : hovered === path ? 'text-accent' : 'text-muted'
                     }`}>
                       <motion.span
                         animate={isActive ? { scale: [1, 1.25, 1] } : { scale: 1 }}
