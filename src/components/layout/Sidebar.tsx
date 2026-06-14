@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Button, Chip, Popover, Separator } from '@heroui/react';
 import {
   LayoutDashboard,
@@ -95,7 +96,12 @@ export default function Sidebar({ onOpenSheet, notifCount = 0, notifications, cl
   const w = isCollapsed ? 'w-[72px]' : 'w-[240px]';
 
   return (
-    <aside className={`hidden md:flex flex-col ${w} shrink-0 sticky top-0 h-screen bg-background border-r border-default-200 transition-[width] duration-200 overflow-hidden`}>
+    <motion.aside
+      className={`hidden md:flex flex-col ${w} shrink-0 sticky top-0 h-screen bg-background border-r border-default-200 transition-[width] duration-200 overflow-hidden`}
+      initial={{ x: -40, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+    >
 
       {/* ── User Profile ── */}
       <Popover isOpen={popoverOpen} onOpenChange={setPopoverOpen}>
@@ -105,7 +111,12 @@ export default function Sidebar({ onOpenSheet, notifCount = 0, notifications, cl
             className={`w-full h-auto px-3 py-4 rounded-none hover:bg-default-100 transition-colors ${isCollapsed ? 'justify-center' : 'justify-start gap-3'}`}
           >
             {/* Avatar */}
-            <div className="relative shrink-0">
+            <motion.div
+              className="relative shrink-0"
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.93 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+            >
               <div className="w-10 h-10 rounded-full accent-gradient flex items-center justify-center text-white text-sm font-bold shadow-sm">
                 {currentUser.name.charAt(0).toUpperCase()}
               </div>
@@ -114,7 +125,7 @@ export default function Sidebar({ onOpenSheet, notifCount = 0, notifications, cl
                   {notifCount > 9 ? '9+' : notifCount}
                 </span>
               )}
-            </div>
+            </motion.div>
 
             {!isCollapsed && (
               <div className="min-w-0 flex-1 text-left">
@@ -145,53 +156,62 @@ export default function Sidebar({ onOpenSheet, notifCount = 0, notifications, cl
 
       {/* ── Nav items ── */}
       <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
-        {tabs.map(({ path, icon, label, badge }) => {
-          const isActive    = activeSegment === path;
-          const numBadge    = badgeFor(path);
+        {tabs.map(({ path, icon, label, badge }, i) => {
+          const isActive = activeSegment === path;
+          const numBadge = badgeFor(path);
 
           return (
-            <Button
+            <motion.div
               key={path}
-              variant="ghost"
-              onPress={() => navigate('/' + path)}
-              aria-current={isActive ? 'page' : undefined}
-              className={`
-                w-full h-auto px-3 py-2.5 rounded-xl text-sm font-medium
-                flex items-center gap-3 transition-colors
-                ${isCollapsed ? 'justify-center' : 'justify-start'}
-                ${isActive
-                  ? 'bg-default-100 text-foreground font-semibold'
-                  : 'text-default-500 hover:text-foreground hover:bg-default-100 dark:hover:bg-default-100/20'
-                }
-              `}
+              initial={{ opacity: 0, x: -16 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.05, duration: 0.25, ease: 'easeOut' }}
             >
-              <span className={`shrink-0 ${isActive ? 'text-foreground' : 'text-default-400'}`}>
-                {icon}
-              </span>
+              <Button
+                variant="ghost"
+                onPress={() => navigate('/' + path)}
+                aria-current={isActive ? 'page' : undefined}
+                className={`
+                  w-full h-auto px-3 py-2.5 rounded-xl text-sm font-medium
+                  flex items-center gap-3 transition-colors
+                  ${isCollapsed ? 'justify-center' : 'justify-start'}
+                  ${isActive
+                    ? 'bg-default-100 text-foreground font-semibold'
+                    : 'text-default-500 hover:text-foreground hover:bg-default-100 dark:hover:bg-default-100/20'
+                  }
+                `}
+              >
+                <motion.span
+                  className={`shrink-0 ${isActive ? 'text-foreground' : 'text-default-400'}`}
+                  animate={isActive ? { scale: [1, 1.2, 1] } : { scale: 1 }}
+                  transition={{ duration: 0.3, ease: 'easeOut' }}
+                >
+                  {icon}
+                </motion.span>
 
-              {!isCollapsed && (
-                <>
-                  <span className="flex-1 text-left">{label}</span>
+                {!isCollapsed && (
+                  <>
+                    <span className="flex-1 text-left">{label}</span>
 
-                  {numBadge > 0 && (
-                    <Chip size="sm" variant="soft" color="danger" className="text-[10px] h-5 min-w-0 px-1.5">
-                      {numBadge > 9 ? '9+' : numBadge}
-                    </Chip>
-                  )}
+                    {numBadge > 0 && (
+                      <Chip size="sm" variant="soft" color="danger" className="text-[10px] h-5 min-w-0 px-1.5">
+                        {numBadge > 9 ? '9+' : numBadge}
+                      </Chip>
+                    )}
 
-                  {badge === 'New' && numBadge === 0 && (
-                    <Chip size="sm" variant="soft" color="success" className="text-[10px] h-5 min-w-0 px-1.5">
-                      New
-                    </Chip>
-                  )}
-                </>
-              )}
+                    {badge === 'New' && numBadge === 0 && (
+                      <Chip size="sm" variant="soft" color="success" className="text-[10px] h-5 min-w-0 px-1.5">
+                        New
+                      </Chip>
+                    )}
+                  </>
+                )}
 
-              {/* Collapsed: dot badge */}
-              {isCollapsed && numBadge > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full" />
-              )}
-            </Button>
+                {isCollapsed && numBadge > 0 && (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full" />
+                )}
+              </Button>
+            </motion.div>
           );
         })}
       </nav>
@@ -231,6 +251,6 @@ export default function Sidebar({ onOpenSheet, notifCount = 0, notifications, cl
           }
         </Button>
       </div>
-    </aside>
+    </motion.aside>
   );
 }

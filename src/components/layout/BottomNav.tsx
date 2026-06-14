@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs } from '@heroui/react';
 import {
   LayoutDashboard,
@@ -73,13 +73,16 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
   const activeSegment = location.pathname.split('/')[1] || 'dashboard';
 
   return (
-    <nav
-      className="fixed bottom-3 left-1/2 z-20 pb-safe transition-transform duration-300 ease-out"
+    <motion.nav
+      className="fixed bottom-3 left-1/2 z-20 pb-safe"
       style={{
         width: 'min(calc(100% - 24px), 480px)',
-        transform: `translateX(-50%) translateY(${navVisible ? '0' : 'calc(100% + 2rem)'})`,
+        x: '-50%',
         filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.12))',
       }}
+      initial={{ y: 80, opacity: 0 }}
+      animate={{ y: navVisible ? 0 : 'calc(100% + 2rem)', opacity: navVisible ? 1 : 0 }}
+      transition={{ type: 'spring', stiffness: 320, damping: 28 }}
     >
       <Tabs
         selectedKey={activeSegment}
@@ -103,53 +106,72 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
             aria-label="Navigation"
             className="w-full flex justify-around items-center gap-0.5 !bg-transparent !p-0 !shadow-none"
           >
-            {tabs.map(({ path, icon, label }) => {
+            {tabs.map(({ path, icon, label }, i) => {
               const isActive  = activeSegment === path;
               const isProfile = path === 'profile';
               return (
-                <Tabs.Tab
+                <motion.div
                   key={path}
-                  id={path}
-                  aria-label={label}
-                  className={`
-                    group flex items-center justify-center h-auto min-w-0 rounded-full cursor-pointer
-                    outline-none select-none transition-all duration-200 ease-out p-2.5
-                    ${isActive
-                      ? 'bg-accent shadow-sm'
-                      : 'hover:bg-white hover:shadow-md active:scale-95'}
-                  `}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.04, duration: 0.3, ease: 'easeOut' }}
                 >
-                  <span className={`shrink-0 transition-colors duration-200 ${
-                    isActive ? 'text-white' : 'text-muted group-hover:text-accent'
-                  }`}>
-                    {isProfile ? (
-                      <motion.div
-                        className="relative"
-                        whileHover={{ scale: 1.15 }}
-                        whileTap={{ scale: 0.9 }}
-                        transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-                      >
-                        <div className={`w-5 h-5 rounded-full accent-gradient flex items-center justify-center text-white text-[9px] font-bold ${
-                          isActive ? 'ring-2 ring-white/70' : ''
-                        }`}>
-                          {initials}
-                        </div>
-                        {notifCount > 0 && (
-                          <span className="absolute -top-0.5 -right-1 w-3 h-3 bg-danger text-white text-[7px] font-bold rounded-full flex items-center justify-center border-2 border-surface">
-                            {notifCount > 9 ? '9+' : notifCount}
-                          </span>
-                        )}
-                      </motion.div>
-                    ) : (
-                      icon
-                    )}
-                  </span>
-                </Tabs.Tab>
+                  <Tabs.Tab
+                    id={path}
+                    aria-label={label}
+                    className={`
+                      group flex items-center justify-center h-auto min-w-0 rounded-full cursor-pointer
+                      outline-none select-none p-2.5
+                      ${isActive
+                        ? 'bg-accent shadow-sm'
+                        : 'hover:bg-white hover:shadow-md'}
+                    `}
+                  >
+                    <span className={`shrink-0 transition-colors duration-200 ${
+                      isActive ? 'text-white' : 'text-muted group-hover:text-accent'
+                    }`}>
+                      {isProfile ? (
+                        <motion.div
+                          className="relative"
+                          whileHover={{ scale: 1.15 }}
+                          whileTap={{ scale: 0.9 }}
+                          transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                        >
+                          <div className={`w-5 h-5 rounded-full accent-gradient flex items-center justify-center text-white text-[9px] font-bold ${
+                            isActive ? 'ring-2 ring-white/70' : ''
+                          }`}>
+                            {initials}
+                          </div>
+                          <AnimatePresence>
+                            {notifCount > 0 && (
+                              <motion.span
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                exit={{ scale: 0 }}
+                                transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                                className="absolute -top-0.5 -right-1 w-3 h-3 bg-danger text-white text-[7px] font-bold rounded-full flex items-center justify-center border-2 border-surface"
+                              >
+                                {notifCount > 9 ? '9+' : notifCount}
+                              </motion.span>
+                            )}
+                          </AnimatePresence>
+                        </motion.div>
+                      ) : (
+                        <motion.span
+                          animate={isActive ? { scale: [1, 1.25, 1] } : { scale: 1 }}
+                          transition={{ duration: 0.3, ease: 'easeOut' }}
+                        >
+                          {icon}
+                        </motion.span>
+                      )}
+                    </span>
+                  </Tabs.Tab>
+                </motion.div>
               );
             })}
           </Tabs.List>
         </Tabs.ListContainer>
       </Tabs>
-    </nav>
+    </motion.nav>
   );
 }
