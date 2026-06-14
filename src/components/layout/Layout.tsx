@@ -2,10 +2,12 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { Button } from '@heroui/react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useFAB } from '../../context/FABContext';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { useApp } from '../../context/AppContext';
 import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
+import { animations } from '../../lib/animations';
 import Sidebar   from './Sidebar';
 import BottomNav from './BottomNav';
 import UserSheet from './UserSheet';
@@ -71,10 +73,17 @@ export default function Layout() {
         <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
           <main
             ref={mainRef}
-            className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 pt-[calc(env(safe-area-inset-top)+1.25rem)] md:pt-5 pb-24 md:pb-8 scroll-smooth-ios animate-fade-up"
+            className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 pt-[calc(env(safe-area-inset-top)+1.25rem)] md:pt-5 pb-24 md:pb-8 scroll-smooth-ios"
           >
             <div className="max-w-5xl xl:max-w-7xl mx-auto w-full">
-              <Outlet />
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={location.pathname}
+                  {...animations.pageEnter}
+                >
+                  <Outlet />
+                </motion.div>
+              </AnimatePresence>
             </div>
           </main>
 
