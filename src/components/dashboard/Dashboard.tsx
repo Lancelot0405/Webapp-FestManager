@@ -5,15 +5,17 @@ import {
   Calendar, Package, Clock,
   AlertTriangle,
   ChevronRight,
-  RotateCw, Bell, Download,
-  Eye,
+  Bell, Eye, Sun, Moon, Smartphone,
 } from 'lucide-react';
-import { Button, Card, Chip, Table, SearchField, Tabs } from '@heroui/react';
+import { Button, Card, Chip, Table, SearchField, Tabs, Spinner } from '@heroui/react';
 import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
 import { useApp } from '../../context/AppContext';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
 import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
 import { useInventoryQuery } from '../../hooks/queries/useInventoryQuery';
+import { useTheme } from '../../context/ThemeContext';
+import { usePushNotifications } from '../../hooks/usePushNotifications';
+import { useInstallPrompt } from '../../hooks/useInstallPrompt';
 import StatusBadge from '../shared/StatusBadge';
 import type { FestivalEvent, StaffMember, InventoryItem, StaffRef, CurrentUser } from '../../types';
 
@@ -108,35 +110,68 @@ function AdminDashboard({ events, staff, inventory, currentUser, navigate }: {
   const isAdminOrManager = currentUser?.role === 'admin' || currentUser?.role === 'manager';
   const { notifications } = useRealtimeNotifications(isAdminOrManager);
   const notifCount = notifications.length;
+  const { theme, toggleTheme } = useTheme();
+  const { subscribed, loading: pushLoading, subscribe, supported: pushSupported } = usePushNotifications();
+  const { isStandalone, triggerInstall } = useInstallPrompt();
+
+  const handleInstall = async () => {
+    await triggerInstall();
+  };
 
   return (
     <div className="space-y-5">
       {/* Greeting & Top Actions */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">
             {greeting()}, {currentUser.name}
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" isIconOnly size="sm" className="rounded-full text-muted hover:bg-default/50" aria-label="Tìm kiếm">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          {/* Theme toggle */}
+          <Button
+            variant="ghost" isIconOnly size="sm"
+            onPress={toggleTheme}
+            className="rounded-full text-muted hover:bg-default/50"
+            aria-label={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
+          >
+            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
           </Button>
-          <Button variant="ghost" isIconOnly size="sm" className="relative rounded-full text-muted hover:bg-default/50" aria-label="Thông báo">
-            <Bell size={16} />
-            {notifCount > 0 && (
-              <span className="absolute top-1 right-1 w-2 h-2 bg-danger rounded-full border border-background" />
-            )}
-          </Button>
-          <Button size="sm" className="bg-accent text-white dark:text-foreground font-semibold px-4 rounded-xl flex items-center gap-1.5 shadow-sm">
-            + Mời thành viên
-          </Button>
+
+          {/* Push notification bell */}
+          {pushSupported && (
+            <Button
+              variant="ghost" isIconOnly size="sm"
+              onPress={subscribe}
+              isDisabled={pushLoading || subscribed}
+              className="relative rounded-full text-muted hover:bg-default/50"
+              aria-label={subscribed ? 'Đã bật thông báo' : 'Bật thông báo'}
+            >
+              {pushLoading
+                ? <Spinner size="sm" color="current" />
+                : <Bell size={16} className={subscribed ? 'text-accent' : ''} />
+              }
+              {notifCount > 0 && (
+                <span className="absolute top-1 right-1 w-2 h-2 bg-danger rounded-full border border-background" />
+              )}
+            </Button>
+          )}
+
+          {/* PWA install */}
+          {!isStandalone && (
+            <Button
+              size="sm" variant="primary"
+              onPress={handleInstall}
+              className="rounded-xl font-semibold px-4 flex items-center gap-1.5 shadow-sm"
+            >
+              <Smartphone size={14} /> Cài đặt ứng dụng
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Control Bar (Tabs & Filters) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-separator/50 pb-3">
-        {/* Tab bar */}
+      {/* Tab bar */}
+      <div className="border-b border-separator/50 pb-3">
         <Tabs selectedKey={tab} onSelectionChange={(key) => setTab(key as TabKey)}>
           <Tabs.ListContainer className="overflow-x-auto scrollbar-hide">
             <Tabs.List aria-label="Dashboard tabs" className="w-max min-w-full">
@@ -149,19 +184,6 @@ function AdminDashboard({ events, staff, inventory, currentUser, navigate }: {
             </Tabs.List>
           </Tabs.ListContainer>
         </Tabs>
-
-        {/* Filters */}
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" isIconOnly size="sm" className="rounded-xl border border-separator hover:bg-default/50 text-muted" aria-label="Làm mới">
-            <RotateCw size={14} />
-          </Button>
-          <Button variant="ghost" size="sm" className="rounded-xl border border-separator text-muted font-medium hover:bg-default/50 flex items-center gap-1.5 px-3 py-1.5 h-auto text-xs">
-            <Calendar size={13} /> Hàng tháng
-          </Button>
-          <Button size="sm" className="bg-accent/10 hover:bg-accent/15 text-accent font-semibold px-4 rounded-xl h-auto py-1.5 text-xs">
-            <Download size={13} className="inline mr-1" /> Tải xuống
-          </Button>
-        </div>
       </div>
 
       {/* Tab content */}
