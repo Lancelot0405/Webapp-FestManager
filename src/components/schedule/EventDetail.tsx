@@ -155,10 +155,10 @@ export default function EventDetail() {
             onSelectionChange={(key) => setActiveTab(key as Tab)}
             className="mb-4 w-full"
           >
-            <Tabs.ListContainer>
-              <Tabs.List aria-label="Chi tiết sự kiện">
+            <Tabs.ListContainer className="overflow-x-auto scrollbar-hide">
+              <Tabs.List aria-label="Chi tiết sự kiện" className="w-max min-w-full">
                 {TABS.map(tab => (
-                  <Tabs.Tab key={tab.id} id={tab.id} className={tab.id === 'info' ? 'lg:hidden' : ''}>
+                  <Tabs.Tab key={tab.id} id={tab.id} className={`text-xs sm:text-sm whitespace-nowrap${tab.id === 'info' ? ' lg:hidden' : ''}`}>
                     {tab.label}
                     <Tabs.Indicator />
                   </Tabs.Tab>
