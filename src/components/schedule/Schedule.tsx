@@ -1,5 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { animations } from '../../lib/animations';
 import { Trash2, Eye } from 'lucide-react';
 import {
   Button, Chip, Table,
@@ -75,15 +77,17 @@ function MiniAvatarGroup({ members }: { members: StaffRef[] }) {
   const extra = members.length - shown.length;
   return (
     <div className="flex items-center -space-x-1.5">
-      {shown.map(m => (
-        <div key={m.id} className="w-6 h-6 rounded-full bg-accent/10 ring-2 ring-background flex items-center justify-center">
+      {shown.map((m, i) => (
+        <motion.div key={m.id} {...animations.listItem(i)} whileHover={{ scale: 1.2, zIndex: 10 }} transition={{ duration: 0.15 }}
+          className="w-6 h-6 rounded-full bg-accent/10 ring-2 ring-background flex items-center justify-center">
           <span className="text-[9px] font-bold text-accent">{initials(m.name)}</span>
-        </div>
+        </motion.div>
       ))}
       {extra > 0 && (
-        <div className="w-6 h-6 rounded-full bg-default/80 ring-2 ring-background flex items-center justify-center">
+        <motion.div {...animations.listItem(shown.length)}
+          className="w-6 h-6 rounded-full bg-default/80 ring-2 ring-background flex items-center justify-center">
           <span className="text-[9px] font-semibold text-foreground/60">+{extra}</span>
-        </div>
+        </motion.div>
       )}
     </div>
   );

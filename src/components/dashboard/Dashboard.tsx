@@ -778,15 +778,17 @@ function StaffAvatarGroup({ members }: { members: StaffRef[] }) {
   const extra = members.length - shown.length;
   return (
     <div className="flex items-center -space-x-1.5">
-      {shown.map(m => (
-        <div key={m.id} className={`w-7 h-7 rounded-full bg-gradient-to-br ${avatarGradient(m.id)} ring-2 ring-background flex items-center justify-center shadow-sm`}>
+      {shown.map((m, i) => (
+        <motion.div key={m.id} {...animations.listItem(i)} whileHover={{ scale: 1.2, zIndex: 10 }} transition={{ duration: 0.15 }}
+          className={`w-7 h-7 rounded-full bg-gradient-to-br ${avatarGradient(m.id)} ring-2 ring-background flex items-center justify-center shadow-sm`}>
           <span className="text-[9px] font-bold text-white">{initials(m.name)}</span>
-        </div>
+        </motion.div>
       ))}
       {extra > 0 && (
-        <div className="w-7 h-7 rounded-full bg-default-200 dark:bg-default-700 ring-2 ring-background flex items-center justify-center">
+        <motion.div {...animations.listItem(shown.length)}
+          className="w-7 h-7 rounded-full bg-default-200 dark:bg-default-700 ring-2 ring-background flex items-center justify-center">
           <span className="text-[9px] font-semibold text-default-600 dark:text-default-300">+{extra}</span>
-        </div>
+        </motion.div>
       )}
     </div>
   );

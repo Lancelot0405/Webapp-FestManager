@@ -90,7 +90,7 @@ export default function HRGlobal() {
               onPress={() => navigate('/hr/' + s.id)}
               className="card-btn w-full h-auto justify-start rounded-none rounded-t-xl p-4 text-left group-hover:bg-accent/5 flex flex-col items-start gap-3"
             >
-              <Avatar className="size-11 transition-all duration-150 group-hover:ring-2 group-hover:ring-accent/40 group-hover:ring-offset-1 group-hover:ring-offset-surface">
+              <Avatar className="size-11 transition-all duration-200 group-hover:ring-2 group-hover:ring-accent/40 group-hover:ring-offset-1 group-hover:ring-offset-surface group-hover:scale-110">
                 <Avatar.Fallback className="bg-accent/10 text-accent text-sm font-bold">
                   {getInitials(s.name)}
                 </Avatar.Fallback>
