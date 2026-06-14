@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, useSpring } from 'framer-motion';
 import { Tabs } from '@heroui/react';
@@ -44,6 +44,7 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
   const location        = useLocation();
 
   const [hovered, setHovered] = useState<string | null>(null);
+  const spotRef = useRef<HTMLDivElement>(null);
   const pillStretch = useSpring(1, { stiffness: 420, damping: 24 });
   const pillShift   = useSpring(0, { stiffness: 420, damping: 28 });
 
@@ -71,6 +72,14 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
   const activeSegment = location.pathname.split('/')[1] || 'dashboard';
 
   const trackHover = (e: React.PointerEvent<HTMLElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const spot = spotRef.current;
+    if (spot) {
+      spot.style.setProperty('--spot-x', `${e.clientX - rect.left}px`);
+      spot.style.setProperty('--spot-y', `${e.clientY - rect.top}px`);
+      spot.style.opacity = '1';
+    }
+
     const el  = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
     const tab = el?.closest('[data-navtab]') as HTMLElement | null;
     setHovered(tab?.dataset.navtab ?? null);
@@ -89,6 +98,7 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
     setHovered(null);
     pillStretch.set(1);
     pillShift.set(0);
+    if (spotRef.current) spotRef.current.style.opacity = '0';
   };
 
   return (
@@ -108,7 +118,7 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
           className="w-full"
         >
           <Tabs.ListContainer
-            className="w-full rounded-full p-1.5 border shadow-lg"
+            className="relative overflow-hidden w-full rounded-full p-1.5 border shadow-lg"
             style={{
               WebkitBackdropFilter: 'blur(25px)',
               backdropFilter: 'blur(25px)',
@@ -120,6 +130,15 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
             onPointerLeave={clearHover}
             onPointerCancel={clearHover}
           >
+            <div
+              ref={spotRef}
+              aria-hidden
+              className="pointer-events-none absolute inset-0 rounded-full opacity-0 transition-opacity duration-300"
+              style={{
+                background:
+                  'radial-gradient(130px circle at var(--spot-x, 50%) var(--spot-y, 50%), color-mix(in oklch, var(--accent) 24%, transparent), transparent 70%)',
+              }}
+            />
             <Tabs.List
               aria-label="Navigation"
               className="relative w-full flex justify-around items-center gap-0.5 !bg-transparent !p-0 !shadow-none"
