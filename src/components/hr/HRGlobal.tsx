@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, User, Trash2, ShieldCheck, Check, X } from 'lucide-react';
-import { Button, Card, Chip, ScrollShadow } from '@heroui/react';
+import { Plus, Trash2, ShieldCheck, Check, X } from 'lucide-react';
+import { Avatar, Button, Card, Chip, ScrollShadow } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
@@ -68,49 +68,57 @@ export default function HRGlobal() {
   const permanent = filtered.filter(s => s.staffType !== 'part-time');
   const partTime  = filtered.filter(s => s.staffType === 'part-time');
 
+  const getInitials = (name: string) =>
+    name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+
   const renderList = (list: StaffMember[]) => (
     <ScrollShadow className="max-h-[60vh]">
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 items-start">
-      {list.map(s => (
-        <Card
-          key={s.id}
-          className="group overflow-hidden flex flex-row items-stretch transition-all duration-150 hover:border-accent/40 hover:shadow-md active:scale-[0.99] p-0 cursor-pointer"
-        >
-          <Button
-            variant="ghost"
-            onPress={() => navigate('/hr/' + s.id)}
-            className="card-btn flex-1 h-auto min-w-0 justify-start rounded-none p-4 text-left hover:bg-accent/5 group-hover:bg-accent/5"
+      <div className="grid grid-cols-2 gap-3">
+        {list.map(s => (
+          <Card
+            key={s.id}
+            className="group overflow-hidden transition-all duration-150 hover:border-accent/40 hover:shadow-md active:scale-[0.99] p-0 gap-0"
           >
-            <div className="flex w-full items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0 transition-colors duration-150 group-hover:bg-accent/20">
-                <User size={18} className="text-accent" />
+            {/* Main clickable area */}
+            <Button
+              variant="ghost"
+              onPress={() => navigate('/hr/' + s.id)}
+              className="card-btn w-full h-auto justify-start rounded-none rounded-t-xl p-4 text-left group-hover:bg-accent/5 flex flex-col items-start gap-3"
+            >
+              <Avatar className="size-11 transition-all duration-150 group-hover:ring-2 group-hover:ring-accent/40 group-hover:ring-offset-1 group-hover:ring-offset-surface">
+                <Avatar.Fallback className="bg-accent/10 text-accent text-sm font-bold">
+                  {getInitials(s.name)}
+                </Avatar.Fallback>
+              </Avatar>
+              <div className="w-full min-w-0">
+                <p className="font-semibold text-foreground text-sm leading-tight transition-colors duration-150 group-hover:text-accent truncate">
+                  {s.name}
+                </p>
+                <p className="text-xs text-muted mt-0.5 truncate">{s.city || '—'}</p>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-foreground transition-colors duration-150 group-hover:text-accent">{s.name}</p>
-                <p className="text-xs text-muted">{s.city}</p>
-              </div>
-              <div className="text-right shrink-0">
+            </Button>
+
+            {/* Footer: stats + delete */}
+            <div className="border-t border-separator group-hover:border-accent/20 transition-colors duration-150 px-4 py-2.5 flex items-center justify-between">
+              <div>
                 <p className="text-xs text-muted">{eventCountMap.get(s.id) ?? 0} sự kiện</p>
                 <p className="text-xs text-muted">{s.contracts.length} hợp đồng</p>
               </div>
+              {isAdmin && (
+                <Button
+                  isIconOnly
+                  variant="ghost"
+                  size="sm"
+                  onPress={e => handleDelete(e as unknown as React.MouseEvent, s.id, s.name)}
+                  className="text-muted hover:text-danger hover:bg-danger/10 rounded-lg h-auto p-1.5 transition-colors"
+                >
+                  <Trash2 size={14} />
+                </Button>
+              )}
             </div>
-          </Button>
-          {isAdmin && (
-            <>
-              <div className="w-[1px] bg-separator group-hover:bg-accent/20 shrink-0 transition-colors duration-150" />
-              <Button
-                isIconOnly
-                variant="ghost"
-                onPress={e => handleDelete(e as unknown as React.MouseEvent, s.id, s.name)}
-                className="px-3 text-muted hover:text-danger hover:bg-danger/10 rounded-none rounded-r-xl h-auto transition-colors"
-              >
-                <Trash2 size={15} />
-              </Button>
-            </>
-          )}
-        </Card>
-      ))}
-    </div>
+          </Card>
+        ))}
+      </div>
     </ScrollShadow>
   );
 
