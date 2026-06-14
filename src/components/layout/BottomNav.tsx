@@ -7,7 +7,6 @@ import {
   Package,
   DollarSign,
   Users,
-  User,
   Building2,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -19,28 +18,28 @@ interface BottomNavProps {
 }
 
 const ADMIN_TABS = [
-  { path: 'dashboard', icon: (c: boolean) => <LayoutDashboard size={c ? 18 : 20} />, label: 'Tổng quan'  },
-  { path: 'schedule',  icon: (c: boolean) => <Calendar        size={c ? 18 : 20} />, label: 'Lịch trình' },
-  { path: 'inventory', icon: (c: boolean) => <Package         size={c ? 18 : 20} />, label: 'Kho hàng'   },
-  { path: 'finance',   icon: (c: boolean) => <DollarSign      size={c ? 18 : 20} />, label: 'Tài chính'  },
-  { path: 'hr',        icon: (c: boolean) => <Users           size={c ? 18 : 20} />, label: 'Nhân sự'    },
-  { path: 'clients',   icon: (c: boolean) => <Building2       size={c ? 18 : 20} />, label: 'Khách hàng' },
-  { path: 'profile',   icon: (c: boolean) => <User            size={c ? 18 : 20} />, label: 'Hồ sơ'      },
+  { path: 'dashboard', icon: <LayoutDashboard size={19} />, label: 'Tổng quan'  },
+  { path: 'schedule',  icon: <Calendar        size={19} />, label: 'Lịch trình' },
+  { path: 'inventory', icon: <Package         size={19} />, label: 'Kho hàng'   },
+  { path: 'finance',   icon: <DollarSign      size={19} />, label: 'Tài chính'  },
+  { path: 'hr',        icon: <Users           size={19} />, label: 'Nhân sự'    },
+  { path: 'clients',   icon: <Building2       size={19} />, label: 'Khách hàng' },
+  { path: 'profile',   icon: null,                          label: 'Hồ sơ'      },
 ];
 
 const MANAGER_TABS = [
-  { path: 'dashboard', icon: (c: boolean) => <LayoutDashboard size={c ? 18 : 20} />, label: 'Tổng quan'  },
-  { path: 'schedule',  icon: (c: boolean) => <Calendar        size={c ? 18 : 20} />, label: 'Lịch trình' },
-  { path: 'inventory', icon: (c: boolean) => <Package         size={c ? 18 : 20} />, label: 'Kho hàng'   },
-  { path: 'hr',        icon: (c: boolean) => <Users           size={c ? 18 : 20} />, label: 'Nhân sự'    },
-  { path: 'profile',   icon: (c: boolean) => <User            size={c ? 18 : 20} />, label: 'Hồ sơ'      },
+  { path: 'dashboard', icon: <LayoutDashboard size={19} />, label: 'Tổng quan'  },
+  { path: 'schedule',  icon: <Calendar        size={19} />, label: 'Lịch trình' },
+  { path: 'inventory', icon: <Package         size={19} />, label: 'Kho hàng'   },
+  { path: 'hr',        icon: <Users           size={19} />, label: 'Nhân sự'    },
+  { path: 'profile',   icon: null,                          label: 'Hồ sơ'      },
 ];
 
 const STAFF_TABS = [
-  { path: 'dashboard', icon: (c: boolean) => <LayoutDashboard size={c ? 18 : 20} />, label: 'Tổng quan'  },
-  { path: 'schedule',  icon: (c: boolean) => <Calendar        size={c ? 18 : 20} />, label: 'Lịch trình' },
-  { path: 'inventory', icon: (c: boolean) => <Package         size={c ? 18 : 20} />, label: 'Kho hàng'   },
-  { path: 'profile',   icon: (c: boolean) => <User            size={c ? 18 : 20} />, label: 'Hồ sơ'      },
+  { path: 'dashboard', icon: <LayoutDashboard size={19} />, label: 'Tổng quan'  },
+  { path: 'schedule',  icon: <Calendar        size={19} />, label: 'Lịch trình' },
+  { path: 'inventory', icon: <Package         size={19} />, label: 'Kho hàng'   },
+  { path: 'profile',   icon: null,                          label: 'Hồ sơ'      },
 ];
 
 export default function BottomNav({ navVisible = true, onOpenSheet, notifCount = 0 }: BottomNavProps) {
@@ -60,21 +59,16 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
       });
     };
     vv.addEventListener('resize', handler);
-    return () => {
-      vv.removeEventListener('resize', handler);
-      cancelAnimationFrame(rafId);
-    };
+    return () => { vv.removeEventListener('resize', handler); cancelAnimationFrame(rafId); };
   }, []);
 
   if (!currentUser || keyboardOpen) return null;
 
-  const tabs    = currentUser.role === 'admin'   ? ADMIN_TABS
-               : currentUser.role === 'manager' ? MANAGER_TABS
-               : STAFF_TABS;
-  const compact = tabs.length >= 6;
+  const tabs = currentUser.role === 'admin'   ? ADMIN_TABS
+             : currentUser.role === 'manager' ? MANAGER_TABS
+             : STAFF_TABS;
 
-  const initials = currentUser?.name.trim().split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || '';
-
+  const initials = currentUser.name.trim().split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || '';
   const activeSegment = location.pathname.split('/')[1] || 'dashboard';
 
   return (
@@ -88,56 +82,58 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
       <Tabs
         selectedKey={activeSegment}
         onSelectionChange={(key) => {
-          if (key === 'profile') {
-            onOpenSheet?.();
-          } else {
-            navigate('/' + key.toString());
-          }
+          if (key === 'profile') { onOpenSheet?.(); }
+          else { navigate('/' + key.toString()); }
         }}
         className="w-full"
       >
-        <Tabs.ListContainer
-          className="w-full bg-surface/75 border border-separator/60 rounded-[28px] shadow-lg dark:shadow-black/40 p-1.5 backdrop-blur-lg"
-          style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
-        >
-          <Tabs.List aria-label="Navigation" className="w-full flex justify-around items-center gap-1 !bg-transparent !p-0 !shadow-none">
-            {tabs.map(({ path, icon, label }) => {
-              const isActive = activeSegment === path;
+        <Tabs.ListContainer className="w-full bg-zinc-900 dark:bg-zinc-800 rounded-full shadow-xl border border-white/5 p-1.5">
+          <Tabs.List
+            aria-label="Navigation"
+            className="w-full flex justify-around items-center gap-0.5 !bg-transparent !p-0 !shadow-none"
+          >
+            {tabs.map(({ path, label }) => {
+              const tab = ADMIN_TABS.find(t => t.path === path) ?? tabs.find(t => t.path === path)!;
+              const isActive  = activeSegment === path;
               const isProfile = path === 'profile';
               return (
                 <Tabs.Tab
                   key={path}
                   id={path}
-                  className="flex-1 flex flex-col items-center justify-center py-2 h-auto min-w-0 rounded-[20px] cursor-pointer transition-all duration-200 relative group select-none outline-none data-[selected=false]:hover:bg-default/40 data-[selected=false]:active:bg-default/60"
+                  className={`
+                    flex items-center justify-center h-auto min-w-0 rounded-full cursor-pointer
+                    outline-none select-none transition-all duration-300 ease-out
+                    ${isActive ? 'bg-white/15 px-3.5 py-2.5' : 'px-3 py-2.5 hover:bg-white/8 active:bg-white/12'}
+                  `}
                 >
-                  <div className="flex flex-col items-center gap-0.5 z-10 relative">
-                    <span className={`block transition-colors duration-150 ${
-                      isActive ? 'text-white' : 'text-muted group-hover:text-foreground/90'
-                    }`}>
+                  <div className="flex items-center gap-2 overflow-hidden">
+                    {/* Icon */}
+                    <span className={`shrink-0 transition-colors duration-200 ${isActive ? 'text-white' : 'text-zinc-500 dark:text-zinc-400'}`}>
                       {isProfile ? (
                         <div className="relative">
-                          <div className={`rounded-full accent-gradient flex items-center justify-center text-white font-bold transition-transform group-active:scale-95 shadow-sm ${
-                            compact ? 'w-5.5 h-5.5 text-[9px]' : 'w-6 h-6 text-[10px]'
-                          }`}>
+                          <div className="w-5 h-5 rounded-full accent-gradient flex items-center justify-center text-white text-[9px] font-bold">
                             {initials}
                           </div>
                           {notifCount > 0 && (
-                            <span className="absolute -top-1 -right-1.5 w-3.5 h-3.5 bg-danger text-white text-[8px] font-bold rounded-full flex items-center justify-center border border-surface">
+                            <span className="absolute -top-0.5 -right-1 w-3 h-3 bg-danger text-white text-[7px] font-bold rounded-full flex items-center justify-center border border-zinc-900">
                               {notifCount > 9 ? '9+' : notifCount}
                             </span>
                           )}
                         </div>
                       ) : (
-                        icon(compact)
+                        tab.icon
                       )}
                     </span>
-                    <span className={`leading-none font-semibold transition-colors duration-150 ${
-                      compact ? 'text-[9px]' : 'text-[10px]'
-                    } ${isActive ? 'text-white' : 'text-muted group-hover:text-foreground/90'}`}>
+
+                    {/* Label — only visible when active */}
+                    <span
+                      className={`text-xs font-semibold text-white whitespace-nowrap transition-all duration-300 ease-out ${
+                        isActive ? 'max-w-[90px] opacity-100' : 'max-w-0 opacity-0'
+                      }`}
+                    >
                       {label}
                     </span>
                   </div>
-                  <Tabs.Indicator className="bg-accent rounded-[20px]" />
                 </Tabs.Tab>
               );
             })}
