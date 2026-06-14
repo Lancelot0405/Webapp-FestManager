@@ -88,7 +88,16 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
         }}
         className="w-full"
       >
-        <Tabs.ListContainer className="w-full rounded-full p-1.5 bg-white/80 dark:bg-zinc-900/80 border border-white/60 dark:border-white/10 shadow-lg shadow-black/10 dark:shadow-black/40" style={{ WebkitBackdropFilter: 'blur(25px)', backdropFilter: 'blur(25px)' }}>
+        <Tabs.ListContainer
+          className="w-full rounded-full p-1.5 border shadow-lg"
+          style={{
+            WebkitBackdropFilter: 'blur(25px)',
+            backdropFilter: 'blur(25px)',
+            backgroundColor: 'color-mix(in oklch, var(--surface) 85%, transparent)',
+            borderColor: 'color-mix(in oklch, var(--surface-foreground) 10%, transparent)',
+            boxShadow: '0 8px 32px color-mix(in oklch, var(--foreground) 8%, transparent)',
+          }}
+        >
           <Tabs.List
             aria-label="Navigation"
             className="w-full flex justify-around items-center gap-0.5 !bg-transparent !p-0 !shadow-none"

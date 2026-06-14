@@ -19,8 +19,13 @@ export default function TopBar({ onOpenSheet, navVisible = true, notifCount = 0 
 
   return (
     <header
-      className="md:hidden sticky z-10 transition-[top] duration-300 ease-out bg-white/80 dark:bg-zinc-900/80 border-b border-separator"
-      style={{ top: navVisible ? 0 : '-3.75rem', WebkitBackdropFilter: 'blur(25px)', backdropFilter: 'blur(25px)' }}
+      className="md:hidden sticky z-10 transition-[top] duration-300 ease-out border-b border-separator"
+      style={{
+        top: navVisible ? 0 : '-3.75rem',
+        WebkitBackdropFilter: 'blur(25px)',
+        backdropFilter: 'blur(25px)',
+        backgroundColor: 'color-mix(in oklch, var(--surface) 85%, transparent)',
+      }}
     >
       <div className="flex justify-between items-center h-14 px-4 pt-safe">
         <Button
