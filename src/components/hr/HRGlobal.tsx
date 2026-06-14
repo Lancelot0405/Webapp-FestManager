@@ -74,19 +74,19 @@ export default function HRGlobal() {
       {list.map(s => (
         <Card
           key={s.id}
-          className="group overflow-hidden flex flex-row items-stretch hover:shadow-lg active:scale-[0.99] transition-all duration-150 p-0"
+          className="group overflow-hidden flex flex-row items-stretch transition-all duration-150 hover:border-accent/40 hover:shadow-md active:scale-[0.99] p-0 cursor-pointer"
         >
           <Button
             variant="ghost"
             onPress={() => navigate('/hr/' + s.id)}
-            className="card-btn flex-1 h-auto min-w-0 justify-start rounded-none p-4 text-left hover:bg-default/50"
+            className="card-btn flex-1 h-auto min-w-0 justify-start rounded-none p-4 text-left hover:bg-accent/5 group-hover:bg-accent/5"
           >
             <div className="flex w-full items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0 transition-colors duration-150 group-hover:bg-accent/20">
                 <User size={18} className="text-accent" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-foreground">{s.name}</p>
+                <p className="font-semibold text-foreground transition-colors duration-150 group-hover:text-accent">{s.name}</p>
                 <p className="text-xs text-muted">{s.city}</p>
               </div>
               <div className="text-right shrink-0">
