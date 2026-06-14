@@ -8,7 +8,7 @@ import {
   AlertTriangle,
   ChevronRight,
   Bell, Eye, Sun, Moon, Smartphone,
-  Users, DollarSign, MapPin, Zap, TrendingUp,
+  DollarSign, MapPin, Zap, TrendingUp,
 } from 'lucide-react';
 import { Button, Card, Chip, Table, SearchField, Tabs, Spinner } from '@heroui/react';
 import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
@@ -274,28 +274,42 @@ function OverviewTab({ events, staff, inventory, navigate }: {
         />
       </div>
 
-      {/* Truy cập nhanh */}
-      <div className="space-y-3">
-        <h2 className="text-sm font-bold text-foreground uppercase tracking-wider">Truy cập nhanh</h2>
-        <div className="grid grid-cols-4 gap-2">
-          {([
-            { icon: <Calendar size={20} />, label: 'Lịch sự kiện', path: '/schedule' },
-            { icon: <Package  size={20} />, label: 'Kho hàng',     path: '/inventory' },
-            { icon: <DollarSign size={20} />, label: 'Tài chính',  path: '/finance' },
-            { icon: <Users    size={20} />, label: 'Nhân sự',      path: '/hr' },
-          ] as const).map(({ icon, label, path }) => (
-            <motion.button
-              key={path}
-              whileTap={{ scale: 0.93 }}
-              onClick={() => navigate(path)}
-              className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-surface border border-separator/60 hover:border-accent/30 hover:bg-accent/5 transition-colors cursor-pointer"
+      {/* Cảnh báo kho */}
+      {lowStock.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="flex items-center gap-1.5 text-xs font-bold text-muted uppercase tracking-widest">
+              <AlertTriangle size={13} className="text-danger" /> Cảnh báo kho ({lowStock.length})
+            </h2>
+            <button
+              onClick={() => navigate('/inventory')}
+              className="text-xs text-muted font-medium flex items-center gap-0.5 hover:text-foreground transition-colors"
             >
-              <span className="text-accent">{icon}</span>
-              <span className="text-[10px] font-medium text-muted text-center leading-tight">{label}</span>
-            </motion.button>
-          ))}
+              Xem thêm <ChevronRight size={12} />
+            </button>
+          </div>
+          <div className="space-y-2">
+            {lowStock.slice(0, 4).map((item, i) => (
+              <motion.div key={item.id} {...animations.listItem(i)} {...animations.press}>
+                <Card
+                  className="!p-0 border-danger/15"
+                  style={{ boxShadow: '0 0 14px 2px rgba(239,68,68,0.10)' }}
+                >
+                  <div className="flex items-center gap-3 p-3">
+                    <div className="w-8 h-8 rounded-xl bg-danger/10 border border-danger/20 flex items-center justify-center shrink-0">
+                      <Package size={14} className="text-danger" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate">{item.name}</p>
+                      <p className="text-xs text-danger">Còn {item.current} {item.unit} / Ngưỡng {item.threshold}</p>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Đang diễn ra */}
       {activeEvents.length > 0 && (
@@ -469,43 +483,6 @@ function OverviewTab({ events, staff, inventory, navigate }: {
         </div>
 
       </div>
-
-      {/* Cảnh báo kho */}
-      {lowStock.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="flex items-center gap-1.5 text-xs font-bold text-muted uppercase tracking-widest">
-              <AlertTriangle size={13} className="text-danger" /> Cảnh báo kho ({lowStock.length})
-            </h2>
-            <button
-              onClick={() => navigate('/inventory')}
-              className="text-xs text-muted font-medium flex items-center gap-0.5 hover:text-foreground transition-colors"
-            >
-              Xem thêm <ChevronRight size={12} />
-            </button>
-          </div>
-          <div className="space-y-2">
-            {lowStock.slice(0, 4).map((item, i) => (
-              <motion.div key={item.id} {...animations.listItem(i)} {...animations.press}>
-                <Card
-                  className="!p-0 border-danger/15"
-                  style={{ boxShadow: '0 0 14px 2px rgba(239,68,68,0.10)' }}
-                >
-                  <div className="flex items-center gap-3 p-3">
-                    <div className="w-8 h-8 rounded-xl bg-danger/10 border border-danger/20 flex items-center justify-center shrink-0">
-                      <Package size={14} className="text-danger" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-foreground truncate">{item.name}</p>
-                      <p className="text-xs text-danger">Còn {item.current} {item.unit} / Ngưỡng {item.threshold}</p>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      )}
 
     </div>
   );
