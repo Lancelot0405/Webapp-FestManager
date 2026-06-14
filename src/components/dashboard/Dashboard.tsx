@@ -129,12 +129,12 @@ function AdminDashboard({ events, staff, inventory, currentUser, navigate }: {
 
   return (
     <div className="space-y-5">
-      {/* Greeting & Top Actions */}
+      {/* Greeting (desktop) & Top Actions */}
       <div className="flex items-center justify-between gap-2">
-        <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight truncate">
+        <h1 className="hidden md:block text-xl md:text-2xl font-bold text-foreground tracking-tight truncate">
           {greeting()}, {currentUser.name}
         </h1>
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center gap-1 shrink-0 ml-auto">
           {/* Theme toggle */}
           <Button
             variant="ghost" isIconOnly size="sm"
