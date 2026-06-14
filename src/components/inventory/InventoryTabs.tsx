@@ -59,8 +59,8 @@ export default function InventoryTabs({
         </span>
       </div>
 
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex gap-1.5 flex-wrap">
+      <div className="flex items-center gap-2">
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide flex-1 min-w-0">
           {([
             { id: 'food'      as SubTab, label: 'Kho thực phẩm',  count: countFor(mainTab, 'food')      },
             { id: 'equipment' as SubTab, label: 'Trang thiết bị', count: countFor(mainTab, 'equipment') },
@@ -73,7 +73,7 @@ export default function InventoryTabs({
                 onPress={() => onSubTabChange(id)}
                 variant={isActive ? 'primary' : 'ghost'}
                 size="sm"
-                className={`flex items-center gap-1.5 rounded-full ${isActive ? '' : 'border border-separator hover:border-accent/30'}`}
+                className={`flex items-center gap-1.5 rounded-full shrink-0 ${isActive ? '' : 'border border-separator hover:border-accent/30'}`}
               >
                 {id === 'history' && <History size={11} />}
                 {label}

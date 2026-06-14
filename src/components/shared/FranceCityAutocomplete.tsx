@@ -104,9 +104,9 @@ export default function FranceCityAutocomplete({ label = 'Nơi ở', value, onCh
           <Autocomplete.ClearButton />
           <Autocomplete.Indicator />
         </Autocomplete.Trigger>
-        <Autocomplete.Popover>
+        <Autocomplete.Popover className="max-h-64 overflow-y-auto">
           <Autocomplete.Filter filter={contains}>
-            <SearchField autoFocus name="city-search" variant="secondary">
+            <SearchField name="city-search" variant="secondary">
               <SearchField.Group>
                 <SearchField.SearchIcon />
                 <SearchField.Input placeholder="Tìm thành phố..." />

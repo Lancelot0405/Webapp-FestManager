@@ -52,12 +52,12 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
   return (
     <Modal isOpen onOpenChange={(open) => { if (!open) onClose(); }}>
       <Modal.Backdrop isDismissable>
-        <Modal.Container placement="center" size="md">
-          <Modal.Dialog aria-label="Thêm sự kiện mới">
-            <Modal.Header className="px-5 pt-5 pb-0">
+        <Modal.Container placement="bottom" size="md" className="sm:items-center">
+          <Modal.Dialog aria-label="Thêm sự kiện mới" className="max-h-[85dvh] flex flex-col rounded-t-2xl sm:rounded-2xl">
+            <Modal.Header className="px-5 pt-5 pb-0 shrink-0">
               <Modal.Heading className="text-base font-bold text-foreground">Thêm sự kiện mới</Modal.Heading>
             </Modal.Header>
-            <Modal.Body className="px-5 py-4">
+            <Modal.Body className="px-5 py-4 overflow-y-auto">
               <form id="add-event-form" onSubmit={handleSubmit(onSubmit)} className="space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Controller
@@ -117,7 +117,7 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
                 </div>
               </form>
             </Modal.Body>
-            <Modal.Footer className="px-5 pb-5 flex gap-2 justify-end">
+            <Modal.Footer className="px-5 pb-5 flex gap-2 justify-end shrink-0 border-t border-separator">
               <Button variant="ghost" onPress={onClose} className="rounded-xl">Hủy</Button>
               <Button
                 type="submit"
