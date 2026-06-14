@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs } from '@heroui/react';
@@ -48,6 +48,19 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
   const navigate        = useNavigate();
   const location        = useLocation();
 
+  const spotRef = useRef<HTMLDivElement>(null);
+  const moveSpot = (e: React.PointerEvent<HTMLElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const el = spotRef.current;
+    if (!el) return;
+    el.style.setProperty('--spot-x', `${e.clientX - rect.left}px`);
+    el.style.setProperty('--spot-y', `${e.clientY - rect.top}px`);
+    el.style.opacity = '1';
+  };
+  const hideSpot = () => {
+    if (spotRef.current) spotRef.current.style.opacity = '0';
+  };
+
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   useEffect(() => {
     const vv = window.visualViewport;
@@ -92,7 +105,7 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
           className="w-full"
         >
           <Tabs.ListContainer
-            className="w-full rounded-full p-1.5 border shadow-lg"
+            className="relative overflow-hidden w-full rounded-full p-1.5 border shadow-lg"
             style={{
               WebkitBackdropFilter: 'blur(25px)',
               backdropFilter: 'blur(25px)',
@@ -100,10 +113,22 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
               borderColor: 'color-mix(in oklch, var(--surface-foreground) 10%, transparent)',
               boxShadow: '0 8px 32px color-mix(in oklch, var(--foreground) 8%, transparent)',
             }}
+            onPointerMove={moveSpot}
+            onPointerLeave={hideSpot}
+            onPointerCancel={hideSpot}
           >
+            <div
+              ref={spotRef}
+              aria-hidden
+              className="pointer-events-none absolute inset-0 rounded-full opacity-0 transition-opacity duration-300"
+              style={{
+                background:
+                  'radial-gradient(130px circle at var(--spot-x, 50%) var(--spot-y, 50%), color-mix(in oklch, var(--accent) 24%, transparent), transparent 70%)',
+              }}
+            />
             <Tabs.List
               aria-label="Navigation"
-              className="w-full flex justify-around items-center gap-0.5 !bg-transparent !p-0 !shadow-none"
+              className="relative w-full flex justify-around items-center gap-0.5 !bg-transparent !p-0 !shadow-none"
             >
               {tabs.map(({ path, icon, label }) => {
                 const isActive  = activeSegment === path;
