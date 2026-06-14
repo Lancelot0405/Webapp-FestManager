@@ -30,7 +30,6 @@ export default function InventoryTabs({
           <Tabs.List aria-label="Khu vực kho">
             <Tabs.Tab id="restaurant"><span className="flex items-center gap-1.5"><Store size={14} />Nhà hàng</span></Tabs.Tab>
             <Tabs.Tab id="festival"><span className="flex items-center gap-1.5"><Tent size={14} />Festival</span></Tabs.Tab>
-            <Tabs.Indicator />
           </Tabs.List>
         </Tabs>
       )}
