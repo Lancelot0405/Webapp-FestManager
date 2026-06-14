@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, User, Trash2, ShieldCheck, Check, X } from 'lucide-react';
-import { Button, Card, ScrollShadow } from '@heroui/react';
+import { Button, Card, Chip, ScrollShadow } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
@@ -135,9 +135,9 @@ export default function HRGlobal() {
               <span className="text-sm font-semibold text-indigo-400">
                 Yêu cầu đăng ký quản lý
               </span>
-              <span className="bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 text-xs font-bold px-2 py-0.5 rounded-full">
+              <Chip size="sm" variant="soft" className="bg-indigo-500/20 text-indigo-400 border-indigo-500/30 font-bold">
                 {pendingRegistrations.length}
-              </span>
+              </Chip>
             </div>
             <span className="text-indigo-400/60 text-xs">{showPending ? '▲' : '▼'}</span>
           </Button>
@@ -223,9 +223,9 @@ export default function HRGlobal() {
           {permanent.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-accent bg-accent/10 px-2.5 py-1 rounded-full border border-accent/20">
+                <Chip size="sm" variant="soft" color="accent" className="font-semibold">
                   Nhân viên cứng · {permanent.length}
-                </span>
+                </Chip>
               </div>
               {renderList(permanent)}
             </div>
@@ -233,9 +233,9 @@ export default function HRGlobal() {
           {partTime.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-full border border-indigo-500/20">
+                <Chip size="sm" variant="soft" className="font-semibold bg-indigo-500/10 text-indigo-400 border-indigo-500/20">
                   Part-time · {partTime.length}
-                </span>
+                </Chip>
               </div>
               {renderList(partTime)}
             </div>

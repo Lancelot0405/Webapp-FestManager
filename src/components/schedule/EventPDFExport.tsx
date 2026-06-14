@@ -1,5 +1,6 @@
 import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from '@react-pdf/renderer';
 import { Download } from 'lucide-react';
+import { Button, Spinner } from '@heroui/react';
 import type { FestivalEvent } from '../../types';
 
 const styles = StyleSheet.create({
@@ -67,13 +68,16 @@ export default function EventPDFExport({ event }: Props) {
       fileName={`${event.name.replace(/\s+/g, '_')}_report.pdf`}
     >
       {({ loading }) => (
-        <button
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium border border-gray-200 bg-white text-red-600 hover:bg-red-50 transition-colors"
-          title="Xuat PDF"
+        <Button
+          size="sm"
+          variant="ghost"
+          isDisabled={loading}
+          className="flex items-center gap-1.5 rounded-xl border border-separator text-danger hover:bg-danger/8"
+          aria-label="Xuất PDF"
         >
-          <Download size={15} />
-          {loading ? '...' : 'PDF'}
-        </button>
+          {loading ? <Spinner size="sm" color="current" /> : <Download size={15} />}
+          PDF
+        </Button>
       )}
     </PDFDownloadLink>
   );

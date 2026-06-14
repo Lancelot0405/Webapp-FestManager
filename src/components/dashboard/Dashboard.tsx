@@ -8,7 +8,7 @@ import {
   RotateCw, Bell, Download,
   Eye,
 } from 'lucide-react';
-import { Button, Card, Chip, Table, SearchField } from '@heroui/react';
+import { Button, Card, Chip, Table, SearchField, Tabs } from '@heroui/react';
 import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
 import { useApp } from '../../context/AppContext';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
@@ -137,21 +137,13 @@ function AdminDashboard({ events, staff, inventory, currentUser, navigate }: {
       {/* Control Bar (Tabs & Filters) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-separator/50 pb-3">
         {/* Tab bar */}
-        <div className="inline-flex items-center gap-0.5 p-1 bg-default/50 border border-separator rounded-full">
-          {TABS.map(t => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className={`px-3.5 py-1 rounded-full text-[13px] font-semibold transition-all whitespace-nowrap ${
-                tab === t.key
-                  ? 'bg-surface dark:bg-white/15 text-foreground shadow-sm'
-                  : 'text-default-500 hover:text-foreground'
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
+        <Tabs selectedKey={tab} onSelectionChange={(key) => setTab(key as TabKey)}>
+          <Tabs.List aria-label="Dashboard tabs">
+            {TABS.map(t => (
+              <Tabs.Tab key={t.key} id={t.key}>{t.label}</Tabs.Tab>
+            ))}
+          </Tabs.List>
+        </Tabs>
 
         {/* Filters */}
         <div className="flex items-center gap-2">
@@ -481,13 +473,9 @@ function InventoryTab({ inventory, navigate }: {
                         <span className="text-sm text-muted">{item.threshold} {item.unit}</span>
                       </Table.Cell>
                       <Table.Cell className="py-2.5 px-1">
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
-                          item.current === 0
-                            ? 'bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400'
-                            : 'bg-amber-100 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400'
-                        }`}>
+                        <Chip size="sm" variant="soft" color={item.current === 0 ? 'danger' : 'warning'}>
                           {item.current === 0 ? 'Hết hàng' : 'Sắp hết'}
-                        </span>
+                        </Chip>
                       </Table.Cell>
                     </Table.Row>
                   ))}
@@ -723,13 +711,9 @@ function StatCard({ label, value, delta, onClick, icon, color }: StatCardProps) 
       <div className="flex items-baseline justify-between mt-3">
         <span className="text-2xl font-bold text-foreground tracking-tight">{value}</span>
         {delta != null && (
-          <span className={`inline-flex items-center gap-0.5 text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
-            delta >= 0
-              ? 'bg-emerald-500/10 text-emerald-500'
-              : 'bg-danger/10 text-danger'
-          }`}>
+          <Chip size="sm" variant="soft" color={delta >= 0 ? 'success' : 'danger'} className="shrink-0 text-[11px] font-bold">
             {delta >= 0 ? '↑' : '↓'} {Math.abs(delta).toFixed(1)}%
-          </span>
+          </Chip>
         )}
       </div>
     </Card>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Sun, Moon, Bell, BellPlus, Smartphone, X, Check, Info } from 'lucide-react';
-import { Button, Switch } from '@heroui/react';
+import { Button, Chip, Switch } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
 import { usePushNotifications } from '../../hooks/usePushNotifications';
@@ -64,15 +64,17 @@ export default function UserSheetContent({ onClose, onLogout, notifications, cle
         <div className="flex-1 min-w-0">
           <p className="font-bold text-sm text-foreground truncate">{currentUser.name}</p>
           <div className="flex items-center gap-2 mt-1">
-            <span className={`text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full shrink-0 ${roleBadgeStyle[currentUser.role]}`}>
+            <Chip size="sm" variant="soft" className={`shrink-0 text-[10px] font-bold uppercase tracking-wide ${roleBadgeStyle[currentUser.role]}`}>
               {roleLabel[currentUser.role]}
-            </span>
-            <button
-              onClick={() => { onClose(); navigate('/profile'); }}
-              className="text-xs font-semibold text-accent hover:underline cursor-pointer"
+            </Chip>
+            <Button
+              variant="ghost"
+              size="sm"
+              onPress={() => { onClose(); navigate('/profile'); }}
+              className="h-auto min-w-0 p-0 text-xs font-semibold text-accent hover:underline"
             >
               Xem hồ sơ →
-            </button>
+            </Button>
           </div>
         </div>
         <Button onPress={onClose} variant="ghost" isIconOnly size="sm" className="rounded-full text-muted shrink-0">

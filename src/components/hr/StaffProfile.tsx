@@ -1,7 +1,7 @@
 ﻿import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Plus, Upload, Image, X, Loader, Pencil, Check, CreditCard, ShieldCheck, KeyRound, Copy, CheckCheck, Building2 } from 'lucide-react';
-import { Button } from '@heroui/react';
+import { ArrowLeft, FileText, Plus, Upload, Image, X, Pencil, Check, CreditCard, ShieldCheck, KeyRound, Copy, CheckCheck, Building2 } from 'lucide-react';
+import { Button, Spinner } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
@@ -467,7 +467,7 @@ export default function StaffProfile() {
                   size="sm"
                   className="bg-warning text-white dark:text-foreground text-sm font-medium px-3 rounded-lg flex items-center gap-1"
                 >
-                  {pwLoading ? <Loader size={13} className="animate-spin" /> : <Check size={13} />}
+                  {pwLoading ? <Spinner size="sm" color="current" /> : <Check size={13} />}
                   Lưu
                 </Button>
               </form>
@@ -526,7 +526,7 @@ export default function StaffProfile() {
                 ? 'bg-default/50 text-muted'
                 : 'bg-default/50 text-foreground/80 hover:border-accent/30 hover:text-foreground'
             }`}>
-              {uploadingContract ? <Loader size={14} className="animate-spin" /> : <Upload size={14} />}
+              {uploadingContract ? <Spinner size="sm" color="current" /> : <Upload size={14} />}
               {uploadingContract ? 'Đang upload...' : 'Upload hợp đồng'}
               <input ref={contractFileRef} type="file" accept=".pdf,.jpg,.jpeg,.png,.webp"
                 className="hidden" disabled={uploadingContract} onChange={handleContractUpload} />
@@ -634,7 +634,7 @@ export default function StaffProfile() {
                 className="flex-1 bg-success text-white dark:text-foreground text-sm font-medium py-2 rounded-lg flex items-center justify-center gap-1.5"
                 size="sm"
               >
-                {uploadingExp && <Loader size={14} className="animate-spin" />}
+                {uploadingExp && <Spinner size="sm" color="current" />}
                 {uploadingExp ? 'Đang gửi...' : 'Gửi'}
               </Button>
               <Button
@@ -720,7 +720,7 @@ function DocCard({
             ? 'bg-default/50 text-muted'
             : 'bg-default/50 text-foreground/80 hover:text-foreground hover:border-accent/30'
         }`}>
-          {uploading ? <Loader size={12} className="animate-spin" /> : <Upload size={12} />}
+          {uploading ? <Spinner size="sm" color="current" /> : <Upload size={12} />}
           {uploading ? 'Uploading...' : doc ? 'Cập nhật' : 'Upload'}
           <input ref={fileRef} type="file" accept="image/*,.pdf" className="hidden"
             disabled={uploading} onChange={onUpload} />

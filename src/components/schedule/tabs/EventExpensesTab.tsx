@@ -1,6 +1,6 @@
 ﻿import { useState, useRef } from 'react';
-import { Plus, ChevronDown, ChevronUp, Upload, X, Loader, Image as ImageIcon } from 'lucide-react';
-import { Button } from '@heroui/react';
+import { Plus, ChevronDown, ChevronUp, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { Button, Spinner } from '@heroui/react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -269,7 +269,7 @@ export default function EventExpensesTab({ event }: Props) {
                             isDisabled={uploading}
                             className="flex-1 h-auto flex items-center justify-center gap-1.5 bg-accent text-white dark:text-foreground text-sm font-semibold py-2 rounded-xl disabled:opacity-60 transition-opacity"
                           >
-                            {uploading && <Loader size={13} className="animate-spin" />}
+                            {uploading && <Spinner size="sm" color="current" />}
                             {uploading ? 'Đang gửi...' : 'Gửi'}
                           </Button>
                           <Button

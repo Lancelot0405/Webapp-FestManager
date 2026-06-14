@@ -1,6 +1,6 @@
 ﻿import { useState, useRef } from 'react';
-import { ChevronDown, ChevronUp, Upload, Loader, FileText } from 'lucide-react';
-import { Button } from '@heroui/react';
+import { ChevronDown, ChevronUp, Upload, FileText } from 'lucide-react';
+import { Button, Spinner } from '@heroui/react';
 import DocThumbnail from '../../shared/DocThumbnail';
 import { useApp } from '../../../context/AppContext';
 import { useToast } from '../../../context/ToastContext';
@@ -136,7 +136,7 @@ export default function EventContractsTab({ event }: Props) {
                   <div className="px-4 py-3 bg-default/50 border-b border-separator">
                     <label className={`flex items-center gap-2 cursor-pointer w-fit ${isBusy ? 'opacity-60 pointer-events-none' : ''}`}>
                       {isBusy
-                        ? <Loader size={14} className="animate-spin text-accent" />
+                        ? <Spinner size="sm" color="accent" />
                         : <Upload size={14} className="text-accent" />
                       }
                       <span className="text-sm text-accent font-semibold">
