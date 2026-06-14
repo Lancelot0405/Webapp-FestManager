@@ -210,19 +210,6 @@ function AdminDashboard({ events, staff, inventory, currentUser, navigate }: {
 
 const MONTH_ABBR = ['JAN','FÉV','MAR','AVR','MAI','JUN','JUL','AOÛ','SEP','OCT','NOV','DÉC'];
 
-function DateBadge({ date, accent = false }: { date: string; accent?: boolean }) {
-  const [dd, mm] = date.split('-');
-  const label = MONTH_ABBR[Number(mm) - 1] ?? '';
-  return (
-    <div className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center shrink-0 ${
-      accent ? 'bg-accent/15 text-accent' : 'bg-default-100 dark:bg-default-200/20 text-foreground'
-    }`}>
-      <span className="text-base font-bold leading-tight">{dd}</span>
-      <span className="text-[9px] font-semibold uppercase" style={{ color: accent ? 'var(--accent)' : undefined, opacity: accent ? 0.7 : 0.45 }}>{label}</span>
-    </div>
-  );
-}
-
 // ─── Tab: Tổng quan ──────────────────────────────────────────────────────────
 
 function OverviewTab({ events, staff, inventory, navigate }: {
@@ -313,30 +300,54 @@ function OverviewTab({ events, staff, inventory, navigate }: {
       {/* Đang diễn ra */}
       {activeEvents.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-sm font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <Zap size={14} className="text-accent" /> Đang diễn ra
+          <h2 className="flex items-center gap-1.5 text-xs font-bold text-muted uppercase tracking-widest">
+            <Zap size={13} className="text-success" /> Đang diễn ra
           </h2>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {activeEvents.map((event, i) => (
-              <motion.div key={event.id} {...animations.listItem(i)}>
+              <motion.div key={event.id} {...animations.listItem(i)} {...animations.press}>
                 <Card
-                  className="p-4 flex items-center gap-3 cursor-pointer hover:border-accent/40 transition-colors"
-                  style={{ boxShadow: '0 0 16px 4px rgba(34,197,94,0.10)' }}
+                  className="p-4 cursor-pointer hover:border-success/30 transition-all"
+                  style={{ boxShadow: '0 0 20px 4px rgba(34,197,94,0.12)' }}
                   onClick={() => navigate('/schedule/' + event.id)}
                 >
-                  <DateBadge date={event.date} accent />
-                  <div className="flex-1 min-w-0 space-y-1">
-                    <p className="text-base font-bold text-foreground leading-tight truncate">{event.name}</p>
-                    <StatusBadge status={event.status} />
-                    <div className="flex items-center gap-1">
-                      <MapPin size={11} className="text-muted shrink-0" />
-                      <p className="text-xs text-muted truncate">{event.location}</p>
+                  <div className="flex items-center gap-4">
+                    {/* Date badge */}
+                    <div className="w-14 h-14 rounded-2xl bg-success/10 border border-success/20 flex flex-col items-center justify-center shrink-0">
+                      <span className="text-lg font-black text-success leading-none">{event.date.split('-')[0]}</span>
+                      <span className="text-[10px] font-semibold text-success/70 uppercase">{MONTH_ABBR[Number(event.date.split('-')[1]) - 1]}</span>
                     </div>
-                    {event.staff.length === 0 && (
-                      <p className="text-xs text-muted/50">Chưa có nhân viên</p>
-                    )}
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-base font-bold text-foreground truncate">{event.name}</p>
+                        <StatusBadge status={event.status} />
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-muted mt-1">
+                        <MapPin size={11} className="shrink-0" /> {event.location}
+                      </div>
+                      {event.staff.length === 0 ? (
+                        <p className="text-xs text-muted/50 mt-1.5">Chưa có nhân viên</p>
+                      ) : (
+                        <div className="flex items-center gap-1.5 mt-1.5">
+                          <div className="flex -space-x-1.5">
+                            {event.staff.slice(0, 5).map(m => (
+                              <div key={m.id} className={`w-5 h-5 rounded-full bg-gradient-to-br ${avatarGradient(m.id)} ring-2 ring-background flex items-center justify-center`}>
+                                <span className="text-[8px] font-bold text-white">{initials(m.name)}</span>
+                              </div>
+                            ))}
+                            {event.staff.length > 5 && (
+                              <div className="w-5 h-5 rounded-full bg-default-200 ring-2 ring-background flex items-center justify-center">
+                                <span className="text-[8px] font-semibold text-muted">+{event.staff.length - 5}</span>
+                              </div>
+                            )}
+                          </div>
+                          <span className="text-xs text-muted">{event.staff.length} nhân viên</span>
+                        </div>
+                      )}
+                    </div>
+                    <ChevronRight size={16} className="text-muted shrink-0" />
                   </div>
-                  <ChevronRight size={16} className="text-muted shrink-0" />
                 </Card>
               </motion.div>
             ))}
@@ -347,16 +358,16 @@ function OverviewTab({ events, staff, inventory, navigate }: {
       {/* Sự kiện sắp tới */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-bold text-foreground uppercase tracking-wider">Sự kiện sắp tới</h2>
+          <h2 className="text-xs font-bold text-muted uppercase tracking-widest">Sự kiện sắp tới</h2>
           <button
             onClick={() => navigate('/schedule')}
-            className="text-xs text-muted font-medium flex items-center gap-0.5"
+            className="text-xs text-muted font-medium flex items-center gap-0.5 hover:text-foreground transition-colors"
           >
             Xem thêm <ChevronRight size={12} />
           </button>
         </div>
         {upcomingEvents.length === 0 ? (
-          <Card className="py-8 text-center">
+          <Card className="py-8 flex flex-col items-center gap-2">
             <p className="text-sm text-muted">Không có sự kiện sắp tới</p>
           </Card>
         ) : (
@@ -365,22 +376,30 @@ function OverviewTab({ events, staff, inventory, navigate }: {
               .sort((a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime())
               .slice(0, 5)
               .map((event, i) => (
-              <motion.div key={event.id} {...animations.listItem(i)}>
+              <motion.div key={event.id} {...animations.listItem(i)} {...animations.press}>
                 <Card
-                  className="px-4 py-3 flex items-center gap-3 cursor-pointer hover:border-accent/30 transition-colors"
+                  className="p-3.5 cursor-pointer hover:border-accent/25 hover:shadow-sm transition-all"
                   onClick={() => navigate('/schedule/' + event.id)}
                 >
-                  <DateBadge date={event.date} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-foreground truncate">{event.name}</p>
-                    <div className="flex items-center gap-1 mt-0.5">
-                      <MapPin size={10} className="text-muted/60 shrink-0" />
-                      <p className="text-xs text-muted truncate">{event.location}</p>
+                  <div className="flex items-center gap-3">
+                    {/* Date badge */}
+                    <div className="w-11 h-11 rounded-xl bg-default-100 dark:bg-default-200/20 border border-separator/60 flex flex-col items-center justify-center shrink-0">
+                      <span className="text-sm font-black text-foreground leading-none">{event.date.split('-')[0]}</span>
+                      <span className="text-[9px] font-bold text-muted uppercase">{MONTH_ABBR[Number(event.date.split('-')[1]) - 1]}</span>
                     </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-0.5 shrink-0">
-                    <span className="text-xs text-muted font-medium">{event.status}</span>
-                    <span className="text-xs text-muted/50">{event.staff.length} NV</span>
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate">{event.name}</p>
+                      <div className="flex items-center gap-1 text-[11px] text-muted mt-0.5">
+                        <MapPin size={10} className="shrink-0" />
+                        <span className="truncate">{event.location}</span>
+                      </div>
+                    </div>
+                    {/* Right: status + staff count */}
+                    <div className="flex flex-col items-end gap-1.5 shrink-0">
+                      <StatusBadge status={event.status} />
+                      <span className="text-[10px] text-muted">{event.staff.length} NV</span>
+                    </div>
                   </div>
                 </Card>
               </motion.div>
@@ -452,29 +471,29 @@ function OverviewTab({ events, staff, inventory, navigate }: {
       {lowStock.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
-              <AlertTriangle size={14} className="text-danger" /> Cảnh báo kho ({lowStock.length})
+            <h2 className="flex items-center gap-1.5 text-xs font-bold text-muted uppercase tracking-widest">
+              <AlertTriangle size={13} className="text-danger" /> Cảnh báo kho ({lowStock.length})
             </h2>
             <button
               onClick={() => navigate('/inventory')}
-              className="text-xs text-muted font-medium flex items-center gap-0.5"
+              className="text-xs text-muted font-medium flex items-center gap-0.5 hover:text-foreground transition-colors"
             >
               Xem thêm <ChevronRight size={12} />
             </button>
           </div>
-          <div
-            className="rounded-2xl p-3 space-y-2"
-            style={{ background: 'color-mix(in oklch, var(--surface) 92%, rgb(239 68 68))' }}
-          >
-            {lowStock.slice(0, 5).map((item, i) => (
-              <motion.div key={item.id} {...animations.listItem(i)}>
-                <Card className="px-4 py-3 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-danger/15 flex items-center justify-center shrink-0">
-                    <Package size={17} className="text-danger" />
+          <div className="space-y-2">
+            {lowStock.slice(0, 4).map((item, i) => (
+              <motion.div key={item.id} {...animations.listItem(i)} {...animations.press}>
+                <Card
+                  className="p-3 flex items-center gap-3 border-danger/15"
+                  style={{ boxShadow: '0 0 14px 2px rgba(239,68,68,0.10)' }}
+                >
+                  <div className="w-8 h-8 rounded-xl bg-danger/10 border border-danger/20 flex items-center justify-center shrink-0">
+                    <Package size={14} className="text-danger" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-foreground truncate">{item.name}</p>
-                    <p className="text-xs text-danger font-medium mt-0.5">Còn {item.current} {item.unit} / Ngưỡng {item.threshold}</p>
+                    <p className="text-sm font-semibold text-foreground truncate">{item.name}</p>
+                    <p className="text-xs text-danger">Còn {item.current} {item.unit} / Ngưỡng {item.threshold}</p>
                   </div>
                 </Card>
               </motion.div>
