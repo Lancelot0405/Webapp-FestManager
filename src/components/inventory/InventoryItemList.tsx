@@ -10,9 +10,10 @@ interface Props {
   onEditItem: (item: InventoryItem) => void;
   itemLabel: string;
   sectionLabel: string;
+  isFiltered?: boolean;
 }
 
-export default function InventoryItemList({ items, isLoading, onEditItem, itemLabel, sectionLabel }: Props) {
+export default function InventoryItemList({ items, isLoading, onEditItem, itemLabel, sectionLabel, isFiltered }: Props) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 items-start">
@@ -24,7 +25,9 @@ export default function InventoryItemList({ items, isLoading, onEditItem, itemLa
   if (items.length === 0) {
     return (
       <p className="text-sm text-muted text-center py-10">
-        Chưa có {itemLabel} nào trong kho {sectionLabel}
+        {isFiltered
+          ? `Không tìm thấy ${itemLabel} phù hợp`
+          : `Chưa có ${itemLabel} nào trong kho ${sectionLabel}`}
       </p>
     );
   }

@@ -1,4 +1,4 @@
-﻿import { useRef, useState, useCallback } from 'react';
+﻿import { useMemo, useRef, useState, useCallback } from 'react';
 import { Upload, FileSpreadsheet } from 'lucide-react';
 import { useFABRegister } from '../../hooks/useFABRegister';
 import { useApp } from '../../context/AppContext';
@@ -14,6 +14,7 @@ import InventoryTabs from './InventoryTabs';
 import InventoryItemList from './InventoryItemList';
 import InventoryItemDrawer from './InventoryItemDrawer';
 import InventoryAddModal from './InventoryAddModal';
+import InventoryToolbar, { type SortKey } from './InventoryToolbar';
 import { useInventoryFilters, getCategory } from './useInventoryFilters';
 
 export default function Inventory() {
@@ -26,9 +27,33 @@ export default function Inventory() {
   const [editingItem,  setEditingItem]  = useState<InventoryItem | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [importing,    setImporting]    = useState(false);
+  const [search,       setSearch]       = useState('');
+  const [sort,         setSort]         = useState<SortKey>('status');
   const importRef = useRef<HTMLInputElement>(null);
 
   const filters = useInventoryFilters(inventory, inventoryLogs, currentUser);
+
+  const lowCount = filters.filteredItems.filter(i => i.current < i.threshold).length;
+
+  const visibleItems = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const list = q
+      ? filters.filteredItems.filter(i => i.name.toLowerCase().includes(q))
+      : [...filters.filteredItems];
+
+    const rank = (i: InventoryItem) => {
+      if (i.current < i.threshold) return 0;
+      if (i.threshold > 0 && i.current < i.threshold * 1.5) return 1;
+      return 2;
+    };
+
+    switch (sort) {
+      case 'name':     return list.sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+      case 'qty-desc': return list.sort((a, b) => b.current - a.current);
+      case 'qty-asc':  return list.sort((a, b) => a.current - b.current);
+      default:         return list.sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name, 'vi'));
+    }
+  }, [filters.filteredItems, search, sort]);
 
   const openAddModal = useCallback(() => setShowAddModal(true), []);
   useFABRegister(filters.subTab !== 'history' ? openAddModal : null, 'Thêm vào kho');
@@ -94,13 +119,26 @@ export default function Inventory() {
         </div>
       )}
 
+      {filters.subTab !== 'history' && !isLoading && filters.filteredItems.length > 0 && (
+        <InventoryToolbar
+          total={filters.filteredItems.length}
+          lowCount={lowCount}
+          itemLabel={filters.itemLabel}
+          search={search}
+          onSearchChange={setSearch}
+          sort={sort}
+          onSortChange={setSort}
+        />
+      )}
+
       {filters.subTab !== 'history' && (
         <InventoryItemList
-          items={filters.filteredItems}
+          items={visibleItems}
           isLoading={isLoading}
           onEditItem={setEditingItem}
           itemLabel={filters.itemLabel}
           sectionLabel={filters.sectionLabel}
+          isFiltered={search.trim().length > 0}
         />
       )}
 
