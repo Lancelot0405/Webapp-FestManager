@@ -87,7 +87,7 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
         }}
         className="w-full"
       >
-        <Tabs.ListContainer className="w-full bg-zinc-900 dark:bg-zinc-800 rounded-full shadow-xl border border-white/5 p-1.5">
+        <Tabs.ListContainer className="w-full bg-white/85 dark:bg-zinc-900/90 rounded-full shadow-lg dark:shadow-black/40 border border-default/20 dark:border-white/5 p-1.5 backdrop-blur-xl">
           <Tabs.List
             aria-label="Navigation"
             className="w-full flex justify-around items-center gap-0.5 !bg-transparent !p-0 !shadow-none"
@@ -103,19 +103,25 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
                   className={`
                     flex items-center justify-center h-auto min-w-0 rounded-full cursor-pointer
                     outline-none select-none transition-all duration-300 ease-out
-                    ${isActive ? 'bg-white/15 px-3.5 py-2.5' : 'px-3 py-2.5 hover:bg-white/8 active:bg-white/12'}
+                    ${isActive
+                      ? 'bg-zinc-900 dark:bg-white/15 px-3.5 py-2.5'
+                      : 'px-3 py-2.5 hover:bg-default/40 active:bg-default/60'}
                   `}
                 >
                   <div className="flex items-center gap-2 overflow-hidden">
                     {/* Icon */}
-                    <span className={`shrink-0 transition-colors duration-200 ${isActive ? 'text-white' : 'text-zinc-500 dark:text-zinc-400'}`}>
+                    <span className={`shrink-0 transition-colors duration-200 ${
+                      isActive
+                        ? 'text-white'
+                        : 'text-foreground/40 dark:text-zinc-400'
+                    }`}>
                       {isProfile ? (
                         <div className="relative">
                           <div className="w-5 h-5 rounded-full accent-gradient flex items-center justify-center text-white text-[9px] font-bold">
                             {initials}
                           </div>
                           {notifCount > 0 && (
-                            <span className="absolute -top-0.5 -right-1 w-3 h-3 bg-danger text-white text-[7px] font-bold rounded-full flex items-center justify-center border border-zinc-900">
+                            <span className="absolute -top-0.5 -right-1 w-3 h-3 bg-danger text-white text-[7px] font-bold rounded-full flex items-center justify-center border-2 border-white dark:border-zinc-900">
                               {notifCount > 9 ? '9+' : notifCount}
                             </span>
                           )}
