@@ -12,7 +12,7 @@ export async function apiCreateInventoryItem(item: Omit<InventoryItem, 'id'>): P
     current: item.current,
     threshold: item.threshold,
     unit: item.unit,
-    category: item.category ?? 'food',
+    category: item.category ?? 'restaurant-food',
   }).select('id').single();
   if (error) throw new Error(error.message);
   return data.id as number;

@@ -120,6 +120,9 @@ create table if not exists public.inventory_items (
   current     numeric              not null default 0,
   threshold   numeric              not null default 0,
   unit        inventory_unit_enum  not null default 'kg',
+  category    text                 not null
+              check (category in ('restaurant-food', 'restaurant-equipment',
+                                  'festival-food', 'festival-equipment')),
   created_at  timestamptz          not null default now(),
   updated_at  timestamptz          not null default now()
 );
