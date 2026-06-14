@@ -20,7 +20,10 @@ interface Props { event: FestivalEvent; }
 
 export default function EventInventoryTab({ event }: Props) {
   const { currentUser } = useApp();
-  const { data: inventory = [] } = useInventoryQuery();
+  const { data: allInventory = [] } = useInventoryQuery();
+  const inventory = allInventory.filter(
+    i => i.category === 'festival-food' || i.category === 'festival-equipment'
+  );
   const setInventoryItemMutation = useSetInventoryItem();
   const updateInventoryUnitMutation = useUpdateInventoryUnit();
   const createInventoryItemMutation = useCreateInventoryItem();
@@ -62,7 +65,7 @@ export default function EventInventoryTab({ event }: Props) {
   const handleAddItem = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim() || !newCurrent) return;
-    createInventoryItemMutation.mutate({ name: newName.trim(), current: parseFloat(newCurrent), threshold: parseFloat(newThreshold) || 0, unit: newUnit });
+    createInventoryItemMutation.mutate({ name: newName.trim(), current: parseFloat(newCurrent), threshold: parseFloat(newThreshold) || 0, unit: newUnit, category: 'festival-food' });
     if (currentUser) {
       addInventoryLogMutation.mutate({
         id: Date.now(), itemId: Date.now() + 1, itemName: newName.trim(),
