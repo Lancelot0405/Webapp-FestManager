@@ -49,22 +49,31 @@ export default function InventoryAddModal({ isOpen, onClose, mainTab, subTab }: 
 
   const onSubmit = (data: FormValues) => {
     const category = getCategory(mainTab, subTab);
+    const user = currentUser;
     createMutation.mutate({
       name: data.name.trim(),
       current: parseFloat(data.current),
       threshold: parseFloat(data.threshold ?? '0') || 0,
       unit: data.unit as InventoryUnit,
       category,
+    }, {
+      onSuccess: (realItemId) => {
+        if (user) {
+          addLogMutation.mutate({
+            id: Date.now(),
+            itemId: realItemId,
+            itemName: data.name.trim(),
+            qty: parseFloat(data.current),
+            unit: data.unit as InventoryUnit,
+            action: 'created',
+            festivalId: null,
+            festivalName: mainTab === 'restaurant' ? 'Nhà hàng' : 'Festival',
+            timestamp: new Date().toLocaleString('vi-VN', { hour12: false }),
+            submittedBy: user.name,
+          });
+        }
+      },
     });
-    if (currentUser) {
-      addLogMutation.mutate({
-        id: Date.now(), itemId: Date.now() + 1, itemName: data.name.trim(),
-        qty: parseFloat(data.current), unit: data.unit as InventoryUnit, action: 'created',
-        festivalId: null, festivalName: mainTab === 'restaurant' ? 'Nhà hàng' : 'Festival',
-        timestamp: new Date().toLocaleString('vi-VN', { hour12: false }),
-        submittedBy: currentUser.name,
-      });
-    }
     onClose();
   };
 

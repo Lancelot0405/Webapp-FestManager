@@ -28,7 +28,10 @@ export function useInventoryFilters(
   inventoryLogs: InventoryLogEntry[],
   currentUser: CurrentUser | null
 ) {
-  const dept = currentUser?.role === 'admin' ? 'both' : (currentUser?.department ?? 'both');
+  const role = currentUser?.role;
+  const dept = (role === 'admin' || role === 'manager')
+    ? 'both'
+    : (currentUser?.department ?? 'restaurant');
   const canSeeRestaurant = dept === 'restaurant' || dept === 'both';
   const canSeeFestival   = dept === 'festival'   || dept === 'both';
   const defaultTab: MainTab = canSeeRestaurant ? 'restaurant' : 'festival';
