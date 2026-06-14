@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { User, Eye, EyeOff, Download, Smartphone, X, ShieldCheck, Store, Tent, UtensilsCrossed, Sun, Moon } from 'lucide-react';
 import { Alert, Button, Card, Form, Link, TextField, Label, Input } from '@heroui/react';
 import { useTheme } from '../../context/ThemeContext';
@@ -123,15 +124,31 @@ export default function LoginScreen() {
   return (
     <div className="w-full max-w-md flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-background">
       {/* Branding above the card */}
-      <div className="flex flex-col items-center mb-6 text-center select-none">
-        <div className="w-12 h-12 rounded-2xl bg-accent flex items-center justify-center shadow-lg mb-3 shrink-0">
+      <motion.div
+        className="flex flex-col items-center mb-6 text-center select-none"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+      >
+        <motion.div
+          className="w-12 h-12 rounded-2xl bg-accent flex items-center justify-center shadow-lg mb-3 shrink-0"
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
+        >
           <UtensilsCrossed size={22} className="text-white dark:text-foreground" />
-        </div>
+        </motion.div>
         <h1 className="text-2xl font-black tracking-tight text-foreground">FestManager</h1>
         <p className="text-xs text-muted mt-1">Hệ thống quản lý F&amp;B lưu động</p>
-      </div>
+      </motion.div>
 
       {/* Card */}
+      <motion.div
+        className="w-full"
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut', delay: 0.15 }}
+      >
       <Card className="w-full">
         <Card.Header className="flex flex-col items-start gap-1 p-6">
           <Card.Title className="text-xl font-bold text-foreground">
@@ -145,8 +162,16 @@ export default function LoginScreen() {
         </Card.Header>
 
         <Card.Content className="flex flex-col gap-4 py-2 px-6">
+          <AnimatePresence mode="wait" initial={false}>
           {/* ── LOGIN ── */}
           {mode === 'login' && (
+            <motion.div
+              key="login"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+            >
             <Form onSubmit={handleLogin} className="w-full flex flex-col gap-4">
               <TextField name="username" type="text" isRequired value={username} onChange={setUsername} className="w-full flex flex-col gap-1">
                 <Label>Tên đăng nhập</Label>
@@ -179,10 +204,18 @@ export default function LoginScreen() {
                 {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
               </Button>
             </Form>
+            </motion.div>
           )}
 
           {/* ── REGISTER ── */}
           {mode === 'register' && (
+            <motion.div
+              key="register"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+            >
             <Form onSubmit={handleRegister} className="w-full flex flex-col gap-4">
               <div className="bg-default/40 border border-separator rounded-xl px-3 py-2.5 text-xs text-foreground/80">
                 💡 Nếu admin đã tạo tài khoản cho bạn, hãy dùng thông tin do admin cung cấp.
@@ -214,8 +247,16 @@ export default function LoginScreen() {
               </div>
 
               {/* Department */}
+              <AnimatePresence>
               {registerRole === 'staff' && (
-                <div className="flex flex-col gap-1">
+                <motion.div
+                  className="flex flex-col gap-1"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
+                  style={{ overflow: 'hidden' }}
+                >
                   <Label>Bộ phận</Label>
                   <div className="grid grid-cols-2 gap-2">
                     <RoleBtn
@@ -232,8 +273,9 @@ export default function LoginScreen() {
                       activeColor="success"
                     />
                   </div>
-                </div>
+                </motion.div>
               )}
+              </AnimatePresence>
 
               <TextField name="username" type="text" isRequired value={username} onChange={val => setUsername(val.replace(/\s/g, ''))} className="w-full flex flex-col gap-1">
                 <Label>Tên đăng nhập</Label>
@@ -284,7 +326,9 @@ export default function LoginScreen() {
                 {loading ? 'Đang xử lý...' : registerRole === 'manager' ? 'Gửi yêu cầu đăng ký' : 'Tạo tài khoản'}
               </Button>
             </Form>
+            </motion.div>
           )}
+          </AnimatePresence>
         </Card.Content>
 
         {/* Footer with navigation link */}
@@ -306,6 +350,7 @@ export default function LoginScreen() {
           )}
         </Card.Footer>
       </Card>
+      </motion.div>
 
       {/* Utilities outside the card */}
       <div className="w-full flex items-center justify-center gap-3 mt-6">
@@ -374,17 +419,19 @@ function RoleBtn({ active, onPress, icon, label, activeColor = 'primary' }: {
   };
 
   return (
-    <Button
-      variant="ghost"
-      onPress={onPress}
-      className={`w-full h-auto min-w-0 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-1.5 active:scale-[0.97] border ${
-        active
-          ? activeStyles[activeColor]
-          : 'bg-default/50 text-foreground/80 border-separator hover:border-accent/40 hover:text-foreground'
-      }`}
-    >
-      {icon} {label}
-    </Button>
+    <motion.div whileTap={{ scale: 0.96 }} whileHover={{ scale: 1.02 }} transition={{ type: 'spring', stiffness: 400, damping: 20 }}>
+      <Button
+        variant="ghost"
+        onPress={onPress}
+        className={`w-full h-auto min-w-0 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-1.5 border ${
+          active
+            ? activeStyles[activeColor]
+            : 'bg-default/50 text-foreground/80 border-separator hover:border-accent/40 hover:text-foreground'
+        }`}
+      >
+        {icon} {label}
+      </Button>
+    </motion.div>
   );
 }
 
