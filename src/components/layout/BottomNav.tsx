@@ -87,13 +87,12 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
         }}
         className="w-full"
       >
-        <Tabs.ListContainer className="w-full bg-white/85 dark:bg-zinc-900/90 rounded-full shadow-lg dark:shadow-black/40 border border-default/20 dark:border-white/5 p-1.5 backdrop-blur-xl">
+        <Tabs.ListContainer className="w-full bg-zinc-900 dark:bg-zinc-800/95 rounded-full shadow-xl shadow-black/20 dark:shadow-black/50 border border-white/10 dark:border-white/10 p-1.5 backdrop-blur-xl">
           <Tabs.List
             aria-label="Navigation"
             className="w-full flex justify-around items-center gap-0.5 !bg-transparent !p-0 !shadow-none"
           >
-            {tabs.map(({ path, label }) => {
-              const tab = ADMIN_TABS.find(t => t.path === path) ?? tabs.find(t => t.path === path)!;
+            {tabs.map(({ path, icon, label }) => {
               const isActive  = activeSegment === path;
               const isProfile = path === 'profile';
               return (
@@ -104,16 +103,14 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
                     flex items-center justify-center h-auto min-w-0 rounded-full cursor-pointer
                     outline-none select-none transition-all duration-300 ease-out
                     ${isActive
-                      ? 'bg-zinc-900 dark:bg-white/15 px-3.5 py-2.5'
-                      : 'px-3 py-2.5 hover:bg-default/40 active:bg-default/60'}
+                      ? 'bg-white px-3.5 py-2.5 shadow-sm'
+                      : 'px-3 py-2.5 hover:bg-white/10 active:bg-white/15'}
                   `}
                 >
                   <div className="flex items-center gap-2 overflow-hidden">
                     {/* Icon */}
                     <span className={`shrink-0 transition-colors duration-200 ${
-                      isActive
-                        ? 'text-white'
-                        : 'text-foreground/40 dark:text-zinc-400'
+                      isActive ? 'text-accent' : 'text-zinc-400'
                     }`}>
                       {isProfile ? (
                         <div className="relative">
@@ -121,19 +118,19 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
                             {initials}
                           </div>
                           {notifCount > 0 && (
-                            <span className="absolute -top-0.5 -right-1 w-3 h-3 bg-danger text-white text-[7px] font-bold rounded-full flex items-center justify-center border-2 border-white dark:border-zinc-900">
+                            <span className="absolute -top-0.5 -right-1 w-3 h-3 bg-danger text-white text-[7px] font-bold rounded-full flex items-center justify-center border-2 border-zinc-900">
                               {notifCount > 9 ? '9+' : notifCount}
                             </span>
                           )}
                         </div>
                       ) : (
-                        tab.icon
+                        icon
                       )}
                     </span>
 
                     {/* Label — only visible when active */}
                     <span
-                      className={`text-xs font-semibold text-white whitespace-nowrap transition-all duration-300 ease-out ${
+                      className={`text-xs font-semibold text-zinc-900 whitespace-nowrap transition-all duration-300 ease-out ${
                         isActive ? 'max-w-[90px] opacity-100' : 'max-w-0 opacity-0'
                       }`}
                     >
