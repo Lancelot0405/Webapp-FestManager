@@ -1,5 +1,5 @@
 ﻿import { useMemo, useRef, useState, useCallback } from 'react';
-import { Upload, FileSpreadsheet } from 'lucide-react';
+import { FileSpreadsheet } from 'lucide-react';
 import { useFABRegister } from '../../hooks/useFABRegister';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
@@ -106,18 +106,10 @@ export default function Inventory() {
         canSeeFestival={filters.canSeeFestival}
         countFor={filters.countFor}
         sectionLogsCount={filters.sectionLogs.length}
-        sectionLabel={filters.sectionLabel}
         onMainTabChange={filters.handleMainTabChange}
         onSubTabChange={filters.handleSubTabChange}
         actionSlot={importButton}
       />
-
-      {filters.subTab !== 'history' && (
-        <div className="flex items-start gap-2 bg-success/5 border border-success/20 rounded-xl px-3 py-2 text-xs text-success">
-          <Upload size={11} className="shrink-0 mt-0.5" />
-          <span>File Excel: 2 cột <strong>Tên | Số lượng</strong> — đơn vị chỉnh trong app sau</span>
-        </div>
-      )}
 
       {filters.subTab !== 'history' && !isLoading && filters.filteredItems.length > 0 && (
         <InventoryToolbar

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
-import { ChevronRight, AlertTriangle, TrendingUp, Check } from 'lucide-react';
-import { Button, Card, Chip, ProgressBar } from '@heroui/react';
+import { Package, AlertTriangle, TrendingUp, Check } from 'lucide-react';
+import { Card } from '@heroui/react';
 import { animations } from '../../lib/animations';
 import type { InventoryItem } from '../../types';
 
@@ -13,67 +13,35 @@ export default function InventoryItemRow({ item, onEdit }: Props) {
   const isLow  = item.current < item.threshold;
   const isWarn = !isLow && item.threshold > 0 && item.current < item.threshold * 1.5;
 
-  const target = item.threshold > 0 ? item.threshold * 2 : item.current || 1;
-  const pct = Math.max(6, Math.min(100, Math.round((item.current / target) * 100)));
-
   const status = isLow
-    ? { label: 'Sắp hết', color: 'danger' as const, icon: AlertTriangle, text: 'text-danger', fill: 'bg-danger' }
+    ? { icon: AlertTriangle, box: 'bg-danger/10 border-danger/20 text-danger', sub: 'text-danger', border: 'border-danger/15', glow: '0 0 14px 2px rgba(239,68,68,0.10)' }
     : isWarn
-    ? { label: 'Cần chú ý', color: 'warning' as const, icon: TrendingUp, text: 'text-warning', fill: 'bg-warning' }
-    : { label: 'Còn đủ', color: 'success' as const, icon: Check, text: 'text-success', fill: 'bg-success' };
+    ? { icon: TrendingUp, box: 'bg-warning/10 border-warning/20 text-warning', sub: 'text-warning', border: 'border-warning/15', glow: 'none' }
+    : { icon: Check, box: 'bg-success/10 border-success/20 text-success', sub: 'text-muted', border: '', glow: 'none' };
 
-  const StatusIcon = status.icon;
+  const StatusIcon = isLow || isWarn ? status.icon : Package;
 
   return (
     <motion.div {...animations.press}>
       <Card
-        className={`group overflow-hidden transition-all cursor-pointer p-0 ${
-          isLow  ? 'border-danger/30 bg-danger/5' :
-          isWarn ? 'border-warning/30 bg-warning/5' : ''
-        }`}
+        className={`!p-0 cursor-pointer transition-all ${status.border}`}
+        style={{ boxShadow: status.glow }}
+        onClick={() => onEdit(item)}
       >
-        <Button
-          onPress={() => onEdit(item)}
-          variant="ghost"
-          aria-label={`Chỉnh sửa ${item.name}`}
-          className="card-btn w-full flex flex-col items-stretch gap-2.5 px-4 py-3 text-left h-auto rounded-none hover:bg-default/40 transition-all"
-        >
-          <div className="flex items-start justify-between gap-2">
-            <p className={`font-semibold text-sm leading-tight min-w-0 truncate ${isLow ? 'text-danger' : 'text-foreground'}`}>
+        <div className="flex items-center gap-2.5 p-2.5">
+          <div className={`w-8 h-8 rounded-xl border flex items-center justify-center shrink-0 ${status.box}`}>
+            <StatusIcon size={14} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className={`text-sm font-semibold truncate ${isLow ? 'text-danger' : 'text-foreground'}`}>
               {item.name}
             </p>
-            <div className="flex items-center gap-1 shrink-0">
-              <Chip size="sm" variant="soft" color={status.color} className="text-[10px] font-bold tracking-wide gap-0.5">
-                <StatusIcon size={11} />
-                {status.label}
-              </Chip>
-              <ChevronRight
-                size={15}
-                className="text-muted opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-150"
-              />
-            </div>
+            <p className={`text-xs truncate ${status.sub}`}>
+              Còn <span className="font-bold">{item.current}</span> {item.unit}
+              {item.threshold > 0 && <span className="text-muted"> / Ngưỡng {item.threshold}</span>}
+            </p>
           </div>
-
-          <div className="flex items-end justify-between gap-2">
-            <div className="flex items-baseline gap-1">
-              <span className={`text-2xl font-black tabular-nums leading-none ${status.text}`}>
-                {item.current}
-              </span>
-              <span className="text-xs text-muted">{item.unit}</span>
-            </div>
-            {item.threshold > 0 && (
-              <span className="text-[11px] text-muted">
-                Ngưỡng <span className="font-semibold text-foreground/70">{item.threshold}</span>
-              </span>
-            )}
-          </div>
-
-          <ProgressBar value={pct} aria-label={`Tồn kho ${item.name}`} size="sm">
-            <ProgressBar.Track className="bg-default/60 border border-separator">
-              <ProgressBar.Fill className={status.fill} />
-            </ProgressBar.Track>
-          </ProgressBar>
-        </Button>
+        </div>
       </Card>
     </motion.div>
   );

@@ -9,7 +9,6 @@ interface Props {
   canSeeFestival: boolean;
   countFor: (m: MainTab, s: 'food' | 'equipment') => number;
   sectionLogsCount: number;
-  sectionLabel: string;
   onMainTabChange: (tab: MainTab) => void;
   onSubTabChange: (tab: SubTab) => void;
   actionSlot?: React.ReactNode;
@@ -18,7 +17,7 @@ interface Props {
 export default function InventoryTabs({
   mainTab, subTab,
   canSeeRestaurant, canSeeFestival,
-  countFor, sectionLogsCount, sectionLabel,
+  countFor, sectionLogsCount,
   onMainTabChange, onSubTabChange,
   actionSlot,
 }: Props) {
@@ -44,20 +43,6 @@ export default function InventoryTabs({
           </Tabs.ListContainer>
         </Tabs>
       )}
-
-      <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border ${
-        mainTab === 'restaurant'
-          ? 'bg-accent/5 border-accent/20'
-          : 'bg-success/5 border-success/20'
-      }`}>
-        {mainTab === 'restaurant'
-          ? <Store size={13} className="text-accent" />
-          : <Tent  size={13} className="text-success" />
-        }
-        <span className={`text-xs font-bold ${mainTab === 'restaurant' ? 'text-accent' : 'text-success'}`}>
-          {sectionLabel}
-        </span>
-      </div>
 
       <div className="flex items-center gap-2">
         <div className="flex gap-1.5 overflow-x-auto scrollbar-hide flex-1 min-w-0">
