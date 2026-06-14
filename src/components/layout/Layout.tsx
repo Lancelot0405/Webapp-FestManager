@@ -86,7 +86,7 @@ export default function Layout() {
             className={`flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 ${
               isDetail
                 ? 'pt-[calc(env(safe-area-inset-top)+1.25rem)]'
-                : 'pt-[calc(env(safe-area-inset-top)+3.25rem)]'
+                : 'pt-[calc(env(safe-area-inset-top)+2.75rem)]'
             } md:pt-5 pb-24 md:pb-8 scroll-smooth-ios`}
           >
             <div className="max-w-5xl xl:max-w-7xl mx-auto w-full">
