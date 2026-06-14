@@ -77,6 +77,7 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
       style={{
         width: 'min(calc(100% - 24px), 480px)',
         transform: `translateX(-50%) translateY(${navVisible ? '0' : 'calc(100% + 2rem)'})`,
+        filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.12))',
       }}
     >
       <Tabs
@@ -87,7 +88,7 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
         }}
         className="w-full"
       >
-        <Tabs.ListContainer className="w-full bg-surface/60 dark:bg-zinc-900/55 rounded-full shadow-lg shadow-black/10 dark:shadow-black/40 border border-white/30 dark:border-white/10 p-1.5 backdrop-blur-2xl supports-[backdrop-filter]:bg-surface/50 dark:supports-[backdrop-filter]:bg-zinc-900/45">
+        <Tabs.ListContainer className="w-full rounded-full p-1.5 backdrop-blur-2xl bg-white/30 dark:bg-zinc-900/40 border border-white/50 dark:border-white/10 shadow-lg shadow-black/10 dark:shadow-black/40 supports-[backdrop-filter]:bg-white/20 dark:supports-[backdrop-filter]:bg-zinc-900/30" style={{ WebkitBackdropFilter: 'blur(24px)', backdropFilter: 'blur(24px)' }}>
           <Tabs.List
             aria-label="Navigation"
             className="w-full flex justify-around items-center gap-0.5 !bg-transparent !p-0 !shadow-none"
