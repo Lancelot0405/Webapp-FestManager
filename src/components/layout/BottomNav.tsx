@@ -87,7 +87,7 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
         }}
         className="w-full"
       >
-        <Tabs.ListContainer className="w-full bg-surface/85 dark:bg-zinc-900/90 rounded-full shadow-lg shadow-black/10 dark:shadow-black/50 border border-separator/70 dark:border-white/10 p-1.5 backdrop-blur-xl">
+        <Tabs.ListContainer className="w-full bg-surface/60 dark:bg-zinc-900/55 rounded-full shadow-lg shadow-black/10 dark:shadow-black/40 border border-white/30 dark:border-white/10 p-1.5 backdrop-blur-2xl supports-[backdrop-filter]:bg-surface/50 dark:supports-[backdrop-filter]:bg-zinc-900/45">
           <Tabs.List
             aria-label="Navigation"
             className="w-full flex justify-around items-center gap-0.5 !bg-transparent !p-0 !shadow-none"
@@ -101,15 +101,15 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
                   id={path}
                   aria-label={label}
                   className={`
-                    flex items-center justify-center h-auto min-w-0 rounded-full cursor-pointer
+                    group flex items-center justify-center h-auto min-w-0 rounded-full cursor-pointer
                     outline-none select-none transition-all duration-200 ease-out p-2.5
                     ${isActive
                       ? 'bg-accent shadow-sm'
-                      : 'hover:bg-default/50 active:bg-default/70'}
+                      : 'hover:bg-white hover:shadow-md active:scale-95'}
                   `}
                 >
                   <span className={`shrink-0 transition-colors duration-200 ${
-                    isActive ? 'text-white' : 'text-muted'
+                    isActive ? 'text-white' : 'text-muted group-hover:text-accent'
                   }`}>
                     {isProfile ? (
                       <div className="relative">
