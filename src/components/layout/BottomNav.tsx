@@ -77,53 +77,46 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
       className="fixed bottom-3 left-1/2 z-20 pb-safe"
       style={{ width: 'min(calc(100% - 24px), 480px)', transform: 'translateX(-50%)' }}
     >
-    <motion.nav
-      style={{ filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.12))' }}
-      initial={{ y: 80, opacity: 0 }}
-      animate={{ y: navVisible ? 0 : 'calc(100% + 2rem)', opacity: navVisible ? 1 : 0 }}
-      transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-    >
-      <Tabs
-        selectedKey={activeSegment}
-        onSelectionChange={(key) => {
-          if (key === 'profile') { onOpenSheet?.(); }
-          else { navigate('/' + key.toString()); }
-        }}
-        className="w-full"
+      <motion.div
+        initial={{ y: 80, opacity: 0 }}
+        animate={{ y: navVisible ? 0 : 'calc(100% + 2rem)', opacity: navVisible ? 1 : 0 }}
+        transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+        style={{ filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.12))' }}
       >
-        <Tabs.ListContainer
-          className="w-full rounded-full p-1.5 border shadow-lg"
-          style={{
-            WebkitBackdropFilter: 'blur(25px)',
-            backdropFilter: 'blur(25px)',
-            backgroundColor: 'color-mix(in oklch, var(--surface) 85%, transparent)',
-            borderColor: 'color-mix(in oklch, var(--surface-foreground) 10%, transparent)',
-            boxShadow: '0 8px 32px color-mix(in oklch, var(--foreground) 8%, transparent)',
+        <Tabs
+          selectedKey={activeSegment}
+          onSelectionChange={(key) => {
+            if (key === 'profile') { onOpenSheet?.(); }
+            else { navigate('/' + key.toString()); }
           }}
+          className="w-full"
         >
-          <Tabs.List
-            aria-label="Navigation"
-            className="w-full flex justify-around items-center gap-0.5 !bg-transparent !p-0 !shadow-none"
+          <Tabs.ListContainer
+            className="w-full rounded-full p-1.5 border shadow-lg"
+            style={{
+              WebkitBackdropFilter: 'blur(25px)',
+              backdropFilter: 'blur(25px)',
+              backgroundColor: 'color-mix(in oklch, var(--surface) 85%, transparent)',
+              borderColor: 'color-mix(in oklch, var(--surface-foreground) 10%, transparent)',
+              boxShadow: '0 8px 32px color-mix(in oklch, var(--foreground) 8%, transparent)',
+            }}
           >
-            {tabs.map(({ path, icon, label }, i) => {
-              const isActive  = activeSegment === path;
-              const isProfile = path === 'profile';
-              return (
-                <motion.div
-                  key={path}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.04, duration: 0.3, ease: 'easeOut' }}
-                >
+            <Tabs.List
+              aria-label="Navigation"
+              className="w-full flex justify-around items-center gap-0.5 !bg-transparent !p-0 !shadow-none"
+            >
+              {tabs.map(({ path, icon, label }) => {
+                const isActive  = activeSegment === path;
+                const isProfile = path === 'profile';
+                return (
                   <Tabs.Tab
+                    key={path}
                     id={path}
                     aria-label={label}
                     className={`
                       group flex items-center justify-center h-auto min-w-0 rounded-full cursor-pointer
                       outline-none select-none p-2.5
-                      ${isActive
-                        ? 'bg-accent shadow-sm'
-                        : 'hover:bg-white hover:shadow-md'}
+                      ${isActive ? 'bg-accent shadow-sm' : 'hover:bg-white/60 hover:shadow-md'}
                     `}
                   >
                     <span className={`shrink-0 transition-colors duration-200 ${
@@ -165,13 +158,12 @@ export default function BottomNav({ navVisible = true, onOpenSheet, notifCount =
                       )}
                     </span>
                   </Tabs.Tab>
-                </motion.div>
-              );
-            })}
-          </Tabs.List>
-        </Tabs.ListContainer>
-      </Tabs>
-    </motion.nav>
+                );
+              })}
+            </Tabs.List>
+          </Tabs.ListContainer>
+        </Tabs>
+      </motion.div>
     </div>
   );
 }
