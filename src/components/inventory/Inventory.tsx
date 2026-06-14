@@ -15,6 +15,7 @@ import InventoryItemList from './InventoryItemList';
 import InventoryItemDrawer from './InventoryItemDrawer';
 import InventoryAddModal from './InventoryAddModal';
 import InventoryToolbar, { type SortKey } from './InventoryToolbar';
+import InventorySummary from './InventorySummary';
 import { useInventoryFilters, getCategory } from './useInventoryFilters';
 
 export default function Inventory() {
@@ -109,12 +110,19 @@ export default function Inventory() {
         onMainTabChange={filters.handleMainTabChange}
         onSubTabChange={filters.handleSubTabChange}
         actionSlot={importButton}
+        summarySlot={
+          filters.subTab !== 'history' && !isLoading && filters.filteredItems.length > 0 ? (
+            <InventorySummary
+              total={filters.filteredItems.length}
+              lowCount={lowCount}
+              itemLabel={filters.itemLabel}
+            />
+          ) : null
+        }
       />
 
       {filters.subTab !== 'history' && !isLoading && filters.filteredItems.length > 0 && (
         <InventoryToolbar
-          total={filters.filteredItems.length}
-          lowCount={lowCount}
           itemLabel={filters.itemLabel}
           search={search}
           onSearchChange={setSearch}
