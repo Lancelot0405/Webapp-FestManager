@@ -104,7 +104,7 @@ export default function FranceCityAutocomplete({ label = 'Nơi ở', value, onCh
           <Autocomplete.ClearButton />
           <Autocomplete.Indicator />
         </Autocomplete.Trigger>
-        <Autocomplete.Popover className="max-h-64 overflow-y-auto">
+        <Autocomplete.Popover>
           <Autocomplete.Filter filter={contains}>
             <SearchField name="city-search" variant="secondary">
               <SearchField.Group>
@@ -113,22 +113,24 @@ export default function FranceCityAutocomplete({ label = 'Nơi ở', value, onCh
                 <SearchField.ClearButton />
               </SearchField.Group>
             </SearchField>
-            <ListBox renderEmptyState={() => <EmptyState>Không tìm thấy thành phố</EmptyState>}>
-              {FRANCE_CITIES.map((group, i) => (
-                <>
-                  <ListBox.Section key={group.section}>
-                    <Header>{group.section}</Header>
-                    {group.cities.map(city => (
-                      <ListBox.Item key={city.id} id={city.id} textValue={city.name}>
-                        {city.name}
-                        <ListBox.ItemIndicator />
-                      </ListBox.Item>
-                    ))}
-                  </ListBox.Section>
-                  {i < FRANCE_CITIES.length - 1 && <Separator key={`sep-${i}`} />}
-                </>
-              ))}
-            </ListBox>
+            <div className="max-h-52 overflow-y-auto">
+              <ListBox renderEmptyState={() => <EmptyState>Không tìm thấy thành phố</EmptyState>}>
+                {FRANCE_CITIES.map((group, i) => (
+                  <>
+                    <ListBox.Section key={group.section}>
+                      <Header>{group.section}</Header>
+                      {group.cities.map(city => (
+                        <ListBox.Item key={city.id} id={city.id} textValue={city.name}>
+                          {city.name}
+                          <ListBox.ItemIndicator />
+                        </ListBox.Item>
+                      ))}
+                    </ListBox.Section>
+                    {i < FRANCE_CITIES.length - 1 && <Separator key={`sep-${i}`} />}
+                  </>
+                ))}
+              </ListBox>
+            </div>
           </Autocomplete.Filter>
         </Autocomplete.Popover>
       </Autocomplete>
