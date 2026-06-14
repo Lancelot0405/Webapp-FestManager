@@ -110,6 +110,7 @@ export default function Layout() {
         </Button>
       )}
 
+      <AnimatePresence>
       {showUserSheet && (
         <UserSheet
           onClose={() => setShowUserSheet(false)}
@@ -119,6 +120,7 @@ export default function Layout() {
           clearOne={clearOne}
         />
       )}
+      </AnimatePresence>
     </div>
   );
 }

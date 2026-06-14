@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import UserSheetContent from './UserSheetContent';
 
 interface Notification { id: string; message: string; timestamp: string; type: string }
@@ -14,13 +15,23 @@ export default function UserSheet({ onClose, onLogout, notifications, clearAll, 
   return (
     <>
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm animate-fade-in md:hidden"
+      <motion.div
+        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
         onClick={onClose}
       />
 
-      {/* Bottom Sheet — mobile only */}
-      <div className="fixed inset-x-0 bottom-0 z-50 animate-slide-up md:hidden">
+      {/* Bottom Sheet */}
+      <motion.div
+        className="fixed inset-x-0 bottom-0 z-50 md:hidden"
+        initial={{ y: '100%' }}
+        animate={{ y: 0 }}
+        exit={{ y: '100%' }}
+        transition={{ type: 'spring', stiffness: 320, damping: 32 }}
+      >
         <div
           className="mx-auto max-w-md rounded-t-[2rem] overflow-hidden border border-separator shadow-lg dark:shadow-black/40 bg-surface/90"
           style={{ backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)' }}
@@ -38,7 +49,7 @@ export default function UserSheet({ onClose, onLogout, notifications, clearAll, 
             />
           </div>
         </div>
-      </div>
+      </motion.div>
     </>
   );
 }
