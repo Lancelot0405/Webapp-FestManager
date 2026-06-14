@@ -1,8 +1,8 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, MapPin, Users } from 'lucide-react';
+import { Plus, Trash2, Eye } from 'lucide-react';
 import {
-  Button, Card, Chip, ScrollShadow,
+  Button, Chip, Table,
   ToggleButtonGroup, ToggleButton,
 } from '@heroui/react';
 import { today, getLocalTimeZone, CalendarDate } from '@internationalized/date';
@@ -24,13 +24,6 @@ type RangeMode = 'day' | 'week' | 'month';
 const STATUS_FILTERS: StatusFilter[] = [
   'Tất cả', 'Sắp tới', 'Đang diễn ra', 'Đã hoàn thành', 'Lên kế hoạch',
 ];
-
-const STATUS_BORDER: Record<EventStatus, string> = {
-  'Lên kế hoạch': 'border-l-blue-400',
-  'Sắp tới':       'border-l-amber-400',
-  'Đang diễn ra':  'border-l-green-500',
-  'Đã hoàn thành': 'border-l-default-300',
-};
 
 function ddmmToCalendarDate(d: string): CalendarDate | null {
   if (!d) return null;
@@ -214,24 +207,78 @@ export default function Schedule() {
 
           {isLoading ? (
             <CardSkeleton count={3} />
-          ) : sorted.length === 0 ? (
-            <p className="text-sm text-foreground/50 text-center py-10">Chưa có sự kiện nào</p>
           ) : (
-            <ScrollShadow className="space-y-2">
-              {sorted.map(event => (
-                <EventCard
-                  key={event.id}
-                  event={event}
-                  isAdmin={isAdmin}
-                  onSelect={() => navigate('/schedule/' + event.id)}
-                  onDelete={() => {
-                    if (window.confirm(`Xóa sự kiện "${event.name}"?\nThao tác này không thể hoàn tác.`)) {
-                      deleteEventMutation.mutate(event.id);
-                    }
-                  }}
-                />
-              ))}
-            </ScrollShadow>
+            <Table>
+              <Table.ScrollContainer>
+                <Table.Content aria-label="Danh sách sự kiện">
+                  <Table.Header>
+                    <Table.Column isRowHeader className="text-xs font-medium text-default-500 py-3 pl-4 pr-3 bg-default-50 dark:bg-default-100/20">Sự kiện</Table.Column>
+                    <Table.Column className="text-xs font-medium text-default-500 py-3 px-3 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">Ngày</Table.Column>
+                    <Table.Column className="text-xs font-medium text-default-500 py-3 px-3 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">Địa điểm</Table.Column>
+                    <Table.Column className="text-xs font-medium text-default-500 py-3 px-3 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">Nhân viên</Table.Column>
+                    <Table.Column className="text-xs font-medium text-default-500 py-3 px-3 bg-default-50 dark:bg-default-100/20">Trạng thái</Table.Column>
+                    <Table.Column className="text-xs font-medium text-default-500 py-3 pr-4 pl-3 text-right bg-default-50 dark:bg-default-100/20">Hành động</Table.Column>
+                  </Table.Header>
+                  <Table.Body renderEmptyState={() => (
+                    <p className="text-sm text-foreground/50 text-center py-10">Chưa có sự kiện nào</p>
+                  )}>
+                    {sorted.map(event => {
+                      const dateDisplay = event.endDate && event.endDate !== event.date
+                        ? `${event.date} → ${event.endDate}`
+                        : event.date;
+                      return (
+                        <Table.Row key={event.id} id={String(event.id)} className="border-b border-default-100 dark:border-default-200/20 last:border-0">
+                          <Table.Cell className="py-3.5 pl-4 pr-3">
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold text-foreground truncate">{event.name}</p>
+                              <p className="text-xs text-default-400 truncate md:hidden">{dateDisplay} · {event.location}</p>
+                            </div>
+                          </Table.Cell>
+                          <Table.Cell className="py-3.5 px-3 hidden md:table-cell">
+                            <p className="text-sm text-default-500 whitespace-nowrap">{dateDisplay}</p>
+                          </Table.Cell>
+                          <Table.Cell className="py-3.5 px-3 hidden md:table-cell">
+                            <p className="text-sm text-default-500 truncate">{event.location}</p>
+                          </Table.Cell>
+                          <Table.Cell className="py-3.5 px-3 hidden md:table-cell">
+                            <MiniAvatarGroup members={event.staff} />
+                          </Table.Cell>
+                          <Table.Cell className="py-3.5 px-3">
+                            <StatusBadge status={event.status} />
+                          </Table.Cell>
+                          <Table.Cell className="py-3.5 pr-4 pl-3">
+                            <div className="flex items-center justify-end gap-1">
+                              <Button
+                                isIconOnly size="sm" variant="ghost"
+                                onPress={() => navigate('/schedule/' + event.id)}
+                                aria-label="Xem chi tiết"
+                                className="w-8 h-8 rounded-lg text-default-400 hover:text-foreground hover:bg-default-100"
+                              >
+                                <Eye size={14} />
+                              </Button>
+                              {isAdmin && (
+                                <Button
+                                  isIconOnly size="sm" variant="ghost"
+                                  onPress={() => {
+                                    if (window.confirm(`Xóa sự kiện "${event.name}"?\nThao tác này không thể hoàn tác.`)) {
+                                      deleteEventMutation.mutate(event.id);
+                                    }
+                                  }}
+                                  aria-label="Xóa sự kiện"
+                                  className="w-8 h-8 rounded-lg text-default-400 hover:text-danger hover:bg-danger/10"
+                                >
+                                  <Trash2 size={14} />
+                                </Button>
+                              )}
+                            </div>
+                          </Table.Cell>
+                        </Table.Row>
+                      );
+                    })}
+                  </Table.Body>
+                </Table.Content>
+              </Table.ScrollContainer>
+            </Table>
           )}
         </div>
       </div>
@@ -239,94 +286,3 @@ export default function Schedule() {
   );
 }
 
-function EventCard({ event, isAdmin, onSelect, onDelete }: {
-  event: FestivalEvent & { status: EventStatus };
-  isAdmin: boolean;
-  onSelect: () => void;
-  onDelete: () => void;
-}) {
-  const dateDisplay = event.endDate && event.endDate !== event.date
-    ? `${event.date} → ${event.endDate}`
-    : event.date;
-
-  const startXRef = useRef(0);
-  const [revealed, setRevealed] = useState(false);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    startXRef.current = e.touches[0].clientX;
-  };
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    const dx = startXRef.current - e.changedTouches[0].clientX;
-    if (dx > 60)  setRevealed(true);
-    if (dx < -30) setRevealed(false);
-  };
-
-  return (
-    <div className="relative overflow-hidden rounded-xl">
-      {/* Swipe-to-delete reveal layer (mobile only) */}
-      {isAdmin && (
-        <div className="md:hidden absolute inset-y-0 right-0 flex items-center bg-danger px-5 rounded-r-xl z-0">
-          <Button
-            isIconOnly variant="ghost" size="sm"
-            onPress={() => { setRevealed(false); onDelete(); }}
-            aria-label="Xóa sự kiện"
-            className="text-white hover:bg-white/20"
-          >
-            <Trash2 size={16} />
-          </Button>
-        </div>
-      )}
-
-      {/* Card sliding layer */}
-      <div
-        style={{ transform: revealed ? 'translateX(-72px)' : 'translateX(0)', transition: 'transform 0.22s ease' }}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-        onClick={revealed ? () => setRevealed(false) : undefined}
-      >
-        <Card className={`border-l-4 ${STATUS_BORDER[event.status]} shadow-sm hover:shadow-md hover:bg-default/30 dark:hover:bg-white/5 transition-all duration-150 rounded-xl`}>
-          <Card.Content className="p-0">
-            <div className="flex items-stretch">
-              <Button
-                variant="ghost"
-                onPress={!revealed ? onSelect : undefined}
-                className="flex-1 h-auto min-w-0 justify-start rounded-none rounded-r-none p-3 text-left hover:bg-transparent"
-              >
-                <div className="flex flex-col gap-1 w-full">
-                  <div className="flex items-center gap-2">
-                    <p className="font-semibold text-foreground truncate">{event.name}</p>
-                    <StatusBadge status={event.status} />
-                  </div>
-                  <div className="flex items-center gap-1 text-xs text-foreground/60">
-                    <MapPin size={11} className="flex-shrink-0" />
-                    <span className="truncate">{event.location}</span>
-                  </div>
-                  <p className="text-xs text-foreground/50">{dateDisplay}</p>
-                  <div className="flex items-center gap-2">
-                    <Users size={11} className="text-foreground/40 flex-shrink-0" />
-                    <MiniAvatarGroup members={event.staff} />
-                    {event.staff.length > 0 && (
-                      <span className="text-xs text-foreground/50">{event.staff.length} nhân viên</span>
-                    )}
-                  </div>
-                </div>
-              </Button>
-
-              {/* Desktop: always-visible delete button */}
-              {isAdmin && (
-                <Button
-                  isIconOnly variant="ghost"
-                  onPress={onDelete}
-                  aria-label="Xóa sự kiện"
-                  className="hidden md:flex h-auto rounded-none rounded-r-xl px-3 text-foreground/40 hover:text-danger hover:bg-danger/10 border-l border-separator transition-colors"
-                >
-                  <Trash2 size={15} />
-                </Button>
-              )}
-            </div>
-          </Card.Content>
-        </Card>
-      </div>
-    </div>
-  );
-}
