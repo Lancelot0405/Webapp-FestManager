@@ -659,62 +659,88 @@ function EventsTable({ events, navigate, title, emptyText }: {
         </SearchField>
       </div>
 
-      <Table>
-        <Table.ScrollContainer>
-          <Table.Content aria-label="Danh sách sự kiện">
-            <Table.Header>
-              <Table.Column isRowHeader className="text-xs font-medium text-default-500 py-3 pl-5 pr-4 bg-default-50 dark:bg-default-100/20">Sự kiện</Table.Column>
-              <Table.Column className="text-xs font-medium text-default-500 py-3 px-4 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">Ngày</Table.Column>
-              <Table.Column className="text-xs font-medium text-default-500 py-3 px-4 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">Địa điểm</Table.Column>
-              <Table.Column className="text-xs font-medium text-default-500 py-3 px-4 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">Nhân viên</Table.Column>
-              <Table.Column className="text-xs font-medium text-default-500 py-3 px-4 bg-default-50 dark:bg-default-100/20">Trạng thái</Table.Column>
-              <Table.Column className="text-xs font-medium text-default-500 py-3 pr-5 pl-4 text-right bg-default-50 dark:bg-default-100/20">Hành động</Table.Column>
-            </Table.Header>
-            <Table.Body renderEmptyState={() => (
-              <p className="text-sm text-muted text-center py-10">{emptyText}</p>
-            )}>
-              {sorted.map(event => (
-                <Table.Row
-                  key={event.id} id={String(event.id)}
-                  onAction={() => navigate('/schedule/' + event.id)}
-                  className="border-b border-default-100 dark:border-default-200/20 last:border-0 cursor-pointer hover:bg-default-100/50 dark:hover:bg-default-100/5 transition-colors"
-                >
-                  <Table.Cell className="py-3.5 pl-5 pr-4">
-                    <div className="min-w-0">
+      {/* Mobile: card list */}
+      <div className="md:hidden divide-y divide-default-100 dark:divide-default-200/20">
+        {sorted.length === 0 ? (
+          <p className="text-sm text-muted text-center py-10">{emptyText}</p>
+        ) : sorted.map((event, i) => (
+          <motion.div
+            key={event.id}
+            {...animations.listItem(i)}
+            className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-default-50 dark:hover:bg-default-100/5 active:bg-default-100/50 transition-colors"
+            onClick={() => navigate('/schedule/' + event.id)}
+          >
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-foreground truncate">{event.name}</p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <Calendar size={10} className="text-muted shrink-0" />
+                <p className="text-xs text-muted truncate">{event.date}</p>
+                {event.location && <><span className="text-muted">·</span><p className="text-xs text-muted truncate">{event.location}</p></>}
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <StatusBadge status={event.status} />
+              <ChevronRight size={14} className="text-muted" />
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Desktop: table */}
+      <div className="hidden md:block">
+        <Table>
+          <Table.ScrollContainer>
+            <Table.Content aria-label="Danh sách sự kiện">
+              <Table.Header>
+                <Table.Column isRowHeader className="text-xs font-medium text-default-500 py-3 pl-5 pr-4 bg-default-50 dark:bg-default-100/20">Sự kiện</Table.Column>
+                <Table.Column className="text-xs font-medium text-default-500 py-3 px-4 bg-default-50 dark:bg-default-100/20">Ngày</Table.Column>
+                <Table.Column className="text-xs font-medium text-default-500 py-3 px-4 bg-default-50 dark:bg-default-100/20">Địa điểm</Table.Column>
+                <Table.Column className="text-xs font-medium text-default-500 py-3 px-4 bg-default-50 dark:bg-default-100/20">Nhân viên</Table.Column>
+                <Table.Column className="text-xs font-medium text-default-500 py-3 px-4 bg-default-50 dark:bg-default-100/20">Trạng thái</Table.Column>
+                <Table.Column className="text-xs font-medium text-default-500 py-3 pr-5 pl-4 text-right bg-default-50 dark:bg-default-100/20">Hành động</Table.Column>
+              </Table.Header>
+              <Table.Body renderEmptyState={() => (
+                <p className="text-sm text-muted text-center py-10">{emptyText}</p>
+              )}>
+                {sorted.map(event => (
+                  <Table.Row
+                    key={event.id} id={String(event.id)}
+                    onAction={() => navigate('/schedule/' + event.id)}
+                    className="border-b border-default-100 dark:border-default-200/20 last:border-0 cursor-pointer hover:bg-default-100/50 dark:hover:bg-default-100/5 transition-colors"
+                  >
+                    <Table.Cell className="py-3.5 pl-5 pr-4">
                       <p className="text-sm font-semibold text-foreground truncate">{event.name}</p>
-                      <p className="text-xs text-default-400 truncate md:hidden">{event.date} · {event.location}</p>
-                    </div>
-                  </Table.Cell>
-                  <Table.Cell className="py-3.5 px-4 hidden md:table-cell">
-                    <p className="text-sm text-default-500 whitespace-nowrap">{event.date}</p>
-                  </Table.Cell>
-                  <Table.Cell className="py-3.5 px-4 hidden md:table-cell">
-                    <p className="text-sm text-default-500 truncate">{event.location}</p>
-                  </Table.Cell>
-                  <Table.Cell className="py-3.5 px-4 hidden md:table-cell">
-                    <StaffAvatarGroup members={event.staff} />
-                  </Table.Cell>
-                  <Table.Cell className="py-3.5 px-4">
-                    <StatusBadge status={event.status} />
-                  </Table.Cell>
-                  <Table.Cell className="py-3.5 pr-5 pl-4" onClick={e => e.stopPropagation()}>
-                    <div className="flex items-center justify-end gap-1">
-                      <Button
-                        isIconOnly size="sm" variant="ghost"
-                        onPress={() => navigate('/schedule/' + event.id)}
-                        aria-label="Xem chi tiết"
-                        className="w-8 h-8 rounded-lg text-default-400 hover:text-foreground hover:bg-default-100"
-                      >
-                        <Eye size={14} />
-                      </Button>
-                    </div>
-                  </Table.Cell>
-                </Table.Row>
-              ))}
-            </Table.Body>
-          </Table.Content>
-        </Table.ScrollContainer>
-      </Table>
+                    </Table.Cell>
+                    <Table.Cell className="py-3.5 px-4">
+                      <p className="text-sm text-default-500 whitespace-nowrap">{event.date}</p>
+                    </Table.Cell>
+                    <Table.Cell className="py-3.5 px-4">
+                      <p className="text-sm text-default-500 truncate">{event.location}</p>
+                    </Table.Cell>
+                    <Table.Cell className="py-3.5 px-4">
+                      <StaffAvatarGroup members={event.staff} />
+                    </Table.Cell>
+                    <Table.Cell className="py-3.5 px-4">
+                      <StatusBadge status={event.status} />
+                    </Table.Cell>
+                    <Table.Cell className="py-3.5 pr-5 pl-4" onClick={e => e.stopPropagation()}>
+                      <div className="flex items-center justify-end">
+                        <Button isIconOnly size="sm" variant="ghost"
+                          onPress={() => navigate('/schedule/' + event.id)}
+                          aria-label="Xem chi tiết"
+                          className="w-8 h-8 rounded-lg text-default-400 hover:text-foreground hover:bg-default-100"
+                        >
+                          <Eye size={14} />
+                        </Button>
+                      </div>
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table.Content>
+          </Table.ScrollContainer>
+        </Table>
+      </div>
     </Card>
   );
 }
