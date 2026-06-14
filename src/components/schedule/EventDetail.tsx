@@ -1,5 +1,6 @@
 ﻿import { useState, lazy, Suspense } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, Trash2, Download, Copy } from 'lucide-react';
 import { Tooltip, Button, Tabs } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
@@ -167,12 +168,22 @@ export default function EventDetail() {
             </Tabs.ListContainer>
           </Tabs>
 
-          {/* Tab info: chỉ render trên mobile (desktop dùng panel trái) */}
-          {activeTab === 'info' && <div className="lg:hidden"><EventInfoTab event={event} /></div>}
-          {activeTab === 'staff'     && <EventStaffTab event={event} />}
-          {activeTab === 'expenses'  && <EventExpensesTab event={event} />}
-          {activeTab === 'inventory' && <EventInventoryTab event={event} />}
-          {activeTab === 'contracts' && <EventContractsTab event={event} />}
+          {/* Tab content */}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+            >
+              {activeTab === 'info' && <div className="lg:hidden"><EventInfoTab event={event} /></div>}
+              {activeTab === 'staff'     && <EventStaffTab event={event} />}
+              {activeTab === 'expenses'  && <EventExpensesTab event={event} />}
+              {activeTab === 'inventory' && <EventInventoryTab event={event} />}
+              {activeTab === 'contracts' && <EventContractsTab event={event} />}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </div>

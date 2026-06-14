@@ -1,4 +1,5 @@
 ﻿import { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Check, X, ChevronDown, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { useApp } from '../../../context/AppContext';
@@ -227,21 +228,28 @@ export default function EventInventoryTab({ event }: Props) {
                             >
                               {item.unit}<ChevronDown size={11} />
                             </Button>
-                            {unitMenuId === item.id && (
-                              <div className="absolute right-0 top-7 z-20 bg-default/50 backdrop-blur-xl border border-separator rounded-xl shadow-lg py-1 min-w-[80px]">
-                                {UNITS.map(u => (
-                                  <Button
-                                    key={u}
-                                    variant="ghost"
-                                   
-                                    className={`w-full h-auto min-w-0 justify-start text-left px-3 py-1.5 text-sm hover:bg-default/50 transition-colors ${u === item.unit ? 'text-accent font-semibold' : 'text-foreground'}`}
-                                    onPress={() => { updateInventoryUnitMutation.mutate({ itemId: item.id, unit: u }); setUnitMenuId(null); }}
-                                  >
-                                    {u}
-                                  </Button>
-                                ))}
-                              </div>
-                            )}
+                            <AnimatePresence>
+                              {unitMenuId === item.id && (
+                                <motion.div
+                                  initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                                  exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                                  transition={{ duration: 0.15, ease: 'easeOut' }}
+                                  className="absolute right-0 top-7 z-50 bg-surface border border-separator rounded-xl shadow-xl py-1 min-w-[80px]"
+                                >
+                                  {UNITS.map(u => (
+                                    <Button
+                                      key={u}
+                                      variant="ghost"
+                                      className={`w-full h-auto min-w-0 justify-start text-left px-3 py-1.5 text-sm hover:bg-default/50 transition-colors ${u === item.unit ? 'text-accent font-semibold' : 'text-foreground'}`}
+                                      onPress={() => { updateInventoryUnitMutation.mutate({ itemId: item.id, unit: u }); setUnitMenuId(null); }}
+                                    >
+                                      {u}
+                                    </Button>
+                                  ))}
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
                           </div>
                         </>
                       )}
