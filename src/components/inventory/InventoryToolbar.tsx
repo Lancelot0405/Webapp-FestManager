@@ -1,5 +1,4 @@
-import { Search } from 'lucide-react';
-import { Input } from '@/components/shared/GlassInput';
+import { SearchField } from '@heroui/react';
 import { Select } from '@/components/shared/GlassSelect';
 
 export type SortKey = 'status' | 'name' | 'qty-desc' | 'qty-asc';
@@ -24,13 +23,13 @@ export default function InventoryToolbar({
 }: Props) {
   return (
     <div className="flex flex-col sm:flex-row gap-2">
-      <Input
-        value={search}
-        onChange={onSearchChange}
-        placeholder={`Tìm ${itemLabel}...`}
-        startContent={<Search size={15} />}
-        className="flex-1"
-      />
+      <SearchField value={search} onChange={onSearchChange} className="flex-1" aria-label={`Tìm ${itemLabel}`}>
+        <SearchField.Group>
+          <SearchField.SearchIcon />
+          <SearchField.Input placeholder={`Tìm ${itemLabel}...`} />
+          <SearchField.ClearButton />
+        </SearchField.Group>
+      </SearchField>
       <Select
         value={sort}
         onChange={(v: string) => onSortChange(v as SortKey)}

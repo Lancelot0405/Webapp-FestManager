@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Trash2, ShieldCheck, Check, X } from 'lucide-react';
-import { Avatar, Button, Card, Chip, ScrollShadow } from '@heroui/react';
+import { Avatar, Button, Card, Chip, ScrollShadow, SearchField } from '@heroui/react';
 import { animations } from '../../lib/animations';
 import { useApp } from '../../context/AppContext';
 import { useFABRegister } from '../../hooks/useFABRegister';
@@ -13,7 +13,6 @@ import { useDeleteStaff } from '../../hooks/queries/mutations/useDeleteStaff';
 import { useApproveRegistration } from '../../hooks/queries/mutations/useApproveRegistration';
 import { useRejectRegistration } from '../../hooks/queries/mutations/useRejectRegistration';
 import AddStaffForm from './AddStaffForm';
-import { Input } from '@/components/shared/GlassInput';
 
 import ListSkeleton from '@/components/shared/skeletons/ListSkeleton';
 import type { StaffMember } from '../../types';
@@ -192,11 +191,13 @@ export default function HRGlobal() {
       )}
 
       {/* Search */}
-      <Input
-        value={search}
-        onChange={setSearch}
-        placeholder="Tìm theo tên hoặc thành phố..."
-      />
+      <SearchField value={search} onChange={setSearch} className="w-full" aria-label="Tìm nhân viên">
+        <SearchField.Group>
+          <SearchField.SearchIcon />
+          <SearchField.Input placeholder="Tìm theo tên hoặc thành phố..." />
+          <SearchField.ClearButton />
+        </SearchField.Group>
+      </SearchField>
 
       {/* Type filter pills */}
       {canViewAll && (

@@ -1,7 +1,5 @@
 ﻿import { useState, useMemo } from 'react';
-import { Search } from 'lucide-react';
-import { Button } from '@heroui/react';
-import { Input } from '@/components/shared/GlassInput';
+import { Button, SearchField } from '@heroui/react';
 import { Select } from '@/components/shared/GlassSelect';
 import type { InventoryLogEntry } from '../../types';
 
@@ -50,14 +48,13 @@ export default function InventoryLogList({ logs }: Props) {
 
       {/* Filters */}
       <div className="flex gap-2 flex-wrap">
-        <Input
-          type="text"
-          placeholder="Tìm mặt hàng..."
-          value={itemSearch}
-          onChange={setItemSearch}
-          startContent={<Search size={13} />}
-          className="flex-1 min-w-[140px]"
-        />
+        <SearchField value={itemSearch} onChange={setItemSearch} className="flex-1 min-w-[140px]" aria-label="Tìm mặt hàng">
+          <SearchField.Group>
+            <SearchField.SearchIcon />
+            <SearchField.Input placeholder="Tìm mặt hàng..." />
+            <SearchField.ClearButton />
+          </SearchField.Group>
+        </SearchField>
         <Select
           size="sm"
           className="min-w-[150px]"
