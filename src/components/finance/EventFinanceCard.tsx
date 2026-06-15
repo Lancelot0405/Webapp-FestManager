@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Pencil } from 'lucide-react';
-import { Button, Card, ProgressBar } from '@heroui/react';
+import { Button, Card, ProgressBar, TextField, Label, Input } from '@heroui/react';
 import { useNavigate } from 'react-router-dom';
-import { Input } from '@/components/shared/GlassInput';
 import { useUpdateEvent } from '../../hooks/queries/mutations/useUpdateEvent';
 import StatusBadge from '../shared/StatusBadge';
 import type { FestivalEvent } from '../../types';
@@ -114,13 +113,10 @@ export default function EventFinanceCard({ event }: Props) {
               { label: 'Vận chuyển (€)',  val: editTransport,   set: setEditTransport   },
               { label: 'Lương NV (€)',    val: editStaff,       set: setEditStaff       },
             ] as { label: string; val: number; set: (v: number) => void }[]).map(({ label, val, set }) => (
-              <Input
-                key={label}
-                label={label}
-                type="number"
-                value={String(val)}
-                onChange={value => set(Number(value))}
-              />
+              <TextField key={label} value={String(val)} onChange={value => set(Number(value))} className="w-full flex flex-col gap-1">
+                <Label className="text-xs font-medium text-foreground/80">{label}</Label>
+                <Input type="number" />
+              </TextField>
             ))}
           </div>
           <div className="flex gap-2 mt-2">

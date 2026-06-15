@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
-import { Button, Modal, Accordion, TagGroup, Tag, Spinner } from '@heroui/react';
+import { Button, Modal, Accordion, TagGroup, Tag, Spinner, TextField, Input } from '@heroui/react';
 import { supabase } from '../../lib/supabase';
-import { Input } from '@/components/shared/GlassInput';
 
 interface FoodTemplate {
   id:         number;
@@ -138,18 +137,16 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
 
                           {newItemGroup === group ? (
                             <div className="flex gap-2 mt-1">
-                              <Input
-                                autoFocus
-                                className="flex-1"
-                                inputClassName="h-9 text-xs"
-                                placeholder="Tên sản phẩm mới..."
-                                value={newItemName}
-                                onChange={setNewItemName}
-                                onKeyDown={e => {
-                                  if (e.key === 'Enter') { e.preventDefault(); handleAddItem(group); }
-                                  if (e.key === 'Escape') { setNewItemGroup(''); setNewItemName(''); }
-                                }}
-                              />
+                              <TextField value={newItemName} onChange={setNewItemName} autoFocus className="flex-1 flex flex-col gap-1">
+                                <Input
+                                  className="h-9 text-xs"
+                                  placeholder="Tên sản phẩm mới..."
+                                  onKeyDown={e => {
+                                    if (e.key === 'Enter') { e.preventDefault(); handleAddItem(group); }
+                                    if (e.key === 'Escape') { setNewItemGroup(''); setNewItemName(''); }
+                                  }}
+                                />
+                              </TextField>
                               <Button
                                 onPress={() => handleAddItem(group)}
                                 isDisabled={saving || !newItemName.trim()}
@@ -184,20 +181,16 @@ export default function FoodTemplateManager({ itemType, onClose, onChanged }: Pr
                   {showAddGroup ? (
                     <div className="border border-dashed border-separator rounded-xl p-3 space-y-2">
                       <p className="text-xs font-bold text-foreground/80">Tạo nhóm mới</p>
-                      <Input
-                        autoFocus
-                        inputClassName="h-9 text-xs"
-                        placeholder="Tên nhóm (VD: Đồ uống)"
-                        value={newGroupName}
-                        onChange={setNewGroupName}
-                      />
-                      <Input
-                        inputClassName="h-9 text-xs"
-                        placeholder="Tên sản phẩm đầu tiên"
-                        value={newItemName}
-                        onChange={setNewItemName}
-                        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddGroup(); } }}
-                      />
+                      <TextField value={newGroupName} onChange={setNewGroupName} autoFocus className="w-full flex flex-col gap-1">
+                        <Input className="h-9 text-xs" placeholder="Tên nhóm (VD: Đồ uống)" />
+                      </TextField>
+                      <TextField value={newItemName} onChange={setNewItemName} className="w-full flex flex-col gap-1">
+                        <Input
+                          className="h-9 text-xs"
+                          placeholder="Tên sản phẩm đầu tiên"
+                          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAddGroup(); } }}
+                        />
+                      </TextField>
                       <div className="flex gap-2">
                         <Button
                           onPress={handleAddGroup}

@@ -1,7 +1,7 @@
 ﻿import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Check, X, ChevronDown, Plus, Trash2 } from 'lucide-react';
-import { Button } from '@heroui/react';
+import { Button, TextField, Label, Input, Select, ListBox } from '@heroui/react';
 import { useApp } from '../../../context/AppContext';
 import { useInventoryQuery } from '../../../hooks/queries/useInventoryQuery';
 import { useSetInventoryItem } from '../../../hooks/queries/mutations/useSetInventoryItem';
@@ -9,8 +9,6 @@ import { useUpdateInventoryUnit } from '../../../hooks/queries/mutations/useUpda
 import { useCreateInventoryItem } from '../../../hooks/queries/mutations/useCreateInventoryItem';
 import { useDeleteInventoryItem } from '../../../hooks/queries/mutations/useDeleteInventoryItem';
 import { useAddInventoryLog } from '../../../hooks/queries/mutations/useAddInventoryLog';
-import { Input } from '@/components/shared/GlassInput';
-import { Select } from '@/components/shared/GlassSelect';
 import type { FestivalEvent, InventoryUnit } from '../../../types';
 
 const UNITS: InventoryUnit[] = ['kg', 'g', 'lít', 'ml', 'cái', 'lon', 'hộp', 'túi', 'xiên', 'thùng', 'phần'];
@@ -112,33 +110,30 @@ export default function EventInventoryTab({ event }: Props) {
               <X size={16} />
             </Button>
           </div>
-          <Input
-            label="Tên mặt hàng"
-            isRequired
-            placeholder="VD: Thịt bò"
-            value={newName}
-            onChange={setNewName}
-          />
+          <TextField value={newName} onChange={setNewName} isRequired className="w-full flex flex-col gap-1">
+            <Label className="text-xs font-medium text-foreground/80">Tên mặt hàng</Label>
+            <Input placeholder="VD: Thịt bò" />
+          </TextField>
           <div className="grid grid-cols-3 gap-2">
-            <Input
-              type="number" min={0} step={0.1} isRequired
-              label="Số lượng"
-              value={newCurrent}
-              onChange={setNewCurrent}
-            />
-            <Input
-              type="number" min={0} step={0.1}
-              label="Cảnh báo"
-              placeholder="0"
-              value={newThreshold}
-              onChange={setNewThreshold}
-            />
-            <Select
-              label="Đơn vị"
-              value={newUnit}
-              onChange={(v) => setNewUnit(v as InventoryUnit)}
-              options={UNIT_OPTIONS}
-            />
+            <TextField value={newCurrent} onChange={setNewCurrent} isRequired className="w-full flex flex-col gap-1">
+              <Label className="text-xs font-medium text-foreground/80">Số lượng</Label>
+              <Input type="number" min={0} step={0.1} />
+            </TextField>
+            <TextField value={newThreshold} onChange={setNewThreshold} className="w-full flex flex-col gap-1">
+              <Label className="text-xs font-medium text-foreground/80">Cảnh báo</Label>
+              <Input type="number" min={0} step={0.1} placeholder="0" />
+            </TextField>
+            <Select value={newUnit || null} onChange={(key) => setNewUnit(key != null ? String(key) as InventoryUnit : 'kg')} className="w-full flex flex-col gap-1">
+              <Label className="text-xs font-medium text-foreground/80">Đơn vị</Label>
+              <Select.Trigger><Select.Value /><Select.Indicator /></Select.Trigger>
+              <Select.Popover>
+                <ListBox>
+                  {UNIT_OPTIONS.map(opt => (
+                    <ListBox.Item key={opt.value} id={opt.value} textValue={opt.label}>{opt.label}<ListBox.ItemIndicator /></ListBox.Item>
+                  ))}
+                </ListBox>
+              </Select.Popover>
+            </Select>
           </div>
           <Button
             type="submit"
@@ -181,20 +176,19 @@ export default function EventInventoryTab({ event }: Props) {
                     <div className="flex items-center gap-1 shrink-0">
                       {editingId === item.id ? (
                         <>
-                          <Input
-                            type="number" min={0} step={0.1} autoFocus
-                            className="w-16"
-                            inputClassName="h-8 rounded-lg px-2 py-1 text-right"
-                            value={editQty}
-                            onChange={setEditQty}
-                          />
-                          <Select
-                            size="sm"
-                            className="w-20"
-                            value={editUnit}
-                            onChange={(v) => setEditUnit(v as InventoryUnit)}
-                            options={UNIT_OPTIONS}
-                          />
+                          <TextField value={editQty} onChange={setEditQty} autoFocus className="w-16 flex flex-col gap-1">
+                            <Input type="number" min={0} step={0.1} className="h-8 rounded-lg px-2 py-1 text-right" />
+                          </TextField>
+                          <Select value={editUnit || null} onChange={(key) => setEditUnit(key != null ? String(key) as InventoryUnit : 'kg')} className="w-20 flex flex-col gap-1">
+                            <Select.Trigger className="h-8 text-xs py-0"><Select.Value /><Select.Indicator /></Select.Trigger>
+                            <Select.Popover>
+                              <ListBox>
+                                {UNIT_OPTIONS.map(opt => (
+                                  <ListBox.Item key={opt.value} id={opt.value} textValue={opt.label}>{opt.label}<ListBox.ItemIndicator /></ListBox.Item>
+                                ))}
+                              </ListBox>
+                            </Select.Popover>
+                          </Select>
                           <Button
                             isIconOnly
                             variant="ghost"

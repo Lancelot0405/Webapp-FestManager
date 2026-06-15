@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Check, Trash2 } from 'lucide-react';
-import { Button, Modal } from '@heroui/react';
+import { Button, Modal, Select, Label, ListBox, FieldError } from '@heroui/react';
 import {
   DrawerRoot,
   DrawerBackdrop,
@@ -10,7 +10,6 @@ import {
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Select } from '@/components/shared/GlassSelect';
 import { useIsDesktop } from '@/hooks/useIsDesktop';
 import { useKeyboardOffset } from '@/hooks/useKeyboardOffset';
 import { useApp } from '../../context/AppContext';
@@ -135,13 +134,18 @@ export default function InventoryItemDrawer({ item, isOpen, onClose }: Props) {
         name="unit"
         control={control}
         render={({ field }) => (
-          <Select
-            label="Đơn vị"
-            value={field.value}
-            onChange={field.onChange}
-            options={unitOptions.map(u => ({ value: u, label: u }))}
-            error={errors.unit?.message}
-          />
+          <Select value={field.value || null} onChange={(key) => field.onChange(key != null ? String(key) : '')} isInvalid={!!errors.unit} className="w-full flex flex-col gap-1">
+            <Label className="text-xs font-medium text-foreground/80">Đơn vị</Label>
+            <Select.Trigger><Select.Value /><Select.Indicator /></Select.Trigger>
+            <Select.Popover>
+              <ListBox>
+                {unitOptions.map(u => (
+                  <ListBox.Item key={u} id={u} textValue={u}>{u}<ListBox.ItemIndicator /></ListBox.Item>
+                ))}
+              </ListBox>
+            </Select.Popover>
+            {errors.unit && <FieldError className="text-xs text-danger">{errors.unit.message}</FieldError>}
+          </Select>
         )}
       />
 

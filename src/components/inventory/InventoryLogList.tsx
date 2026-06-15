@@ -1,6 +1,5 @@
 ﻿import { useState, useMemo } from 'react';
-import { Button, SearchField } from '@heroui/react';
-import { Select } from '@/components/shared/GlassSelect';
+import { Button, SearchField, Select, ListBox } from '@heroui/react';
 import type { InventoryLogEntry } from '../../types';
 
 interface Props { logs: InventoryLogEntry[] }
@@ -55,16 +54,17 @@ export default function InventoryLogList({ logs }: Props) {
             <SearchField.ClearButton />
           </SearchField.Group>
         </SearchField>
-        <Select
-          size="sm"
-          className="min-w-[150px]"
-          value={festivalFilter || '__all__'}
-          onChange={(v) => setFestivalFilter(v === '__all__' ? '' : v)}
-          options={[
-            { value: '__all__', label: 'Tất cả sự kiện' },
-            ...festivalNames.map(name => ({ value: name, label: name })),
-          ]}
-        />
+        <Select value={festivalFilter || '__all__'} onChange={(key) => setFestivalFilter(key === '__all__' || key == null ? '' : String(key))} className="min-w-[150px] flex flex-col gap-1">
+          <Select.Trigger className="h-9 text-sm"><Select.Value /><Select.Indicator /></Select.Trigger>
+          <Select.Popover>
+            <ListBox>
+              <ListBox.Item id="__all__" textValue="Tất cả sự kiện">Tất cả sự kiện<ListBox.ItemIndicator /></ListBox.Item>
+              {festivalNames.map(name => (
+                <ListBox.Item key={name} id={name} textValue={name}>{name}<ListBox.ItemIndicator /></ListBox.Item>
+              ))}
+            </ListBox>
+          </Select.Popover>
+        </Select>
       </div>
 
       {/* Log list */}

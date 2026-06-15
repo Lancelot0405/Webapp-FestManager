@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useKeyboardOffset } from '../../hooks/useKeyboardOffset';
 import { ShieldCheck, Building2 } from 'lucide-react';
-import { Button, Modal, ToggleButtonGroup, ToggleButton } from '@heroui/react';
+import { Button, Modal, ToggleButtonGroup, ToggleButton, TextField, Label, Input, FieldError } from '@heroui/react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,7 +9,6 @@ import { useApp } from '../../context/AppContext';
 import { adminApi } from '../../lib/adminApi';
 import { useToast } from '../../context/ToastContext';
 import { useCreateStaff } from '../../hooks/queries/mutations/useCreateStaff';
-import { Input } from '@/components/shared/GlassInput';
 import AppDatePicker from '@/components/shared/AppDatePicker';
 import FranceCityAutocomplete from '@/components/shared/FranceCityAutocomplete';
 import { staffSchema } from '../../lib/validations';
@@ -106,7 +105,11 @@ export default function AddStaffForm({ onClose }: Props) {
                   name="name"
                   control={control}
                   render={({ field }) => (
-                    <Input label="Tên *" placeholder="Nguyễn Văn A" value={field.value} onChange={field.onChange} error={errors.name?.message} />
+                    <TextField value={field.value} onChange={field.onChange} isInvalid={!!errors.name} className="w-full flex flex-col gap-1">
+                      <Label className="text-xs font-medium text-foreground/80">Tên *</Label>
+                      <Input placeholder="Nguyễn Văn A" />
+                      {errors.name && <FieldError className="text-xs text-danger">{errors.name.message}</FieldError>}
+                    </TextField>
                   )}
                 />
 
@@ -115,14 +118,13 @@ export default function AddStaffForm({ onClose }: Props) {
                     name="username"
                     control={control}
                     render={({ field }) => (
-                      <Input
-                        label="Tên đăng nhập (để tạo tài khoản)"
-                        placeholder="nguyenvana"
-                        value={field.value ?? ''}
-                        onChange={(v) => field.onChange(v.replace(/\s/g, '').toLowerCase())}
-                        autoComplete="off"
-                        endContent={<span className="font-mono text-xs">@fm.com</span>}
-                      />
+                      <TextField value={field.value ?? ''} onChange={(v) => field.onChange(v.replace(/\s/g, '').toLowerCase())} className="w-full flex flex-col gap-1">
+                        <Label className="text-xs font-medium text-foreground/80">Tên đăng nhập (để tạo tài khoản)</Label>
+                        <div className="relative flex items-center">
+                          <Input placeholder="nguyenvana" autoComplete="off" className="pr-16" />
+                          <span className="absolute right-3 z-10 font-mono text-xs text-muted">@fm.com</span>
+                        </div>
+                      </TextField>
                     )}
                   />
                   <p className="text-xs text-muted mt-1">

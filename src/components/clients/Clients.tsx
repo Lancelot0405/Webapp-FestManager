@@ -2,13 +2,11 @@ import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useKeyboardOffset } from '../../hooks/useKeyboardOffset';
 import { Pencil, Trash2, Phone, Mail, MapPin, Building2, Calendar } from 'lucide-react';
-import { AlertDialog, Button, Card, EmptyState, Modal, SearchField } from '@heroui/react';
+import { AlertDialog, Button, Card, EmptyState, Modal, SearchField, TextField, Label, Input, TextArea, FieldError } from '@heroui/react';
 import { animations } from '../../lib/animations';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Input } from '@/components/shared/GlassInput';
-import { Textarea } from '@/components/shared/GlassTextarea';
 import FranceCityAutocomplete from '@/components/shared/FranceCityAutocomplete';
 
 import { useClientsQuery } from '../../hooks/queries/useClientsQuery';
@@ -135,24 +133,41 @@ export default function Clients() {
               <Modal.Body className="px-5 py-4 overflow-y-auto">
                 <form id="client-form" onSubmit={handleSubmit(onSubmit)} className="space-y-3">
                   <Controller name="name" control={control} render={({ field }) => (
-                    <Input label="Tên tổ chức *" placeholder="Tên ban tổ chức / công ty" value={field.value} onChange={field.onChange} error={errors.name?.message} />
+                    <TextField value={field.value} onChange={field.onChange} isInvalid={!!errors.name} className="w-full flex flex-col gap-1">
+                      <Label className="text-xs font-medium text-foreground/80">Tên tổ chức *</Label>
+                      <Input placeholder="Tên ban tổ chức / công ty" />
+                      {errors.name && <FieldError className="text-xs text-danger">{errors.name.message}</FieldError>}
+                    </TextField>
                   )} />
                   <Controller name="contactName" control={control} render={({ field }) => (
-                    <Input label="Người liên hệ" placeholder="Họ tên người phụ trách" value={field.value ?? ''} onChange={field.onChange} />
+                    <TextField value={field.value ?? ''} onChange={field.onChange} className="w-full flex flex-col gap-1">
+                      <Label className="text-xs font-medium text-foreground/80">Người liên hệ</Label>
+                      <Input placeholder="Họ tên người phụ trách" />
+                    </TextField>
                   )} />
                   <div className="grid grid-cols-2 gap-2">
                     <Controller name="phone" control={control} render={({ field }) => (
-                      <Input label="Điện thoại" type="tel" placeholder="+33..." value={field.value ?? ''} onChange={field.onChange} />
+                      <TextField value={field.value ?? ''} onChange={field.onChange} className="w-full flex flex-col gap-1">
+                        <Label className="text-xs font-medium text-foreground/80">Điện thoại</Label>
+                        <Input type="tel" placeholder="+33..." />
+                      </TextField>
                     )} />
                     <Controller name="email" control={control} render={({ field }) => (
-                      <Input label="Email" type="email" placeholder="email@..." value={field.value ?? ''} onChange={field.onChange} error={errors.email?.message} />
+                      <TextField value={field.value ?? ''} onChange={field.onChange} isInvalid={!!errors.email} className="w-full flex flex-col gap-1">
+                        <Label className="text-xs font-medium text-foreground/80">Email</Label>
+                        <Input type="email" placeholder="email@..." />
+                        {errors.email && <FieldError className="text-xs text-danger">{errors.email.message}</FieldError>}
+                      </TextField>
                     )} />
                   </div>
                   <Controller name="city" control={control} render={({ field }) => (
                     <FranceCityAutocomplete label="Thành phố" value={field.value ?? ''} onChange={field.onChange} />
                   )} />
                   <Controller name="notes" control={control} render={({ field }) => (
-                    <Textarea label="Ghi chú" placeholder="Thông tin thêm..." value={field.value ?? ''} onChange={field.onChange} minRows={2} maxRows={4} />
+                    <TextField value={field.value ?? ''} onChange={field.onChange} className="w-full flex flex-col gap-1">
+                      <Label className="text-xs font-medium text-foreground/80">Ghi chú</Label>
+                      <TextArea placeholder="Thông tin thêm..." rows={2} style={{ maxHeight: `${4 * 1.5}rem` }} />
+                    </TextField>
                   )} />
                 </form>
               </Modal.Body>

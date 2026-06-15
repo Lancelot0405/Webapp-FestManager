@@ -1,6 +1,6 @@
 ﻿import { useState, useRef } from 'react';
 import { Plus, ChevronDown, ChevronUp, Upload, X, Image as ImageIcon } from 'lucide-react';
-import { Button, Spinner } from '@heroui/react';
+import { Button, Spinner, TextField, Label, Input, FieldError, Select, ListBox } from '@heroui/react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -8,9 +8,7 @@ import DocThumbnail from '../../shared/DocThumbnail';
 import { useApp } from '../../../context/AppContext';
 import { useToast } from '../../../context/ToastContext';
 import { ExpenseStatusBadge } from '../../shared/StatusBadge';
-import { Input } from '@/components/shared/GlassInput';
 import AppDatePicker from '@/components/shared/AppDatePicker';
-import { Select } from '@/components/shared/GlassSelect';
 import { supabase } from '../../../lib/supabase';
 import { getErrorMessage } from '../../../lib/errors';
 import { useStaffQuery } from '../../../hooks/queries/useStaffQuery';
@@ -198,28 +196,29 @@ export default function EventExpensesTab({ event }: Props) {
                             name="category"
                             control={control}
                             render={({ field }) => (
-                              <Select
-                                label="Loại"
-                                value={field.value}
-                                onChange={(v) => field.onChange(v as ExpenseCategory)}
-                                options={CATEGORY_OPTIONS}
-                                error={errors.category?.message}
-                              />
+                              <Select value={field.value || null} onChange={(key) => field.onChange(key != null ? String(key) as ExpenseCategory : 'Vé tàu/xe')} isInvalid={!!errors.category} className="w-full flex flex-col gap-1">
+                                <Label className="text-xs font-medium text-foreground/80">Loại</Label>
+                                <Select.Trigger><Select.Value /><Select.Indicator /></Select.Trigger>
+                                <Select.Popover>
+                                  <ListBox>
+                                    {CATEGORY_OPTIONS.map(opt => (
+                                      <ListBox.Item key={opt.value} id={opt.value} textValue={opt.label}>{opt.label}<ListBox.ItemIndicator /></ListBox.Item>
+                                    ))}
+                                  </ListBox>
+                                </Select.Popover>
+                                {errors.category && <FieldError className="text-xs text-danger">{errors.category.message}</FieldError>}
+                              </Select>
                             )}
                           />
                           <Controller
                             name="amount"
                             control={control}
                             render={({ field }) => (
-                              <Input
-                                type="number"
-                                min={0}
-                                step={0.01}
-                                label="Số tiền (€)"
-                                value={field.value}
-                                onChange={field.onChange}
-                                error={errors.amount?.message}
-                              />
+                              <TextField value={field.value} onChange={field.onChange} isInvalid={!!errors.amount} className="w-full flex flex-col gap-1">
+                                <Label className="text-xs font-medium text-foreground/80">Số tiền (€)</Label>
+                                <Input type="number" min={0} step={0.01} />
+                                {errors.amount && <FieldError className="text-xs text-danger">{errors.amount.message}</FieldError>}
+                              </TextField>
                             )}
                           />
                         </div>

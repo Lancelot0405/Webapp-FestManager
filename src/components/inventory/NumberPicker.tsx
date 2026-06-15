@@ -1,7 +1,6 @@
 ﻿import { useState } from 'react';
 import { Pencil } from 'lucide-react';
-import { Button } from '@heroui/react';
-import { Input } from '@/components/shared/GlassInput';
+import { Button, TextField, Input, FieldError } from '@heroui/react';
 
 interface NumberPickerProps {
   value:        string;
@@ -63,19 +62,10 @@ export default function NumberPicker({
         </Button>
       </div>
       {custom && (
-        <Input
-          type="number"
-          min={min}
-          max={max}
-          step={step}
-          isRequired={required}
-          autoFocus
-          className="mt-2"
-          placeholder={placeholder}
-          value={value}
-          onChange={onChange}
-          error={error}
-        />
+        <TextField value={value} onChange={onChange} isRequired={required} isInvalid={!!error} className="w-full flex flex-col gap-1 mt-2">
+          <Input type="number" min={min} max={max} step={step} autoFocus placeholder={placeholder} />
+          {error && <FieldError className="text-xs text-danger">{error}</FieldError>}
+        </TextField>
       )}
       {error && !custom && (
         <p className="text-xs text-danger mt-1">{error}</p>

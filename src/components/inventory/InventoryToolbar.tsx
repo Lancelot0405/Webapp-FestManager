@@ -1,5 +1,4 @@
-import { SearchField } from '@heroui/react';
-import { Select } from '@/components/shared/GlassSelect';
+import { SearchField, Select, ListBox } from '@heroui/react';
 
 export type SortKey = 'status' | 'name' | 'qty-desc' | 'qty-asc';
 
@@ -30,12 +29,16 @@ export default function InventoryToolbar({
           <SearchField.ClearButton />
         </SearchField.Group>
       </SearchField>
-      <Select
-        value={sort}
-        onChange={(v: string) => onSortChange(v as SortKey)}
-        options={SORT_OPTIONS}
-        className="sm:w-52 shrink-0"
-      />
+      <Select value={sort || null} onChange={(key) => { if (key != null) onSortChange(String(key) as SortKey); }} className="sm:w-52 shrink-0 flex flex-col gap-1">
+        <Select.Trigger><Select.Value /><Select.Indicator /></Select.Trigger>
+        <Select.Popover>
+          <ListBox>
+            {SORT_OPTIONS.map(opt => (
+              <ListBox.Item key={opt.value} id={opt.value} textValue={opt.label}>{opt.label}<ListBox.ItemIndicator /></ListBox.Item>
+            ))}
+          </ListBox>
+        </Select.Popover>
+      </Select>
     </div>
   );
 }

@@ -1,8 +1,7 @@
-import { Button, Modal } from '@heroui/react';
+import { Button, Modal, TextField, Label, Input, FieldError } from '@heroui/react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Input } from '@/components/shared/GlassInput';
 import AppDatePicker from '@/components/shared/AppDatePicker';
 import { useCreateEvent } from '../../hooks/queries/mutations/useCreateEvent';
 import { computeEventStatus } from '../../lib/eventStatus';
@@ -66,14 +65,11 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
                     name="name"
                     control={control}
                     render={({ field }) => (
-                      <Input
-                        label="Tên sự kiện *"
-                        placeholder="Nhập tên sự kiện..."
-                        value={field.value}
-                        onChange={field.onChange}
-                        error={errors.name?.message}
-                        className="sm:col-span-2"
-                      />
+                      <TextField value={field.value} onChange={field.onChange} isInvalid={!!errors.name} className="w-full flex flex-col gap-1 sm:col-span-2">
+                        <Label className="text-xs font-medium text-foreground/80">Tên sự kiện *</Label>
+                        <Input placeholder="Nhập tên sự kiện..." />
+                        {errors.name && <FieldError className="text-xs text-danger">{errors.name.message}</FieldError>}
+                      </TextField>
                     )}
                   />
                   <Controller
@@ -106,14 +102,11 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
                     name="location"
                     control={control}
                     render={({ field }) => (
-                      <Input
-                        label="Địa điểm *"
-                        placeholder="Nhập địa điểm..."
-                        value={field.value}
-                        onChange={field.onChange}
-                        error={errors.location?.message}
-                        className="sm:col-span-2"
-                      />
+                      <TextField value={field.value} onChange={field.onChange} isInvalid={!!errors.location} className="w-full flex flex-col gap-1 sm:col-span-2">
+                        <Label className="text-xs font-medium text-foreground/80">Địa điểm *</Label>
+                        <Input placeholder="Nhập địa điểm..." />
+                        {errors.location && <FieldError className="text-xs text-danger">{errors.location.message}</FieldError>}
+                      </TextField>
                     )}
                   />
                 </div>

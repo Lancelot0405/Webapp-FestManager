@@ -1,9 +1,8 @@
 ﻿import { useState, useEffect, useCallback } from 'react';
 import { Pencil, ChevronDown, Settings } from 'lucide-react';
-import { Button } from '@heroui/react';
+import { Button, TextField, Input } from '@heroui/react';
 import { supabase } from '../../lib/supabase';
 import { useApp } from '../../context/AppContext';
-import { Input } from '@/components/shared/GlassInput';
 import FoodTemplateManager from './FoodTemplateManager';
 
 interface FoodTemplate {
@@ -142,14 +141,9 @@ export default function FoodNameSelect({
       {/* Custom input */}
       {custom && (
         <div className="flex gap-2">
-          <Input
-            autoFocus
-            isRequired={required}
-            className="flex-1"
-            placeholder={placeholder ?? (itemType === 'food' ? 'VD: Thịt bò' : 'VD: Găng tay')}
-            value={value}
-            onChange={onChange}
-          />
+          <TextField value={value} onChange={onChange} isRequired={required} autoFocus className="flex-1 flex flex-col gap-1">
+            <Input placeholder={placeholder ?? (itemType === 'food' ? 'VD: Thịt bò' : 'VD: Găng tay')} />
+          </TextField>
           <Button
             variant="ghost"
             onPress={() => { setCustom(false); onChange(''); }}

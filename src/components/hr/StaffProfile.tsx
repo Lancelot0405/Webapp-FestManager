@@ -1,7 +1,7 @@
 ﻿import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, Plus, Upload, Image, X, Pencil, Check, CreditCard, ShieldCheck, KeyRound, Copy, CheckCheck, Building2 } from 'lucide-react';
-import { Button, Card, Label, Link, Spinner, ToggleButton, ToggleButtonGroup } from '@heroui/react';
+import { Button, Card, Label, Link, Spinner, ToggleButton, ToggleButtonGroup, TextField, Input, Select, ListBox } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
@@ -9,10 +9,8 @@ import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
 import { useUpdateStaff } from '../../hooks/queries/mutations/useUpdateStaff';
 import { useAddContract } from '../../hooks/queries/mutations/useAddContract';
 import { useAddExpense } from '../../hooks/queries/mutations/useAddExpense';
-import { Input } from '@/components/shared/GlassInput';
 import AppDatePicker from '@/components/shared/AppDatePicker';
 import FranceCityAutocomplete from '@/components/shared/FranceCityAutocomplete';
-import { Select } from '@/components/shared/GlassSelect';
 import { ExpenseStatusBadge } from '../shared/StatusBadge';
 import DocThumbnail from '../shared/DocThumbnail';
 import { supabase } from '../../lib/supabase';
@@ -271,17 +269,27 @@ export default function StaffProfile() {
 
         {editing ? (
           <div className="space-y-3">
-            <Input label="Họ tên" value={editName} onChange={setEditName} />
-            <Input
-              label="Ngày sinh (DD-MM-YYYY)"
-              placeholder="01-01-2000"
-              value={editDob}
-              onChange={setEditDob}
-            />
+            <TextField value={editName} onChange={setEditName} className="w-full flex flex-col gap-1">
+              <Label className="text-xs font-medium text-foreground/80">Họ tên</Label>
+              <Input />
+            </TextField>
+            <TextField value={editDob} onChange={setEditDob} className="w-full flex flex-col gap-1">
+              <Label className="text-xs font-medium text-foreground/80">Ngày sinh (DD-MM-YYYY)</Label>
+              <Input placeholder="01-01-2000" />
+            </TextField>
             <FranceCityAutocomplete value={editCity} onChange={setEditCity} />
-            <Input label="Số điện thoại" type="tel" value={editPhone} onChange={setEditPhone} placeholder="+33 6 XX XX XX XX" />
-            <Input label="Số Carte Vitale" value={editCarteNum} onChange={setEditCarteNum} placeholder="1 85 01 75 XXX XXX XX" inputClassName="font-mono" />
-            <Input label="Số Titre de Séjour" value={editTitreNum} onChange={setEditTitreNum} placeholder="XXXXXXXXX" inputClassName="font-mono" />
+            <TextField value={editPhone} onChange={setEditPhone} className="w-full flex flex-col gap-1">
+              <Label className="text-xs font-medium text-foreground/80">Số điện thoại</Label>
+              <Input type="tel" placeholder="+33 6 XX XX XX XX" />
+            </TextField>
+            <TextField value={editCarteNum} onChange={setEditCarteNum} className="w-full flex flex-col gap-1">
+              <Label className="text-xs font-medium text-foreground/80">Số Carte Vitale</Label>
+              <Input placeholder="1 85 01 75 XXX XXX XX" className="font-mono" />
+            </TextField>
+            <TextField value={editTitreNum} onChange={setEditTitreNum} className="w-full flex flex-col gap-1">
+              <Label className="text-xs font-medium text-foreground/80">Số Titre de Séjour</Label>
+              <Input placeholder="XXXXXXXXX" className="font-mono" />
+            </TextField>
             {isAdmin && (
               <>
                 <div>
@@ -394,13 +402,12 @@ export default function StaffProfile() {
               </div>
             )}
             <div className="flex gap-2">
-              <Input
-                className="flex-1"
-                placeholder="username mới"
-                value={editUsername}
-                onChange={(v) => setEditUsername(v.replace(/\s/g, '').toLowerCase())}
-                endContent={<span className="font-mono text-xs">@fm.com</span>}
-              />
+              <TextField value={editUsername} onChange={(v) => setEditUsername(v.replace(/\s/g, '').toLowerCase())} className="flex-1 flex flex-col gap-1">
+                <div className="relative flex items-center">
+                  <Input placeholder="username mới" className="pr-16" />
+                  <span className="absolute right-3 z-10 font-mono text-xs text-muted">@fm.com</span>
+                </div>
+              </TextField>
               <Button
                 size="sm"
                 variant="primary"
@@ -433,15 +440,9 @@ export default function StaffProfile() {
             </div>
             {showPwForm && (
               <form onSubmit={handleChangePassword} className="flex gap-2">
-                <Input
-                  isRequired
-                  type="password"
-                  minLength={6}
-                  placeholder="Mật khẩu mới (tối thiểu 6 ký tự)"
-                  className="flex-1"
-                  value={newPassword}
-                  onChange={setNewPassword}
-                />
+                <TextField value={newPassword} onChange={setNewPassword} isRequired className="flex-1 flex flex-col gap-1">
+                  <Input type="password" minLength={6} placeholder="Mật khẩu mới (tối thiểu 6 ký tự)" />
+                </TextField>
                 <Button
                   type="submit"
                   isDisabled={pwLoading}
@@ -560,29 +561,54 @@ export default function StaffProfile() {
               </Button>
             </div>
             <Select
-              label="Sự kiện"
-              required
+              value={formEventId ? String(formEventId) : null}
+              onChange={(key) => setFormEventId(key != null ? Number(String(key)) : '')}
+              isRequired
+              className="w-full flex flex-col gap-1"
               placeholder="Chọn sự kiện"
-              value={formEventId ? String(formEventId) : ''}
-              onChange={(v) => setFormEventId(Number(v))}
-              options={myEvents.map(ev => ({ value: String(ev.id), label: ev.name }))}
-            />
+            >
+              <Label className="text-xs font-medium text-foreground/80">Sự kiện</Label>
+              <Select.Trigger>
+                <Select.Value />
+                <Select.Indicator />
+              </Select.Trigger>
+              <Select.Popover>
+                <ListBox>
+                  {myEvents.map(ev => (
+                    <ListBox.Item key={String(ev.id)} id={String(ev.id)} textValue={ev.name}>
+                      {ev.name}
+                      <ListBox.ItemIndicator />
+                    </ListBox.Item>
+                  ))}
+                </ListBox>
+              </Select.Popover>
+            </Select>
             <div className="grid grid-cols-2 gap-2">
               <Select
-                label="Loại chi phí"
-                value={formCategory}
-                onChange={(v) => setFormCategory(v as ExpenseCategory)}
-                options={CATEGORIES.map(c => ({ value: c, label: c }))}
-              />
-              <Input
-                label="Số tiền (€)"
-                type="number"
-                min={0}
-                step={0.01}
-                isRequired
-                value={formAmount}
-                onChange={setFormAmount}
-              />
+                value={formCategory || null}
+                onChange={(key) => setFormCategory(key != null ? String(key) as ExpenseCategory : 'Vé tàu/xe')}
+                className="w-full flex flex-col gap-1"
+              >
+                <Label className="text-xs font-medium text-foreground/80">Loại chi phí</Label>
+                <Select.Trigger>
+                  <Select.Value />
+                  <Select.Indicator />
+                </Select.Trigger>
+                <Select.Popover>
+                  <ListBox>
+                    {CATEGORIES.map(c => (
+                      <ListBox.Item key={c} id={c} textValue={c}>
+                        {c}
+                        <ListBox.ItemIndicator />
+                      </ListBox.Item>
+                    ))}
+                  </ListBox>
+                </Select.Popover>
+              </Select>
+              <TextField value={formAmount} onChange={setFormAmount} isRequired className="w-full flex flex-col gap-1">
+                <Label className="text-xs font-medium text-foreground/80">Số tiền (€)</Label>
+                <Input type="number" min={0} step={0.01} />
+              </TextField>
             </div>
             <AppDatePicker
               label="Ngày"
