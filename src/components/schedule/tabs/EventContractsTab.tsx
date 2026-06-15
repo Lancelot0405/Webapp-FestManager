@@ -1,6 +1,6 @@
 ﻿import { useState, useRef } from 'react';
 import { ChevronDown, ChevronUp, Upload, FileText } from 'lucide-react';
-import { Button, Spinner } from '@heroui/react';
+import { Button, Card, Spinner } from '@heroui/react';
 import DocThumbnail from '../../shared/DocThumbnail';
 import { useApp } from '../../../context/AppContext';
 import { useToast } from '../../../context/ToastContext';
@@ -105,7 +105,7 @@ export default function EventContractsTab({ event }: Props) {
         if (!canViewAll && !isMe) return null;
 
         return (
-          <div key={ref.id} className="bg-surface border border-separator rounded-xl shadow-sm overflow-hidden">
+          <Card key={ref.id} className="!p-0 overflow-hidden">
             {/* Header */}
             <Button
               variant="ghost"
@@ -180,7 +180,7 @@ export default function EventContractsTab({ event }: Props) {
                 </div>
               </div>
             )}
-          </div>
+          </Card>
         );
       })}
     </div>
