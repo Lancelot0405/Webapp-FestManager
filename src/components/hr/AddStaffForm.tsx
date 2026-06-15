@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useKeyboardOffset } from '../../hooks/useKeyboardOffset';
 import { ShieldCheck, Building2 } from 'lucide-react';
-import { Button, Modal, ToggleButtonGroup, ToggleButton, TextField, Label, Input, FieldError } from '@heroui/react';
+import { Button, Card, Modal, ToggleButtonGroup, ToggleButton, TextField, Label, Input, FieldError } from '@heroui/react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -133,7 +133,7 @@ export default function AddStaffForm({ onClose }: Props) {
                 </div>
 
                 {(isAdmin || isManager) && (
-                  <div className="bg-default/50 border border-separator rounded-xl p-3 space-y-3">
+                  <Card className="p-3 space-y-3">
                     {isAdmin && (
                       <div className="space-y-2">
                         <div className="flex items-center gap-1.5">
@@ -181,7 +181,7 @@ export default function AddStaffForm({ onClose }: Props) {
                         </ToggleButtonGroup>
                       </div>
                     )}
-                  </div>
+                  </Card>
                 )}
 
                 <Controller
