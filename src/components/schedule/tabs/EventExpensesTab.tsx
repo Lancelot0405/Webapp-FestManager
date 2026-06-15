@@ -1,6 +1,6 @@
 ﻿import { useState, useRef } from 'react';
 import { Plus, ChevronDown, ChevronUp, Upload, X, Image as ImageIcon } from 'lucide-react';
-import { Button, Spinner, TextField, Label, Input, FieldError, Select, ListBox } from '@heroui/react';
+import { Button, Card, Spinner, TextField, Label, Input, FieldError, Select, ListBox } from '@heroui/react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -141,7 +141,7 @@ export default function EventExpensesTab({ event }: Props) {
             const showForm     = showFormForStaff === staffId;
 
             return (
-              <div key={staffId} className="bg-surface border border-separator rounded-xl shadow-sm overflow-hidden">
+              <Card key={staffId} className="!p-0 overflow-hidden">
                 {/* Header */}
                 <Button
                   variant="ghost"
@@ -327,7 +327,7 @@ export default function EventExpensesTab({ event }: Props) {
                     </div>
                   </div>
                 )}
-              </div>
+              </Card>
             );
           })}
         </div>
