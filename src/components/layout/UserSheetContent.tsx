@@ -4,6 +4,7 @@ import { LogOut, Sun, Moon, Bell, BellPlus, Smartphone, X, Check, Info } from 'l
 import { Avatar, Badge, Button, Chip, Disclosure, Switch } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
+import AccentPicker from './AccentPicker';
 import { usePushNotifications } from '../../hooks/usePushNotifications';
 import { useInstallPrompt } from '../../hooks/useInstallPrompt';
 
@@ -100,6 +101,8 @@ export default function UserSheetContent({ onClose, onLogout, notifications, cle
           </div>
           <Switch.Control><Switch.Thumb /></Switch.Control>
         </Switch>
+
+        <AccentPicker />
 
         {(isAdmin || isManager) && (
           <Disclosure>

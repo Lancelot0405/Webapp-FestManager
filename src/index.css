@@ -18,9 +18,11 @@
 .default,
 [data-theme="light"],
 [data-theme="default"] {
-  /* Accent — Blue */
+  /* Accent — Blue (default) */
   --accent: oklch(62.04% 0.1950 253.83);
   --accent-foreground: oklch(99.11% 0 0);
+  --accent-from: oklch(62.04% 0.1950 253.83);
+  --accent-to: oklch(58% 0.22 280);
 
   /* Backgrounds */
   --background: oklch(97.02% 0.0015 253.83);
@@ -91,6 +93,8 @@
 
   --accent: oklch(62.04% 0.1950 253.83);
   --accent-foreground: oklch(99.11% 0 0);
+  --accent-from: oklch(62.04% 0.1950 253.83);
+  --accent-to: oklch(58% 0.22 280);
   --background: oklch(12.00% 0.0015 253.83);
   --border: oklch(28.00% 0.0015 253.83);
   --danger: oklch(59.40% 0.1973 24.63);
@@ -210,11 +214,11 @@ input[type="date"] {
   transform: none;
 }
 
-/* ── Accent gradient — replaces icon-primary-gradient ────────────────── */
+/* ── Accent gradient — uses CSS vars set by AccentPicker ─────────────── */
 .accent-gradient {
   background: linear-gradient(135deg,
-    oklch(62.04% 0.1950 253.83) 0%,
-    oklch(55% 0.18 270) 100%
+    var(--accent-from) 0%,
+    var(--accent-to) 100%
   );
 }
 
