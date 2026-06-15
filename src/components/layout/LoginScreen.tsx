@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { User, Eye, EyeOff, Download, Smartphone, X, ShieldCheck, Store, Tent, UtensilsCrossed, Sun, Moon } from 'lucide-react';
-import { Alert, Button, Card, Form, Link, TextField, Label, Input } from '@heroui/react';
+import { Alert, Button, Card, Form, Link, Label } from '@heroui/react';
+import { Input } from '../shared/GlassInput';
 import { useTheme } from '../../context/ThemeContext';
 import { supabase } from '../../lib/supabase';
 import { adminApi } from '../../lib/adminApi';
@@ -173,26 +174,38 @@ export default function LoginScreen() {
               transition={{ duration: 0.2, ease: 'easeOut' }}
             >
             <Form onSubmit={handleLogin} className="w-full flex flex-col gap-4">
-              <TextField name="username" type="text" isRequired value={username} onChange={setUsername} className="w-full flex flex-col gap-1">
-                <Label>Tên đăng nhập</Label>
-                <Input placeholder="Nhập tên đăng nhập" variant="secondary" autoComplete="username" className="w-full" />
-              </TextField>
+              <Input
+                label="Tên đăng nhập"
+                name="username"
+                type="text"
+                isRequired
+                value={username}
+                onChange={setUsername}
+                placeholder="Nhập tên đăng nhập"
+                autoComplete="username"
+              />
 
-              <TextField name="password" type={showPw ? 'text' : 'password'} isRequired value={password} onChange={setPassword} className="w-full flex flex-col gap-1">
-                <Label>Mật khẩu</Label>
-                <div className="relative flex items-center w-full">
-                  <Input placeholder="Nhập mật khẩu" variant="secondary" autoComplete="current-password" className="w-full pr-10" />
+              <Input
+                label="Mật khẩu"
+                name="password"
+                type={showPw ? 'text' : 'password'}
+                isRequired
+                value={password}
+                onChange={setPassword}
+                placeholder="Nhập mật khẩu"
+                autoComplete="current-password"
+                endContent={
                   <Button
                     isIconOnly
                     variant="ghost"
                     aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                     onPress={() => setShowPw(v => !v)}
-                    className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 min-w-0 p-0 bg-transparent text-muted hover:text-foreground transition-colors"
+                    className="h-7 w-7 min-w-0 p-0 bg-transparent text-muted hover:text-foreground transition-colors"
                   >
                     {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                   </Button>
-                </div>
-              </TextField>
+                }
+              />
 
               {error && <AlertBox msg={error} />}
 
@@ -277,36 +290,56 @@ export default function LoginScreen() {
               )}
               </AnimatePresence>
 
-              <TextField name="username" type="text" isRequired value={username} onChange={val => setUsername(val.replace(/\s/g, ''))} className="w-full flex flex-col gap-1">
-                <Label>Tên đăng nhập</Label>
-                <Input placeholder="Không dấu, không khoảng trắng" variant="secondary" className="w-full" />
-              </TextField>
+              <Input
+                label="Tên đăng nhập"
+                name="username"
+                type="text"
+                isRequired
+                value={username}
+                onChange={val => setUsername(val.replace(/\s/g, ''))}
+                placeholder="Không dấu, không khoảng trắng"
+              />
 
-              <TextField name="displayName" type="text" isRequired value={displayName} onChange={setDisplayName} className="w-full flex flex-col gap-1">
-                <Label>Tên hiển thị</Label>
-                <Input placeholder="Tên đầy đủ của bạn" variant="secondary" className="w-full" />
-              </TextField>
+              <Input
+                label="Tên hiển thị"
+                name="displayName"
+                type="text"
+                isRequired
+                value={displayName}
+                onChange={setDisplayName}
+                placeholder="Tên đầy đủ của bạn"
+              />
 
-              <TextField name="password" type={showPw ? 'text' : 'password'} isRequired value={password} onChange={setPassword} className="w-full flex flex-col gap-1">
-                <Label>Mật khẩu</Label>
-                <div className="relative flex items-center w-full">
-                  <Input placeholder="Tối thiểu 6 ký tự" variant="secondary" className="w-full pr-10" />
+              <Input
+                label="Mật khẩu"
+                name="password"
+                type={showPw ? 'text' : 'password'}
+                isRequired
+                value={password}
+                onChange={setPassword}
+                placeholder="Tối thiểu 6 ký tự"
+                endContent={
                   <Button
                     isIconOnly
                     variant="ghost"
                     aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                     onPress={() => setShowPw(v => !v)}
-                    className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 min-w-0 p-0 bg-transparent text-muted hover:text-foreground transition-colors"
+                    className="h-7 w-7 min-w-0 p-0 bg-transparent text-muted hover:text-foreground transition-colors"
                   >
                     {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                   </Button>
-                </div>
-              </TextField>
+                }
+              />
 
-              <TextField name="password2" type="password" isRequired value={password2} onChange={setPassword2} className="w-full flex flex-col gap-1">
-                <Label>Xác nhận mật khẩu</Label>
-                <Input placeholder="Nhập lại mật khẩu" variant="secondary" className="w-full" />
-              </TextField>
+              <Input
+                label="Xác nhận mật khẩu"
+                name="password2"
+                type="password"
+                isRequired
+                value={password2}
+                onChange={setPassword2}
+                placeholder="Nhập lại mật khẩu"
+              />
 
               {error   && <AlertBox msg={error} />}
               {success && (
