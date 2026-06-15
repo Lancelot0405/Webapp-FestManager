@@ -1,7 +1,7 @@
 ﻿import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Check, X, ChevronDown, Plus, Trash2 } from 'lucide-react';
-import { Button, TextField, Label, Input, Select, ListBox } from '@heroui/react';
+import { Button, Card, TextField, Label, Input, Select, ListBox } from '@heroui/react';
 import { useApp } from '../../../context/AppContext';
 import { useInventoryQuery } from '../../../hooks/queries/useInventoryQuery';
 import { useSetInventoryItem } from '../../../hooks/queries/mutations/useSetInventoryItem';
@@ -152,16 +152,16 @@ export default function EventInventoryTab({ event }: Props) {
           {inventory.map(item => {
             const isLow  = item.current < item.threshold;
             const isWarn = !isLow && item.current < item.threshold * 1.5;
-            const rowCls = isLow
-              ? 'bg-danger/5 border border-danger/30 backdrop-blur-xl'
+            const extraCls = isLow
+              ? '!bg-danger/5 !border-danger/30'
               : isWarn
-              ? 'bg-indigo-500/5 border border-indigo-500/30 backdrop-blur-xl'
-              : 'bg-surface border border-separator rounded-xl';
+              ? '!bg-indigo-500/5 !border-indigo-500/30'
+              : '';
 
             return (
-              <div
+              <Card
                 key={item.id}
-                className={`rounded-xl flex items-stretch ${rowCls}`}
+                className={`flex flex-row items-stretch p-0 overflow-hidden ${extraCls}`}
                 onClick={e => e.stopPropagation()}
               >
                 <div className="flex-1 p-3">
@@ -265,7 +265,7 @@ export default function EventInventoryTab({ event }: Props) {
                     <Trash2 size={15} />
                   </Button>
                 )}
-              </div>
+              </Card>
             );
           })}
         </div>
@@ -277,10 +277,10 @@ export default function EventInventoryTab({ event }: Props) {
           <p className="text-sm font-semibold text-foreground mb-2">Báo cáo cuối sự kiện</p>
           <div className="space-y-2">
             {event.inventoryReported.map((item, i) => (
-              <div key={i} className="bg-surface border border-separator rounded-xl shadow-sm p-3 flex justify-between items-center">
+              <Card key={i} className="p-3 flex flex-row justify-between items-center">
                 <p className="text-sm text-foreground">{item.name}</p>
                 <span className="text-sm text-muted">{item.current} {item.unit}</span>
-              </div>
+              </Card>
             ))}
           </div>
         </div>
