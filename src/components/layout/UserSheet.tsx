@@ -15,18 +15,11 @@ interface UserSheetProps {
 export default function UserSheet({ isOpen, onClose, onLogout, notifications, clearAll, clearOne }: UserSheetProps) {
   return (
     <Drawer.Root isOpen={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <Drawer.Backdrop
-        isDismissable
-        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
-      >
-        <Drawer.Content
-          placement="bottom"
-          className="fixed inset-x-0 bottom-0 z-50 outline-none md:hidden"
-        >
+      <Drawer.Backdrop isDismissable variant="blur" className="md:hidden">
+        <Drawer.Content placement="bottom" className="md:hidden">
           <Drawer.Dialog
             aria-label="Tài khoản"
-            className="mx-auto max-w-md rounded-t-[2rem] overflow-hidden border border-separator shadow-lg dark:shadow-black/40 bg-surface/90 outline-none"
-            style={{ backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)' }}
+            className="mx-auto max-w-md rounded-t-3xl p-0"
           >
             <Drawer.Handle className="mt-3 mb-1 bg-muted/30" />
             <div style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 16px) + 80px)' }}>
