@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useTheme as useNextTheme } from 'next-themes';
 
 type Theme = 'light' | 'dark';
@@ -19,7 +19,9 @@ export const ACCENT_THEMES: AccentTheme[] = [
   { id: 'cyber',  name: 'Thiên thanh', from: 'oklch(66% 0.17 200)',   to: 'oklch(62% 0.20 250)'  },
 ];
 
-const LS_KEY = 'festmanager-accent';
+function lsKey(uid: string) {
+  return uid ? `festmanager-accent-${uid}` : null;
+}
 
 function applyAccent(theme: AccentTheme) {
   const root = document.documentElement;
@@ -34,6 +36,7 @@ interface ThemeContextValue {
   toggleTheme: () => void;
   accentId: string;
   setAccent: (id: string) => void;
+  loadAccentForUser: (uid: string) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
@@ -41,25 +44,35 @@ const ThemeContext = createContext<ThemeContextValue>({
   toggleTheme: () => {},
   accentId: 'blue',
   setAccent: () => {},
+  loadAccentForUser: () => {},
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [accentId, setAccentId] = useState<string>(() => {
-    try { return localStorage.getItem(LS_KEY) ?? 'blue'; } catch { return 'blue'; }
-  });
+  const [userId, setUserId]   = useState('');
+  const [accentId, setAccentId] = useState('blue');
 
   useEffect(() => {
     const theme = ACCENT_THEMES.find(t => t.id === accentId) ?? ACCENT_THEMES[0];
     applyAccent(theme);
-    try { localStorage.setItem(LS_KEY, accentId); } catch { /* ignore */ }
-  }, [accentId]);
+    const key = lsKey(userId);
+    if (key) {
+      try { localStorage.setItem(key, accentId); } catch { /* ignore */ }
+    }
+  }, [accentId, userId]);
 
-  const setAccent = (id: string) => {
+  const loadAccentForUser = useCallback((uid: string) => {
+    setUserId(uid);
+    const key = lsKey(uid);
+    const saved = key ? (() => { try { return localStorage.getItem(key); } catch { return null; } })() : null;
+    setAccentId(saved && ACCENT_THEMES.some(t => t.id === saved) ? saved : 'blue');
+  }, []);
+
+  const setAccent = useCallback((id: string) => {
     if (ACCENT_THEMES.some(t => t.id === id)) setAccentId(id);
-  };
+  }, []);
 
   return (
-    <ThemeContext.Provider value={{ theme: 'light', toggleTheme: () => {}, accentId, setAccent }}>
+    <ThemeContext.Provider value={{ theme: 'light', toggleTheme: () => {}, accentId, setAccent, loadAccentForUser }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -69,12 +82,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 export function useTheme(): ThemeContextValue {
   const { resolvedTheme, setTheme } = useNextTheme();
   const theme: Theme = resolvedTheme === 'dark' ? 'dark' : 'light';
-  const { accentId, setAccent } = useContext(ThemeContext);
+  const ctx = useContext(ThemeContext);
   return {
+    ...ctx,
     theme,
     toggleTheme: () => setTheme(theme === 'dark' ? 'light' : 'dark'),
-    accentId,
-    setAccent,
   };
 }
 

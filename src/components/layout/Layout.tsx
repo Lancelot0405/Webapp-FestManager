@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useFAB } from '../../context/FABContext';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { useApp } from '../../context/AppContext';
+import { useTheme } from '../../context/ThemeContext';
 import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
 import { animations } from '../../lib/animations';
 import Sidebar   from './Sidebar';
@@ -14,10 +15,15 @@ import BottomNav from './BottomNav';
 
 export default function Layout() {
   const { currentUser, logout: contextLogout } = useApp();
+  const { loadAccentForUser } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
   const [navVisible, setNavVisible] = useState(true);
+
+  useEffect(() => {
+    loadAccentForUser(currentUser?.id ?? '');
+  }, [currentUser?.id, loadAccentForUser]);
 
   const mainRef     = useRef<HTMLElement>(null);
   const lastScrollY = useRef(0);
