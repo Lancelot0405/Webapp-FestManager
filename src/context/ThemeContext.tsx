@@ -23,6 +23,22 @@ function lsKey(uid: string) {
   return uid ? `festmanager-accent-${uid}` : null;
 }
 
+function lsGet(uid: string): string | null {
+  const key = lsKey(uid);
+  if (!key) return null;
+  try { return localStorage.getItem(key); } catch { return null; }
+}
+
+function lsSet(uid: string, id: string) {
+  const key = lsKey(uid);
+  if (!key) return;
+  try { localStorage.setItem(key, id); } catch { /* ignore */ }
+}
+
+function validId(id: string | null | undefined): string {
+  return id && ACCENT_THEMES.some(t => t.id === id) ? id : 'blue';
+}
+
 function applyAccent(theme: AccentTheme) {
   const root = document.documentElement;
   root.style.setProperty('--accent', theme.from);
@@ -36,7 +52,8 @@ interface ThemeContextValue {
   toggleTheme: () => void;
   accentId: string;
   setAccent: (id: string) => void;
-  loadAccentForUser: (uid: string) => void;
+  /** Gọi khi user đăng nhập. dbValue = giá trị từ Supabase (ưu tiên hơn cache). */
+  loadAccentForUser: (uid: string, dbValue?: string | null) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
@@ -48,23 +65,22 @@ const ThemeContext = createContext<ThemeContextValue>({
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [userId, setUserId]   = useState('');
+  const [userId, setUserId]     = useState('');
   const [accentId, setAccentId] = useState('blue');
 
   useEffect(() => {
     const theme = ACCENT_THEMES.find(t => t.id === accentId) ?? ACCENT_THEMES[0];
     applyAccent(theme);
-    const key = lsKey(userId);
-    if (key) {
-      try { localStorage.setItem(key, accentId); } catch { /* ignore */ }
-    }
+    lsSet(userId, accentId);
   }, [accentId, userId]);
 
-  const loadAccentForUser = useCallback((uid: string) => {
+  const loadAccentForUser = useCallback((uid: string, dbValue?: string | null) => {
     setUserId(uid);
-    const key = lsKey(uid);
-    const saved = key ? (() => { try { return localStorage.getItem(key); } catch { return null; } })() : null;
-    setAccentId(saved && ACCENT_THEMES.some(t => t.id === saved) ? saved : 'blue');
+    // DB value > localStorage cache > default
+    const id = validId(dbValue) !== 'blue'
+      ? validId(dbValue)
+      : validId(lsGet(uid));
+    setAccentId(id);
   }, []);
 
   const setAccent = useCallback((id: string) => {

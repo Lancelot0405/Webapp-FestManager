@@ -1,9 +1,15 @@
 import { Palette } from 'lucide-react';
 import { ACCENT_THEMES } from '../../context/ThemeContext';
 import { useTheme } from '../../context/ThemeContext';
+import { supabase } from '../../lib/supabase';
 
 export default function AccentPicker() {
   const { accentId, setAccent } = useTheme();
+
+  const handleSelect = async (id: string) => {
+    setAccent(id);
+    await supabase.auth.updateUser({ data: { accent_theme: id } });
+  };
 
   return (
     <div className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl">
@@ -16,7 +22,7 @@ export default function AccentPicker() {
           <button
             key={t.id}
             title={t.name}
-            onClick={() => setAccent(t.id)}
+            onClick={() => handleSelect(t.id)}
             className="relative w-6 h-6 rounded-full shrink-0 transition-transform active:scale-90 hover:scale-110"
             style={{ background: `linear-gradient(135deg, ${t.from} 0%, ${t.to} 100%)` }}
           >

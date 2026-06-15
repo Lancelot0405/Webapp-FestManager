@@ -7,6 +7,7 @@ import { useFAB } from '../../context/FABContext';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
+import { supabase } from '../../lib/supabase';
 import { useRealtimeNotifications } from '../../hooks/useRealtimeNotifications';
 import { animations } from '../../lib/animations';
 import Sidebar   from './Sidebar';
@@ -22,7 +23,11 @@ export default function Layout() {
   const [navVisible, setNavVisible] = useState(true);
 
   useEffect(() => {
-    loadAccentForUser(currentUser?.id ?? '');
+    if (!currentUser?.id) { loadAccentForUser(''); return; }
+    const uid = currentUser.id;
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      loadAccentForUser(uid, user?.user_metadata?.accent_theme ?? null);
+    });
   }, [currentUser?.id, loadAccentForUser]);
 
   const mainRef     = useRef<HTMLElement>(null);
