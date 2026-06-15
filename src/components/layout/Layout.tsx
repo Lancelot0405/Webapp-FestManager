@@ -11,15 +11,13 @@ import { animations } from '../../lib/animations';
 import Sidebar   from './Sidebar';
 import TopBar    from './TopBar';
 import BottomNav from './BottomNav';
-import UserSheet from './UserSheet';
 
 export default function Layout() {
   const { currentUser, logout: contextLogout } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [navVisible,    setNavVisible]    = useState(true);
-  const [showUserSheet, setShowUserSheet] = useState(false);
+  const [navVisible, setNavVisible] = useState(true);
 
   const mainRef     = useRef<HTMLElement>(null);
   const lastScrollY = useRef(0);
@@ -63,7 +61,7 @@ export default function Layout() {
 
       <div className="flex h-full">
         <Sidebar
-          onOpenSheet={() => setShowUserSheet(true)}
+          onOpenSheet={() => {}}
           notifCount={notifications.length}
           notifications={notifications}
           clearAll={clearAll}
@@ -76,8 +74,11 @@ export default function Layout() {
             <div className="md:hidden">
               <TopBar
                 navVisible={navVisible}
-                onOpenSheet={() => setShowUserSheet(true)}
                 notifCount={notifications.length}
+                notifications={notifications}
+                clearAll={clearAll}
+                clearOne={clearOne}
+                onLogout={handleLogout}
               />
             </div>
           )}
@@ -120,14 +121,6 @@ export default function Layout() {
         </Button>
       )}
 
-      <UserSheet
-        isOpen={showUserSheet}
-        onClose={() => setShowUserSheet(false)}
-        onLogout={handleLogout}
-        notifications={notifications}
-        clearAll={clearAll}
-        clearOne={clearOne}
-      />
     </div>
   );
 }
