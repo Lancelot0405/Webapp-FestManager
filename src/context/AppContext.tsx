@@ -35,34 +35,65 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // ---------------------------------------------------------------------------
   // Auth state listener
+  //
+  // ⚠️ KHÔNG await hàm Supabase khác BÊN TRONG callback onAuthStateChange —
+  // callback giữ lock của thư viện auth, await call khác sẽ gây deadlock và
+  // app kẹt mãi ở splash. Vì vậy phần fetch profile được defer ra ngoài.
   // ---------------------------------------------------------------------------
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('users').select('id, name, role, status').eq('id', session.user.id).single();
-        if (profile) {
-          if (profile.status === 'pending' || profile.status === 'rejected') {
-            await supabase.auth.signOut();
-            return;
-          }
-          dispatch({
-            type: 'LOGIN',
-            payload: {
-              id:   profile.id,
-              name: profile.name,
-              role: profile.role as import('../types').UserRole,
-            },
-          });
-        } else {
-          await supabase.auth.signOut();
-        }
-      } else {
+    let active = true;
+
+    const resolveSession = async (session: import('@supabase/supabase-js').Session | null) => {
+      if (!session?.user) {
+        if (!active) return;
         dispatch({ type: 'LOGOUT' });
         queryClient.clear();
+        return;
       }
+
+      const { data: profile } = await supabase
+        .from('users').select('id, name, role, status').eq('id', session.user.id).single();
+
+      if (!active) return;
+
+      if (profile) {
+        if (profile.status === 'pending' || profile.status === 'rejected') {
+          await supabase.auth.signOut();
+          return;
+        }
+        dispatch({
+          type: 'LOGIN',
+          payload: {
+            id:   profile.id,
+            name: profile.name,
+            role: profile.role as import('../types').UserRole,
+          },
+        });
+      } else {
+        await supabase.auth.signOut();
+      }
+    };
+
+    // 1) Lấy session hiện có ngay khi mount để giải quyết `loading` ban đầu
+    supabase.auth.getSession().then(({ data }) => {
+      void resolveSession(data.session);
     });
-    return () => subscription.unsubscribe();
+
+    // 2) Lắng nghe thay đổi auth — defer việc fetch để tránh deadlock auth lock
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setTimeout(() => { void resolveSession(session); }, 0);
+    });
+
+    // 3) Timeout an toàn: nếu sau 8s vẫn chưa xác định được, thoát splash
+    const safetyTimer = setTimeout(() => {
+      if (active) dispatch({ type: 'SET_LOADING', payload: false });
+    }, 8000);
+
+    return () => {
+      active = false;
+      clearTimeout(safetyTimer);
+      subscription.unsubscribe();
+    };
   // queryClient is stable — không cần trong deps
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

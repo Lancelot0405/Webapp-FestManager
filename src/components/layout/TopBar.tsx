@@ -33,7 +33,7 @@ export default function TopBar({ navVisible = true, notifCount = 0, notification
       className="md:hidden fixed top-0 right-0 z-20 transition-transform duration-300 ease-out"
       style={{ transform: navVisible ? 'translateY(0)' : 'translateY(-100%)' }}
     >
-      <div className="flex justify-end items-center gap-1 h-11 px-3 pt-safe">
+      <div className="flex justify-end items-center gap-1 min-h-11 px-3 pt-safe">
         <Button
           variant="ghost" isIconOnly size="sm"
           onPress={toggleTheme}
