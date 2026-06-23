@@ -14,12 +14,17 @@
 FestManager là một **Progressive Web App (PWA)** quản lý hoạt động F&B (Food & Beverage) cho các sự kiện và lễ hội. Ứng dụng được tối ưu cho mobile với hỗ trợ offline và thông báo push.
 
 **Stack:**
-- React 19 + TypeScript 5 + Vite 8
-- **HeroUI v3.1** — UI component library (nguồn duy nhất cho UI)
-- Tailwind CSS 4 (dark mode via CSS class)
-- TanStack Query v5 — server state & data fetching
-- Supabase (PostgreSQL, Auth, Realtime, Edge Functions, Storage)
-- Triển khai trên Vercel
+- React 19 + TypeScript ~6 + Vite 8
+- **HeroUI v3.1** (`@heroui/react` + `@heroui/styles`) — UI component library (nguồn duy nhất cho UI)
+- Tailwind CSS 4 (`@tailwindcss/vite`, dark mode via CSS class) + `tailwind-merge` + `clsx` (`cn()` trong `lib/utils.ts`)
+- TanStack Query v5 (+ devtools) — server state & data fetching
+- React Router v7 — routing (`BrowserRouter`, route lazy + `Suspense`)
+- React Hook Form v7 + Zod (`@hookform/resolvers`) — form & validation
+- Framer Motion — animation; Lucide React — icons
+- Supabase (`@supabase/supabase-js` v2) — PostgreSQL, Auth, Realtime, Edge Functions, Storage
+- Export: `@react-pdf/renderer` (PDF), `xlsx` (Excel)
+- Test: Vitest 2 + Testing Library + MSW; Lint: ESLint 10 + typescript-eslint
+- Triển khai trên Vercel (+ `@vercel/speed-insights`)
 
 **Ngôn ngữ:** Toàn bộ UI, label, và string dùng tiếng Việt. Định dạng ngày: DD-MM-YYYY.
 
@@ -42,67 +47,78 @@ npm run preview      # Preview build production
 
 ```
 src/
+├── App.tsx             # Routes + auth gate (splash / LoginScreen / Layout) — route lazy
+├── main.tsx            # Provider tree: NextThemes → Theme → Router → Query → ErrorBoundary → Toast → App → FAB
 ├── components/
-│   ├── clients/       # Quản lý khách hàng/đối tác sự kiện
-│   ├── dashboard/     # Trang tổng quan, biểu đồ doanh thu
-│   ├── finance/       # Báo cáo tài chính, duyệt chi phí
-│   ├── hr/            # Hồ sơ nhân viên, hợp đồng
-│   ├── inventory/     # Quản lý tồn kho thực phẩm & thiết bị
-│   ├── layout/        # TopBar, BottomNav, Sidebar, LoginScreen, UserSheet
-│   ├── schedule/      # Lịch sự kiện; tabs: Info/Staff/Expenses/Inventory/Contracts
-│   └── shared/        # ErrorBoundary, StatusBadge, DocThumbnail
-│       ├── GlassInput.tsx      # Wrapper HeroUI TextField
-│       ├── GlassSelect.tsx     # Wrapper HeroUI Select
-│       ├── GlassTextarea.tsx   # Wrapper HeroUI TextArea
+│   ├── clients/       # Clients — quản lý khách hàng/đối tác sự kiện
+│   ├── dashboard/     # Dashboard — trang tổng quan, biểu đồ doanh thu
+│   ├── finance/       # Finance, EventFinanceCard, ExpenseList, FinanceSummaryCards, FinanceExport
+│   ├── hr/            # HRGlobal, StaffProfile, AddStaffForm
+│   ├── inventory/     # Inventory + Tabs/Toolbar/Summary, FoodTemplateManager, NumberPicker, useInventoryFilters
+│   ├── layout/        # TopBar, BottomNav, Sidebar, Layout, LoginScreen, ProtectedRoute,
+│   │                  #   UserSheet(+Content), AccentPicker
+│   ├── schedule/      # Schedule, EventDetail, AddEventForm, EventPDFExport
+│   │   └── tabs/      # EventInfoTab, EventStaffTab, EventExpensesTab, EventInventoryTab, EventContractsTab
+│   └── shared/        # ErrorBoundary, StatusBadge, DocThumbnail, AppDatePicker, FranceCityAutocomplete
 │       └── skeletons/          # CardSkeleton, ListSkeleton, PageSkeleton (HeroUI Skeleton)
+│  # LƯU Ý: Glass* wrappers ĐÃ BỊ GỠ — dùng trực tiếp HeroUI TextField/Select/TextArea
 ├── context/
-│   ├── AppContext.tsx  # Auth state + currentUser
-│   ├── ThemeContext.tsx
-│   └── ToastContext.tsx
+│   ├── AppContext.tsx  # Auth state + currentUser (useReducer + appReducer); auth listener + realtime
+│   ├── ThemeContext.tsx # Dark/light + accent color (đồng bộ Supabase user_metadata)
+│   ├── ToastContext.tsx # useToast()
+│   └── FABContext.tsx   # Floating action button toàn cục (useFABRegister để đăng ký)
 ├── hooks/
-│   ├── queries/        # TanStack Query hooks (useEventsQuery, useStaffQuery, ...)
-│   │   └── mutations/  # Mutation hooks (useCreateEvent, useUpdateStaff, ...)
+│   ├── queries/        # TanStack Query hooks (useEventsQuery, useStaffQuery, useInventoryQuery,
+│   │   │               #   useClientsQuery, useInventoryLogsQuery, usePendingRegistrationsQuery)
+│   │   └── mutations/  # Mutation hooks (useCreateEvent, useUpdateStaff, useAddExpense, ...)
+│   ├── useFABRegister.ts
 │   ├── useInstallPrompt.ts
 │   ├── usePushNotifications.ts
 │   ├── useRealtimeNotifications.ts
+│   ├── useKeyboardOffset.ts
 │   └── useIsDesktop.ts
 ├── services/
 │   └── api/            # Supabase data functions (events.ts, staff.ts, inventory.ts, clients.ts)
 ├── lib/
 │   ├── supabase.ts     # Supabase client (anon key only)
+│   ├── db.ts           # Data fetchers + mapping ngày (khoanh vùng `any` tại ranh giới DB)
 │   ├── adminApi.ts     # Gọi Edge Function cho tác vụ admin
 │   ├── dateHelpers.ts  # toISODate / fromISODate
 │   ├── eventStatus.ts  # Hằng số trạng thái sự kiện
 │   ├── validations.ts  # Zod schemas
 │   ├── animations.ts   # Framer motion variants
 │   ├── queryKeys.ts    # TanStack Query key factory
-│   └── errors.ts       # Custom error classes
-├── types/index.ts      # Tất cả TypeScript interfaces dùng chung
-└── data/mockData.ts    # Dữ liệu mock/tĩnh
+│   ├── errors.ts       # Custom error classes
+│   └── utils.ts        # cn() — clsx + tailwind-merge
+├── types/
+│   ├── index.ts        # Interfaces dùng chung
+│   └── database.types.ts # Generated types từ Supabase schema
+├── data/mockData.ts    # Dữ liệu mock/tĩnh
+└── test/setup.ts       # Vitest + Testing Library + MSW setup
 ```
 
 **Backend (Supabase):**
 ```
 supabase/
-├── schema.sql             # Định nghĩa schema PostgreSQL (12 bảng + enums)
-├── migrations/            # Migration files (001_…, 002_…)
-└── functions/admin/       # Edge Function: register, create-staff, set-password, delete-user, get-user-email
+├── schema.sql             # Định nghĩa schema PostgreSQL (bảng + enums + RLS)
+├── migrations/            # 001_manager_role_and_event_dates, 002_clients_and_push_subscriptions,
+│                          #   003_food_templates, 004_inventory_category_constraint
+└── functions/admin/       # Edge Function (1 entry index.ts, routing nội bộ): register,
+                           #   create-staff, set-password, delete-user, get-user-email
 ```
 
-**Docs:**
-```
-docs/
-└── HEROUI-MIGRATION.md   # Kế hoạch migrate HeroUI theo phase
-```
+**Docs:** `docs/PLAN.md`
 
 ---
 
 ## State Management
 
 - **Server state:** TanStack Query v5 — tất cả fetch/mutation đi qua hooks trong `src/hooks/queries/`
-- **Auth/UI state:** `AppContext` chỉ giữ `currentUser` và các action liên quan auth
+- **Auth state:** `AppContext` (useReducer + `appReducer`) giữ `currentUser` + `loading`; chạy auth
+  listener (Supabase `onAuthStateChange`) và realtime → invalidate query cache
 - **Toast:** `useToast()` từ `ToastContext`
-- **Theme:** `useTheme()` từ `ThemeContext`
+- **Theme:** `useTheme()` từ `ThemeContext` (dark/light + accent color, đồng bộ Supabase user_metadata)
+- **FAB:** `useFABRegister()` từ `FABContext` để đăng ký nút floating action toàn cục cho từng trang
 
 Khi thêm dữ liệu mới từ Supabase:
 1. Tạo service function trong `src/services/api/`
@@ -126,6 +142,7 @@ Khi thêm dữ liệu mới từ Supabase:
 | `inventory_logs` | Lịch sử thay đổi tồn kho |
 | `expenses` | Chi phí nhân viên (pending/approved/rejected) |
 | `clients` | Đối tác/khách hàng sự kiện |
+| `food_templates` | Mẫu tên/đơn vị thực phẩm dùng lại cho inventory |
 | `push_subscriptions` | Web Push VAPID subscriptions |
 | `registration_requests` | Yêu cầu đăng ký manager |
 
