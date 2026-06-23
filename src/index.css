@@ -164,13 +164,6 @@ body {
 .pt-safe {
   padding-top: max(0px, env(safe-area-inset-top));
 }
-/* iOS 26+ standalone: env(safe-area-inset-top) đôi khi trả về 0 lúc cold-start
-   khiến header dính status bar. Đặt sàn tối thiểu đủ che Dynamic Island/notch. */
-@media (display-mode: standalone) {
-  .pt-safe {
-    padding-top: max(env(safe-area-inset-top), 59px);
-  }
-}
 
 /* ── Scrolling ────────────────────────────────────────────────────────── */
 .scroll-smooth-ios {
