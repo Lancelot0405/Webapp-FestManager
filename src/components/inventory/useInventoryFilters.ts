@@ -3,6 +3,14 @@ import type { CurrentUser, InventoryItem, InventoryLogEntry, InventoryUnit, Inve
 
 export type MainTab = 'restaurant' | 'festival';
 export type SubTab = 'food' | 'equipment' | 'history';
+export type StatusFilter = 'all' | 'low' | 'warn' | 'ok';
+export type ItemStatus = 'low' | 'warn' | 'ok';
+
+export function getItemStatus(item: InventoryItem): ItemStatus {
+  if (item.current < item.threshold) return 'low';
+  if (item.threshold > 0 && item.current < item.threshold * 1.5) return 'warn';
+  return 'ok';
+}
 
 export const FOOD_UNITS: InventoryUnit[] = ['kg', 'g', 'lít', 'ml', 'cái', 'lon', 'hộp', 'túi', 'gói', 'lốc', 'xiên', 'thùng', 'phần', 'con', 'miếng', 'thanh', 'viên', 'lọ', 'bình'];
 export const EQUIP_UNITS: InventoryUnit[] = ['cái', 'chiếc', 'đôi', 'bộ', 'chai', 'cuộn', 'hộp', 'thùng', 'tấm', 'ổ', 'gói'];
@@ -38,10 +46,14 @@ export function useInventoryFilters(
 
   const [mainTab, setMainTab] = useState<MainTab>(defaultTab);
   const [subTab,  setSubTab]  = useState<SubTab>('food');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
   const filteredItems = subTab !== 'history'
     ? inventory.filter(item => matchCategory(item, mainTab, subTab as 'food' | 'equipment'))
     : [];
+
+  const statusCounts = { all: filteredItems.length, low: 0, warn: 0, ok: 0 };
+  for (const item of filteredItems) statusCounts[getItemStatus(item)]++;
 
   const countFor = (m: MainTab, s: 'food' | 'equipment') =>
     inventory.filter(item => matchCategory(item, m, s)).length;
@@ -67,6 +79,9 @@ export function useInventoryFilters(
   return {
     mainTab,
     subTab,
+    statusFilter,
+    setStatusFilter,
+    statusCounts,
     handleMainTabChange,
     handleSubTabChange,
     filteredItems,

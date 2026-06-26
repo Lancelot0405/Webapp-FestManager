@@ -10,13 +10,13 @@ import { useCreateInventoryItem } from '../../hooks/queries/mutations/useCreateI
 
 import type { InventoryItem } from '../../types';
 import InventoryLogList from './InventoryLogList';
-import InventoryTabs from './InventoryTabs';
+import InventoryNavigation from './InventoryNavigation';
 import InventoryItemList from './InventoryItemList';
 import InventoryItemDrawer from './InventoryItemDrawer';
 import InventoryAddModal from './InventoryAddModal';
 import InventoryToolbar, { type SortKey } from './InventoryToolbar';
 import InventorySummary from './InventorySummary';
-import { useInventoryFilters, getCategory } from './useInventoryFilters';
+import { useInventoryFilters, getCategory, getItemStatus } from './useInventoryFilters';
 
 export default function Inventory() {
   const { currentUser } = useApp();
@@ -36,11 +36,16 @@ export default function Inventory() {
 
   const lowCount = filters.filteredItems.filter(i => i.current < i.threshold).length;
 
+  const { statusFilter } = filters;
   const visibleItems = useMemo(() => {
     const q = search.trim().toLowerCase();
-    const list = q
+    let list = q
       ? filters.filteredItems.filter(i => i.name.toLowerCase().includes(q))
       : [...filters.filteredItems];
+
+    if (statusFilter !== 'all') {
+      list = list.filter(i => getItemStatus(i) === statusFilter);
+    }
 
     const rank = (i: InventoryItem) => {
       if (i.current < i.threshold) return 0;
@@ -54,7 +59,7 @@ export default function Inventory() {
       case 'qty-asc':  return list.sort((a, b) => a.current - b.current);
       default:         return list.sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name, 'vi'));
     }
-  }, [filters.filteredItems, search, sort]);
+  }, [filters.filteredItems, search, sort, statusFilter]);
 
   const openAddModal = useCallback(() => setShowAddModal(true), []);
   useFABRegister(filters.subTab !== 'history' ? openAddModal : null, 'Thêm vào kho');
@@ -100,15 +105,18 @@ export default function Inventory() {
 
   return (
     <div className="space-y-4 pb-32">
-      <InventoryTabs
+      <InventoryNavigation
         mainTab={filters.mainTab}
         subTab={filters.subTab}
+        statusFilter={filters.statusFilter}
+        statusCounts={filters.statusCounts}
         canSeeRestaurant={filters.canSeeRestaurant}
         canSeeFestival={filters.canSeeFestival}
         countFor={filters.countFor}
         sectionLogsCount={filters.sectionLogs.length}
         onMainTabChange={filters.handleMainTabChange}
         onSubTabChange={filters.handleSubTabChange}
+        onStatusFilterChange={filters.setStatusFilter}
         actionSlot={importButton}
         summarySlot={
           filters.subTab !== 'history' && !isLoading && filters.filteredItems.length > 0 ? (
@@ -139,7 +147,7 @@ export default function Inventory() {
           onEditItem={setEditingItem}
           itemLabel={filters.itemLabel}
           sectionLabel={filters.sectionLabel}
-          isFiltered={search.trim().length > 0}
+          isFiltered={search.trim().length > 0 || statusFilter !== 'all'}
         />
       )}
 
