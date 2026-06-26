@@ -165,12 +165,12 @@ return isDesktop
 
 ## Phân kỳ thực hiện
 
-| Phase | Nội dung | Ưu tiên |
-|-------|----------|---------|
-| 1 | Xoá nested tabs → Filter chips + Segment control | Cao |
-| 2 | Chuyển grid card → List view + inline +/− | Cao |
-| 3 | Desktop: Sidebar + Table view | Trung bình |
-| 4 | Swipe actions mobile | Thấp (nice-to-have) |
+| Phase | Nội dung | Ưu tiên | Trạng thái |
+|-------|----------|---------|------------|
+| 1 | Xoá nested tabs → Filter chips + Segment control | Cao | ✅ Xong (`f309e91`) |
+| 2 | Chuyển grid card → List view + inline +/− | Cao | ⬜ Chưa làm |
+| 3 | Desktop: Sidebar + Table view | Trung bình | ⬜ Chưa làm |
+| 4 | Swipe actions mobile | Thấp (nice-to-have) | ⬜ Chưa làm |
 
 Phase 1 + 2 ship trước → mobile đã tốt hơn rõ rệt. Phase 3 + 4 làm sau.
 
