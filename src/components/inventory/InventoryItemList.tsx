@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Card } from '@heroui/react';
 import { animations } from '../../lib/animations';
 import ListSkeleton from '@/components/shared/skeletons/ListSkeleton';
 import type { InventoryItem } from '../../types';
@@ -15,11 +16,7 @@ interface Props {
 
 export default function InventoryItemList({ items, isLoading, onEditItem, itemLabel, sectionLabel, isFiltered }: Props) {
   if (isLoading) {
-    return (
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2 items-start">
-        <ListSkeleton count={3} />
-      </div>
-    );
+    return <ListSkeleton count={5} />;
   }
 
   if (items.length === 0) {
@@ -33,12 +30,14 @@ export default function InventoryItemList({ items, isLoading, onEditItem, itemLa
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2 items-start">
-      {items.map((item, i) => (
-        <motion.div key={item.id} {...animations.listItem(i)}>
-          <InventoryItemRow item={item} onEdit={onEditItem} />
-        </motion.div>
-      ))}
-    </div>
+    <Card className="!p-0 overflow-hidden">
+      <ul className="divide-y divide-separator">
+        {items.map((item, i) => (
+          <motion.li key={item.id} {...animations.listItem(i)}>
+            <InventoryItemRow item={item} onEdit={onEditItem} />
+          </motion.li>
+        ))}
+      </ul>
+    </Card>
   );
 }
