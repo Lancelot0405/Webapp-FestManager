@@ -1,4 +1,4 @@
-const CACHE_NAME = 'festmanager-v3';
+const CACHE_NAME = 'festmanager-v4';
 
 self.addEventListener('install', e => {
   // Kích hoạt SW mới ngay lập tức, không chờ tab cũ đóng
@@ -50,8 +50,8 @@ self.addEventListener('push', e => {
   e.waitUntil(
     self.registration.showNotification(data.title ?? 'FestManager', {
       body: data.body ?? '',
-      icon: '/icons/icon.svg',
-      badge: '/icons/icon.svg',
+      icon: '/icons/icon-192.png',
+      badge: '/icons/icon-192.png',
       data: data.url ?? '/',
     })
   );
