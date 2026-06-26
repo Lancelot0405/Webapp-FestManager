@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import { ChevronUp, ChevronDown } from 'lucide-react';
 import type { SortDescriptor } from 'react-aria-components';
 import { Table } from '@heroui/react';
 import { getItemStatus } from './useInventoryFilters';
@@ -24,16 +23,6 @@ const statusRank = (item: InventoryItem) => {
   const s = getItemStatus(item);
   return s === 'low' ? 0 : s === 'warn' ? 1 : 2;
 };
-
-function SortHeader({ label, dir }: { label: string; dir?: 'ascending' | 'descending' }) {
-  return (
-    <span className="inline-flex items-center gap-1">
-      {label}
-      {dir === 'ascending' && <ChevronUp size={14} />}
-      {dir === 'descending' && <ChevronDown size={14} />}
-    </span>
-  );
-}
 
 export default function InventoryTable({ items, onEditItem, itemLabel, sectionLabel, isFiltered }: Props) {
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
@@ -73,17 +62,25 @@ export default function InventoryTable({ items, onEditItem, itemLabel, sectionLa
         >
           <Table.Header>
             <Table.Column isRowHeader allowsSorting id="name">
-              {({ sortDirection }) => <SortHeader label="Tên" dir={sortDirection} />}
+              {({ sortDirection }) => (
+                <Table.SortableColumnHeader sortDirection={sortDirection}>Tên</Table.SortableColumnHeader>
+              )}
             </Table.Column>
             <Table.Column allowsSorting id="current">
-              {({ sortDirection }) => <SortHeader label="Số lượng" dir={sortDirection} />}
+              {({ sortDirection }) => (
+                <Table.SortableColumnHeader sortDirection={sortDirection}>Số lượng</Table.SortableColumnHeader>
+              )}
             </Table.Column>
             <Table.Column id="unit">Đơn vị</Table.Column>
             <Table.Column allowsSorting id="threshold">
-              {({ sortDirection }) => <SortHeader label="Ngưỡng" dir={sortDirection} />}
+              {({ sortDirection }) => (
+                <Table.SortableColumnHeader sortDirection={sortDirection}>Ngưỡng</Table.SortableColumnHeader>
+              )}
             </Table.Column>
             <Table.Column allowsSorting id="status">
-              {({ sortDirection }) => <SortHeader label="Trạng thái" dir={sortDirection} />}
+              {({ sortDirection }) => (
+                <Table.SortableColumnHeader sortDirection={sortDirection}>Trạng thái</Table.SortableColumnHeader>
+              )}
             </Table.Column>
           </Table.Header>
           <Table.Body>

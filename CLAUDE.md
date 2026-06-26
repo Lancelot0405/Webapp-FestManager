@@ -15,7 +15,7 @@ FestManager là một **Progressive Web App (PWA)** quản lý hoạt động F&
 
 **Stack:**
 - React 19 + TypeScript ~6 + Vite 8
-- **HeroUI v3.1** (`@heroui/react` + `@heroui/styles`) — UI component library (nguồn duy nhất cho UI)
+- **HeroUI v3.2** (`@heroui/react` + `@heroui/styles`) — UI component library (nguồn duy nhất cho UI)
 - Tailwind CSS 4 (`@tailwindcss/vite`, dark mode via CSS class) + `tailwind-merge` + `clsx` (`cn()` trong `lib/utils.ts`)
 - TanStack Query v5 (+ devtools) — server state & data fetching
 - React Router v7 — routing (`BrowserRouter`, route lazy + `Suspense`)
