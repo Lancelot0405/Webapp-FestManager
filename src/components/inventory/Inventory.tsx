@@ -1,6 +1,8 @@
 ﻿import { useMemo, useRef, useState, useCallback } from 'react';
 import { FileSpreadsheet } from 'lucide-react';
+import { SearchField } from '@heroui/react';
 import { useFABRegister } from '../../hooks/useFABRegister';
+import { useIsDesktop } from '../../hooks/useIsDesktop';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import { getErrorMessage } from '../../lib/errors';
@@ -16,9 +18,12 @@ import InventoryItemDrawer from './InventoryItemDrawer';
 import InventoryAddModal from './InventoryAddModal';
 import InventoryToolbar, { type SortKey } from './InventoryToolbar';
 import InventorySummary from './InventorySummary';
+import InventorySidebar from './InventorySidebar';
+import InventoryTable from './InventoryTable';
 import { useInventoryFilters, getCategory, getItemStatus } from './useInventoryFilters';
 
 export default function Inventory() {
+  const isDesktop = useIsDesktop(1024);
   const { currentUser } = useApp();
   const showToast = useToast();
   const { data: inventory = [], isLoading } = useInventoryQuery();
@@ -37,7 +42,7 @@ export default function Inventory() {
   const lowCount = filters.filteredItems.filter(i => i.current < i.threshold).length;
 
   const { statusFilter } = filters;
-  const visibleItems = useMemo(() => {
+  const baseFiltered = useMemo(() => {
     const q = search.trim().toLowerCase();
     let list = q
       ? filters.filteredItems.filter(i => i.name.toLowerCase().includes(q))
@@ -46,6 +51,11 @@ export default function Inventory() {
     if (statusFilter !== 'all') {
       list = list.filter(i => getItemStatus(i) === statusFilter);
     }
+    return list;
+  }, [filters.filteredItems, search, statusFilter]);
+
+  const visibleItems = useMemo(() => {
+    const list = [...baseFiltered];
 
     const rank = (i: InventoryItem) => {
       if (i.current < i.threshold) return 0;
@@ -59,7 +69,7 @@ export default function Inventory() {
       case 'qty-asc':  return list.sort((a, b) => a.current - b.current);
       default:         return list.sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name, 'vi'));
     }
-  }, [filters.filteredItems, search, sort, statusFilter]);
+  }, [baseFiltered, sort]);
 
   const openAddModal = useCallback(() => setShowAddModal(true), []);
   useFABRegister(filters.subTab !== 'history' ? openAddModal : null, 'Thêm vào kho');
@@ -103,7 +113,59 @@ export default function Inventory() {
     </label>
   ) : null;
 
-  return (
+  const isFiltered = search.trim().length > 0 || statusFilter !== 'all';
+  const hasItems = !isLoading && filters.filteredItems.length > 0;
+
+  const desktopView = (
+    <div className="flex gap-6 pb-32">
+      <InventorySidebar
+        mainTab={filters.mainTab}
+        subTab={filters.subTab}
+        canSeeRestaurant={filters.canSeeRestaurant}
+        canSeeFestival={filters.canSeeFestival}
+        countFor={filters.countFor}
+        sectionLogsCount={filters.sectionLogs.length}
+        onMainTabChange={filters.handleMainTabChange}
+        onSubTabChange={filters.handleSubTabChange}
+      />
+
+      <div className="min-w-0 flex-1 space-y-4">
+        {filters.subTab !== 'history' && hasItems && (
+          <>
+            <InventorySummary total={filters.filteredItems.length} lowCount={lowCount} itemLabel={filters.itemLabel} />
+            <div className="flex items-center gap-3">
+              <SearchField value={search} onChange={setSearch} className="flex-1" aria-label={`Tìm ${filters.itemLabel}`}>
+                <SearchField.Group>
+                  <SearchField.SearchIcon />
+                  <SearchField.Input placeholder={`Tìm ${filters.itemLabel}...`} />
+                  <SearchField.ClearButton />
+                </SearchField.Group>
+              </SearchField>
+              {importButton}
+            </div>
+          </>
+        )}
+
+        {filters.subTab !== 'history' ? (
+          isLoading ? (
+            <InventoryItemList items={[]} isLoading itemLabel={filters.itemLabel} sectionLabel={filters.sectionLabel} onEditItem={setEditingItem} />
+          ) : (
+            <InventoryTable
+              items={baseFiltered}
+              onEditItem={setEditingItem}
+              itemLabel={filters.itemLabel}
+              sectionLabel={filters.sectionLabel}
+              isFiltered={isFiltered}
+            />
+          )
+        ) : (
+          <InventoryLogList logs={filters.sectionLogs} />
+        )}
+      </div>
+    </div>
+  );
+
+  const mobileView = (
     <div className="space-y-4 pb-32">
       <InventoryNavigation
         mainTab={filters.mainTab}
@@ -119,7 +181,7 @@ export default function Inventory() {
         onStatusFilterChange={filters.setStatusFilter}
         actionSlot={importButton}
         summarySlot={
-          filters.subTab !== 'history' && !isLoading && filters.filteredItems.length > 0 ? (
+          filters.subTab !== 'history' && hasItems ? (
             <InventorySummary
               total={filters.filteredItems.length}
               lowCount={lowCount}
@@ -128,7 +190,7 @@ export default function Inventory() {
           ) : null
         }
         toolbarSlot={
-          filters.subTab !== 'history' && !isLoading && filters.filteredItems.length > 0 ? (
+          filters.subTab !== 'history' && hasItems ? (
             <InventoryToolbar
               itemLabel={filters.itemLabel}
               search={search}
@@ -147,11 +209,17 @@ export default function Inventory() {
           onEditItem={setEditingItem}
           itemLabel={filters.itemLabel}
           sectionLabel={filters.sectionLabel}
-          isFiltered={search.trim().length > 0 || statusFilter !== 'all'}
+          isFiltered={isFiltered}
         />
       )}
 
       {filters.subTab === 'history' && <InventoryLogList logs={filters.sectionLogs} />}
+    </div>
+  );
+
+  return (
+    <>
+      {isDesktop ? desktopView : mobileView}
 
       <InventoryItemDrawer
         item={editingItem}
@@ -165,6 +233,6 @@ export default function Inventory() {
         mainTab={filters.mainTab}
         subTab={filters.subTab}
       />
-    </div>
+    </>
   );
 }
