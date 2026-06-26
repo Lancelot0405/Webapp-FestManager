@@ -170,7 +170,7 @@ return isDesktop
 | 1 | Xoá nested tabs → Filter chips + Segment control | Cao | ✅ Xong (`f309e91`) |
 | 2 | Chuyển grid card → List view + inline +/− | Cao | ✅ Xong (`1ad1a02`) |
 | 3 | Desktop: Sidebar + Table view | Trung bình | ✅ Xong (`24af7d3`) |
-| 4 | Swipe actions mobile | Thấp (nice-to-have) | ⬜ Chưa làm |
+| 4 | Swipe actions mobile | Thấp (nice-to-have) | ✅ Xong (`7c184e7`) |
 
 Phase 1 + 2 ship trước → mobile đã tốt hơn rõ rệt. Phase 3 + 4 làm sau.
 
