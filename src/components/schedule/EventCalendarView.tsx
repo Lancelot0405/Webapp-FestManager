@@ -4,10 +4,22 @@ import { Calendar, ToggleButtonGroup, ToggleButton } from '@heroui/react';
 import { CalendarDate } from '@internationalized/date';
 import { animations } from '../../lib/animations';
 import StatusBadge from '../shared/StatusBadge';
+import MiniAvatarGroup from './MiniAvatarGroup';
 import type { EventStatus, FestivalEvent } from '../../types';
 
 type RangeMode = 'day' | 'week' | 'month';
 type EventWithStatus = FestivalEvent & { status: EventStatus };
+
+const STATUS_RANK: Record<EventStatus, number> = {
+  'Đang diễn ra': 0, 'Sắp tới': 1, 'Lên kế hoạch': 2, 'Đã hoàn thành': 3,
+};
+
+const STATUS_DOT: Record<EventStatus, string> = {
+  'Đang diễn ra': 'bg-success',
+  'Sắp tới':       'bg-accent',
+  'Lên kế hoạch': 'bg-warning',
+  'Đã hoàn thành': 'bg-default-400',
+};
 
 function ddmmToCalendarDate(d: string): CalendarDate | null {
   if (!d) return null;
@@ -46,8 +58,8 @@ export default function EventCalendarView({
   onRangeModeChange,
   onNavigate,
 }: EventCalendarViewProps) {
-  const eventDateKeys = useMemo(() => {
-    const set = new Set<string>();
+  const eventDateColor = useMemo(() => {
+    const map = new Map<string, EventStatus>();
     for (const e of events) {
       const start = ddmmToCalendarDate(e.date);
       const end = e.endDate ? ddmmToCalendarDate(e.endDate) : start;
@@ -55,11 +67,13 @@ export default function EventCalendarView({
       const endMs = cdMs(end ?? start);
       let cur = start;
       while (cdMs(cur) <= endMs) {
-        set.add(`${cur.year}-${cur.month}-${cur.day}`);
+        const key = `${cur.year}-${cur.month}-${cur.day}`;
+        const prev = map.get(key);
+        if (!prev || STATUS_RANK[e.status] < STATUS_RANK[prev]) map.set(key, e.status);
         cur = cur.add({ days: 1 });
       }
     }
-    return set;
+    return map;
   }, [events]);
 
   const dayEvents = useMemo(
@@ -125,8 +139,8 @@ export default function EventCalendarView({
             <Calendar.GridBody>
               {(date: CalendarDate) => (
                 <Calendar.Cell date={date}>
-                  {eventDateKeys.has(`${date.year}-${date.month}-${date.day}`) && (
-                    <Calendar.CellIndicator className="w-1 h-1 rounded-full bg-accent" />
+                  {eventDateColor.has(`${date.year}-${date.month}-${date.day}`) && (
+                    <Calendar.CellIndicator className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[eventDateColor.get(`${date.year}-${date.month}-${date.day}`)!]}`} />
                   )}
                 </Calendar.Cell>
               )}
@@ -158,7 +172,10 @@ export default function EventCalendarView({
                   <p className="text-sm font-semibold text-foreground truncate">{event.name}</p>
                   <p className="text-xs text-foreground/50 truncate">{dateDisplay} · {event.location}</p>
                 </div>
-                <StatusBadge status={event.status} />
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <MiniAvatarGroup members={event.staff} />
+                  <StatusBadge status={event.status} />
+                </div>
               </motion.div>
             );
           })

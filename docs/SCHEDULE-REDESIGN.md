@@ -51,8 +51,10 @@ File: `src/components/schedule/AddEventForm.tsx`
 - Tách thân form (`formFields` + `footer`) dùng chung; chọn container theo `useIsDesktop()`: Modal bottom-sheet (mobile) / Drawer phải `w-[min(28rem,100vw)]` (desktop).
 - Giữ react-hook-form + zod + `computeEventStatus()`; keyboardOffset chỉ áp dụng mobile.
 
-## Phase 6 — Visual polish
-- Badge status đồng bộ (success/warning/danger/neutral), hover row/card, mini avatar group nhất quán.
+## Phase 6 — Visual polish ✅
+- Tách `MiniAvatarGroup` → component dùng chung (Schedule + Calendar).
+- Calendar: dot ngày tô màu theo status (success/accent/warning/neutral, ưu tiên status khẩn nhất); thêm avatar group vào dòng sự kiện trong ngày.
+- StatusBadge đã đồng bộ toàn bộ view; hover row/card nhất quán.
 
 ---
 

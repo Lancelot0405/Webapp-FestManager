@@ -19,12 +19,13 @@ import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
 import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
 import { useDeleteEvent } from '../../hooks/queries/mutations/useDeleteEvent';
 import StatusBadge from '../shared/StatusBadge';
+import MiniAvatarGroup from './MiniAvatarGroup';
 import EventCalendarView from './EventCalendarView';
 import EventDetailContent from './EventDetailContent';
 import AddEventForm from './AddEventForm';
 import CardSkeleton from '@/components/shared/skeletons/CardSkeleton';
 import { computeEventStatus } from '../../lib/eventStatus';
-import type { EventStatus, FestivalEvent, StaffRef } from '../../types';
+import type { EventStatus, FestivalEvent } from '../../types';
 
 type StatusFilter = 'Tất cả' | EventStatus;
 type RangeMode = 'day' | 'week' | 'month';
@@ -76,32 +77,6 @@ function eventInMonth(event: FestivalEvent, anchor: CalendarDate): boolean {
 const STATUS_RANK: Record<EventStatus, number> = {
   'Đang diễn ra': 0, 'Sắp tới': 1, 'Lên kế hoạch': 2, 'Đã hoàn thành': 3,
 };
-
-function initials(name: string): string {
-  return name.split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
-}
-
-function MiniAvatarGroup({ members }: { members: StaffRef[] }) {
-  if (members.length === 0) return <span className="text-xs text-foreground/40">–</span>;
-  const shown = members.slice(0, 3);
-  const extra = members.length - shown.length;
-  return (
-    <div className="flex items-center -space-x-1.5">
-      {shown.map((m, i) => (
-        <motion.div key={m.id} {...animations.listItem(i)} whileHover={{ scale: 1.2, zIndex: 10 }} transition={{ duration: 0.15 }}
-          className="w-6 h-6 rounded-full bg-accent/10 ring-2 ring-background flex items-center justify-center">
-          <span className="text-[9px] font-bold text-accent">{initials(m.name)}</span>
-        </motion.div>
-      ))}
-      {extra > 0 && (
-        <motion.div {...animations.listItem(shown.length)}
-          className="w-6 h-6 rounded-full bg-default/80 ring-2 ring-background flex items-center justify-center">
-          <span className="text-[9px] font-semibold text-foreground/60">+{extra}</span>
-        </motion.div>
-      )}
-    </div>
-  );
-}
 
 type EventWithStatus = FestivalEvent & { status: EventStatus };
 
