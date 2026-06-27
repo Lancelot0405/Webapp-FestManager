@@ -1,5 +1,5 @@
 import { supabase } from '../../lib/supabase';
-import { toISODate } from '../../lib/db';
+import { toISODate, fromISODate } from '../../lib/dateHelpers';
 import { adminApi } from '../../lib/adminApi';
 import type { StaffMember } from '../../types';
 
@@ -55,4 +55,45 @@ export async function apiAddContract(
     festival_id: contract.festivalId ?? null,
   });
   if (error) throw new Error(error.message);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DbRow = Record<string, any>;
+
+export async function fetchStaff(): Promise<StaffMember[]> {
+  const { data, error } = await supabase
+    .from('staff_members')
+    .select('*, contracts(*), users!left(role)');
+
+  if (error || !data || data.length === 0) {
+    if (error) console.error('[api] fetchStaff error:', error.message);
+    return [];
+  }
+
+  return data
+    .filter((row: DbRow) => row.users?.role !== 'admin')
+    .map((row: DbRow): StaffMember => ({
+      id: row.id,
+      userId: row.user_id ?? undefined,
+      name: row.name ?? '',
+      dob: row.dob ?? '',
+      city: row.city ?? '',
+      phone: row.phone ?? undefined,
+      staffType: row.staff_type === 'part-time' ? 'part-time' : 'permanent',
+      contracts: (row.contracts ?? []).map((c: DbRow) => ({
+        id: c.id,
+        date: fromISODate(c.date ?? ''),
+        url: c.url ?? '',
+        fileName: c.file_name ?? undefined,
+        festivalId: c.festival_id ?? undefined,
+      })),
+      carteVitale: row.carte_vitale_url
+        ? { url: row.carte_vitale_url, fileName: row.carte_vitale_name ?? '', uploadedAt: row.carte_vitale_uploaded_at ?? '' }
+        : undefined,
+      titreSejour: row.titre_sejour_url
+        ? { url: row.titre_sejour_url, fileName: row.titre_sejour_name ?? '', uploadedAt: row.titre_sejour_uploaded_at ?? '' }
+        : undefined,
+      carteVitaleNumber: row.carte_vitale_number ?? undefined,
+      titreSejeurNumber: row.titre_sejour_number ?? undefined,
+    }));
 }

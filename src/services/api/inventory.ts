@@ -1,5 +1,5 @@
 import { supabase } from '../../lib/supabase';
-import type { InventoryItem, InventoryLogEntry, InventoryUnit } from '../../types';
+import type { InventoryItem, InventoryLogEntry, InventoryUnit, InventoryCategory, InventoryLogAction } from '../../types';
 
 export async function apiSetInventoryItem(itemId: number, qty: number): Promise<void> {
   const { error } = await supabase.from('inventory_items').update({ current: qty }).eq('id', itemId);
@@ -52,4 +52,46 @@ export async function apiAddInventoryLog(log: InventoryLogEntry): Promise<void> 
     submitted_by: log.submittedBy,
   });
   if (error) throw new Error(error.message);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DbRow = Record<string, any>;
+
+export async function fetchInventory(): Promise<InventoryItem[]> {
+  const { data, error } = await supabase.from('inventory_items').select('*');
+  if (error || !data || data.length === 0) {
+    if (error) console.error('[api] fetchInventory error:', error.message);
+    return [];
+  }
+  return data.map((row: DbRow): InventoryItem => ({
+    id: row.id,
+    name: row.name ?? '',
+    current: row.current ?? 0,
+    threshold: row.threshold ?? 0,
+    unit: (row.unit ?? 'cái') as InventoryUnit,
+    category: (row.category ?? 'food') as InventoryCategory,
+  }));
+}
+
+export async function fetchInventoryLogs(): Promise<InventoryLogEntry[]> {
+  const { data, error } = await supabase
+    .from('inventory_logs')
+    .select('*')
+    .order('timestamp', { ascending: false });
+  if (error || !data || data.length === 0) {
+    if (error) console.error('[api] fetchInventoryLogs error:', error.message);
+    return [];
+  }
+  return data.map((row: DbRow): InventoryLogEntry => ({
+    id: row.id,
+    itemId: row.item_id,
+    itemName: row.item_name ?? '',
+    qty: row.qty ?? 0,
+    unit: (row.unit ?? 'cái') as InventoryUnit,
+    action: (row.action ?? 'set') as InventoryLogAction,
+    festivalId: row.festival_id ?? null,
+    festivalName: row.festival_name ?? '',
+    timestamp: row.timestamp ?? '',
+    submittedBy: row.submitted_by ?? '',
+  }));
 }

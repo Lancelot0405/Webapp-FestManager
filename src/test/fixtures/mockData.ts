@@ -12,7 +12,7 @@ import type {
     FestivalEvent,
     InventoryItem,
     InventoryLogEntry,
-  } from '../types';
+  } from '../../types';
   
   // -----------------------------------------------------------------------------
   // STAFF

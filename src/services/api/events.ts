@@ -1,6 +1,14 @@
 import { supabase } from '../../lib/supabase';
-import { toISODate } from '../../lib/db';
-import type { FestivalEvent, Expense, ExpenseStatus, ExpenseCategory } from '../../types';
+import { toISODate, fromISODate } from '../../lib/dateHelpers';
+import type {
+  FestivalEvent,
+  Expense,
+  ExpenseStatus,
+  ExpenseCategory,
+  StaffRef,
+  EventStatus,
+  InventoryUnit,
+} from '../../types';
 
 export async function apiCreateEvent(event: FestivalEvent): Promise<number> {
   const { data, error } = await supabase.from('events').insert({
@@ -89,4 +97,77 @@ export async function apiAddExpense(expense: Omit<Expense, 'id'>): Promise<numbe
 export async function apiUpdateExpenseStatus(expenseId: number, status: ExpenseStatus): Promise<void> {
   const { error } = await supabase.from('expenses').update({ status }).eq('id', expenseId);
   if (error) throw new Error(error.message);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DbRow = Record<string, any>;
+
+export async function fetchEvents(): Promise<FestivalEvent[]> {
+  const { data, error } = await supabase
+    .from('events')
+    .select(`*, event_staff(staff_id, staff_members(id, name, city, users(role)))`);
+
+  if (error) {
+    console.error('[api] fetchEvents error:', error.message);
+    return [];
+  }
+  if (!data || data.length === 0) return [];
+
+  const eventIds = data.map((e: DbRow) => e.id);
+  const { data: expensesData } = await supabase
+    .from('expenses')
+    .select('*')
+    .in('festival_id', eventIds);
+
+  const expensesByEvent: Record<number, DbRow[]> = {};
+  for (const r of expensesData ?? []) {
+    if (r.festival_id == null) continue;
+    if (!expensesByEvent[r.festival_id]) expensesByEvent[r.festival_id] = [];
+    expensesByEvent[r.festival_id].push(r);
+  }
+
+  return data.map((row: DbRow): FestivalEvent => {
+    const staff: StaffRef[] = (row.event_staff ?? []).map((es: DbRow) => {
+      const sm = es.staff_members;
+      return { id: sm?.id ?? es.staff_id, name: sm?.name ?? '', city: sm?.city ?? '' };
+    });
+
+    const breakdown = row.expenses ?? {};
+    const receipts: Expense[] = (expensesByEvent[row.id] ?? []).map((r: DbRow): Expense => ({
+      id: r.id,
+      staffId: String(r.staff_id ?? ''),
+      staffName: r.staff_name ?? '',
+      festivalId: r.festival_id ?? row.id,
+      type: (r.type ?? 'Khác') as ExpenseCategory,
+      amount: r.amount ?? 0,
+      date: fromISODate(r.date ?? ''),
+      imageUrl: r.image_url ?? '',
+      status: (r.status ?? 'pending') as ExpenseStatus,
+    }));
+
+    return {
+      id: row.id,
+      name: row.name ?? '',
+      date: fromISODate(row.date ?? ''),
+      endDate: row.end_date ? fromISODate(row.end_date) : undefined,
+      location: row.location ?? '',
+      status: (row.status ?? 'Lên kế hoạch') as EventStatus,
+      staff,
+      financials: {
+        income: row.income ?? 0,
+        expenses: { rent: breakdown.rent ?? 0, ingredients: breakdown.ingredients ?? 0, transport: breakdown.transport ?? 0, staff: breakdown.staff ?? 0, ...breakdown },
+      },
+      inventoryReported: (row.inventory_reported ?? []).map((item: DbRow) => ({
+        name: item.name ?? '',
+        current: item.current ?? 0,
+        unit: (item.unit ?? 'cái') as InventoryUnit,
+      })),
+      receipts,
+      extra: {
+        booth: row.booth ?? '',
+        hygienePermit: row.hygiene_permit ?? '',
+        organizerContact: row.organizer_contact ?? '',
+      },
+    };
+  });
 }

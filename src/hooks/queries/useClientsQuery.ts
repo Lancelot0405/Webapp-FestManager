@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '../../lib/queryKeys';
-import { fetchClients } from '../../lib/db';
+import { fetchClients } from '../../services/api/clients';
 
 export function useClientsQuery() {
   return useQuery({

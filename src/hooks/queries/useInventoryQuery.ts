@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '../../lib/queryKeys';
-import { fetchInventory } from '../../lib/db';
+import { fetchInventory } from '../../services/api/inventory';
 
 export function useInventoryQuery() {
   return useQuery({
