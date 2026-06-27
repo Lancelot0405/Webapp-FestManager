@@ -94,7 +94,7 @@ export default function TopBar({ navVisible = true, notifCount = 0, notification
               </Button>
             </motion.div>
           </Popover.Trigger>
-          <Popover.Content placement="bottom end" className="p-0 w-80 max-h-[calc(100dvh-80px)] overflow-y-auto overflow-x-hidden rounded-2xl shadow-xl border border-white/20 dark:border-white/10 bg-surface/60 bg-gradient-to-br from-accent/15 to-transparent backdrop-blur-2xl backdrop-saturate-150">
+          <Popover.Content placement="bottom end" className="p-0 w-80 max-h-[calc(100dvh-80px-env(safe-area-inset-top)-env(safe-area-inset-bottom))] overflow-y-auto overflow-x-hidden rounded-2xl shadow-xl border border-white/20 dark:border-white/10 bg-surface/60 bg-gradient-to-br from-accent/15 to-transparent backdrop-blur-2xl backdrop-saturate-150">
             <Popover.Dialog aria-label="Tài khoản">
               <UserSheetContent
                 onClose={() => setPopoverOpen(false)}

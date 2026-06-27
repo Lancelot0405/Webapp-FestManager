@@ -97,7 +97,7 @@ export default function Sidebar({ onOpenSheet, notifCount = 0, notifications, cl
 
   return (
     <motion.aside
-      className={`hidden md:flex flex-col ${w} shrink-0 sticky top-0 h-screen bg-background border-r border-default-200 transition-[width] duration-200 overflow-hidden`}
+      className={`hidden md:flex flex-col ${w} shrink-0 sticky top-0 h-screen max-h-dvh pt-[env(safe-area-inset-top)] pl-[env(safe-area-inset-left)] bg-background border-r border-default-200 transition-[width] duration-200 overflow-hidden`}
       initial={{ x: -40, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}

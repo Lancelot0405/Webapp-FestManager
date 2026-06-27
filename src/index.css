@@ -165,6 +165,20 @@ body {
   padding-top: max(0px, env(safe-area-inset-top));
 }
 
+/* iOS 27: env(safe-area-inset-top) đôi khi = 0 lúc cold-start PWA standalone →
+   đặt sàn để header không dính status bar. 59px ≈ status bar iPhone notch/Dynamic Island. */
+@media (display-mode: standalone) {
+  .pt-safe {
+    padding-top: max(env(safe-area-inset-top), 59px);
+  }
+}
+.pl-safe {
+  padding-left: max(env(safe-area-inset-left), 1rem);
+}
+.pr-safe {
+  padding-right: max(env(safe-area-inset-right), 1rem);
+}
+
 /* ── Scrolling ────────────────────────────────────────────────────────── */
 .scroll-smooth-ios {
   -webkit-overflow-scrolling: touch;

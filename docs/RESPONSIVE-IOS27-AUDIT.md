@@ -22,8 +22,13 @@ Số `2.75rem` là offset cứng giả định iOS chừa sẵn status bar (Phư
 
 ---
 
-## Phase 1 — Sửa nền tảng safe-area (iOS 27)  🔴 ưu tiên
+## Phase 1 — Sửa nền tảng safe-area (iOS 27)  ✅ (code xong; chờ test iPhone iOS 27 thật)
 File: [index.html](index.html), [src/index.css](src/index.css), [Layout.tsx](src/components/layout/Layout.tsx)
+
+> Đã làm: `viewport-fit=cover` + `status-bar-style=black-translucent` (index.html);
+> sàn `.pt-safe` ở `@media (display-mode: standalone)` = `max(env(...), 59px)` (index.css);
+> bỏ magic `2.75rem`/`1.25rem` — Layout đo chiều cao TopBar bằng ResizeObserver → `--tbh`,
+> main `pt-[var(--tbh)]` (mobile) / `pt-safe` (detail) / `md:pt-5` (desktop). Build sạch.
 
 - **Chuyển sang Phương án C (edge-to-edge có sàn an toàn):**
   - `index.html:5` thêm `viewport-fit=cover`.
@@ -38,7 +43,11 @@ File: [index.html](index.html), [src/index.css](src/index.css), [Layout.tsx](src
   cho TopBar tự đo chiều cao thay vì offset cứng.
 - ⚠️ Test iPhone iOS 27 thật: **gỡ hẳn icon → mở Safari → Add to Home Screen** mới áp meta mới (CLAUDE.md).
 
-## Phase 2 — Sửa các điểm safe-area còn hardcode  🟡
+## Phase 2 — Sửa các điểm safe-area còn hardcode  ✅
+> Đã làm: FAB `bottom-32` → `bottom-[calc(env(safe-area-inset-bottom)+8rem)]` + `right-[calc(env(safe-area-inset-right)+1rem)]`
+> (md:bottom-8 md:right-8); thêm `.pl-safe`/`.pr-safe` = `max(env(...),1rem)` (index.css); main dùng
+> `pl/pr-[max(<gutter>,env(...))]` theo breakpoint (chống đè px); Sidebar `+ max-h-dvh pt/pl-[env(...)]`;
+> Popover TopBar `max-h` trừ thêm safe-area top+bottom. Build sạch.
 - **FAB `bottom-32` cứng** ([Layout.tsx:129](src/components/layout/Layout.tsx#L129)) → `bottom-[calc(env(safe-area-inset-bottom)+8rem)]` (mobile) để không bị home indicator che.
 - **Thêm `.pl-safe` / `.pr-safe`** trong [src/index.css](src/index.css) cho landscape / Dynamic Island; áp vào container chính khi cần.
 - **Sidebar `h-screen`** ([Sidebar.tsx](src/components/layout/Sidebar.tsx)) → thêm `pt-safe`, cân nhắc `max-h-dvh`.

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, type CSSProperties } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { Button } from '@heroui/react';
@@ -31,8 +31,11 @@ export default function Layout() {
   }, [currentUser?.id, loadAccentForUser]);
 
   const mainRef     = useRef<HTMLElement>(null);
+  const topBarRef   = useRef<HTMLDivElement>(null);
   const lastScrollY = useRef(0);
   const rafId       = useRef(0);
+
+  const [topBarH, setTopBarH] = useState(0);
 
   const showNav = useCallback(() => setNavVisible(true), []);
 
@@ -55,6 +58,18 @@ export default function Layout() {
 
   useEffect(() => { showNav(); }, [location.pathname, showNav]);
 
+  const isDetail = /^\/(schedule|hr)\/.+/.test(location.pathname);
+
+  useEffect(() => {
+    const header = topBarRef.current?.querySelector('header');
+    if (!header) { setTopBarH(0); return; }
+    const measure = () => setTopBarH(header.getBoundingClientRect().height);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(header);
+    return () => ro.disconnect();
+  }, [isDetail]);
+
   const handleLogout = () => {
     contextLogout();
     navigate('/dashboard', { replace: true });
@@ -63,7 +78,6 @@ export default function Layout() {
   const isAdminOrManager = currentUser?.role === 'admin' || currentUser?.role === 'manager';
   const { notifications, clearAll, clearOne } = useRealtimeNotifications(!!currentUser && isAdminOrManager);
 
-  const isDetail = /^\/(schedule|hr)\/.+/.test(location.pathname);
   const { fab } = useFAB();
 
   return (
@@ -82,7 +96,7 @@ export default function Layout() {
 
         <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
           {!isDetail && (
-            <div className="md:hidden">
+            <div ref={topBarRef} className="md:hidden">
               <TopBar
                 navVisible={navVisible}
                 notifCount={notifications.length}
@@ -95,10 +109,9 @@ export default function Layout() {
           )}
           <main
             ref={mainRef}
-            className={`flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 ${
-              isDetail
-                ? 'pt-[calc(env(safe-area-inset-top)+1.25rem)]'
-                : 'pt-[calc(env(safe-area-inset-top)+2.75rem)]'
+            style={{ '--tbh': `${topBarH}px` } as CSSProperties}
+            className={`flex-1 overflow-y-auto pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] md:pl-[max(1.5rem,env(safe-area-inset-left))] md:pr-[max(1.5rem,env(safe-area-inset-right))] lg:pl-[max(2rem,env(safe-area-inset-left))] lg:pr-[max(2rem,env(safe-area-inset-right))] ${
+              isDetail ? 'pt-safe' : 'pt-[var(--tbh)]'
             } md:pt-5 pb-24 md:pb-8 scroll-smooth-ios`}
           >
             <div className="max-w-5xl xl:max-w-7xl mx-auto w-full">
@@ -126,7 +139,7 @@ export default function Layout() {
           isIconOnly
           aria-label={fab.label}
           onPress={fab.onPress}
-          className={`fixed bottom-32 right-4 md:bottom-8 z-30 h-14 w-14 rounded-full bg-accent text-white dark:text-foreground shadow-xl active:scale-95 transition-all duration-300 ease-out ${navVisible ? 'translate-y-0 opacity-100' : 'translate-y-24 opacity-0 pointer-events-none'}`}
+          className={`fixed bottom-[calc(env(safe-area-inset-bottom)+8rem)] right-[calc(env(safe-area-inset-right)+1rem)] md:bottom-8 md:right-8 z-30 h-14 w-14 rounded-full bg-accent text-white dark:text-foreground shadow-xl active:scale-95 transition-all duration-300 ease-out ${navVisible ? 'translate-y-0 opacity-100' : 'translate-y-24 opacity-0 pointer-events-none'}`}
         >
           <Plus size={24} />
         </Button>
