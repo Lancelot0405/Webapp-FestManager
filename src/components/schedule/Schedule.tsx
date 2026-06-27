@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { animations } from '../../lib/animations';
-import { Trash2, Eye } from 'lucide-react';
+import { Trash2, Eye, List, CalendarDays } from 'lucide-react';
 import {
   Button, Chip, Table,
   ToggleButtonGroup, ToggleButton,
@@ -23,6 +23,7 @@ import type { EventStatus, FestivalEvent, StaffRef } from '../../types';
 
 type StatusFilter = 'Tất cả' | EventStatus;
 type RangeMode = 'day' | 'week' | 'month';
+type ViewMode = 'agenda' | 'calendar';
 
 const STATUS_FILTERS: StatusFilter[] = [
   'Tất cả', 'Sắp tới', 'Đang diễn ra', 'Đã hoàn thành', 'Lên kế hoạch',
@@ -93,6 +94,81 @@ function MiniAvatarGroup({ members }: { members: StaffRef[] }) {
   );
 }
 
+type EventWithStatus = FestivalEvent & { status: EventStatus };
+
+function AgendaView({
+  events,
+  onNavigate,
+  isAdmin,
+  onDelete,
+}: {
+  events: EventWithStatus[];
+  onNavigate: (id: number) => void;
+  isAdmin: boolean;
+  onDelete: (id: number, name: string) => void;
+}) {
+  const grouped = useMemo(() => {
+    const map = new Map<string, EventWithStatus[]>();
+    for (const e of events) {
+      const parts = e.date.split('-');
+      const key = parts.length === 3 ? `Tháng ${parseInt(parts[1])}/${parts[2]}` : 'Không rõ';
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(e);
+    }
+    return map;
+  }, [events]);
+
+  if (events.length === 0) {
+    return <p className="text-sm text-foreground/50 text-center py-10">Chưa có sự kiện nào</p>;
+  }
+
+  return (
+    <div className="space-y-5">
+      {[...grouped.entries()].map(([month, monthEvents]) => (
+        <div key={month}>
+          <p className="text-xs font-semibold text-foreground/50 uppercase tracking-wider px-1 mb-2">{month}</p>
+          <div className="space-y-1.5">
+            {monthEvents.map((event, i) => {
+              const dateDisplay = event.endDate && event.endDate !== event.date
+                ? `${event.date} → ${event.endDate}`
+                : event.date;
+              return (
+                <motion.div
+                  key={event.id}
+                  {...animations.listItem(i)}
+                  onClick={() => onNavigate(event.id)}
+                  className="flex items-center gap-3 px-3 py-3 rounded-xl bg-surface border border-separator cursor-pointer hover:bg-default-100/60 dark:hover:bg-default-100/5 transition-colors"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground truncate">{event.name}</p>
+                    <p className="text-xs text-foreground/50 truncate">{dateDisplay} · {event.location}</p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <MiniAvatarGroup members={event.staff} />
+                    <StatusBadge status={event.status} />
+                    {isAdmin && (
+                      <div onClick={e => e.stopPropagation()}>
+                        <Button
+                          isIconOnly size="sm" variant="ghost"
+                          onPress={() => onDelete(event.id, event.name)}
+                          aria-label="Xóa sự kiện"
+                          className="w-7 h-7 rounded-lg text-default-400 hover:text-danger hover:bg-danger/10"
+                        >
+                          <Trash2 size={13} />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function Schedule() {
   const navigate = useNavigate();
   const { currentUser }                   = useApp();
@@ -108,6 +184,7 @@ export default function Schedule() {
   const [selectedDate,  setSelectedDate]  = useState<CalendarDate>(today(tz));
   const [rangeMode,     setRangeMode]     = useState<RangeMode>('month');
   const [statusFilter,  setStatusFilter]  = useState<StatusFilter>('Tất cả');
+  const [viewMode,      setViewMode]      = useState<ViewMode>('agenda');
   const [showAddForm,   setShowAddForm]   = useState(false);
   const openAddForm = useCallback(() => setShowAddForm(true), []);
   useFABRegister(isAdmin ? openAddForm : null, 'Thêm sự kiện');
@@ -121,7 +198,7 @@ export default function Schedule() {
     ? events
     : events.filter(e => myStaffMember && e.staff.some(s => s.id === myStaffMember.id));
 
-  const withStatus = useMemo(() => visibleEvents.map(e => ({
+  const withStatus = useMemo<EventWithStatus[]>(() => visibleEvents.map(e => ({
     ...e,
     status: computeEventStatus(e.date, e.endDate),
   })), [visibleEvents]);
@@ -181,20 +258,41 @@ export default function Schedule() {
           </ToggleButtonGroup>
         </div>
 
-        {/* ── Right panel: Status filter + Events list ── */}
+        {/* ── Right panel: View switcher + Status filter + Content ── */}
         <div className="flex-1 min-w-0 mt-4 md:mt-0 space-y-3">
-          <div className="flex flex-wrap gap-1.5">
-            {STATUS_FILTERS.map(s => (
-              <Chip
-                key={s}
-                variant="soft"
-                color={statusFilter === s ? 'accent' : 'default'}
-                className={`cursor-pointer select-none transition-opacity ${statusFilter !== s ? 'opacity-60' : ''}`}
-                onClick={() => setStatusFilter(s)}
-              >
-                {s}
-              </Chip>
-            ))}
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex flex-wrap gap-1.5">
+              {STATUS_FILTERS.map(s => (
+                <Chip
+                  key={s}
+                  variant="soft"
+                  color={statusFilter === s ? 'accent' : 'default'}
+                  className={`cursor-pointer select-none transition-opacity ${statusFilter !== s ? 'opacity-60' : ''}`}
+                  onClick={() => setStatusFilter(s)}
+                >
+                  {s}
+                </Chip>
+              ))}
+            </div>
+            <ToggleButtonGroup
+              selectionMode="single"
+              disallowEmptySelection
+              isDetached
+              size="sm"
+              selectedKeys={new Set([viewMode])}
+              onSelectionChange={keys => {
+                const k = [...keys][0] as ViewMode;
+                if (k) setViewMode(k);
+              }}
+              className="flex-shrink-0"
+            >
+              <ToggleButton id="agenda" aria-label="Danh sách" className="w-8 h-8 p-0">
+                <List size={14} />
+              </ToggleButton>
+              <ToggleButton id="calendar" aria-label="Lịch" className="w-8 h-8 p-0">
+                <CalendarDays size={14} />
+              </ToggleButton>
+            </ToggleButtonGroup>
           </div>
 
           <p className="text-sm font-semibold text-foreground/60">
@@ -203,6 +301,17 @@ export default function Schedule() {
 
           {isLoading ? (
             <CardSkeleton count={3} />
+          ) : viewMode === 'agenda' ? (
+            <AgendaView
+              events={sorted}
+              onNavigate={id => navigate('/schedule/' + id)}
+              isAdmin={isAdmin}
+              onDelete={(id, name) => {
+                if (window.confirm(`Xóa sự kiện "${name}"?\nThao tác này không thể hoàn tác.`)) {
+                  deleteEventMutation.mutate(id);
+                }
+              }}
+            />
           ) : (
             <Table>
               <Table.ScrollContainer>
