@@ -59,10 +59,12 @@ File: [index.html](index.html), [src/index.css](src/index.css), [Layout.tsx](src
 - Breakpoint `md:` (768px) CSS + `useIsDesktop(1024)` JS không conflict: Sidebar hiện ở 768px, JS hook chỉ dùng 1024px cho Inventory Drawer/Modal.
 - Sidebar tablet/iPad landscape: đã có `pl-[env(safe-area-inset-left)]` từ Phase 2 — không tràn notch.
 
-## Phase 4 — Android & polish  🟠
-- **theme-color theo dark/light:** thêm 2 thẻ `meta theme-color` với `media="(prefers-color-scheme: dark|light)"` để status bar Android khớp nền.
-- Kiểm `manifest.json`: cân nhắc `display_override: ["standalone"]`; xác nhận icon maskable hiển thị đúng trên Android.
-- Kiểm icon PWA trên iOS 27 (lớp Liquid Glass) — chỉnh `apple-touch-icon` nếu cần.
+## Phase 4 — Android & polish  ✅
+- **theme-color dark/light** (`index.html`): thay 1 meta `#2563eb` cứng bằng 2 meta `media=`:
+  - light: `#f8f8f8` (khớp `--background` light ≈ `oklch(97%...)`)
+  - dark: `#18181b` (khớp `--background` dark ≈ `oklch(12%...)`)
+- **manifest.json**: thêm `"id": "/"` (PWA identity chuẩn); `display_override: ["standalone"]`; `theme_color` + `background_color` → `#f8f8f8` (light); icon maskable đã có từ trước.
+- **iOS 27 Liquid Glass icon**: không có code fix — OS phủ lớp glass tự động. Cần test `apple-touch-icon` trên device thật; nếu nhìn xấu thì đơn giản hoá icon (bỏ nền phức tạp, tăng contrast).
 
 ---
 
