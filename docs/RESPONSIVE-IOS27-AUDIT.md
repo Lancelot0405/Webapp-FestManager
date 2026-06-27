@@ -53,10 +53,11 @@ File: [index.html](index.html), [src/index.css](src/index.css), [Layout.tsx](src
 - **Sidebar `h-screen`** ([Sidebar.tsx](src/components/layout/Sidebar.tsx)) → thêm `pt-safe`, cân nhắc `max-h-dvh`.
 - **Popover `max-h-[calc(100dvh-80px)]`** ([TopBar.tsx:97](src/components/layout/TopBar.tsx#L97)) → cộng thêm safe-area inset.
 
-## Phase 3 — Rà responsive toàn app  🟡
-- Quét grid cứng `grid-cols-2` / `h-screen` / `100vh` còn sót (HR list dùng grid-cols-2 — đã có trong HR-REDESIGN).
-- Chuẩn hoá breakpoint qua `useIsDesktop(1024)` thay cho `md:` rải rác nơi cần tách layout thật.
-- Kiểm tablet/iPad landscape: Sidebar + nội dung không tràn, không dính notch.
+## Phase 3 — Rà responsive toàn app  ✅
+- `Layout.tsx:84` `h-screen` → `h-dvh`; `Sidebar.tsx:100` `h-screen max-h-dvh` → `h-dvh` — fix iOS Safari URL bar gap.
+- `grid-cols-2` cứng còn sót: HR list đã đưa vào HR-REDESIGN; các grid khác (Dashboard stats, Finance summary) là layout 2 cột hợp lệ.
+- Breakpoint `md:` (768px) CSS + `useIsDesktop(1024)` JS không conflict: Sidebar hiện ở 768px, JS hook chỉ dùng 1024px cho Inventory Drawer/Modal.
+- Sidebar tablet/iPad landscape: đã có `pl-[env(safe-area-inset-left)]` từ Phase 2 — không tràn notch.
 
 ## Phase 4 — Android & polish  🟠
 - **theme-color theo dark/light:** thêm 2 thẻ `meta theme-color` với `media="(prefers-color-scheme: dark|light)"` để status bar Android khớp nền.

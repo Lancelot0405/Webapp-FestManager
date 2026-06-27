@@ -81,7 +81,7 @@ export default function Layout() {
   const { fab } = useFAB();
 
   return (
-    <div className="h-screen font-sans overflow-hidden">
+    <div className="h-dvh font-sans overflow-hidden">
       <SpeedInsights />
 
       <div className="flex h-full">
