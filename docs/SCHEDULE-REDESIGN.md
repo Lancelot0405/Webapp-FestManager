@@ -37,13 +37,13 @@ File: `src/components/schedule/Schedule.tsx`
 - Thêm sort cột bằng `Table.SortableColumnHeader` (tham khảo `InventoryTable.tsx`): Tên, Ngày, Trạng thái.
 - Adaptive: mobile = Agenda (date-sorted), desktop (`useIsDesktop(1024)`) = Table sortable; giữ filter status.
 
-## Phase 4 — Chi tiết sự kiện → Drawer (desktop)
-File: `src/components/schedule/EventDetail.tsx`
+## Phase 4 — Chi tiết sự kiện → Drawer (desktop) ✅
+File: `src/components/schedule/EventDetail.tsx` + `EventDetailContent.tsx` (mới)
 
-- Desktop: render 5 tab trong **Drawer phải** (HeroUI `Drawer`, placement `right`); click row mở drawer, giữ context list.
-- Mobile: giữ route/full-screen hiện có.
-- Tách thân EventDetail thành component dùng chung cho cả 2 container.
-- Giữ nguyên logic 5 tab + phân quyền hiện có.
+- Tách thân detail → `EventDetailContent` (prop `variant: 'page' | 'drawer'`); `EventDetail` route chỉ lookup + render `variant="page"`.
+- Desktop: click row/agenda/calendar mở **Drawer phải** (`DrawerRoot`, placement `right`, `w-[min(44rem,100vw)]`) chứa 5 tab; giữ context list (không đổi route).
+- Mobile: `openEvent` vẫn `navigate('/schedule/:id')` full-screen.
+- Drawer header dùng nút X (đóng) thay back; giữ nguyên logic export/clone/delete + phân quyền.
 
 ## Phase 5 — Thêm sự kiện (Modal / Drawer)
 File: `src/components/schedule/AddEventForm.tsx`

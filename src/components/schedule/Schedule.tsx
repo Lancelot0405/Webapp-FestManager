@@ -7,6 +7,7 @@ import { Trash2, Eye, List, CalendarDays } from 'lucide-react';
 import {
   Button, Chip, Table, SearchField,
   ToggleButtonGroup, ToggleButton,
+  DrawerRoot, DrawerBackdrop, DrawerContent, DrawerDialog,
 } from '@heroui/react';
 import { today, getLocalTimeZone, CalendarDate } from '@internationalized/date';
 import { CalendarWithYearPicker } from '@/components/shared/AppDatePicker';
@@ -19,6 +20,7 @@ import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
 import { useDeleteEvent } from '../../hooks/queries/mutations/useDeleteEvent';
 import StatusBadge from '../shared/StatusBadge';
 import EventCalendarView from './EventCalendarView';
+import EventDetailContent from './EventDetailContent';
 import AddEventForm from './AddEventForm';
 import CardSkeleton from '@/components/shared/skeletons/CardSkeleton';
 import { computeEventStatus } from '../../lib/eventStatus';
@@ -194,9 +196,15 @@ export default function Schedule() {
   const [statusFilter,  setStatusFilter]  = useState<StatusFilter>('Tất cả');
   const [viewMode,      setViewMode]      = useState<ViewMode>('agenda');
   const [search,        setSearch]        = useState('');
+  const [drawerEventId, setDrawerEventId] = useState<number | null>(null);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: 'date', direction: 'ascending',
   });
+
+  const openEvent = useCallback((id: number) => {
+    if (isDesktop) setDrawerEventId(id);
+    else navigate('/schedule/' + id);
+  }, [isDesktop, navigate]);
   const [showAddForm,   setShowAddForm]   = useState(false);
   const openAddForm = useCallback(() => setShowAddForm(true), []);
   useFABRegister(isAdmin ? openAddForm : null, 'Thêm sự kiện');
@@ -256,6 +264,8 @@ export default function Schedule() {
     }
   }, [filtered, sortDescriptor]);
 
+  const drawerEvent = drawerEventId != null ? withStatus.find(e => e.id === drawerEventId) ?? null : null;
+
   const rangeLabel: Record<RangeMode, string> = {
     day:   `${String(selectedDate.day).padStart(2,'0')}-${String(selectedDate.month).padStart(2,'0')}-${selectedDate.year}`,
     week:  'Tuần này',
@@ -309,7 +319,7 @@ export default function Schedule() {
             onDateChange={setSelectedDate}
             rangeMode={rangeMode}
             onRangeModeChange={setRangeMode}
-            onNavigate={id => navigate('/schedule/' + id)}
+            onNavigate={openEvent}
           />
         </div>
       )}
@@ -395,7 +405,7 @@ export default function Schedule() {
           ) : !isDesktop ? (
             <AgendaView
               events={sorted}
-              onNavigate={id => navigate('/schedule/' + id)}
+              onNavigate={openEvent}
               isAdmin={isAdmin}
               onDelete={(id, name) => {
                 if (window.confirm(`Xóa sự kiện "${name}"?\nThao tác này không thể hoàn tác.`)) {
@@ -441,7 +451,7 @@ export default function Schedule() {
                       return (
                         <Table.Row
                           key={event.id} id={String(event.id)}
-                          onAction={() => navigate('/schedule/' + event.id)}
+                          onAction={() => openEvent(event.id)}
                           className="border-b border-default-100 dark:border-default-200/20 last:border-0 cursor-pointer hover:bg-default-100/50 dark:hover:bg-default-100/5 transition-colors"
                         >
                           <Table.Cell className="py-3.5 pl-4 pr-3">
@@ -467,7 +477,7 @@ export default function Schedule() {
                               <div className="flex items-center justify-end gap-1">
                                 <Button
                                   isIconOnly size="sm" variant="ghost"
-                                  onPress={() => navigate('/schedule/' + event.id)}
+                                  onPress={() => openEvent(event.id)}
                                   aria-label="Xem chi tiết"
                                   className="w-8 h-8 rounded-lg text-default-400 hover:text-foreground hover:bg-default-100"
                                 >
@@ -498,6 +508,26 @@ export default function Schedule() {
           )}
         </div>
       </div>}
+
+      {/* Desktop: chi tiết sự kiện trong Drawer phải */}
+      <DrawerRoot isOpen={drawerEvent != null} onOpenChange={(open) => { if (!open) setDrawerEventId(null); }}>
+        <DrawerBackdrop isDismissable className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm">
+          <DrawerContent
+            placement="right"
+            className="fixed right-0 top-0 bottom-0 z-[201] w-[min(44rem,100vw)] outline-none border-l border-separator bg-background shadow-2xl"
+          >
+            <DrawerDialog aria-label="Chi tiết sự kiện" className="relative outline-none h-full overflow-y-auto p-4">
+              {drawerEvent && (
+                <EventDetailContent
+                  event={drawerEvent}
+                  variant="drawer"
+                  onClose={() => setDrawerEventId(null)}
+                />
+              )}
+            </DrawerDialog>
+          </DrawerContent>
+        </DrawerBackdrop>
+      </DrawerRoot>
     </div>
   );
 }
