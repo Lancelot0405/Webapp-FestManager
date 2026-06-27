@@ -15,7 +15,7 @@ edit theo từng khối — chất lượng tương đương SaaS lớn (Gusto/R
 
 ---
 
-## Phase 1 — HRGlobal (danh sách nhân viên)
+## Phase 1 — HRGlobal (danh sách nhân viên) ✅
 File: `src/components/hr/HRGlobal.tsx`
 
 - Thêm `useIsDesktop(1024)` → render 2 nhánh.
