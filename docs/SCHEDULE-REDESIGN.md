@@ -16,26 +16,26 @@ sự kiện đồng bộ toàn app — chất lượng tương đương Google C
 
 ---
 
-## Phase 1 — View switcher + Agenda (mobile)
+## Phase 1 — View switcher + Agenda (mobile) ✅ a54f5a8
 File: `src/components/schedule/Schedule.tsx`
 
 - Thêm view switcher (`ToggleButtonGroup`): **Lịch** / **Danh sách (Agenda)**.
 - **Agenda:** nhóm sự kiện theo Tháng (kiểu Luma/iOS Calendar), mỗi sự kiện 1 dòng: tên, ngày, địa điểm, badge status, mini avatar nhân sự. Thay danh sách/grid hiện tại trên mobile.
 - Giữ filter status (Chip) + range; thêm `useIsDesktop(1024)` để tách nhánh render.
 
-## Phase 2 — Calendar view tháng/tuần
+## Phase 2 — Calendar view tháng/tuần ✅ fa00c7c
 File: `src/components/schedule/Schedule.tsx` (+ component con `EventCalendarView.tsx`)
 
 - Dùng HeroUI `Calendar` (`.heroui-docs` → calendar.mdx) — đọc docs trước khi dùng.
 - Hiển thị event chip/dot trong ô ngày; click ngày → lọc/scroll tới sự kiện ngày đó.
 - Toggle tháng/tuần (tái dùng `rangeMode` hiện có).
 
-## Phase 3 — Table desktop nâng cấp
+## Phase 3 — Table desktop nâng cấp ✅
 File: `src/components/schedule/Schedule.tsx`
 
-- Thêm **SearchField** (tên/địa điểm) — hiện chưa có.
-- Thêm sort cột bằng `Table.SortableColumnHeader` (tham khảo `src/components/inventory/InventoryTable.tsx`): Tên, Ngày, Status.
-- Thêm filter Bộ phận nếu phù hợp; giữ filter status.
+- Thêm **SearchField** (tên/địa điểm) — áp dụng cho cả Agenda + Table.
+- Thêm sort cột bằng `Table.SortableColumnHeader` (tham khảo `InventoryTable.tsx`): Tên, Ngày, Trạng thái.
+- Adaptive: mobile = Agenda (date-sorted), desktop (`useIsDesktop(1024)`) = Table sortable; giữ filter status.
 
 ## Phase 4 — Chi tiết sự kiện → Drawer (desktop)
 File: `src/components/schedule/EventDetail.tsx`

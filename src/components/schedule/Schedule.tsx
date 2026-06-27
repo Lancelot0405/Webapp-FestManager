@@ -1,16 +1,18 @@
 import { useState, useMemo, useCallback } from 'react';
+import type { SortDescriptor } from 'react-aria-components';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { animations } from '../../lib/animations';
 import { Trash2, Eye, List, CalendarDays } from 'lucide-react';
 import {
-  Button, Chip, Table,
+  Button, Chip, Table, SearchField,
   ToggleButtonGroup, ToggleButton,
 } from '@heroui/react';
 import { today, getLocalTimeZone, CalendarDate } from '@internationalized/date';
 import { CalendarWithYearPicker } from '@/components/shared/AppDatePicker';
 
 import { useApp } from '../../context/AppContext';
+import { useIsDesktop } from '../../hooks/useIsDesktop';
 import { useFABRegister } from '../../hooks/useFABRegister';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
 import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
@@ -68,6 +70,10 @@ function eventInMonth(event: FestivalEvent, anchor: CalendarDate): boolean {
   const monthEnd   = new Date(anchor.year, anchor.month, 0, 23, 59, 59).getTime();
   return cdMs(s) <= monthEnd && cdMs(e ?? s) >= monthStart;
 }
+
+const STATUS_RANK: Record<EventStatus, number> = {
+  'Đang diễn ra': 0, 'Sắp tới': 1, 'Lên kế hoạch': 2, 'Đã hoàn thành': 3,
+};
 
 function initials(name: string): string {
   return name.split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
@@ -181,11 +187,16 @@ export default function Schedule() {
   const isManager  = currentUser?.role === 'manager';
   const canViewAll = isAdmin || isManager;
 
+  const isDesktop = useIsDesktop(1024);
   const tz = getLocalTimeZone();
   const [selectedDate,  setSelectedDate]  = useState<CalendarDate>(today(tz));
   const [rangeMode,     setRangeMode]     = useState<RangeMode>('month');
   const [statusFilter,  setStatusFilter]  = useState<StatusFilter>('Tất cả');
   const [viewMode,      setViewMode]      = useState<ViewMode>('agenda');
+  const [search,        setSearch]        = useState('');
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
+    column: 'date', direction: 'ascending',
+  });
   const [showAddForm,   setShowAddForm]   = useState(false);
   const openAddForm = useCallback(() => setShowAddForm(true), []);
   useFABRegister(isAdmin ? openAddForm : null, 'Thêm sự kiện');
@@ -210,8 +221,12 @@ export default function Schedule() {
       if (rangeMode === 'week')  return eventInWeek(e, selectedDate);
       return eventInMonth(e, selectedDate);
     });
-    return byRange.filter(e => statusFilter === 'Tất cả' || e.status === statusFilter);
-  }, [withStatus, selectedDate, rangeMode, statusFilter]);
+    const byStatus = byRange.filter(e => statusFilter === 'Tất cả' || e.status === statusFilter);
+    const q = search.trim().toLowerCase();
+    if (!q) return byStatus;
+    return byStatus.filter(e =>
+      e.name.toLowerCase().includes(q) || e.location.toLowerCase().includes(q));
+  }, [withStatus, selectedDate, rangeMode, statusFilter, search]);
 
   const sorted = useMemo(
     () => [...filtered].sort((a, b) => {
@@ -222,6 +237,24 @@ export default function Schedule() {
     }),
     [filtered],
   );
+
+  const tableSorted = useMemo(() => {
+    const list = [...filtered];
+    const dir = sortDescriptor.direction === 'descending' ? -1 : 1;
+    switch (sortDescriptor.column) {
+      case 'name':
+        return list.sort((a, b) => dir * a.name.localeCompare(b.name, 'vi'));
+      case 'status':
+        return list.sort((a, b) => dir * (STATUS_RANK[a.status] - STATUS_RANK[b.status]));
+      default:
+        return list.sort((a, b) => {
+          const ta = ddmmToCalendarDate(a.date);
+          const tb = ddmmToCalendarDate(b.date);
+          if (!ta || !tb) return 0;
+          return dir * (cdMs(ta) - cdMs(tb));
+        });
+    }
+  }, [filtered, sortDescriptor]);
 
   const rangeLabel: Record<RangeMode, string> = {
     day:   `${String(selectedDate.day).padStart(2,'0')}-${String(selectedDate.month).padStart(2,'0')}-${selectedDate.year}`,
@@ -345,13 +378,21 @@ export default function Schedule() {
             </ToggleButtonGroup>
           </div>
 
+          <SearchField value={search} onChange={setSearch} aria-label="Tìm sự kiện">
+            <SearchField.Group>
+              <SearchField.SearchIcon />
+              <SearchField.Input placeholder="Tìm theo tên hoặc địa điểm..." />
+              <SearchField.ClearButton />
+            </SearchField.Group>
+          </SearchField>
+
           <p className="text-sm font-semibold text-foreground/60">
-            {rangeLabel[rangeMode]} · {sorted.length} sự kiện
+            {rangeLabel[rangeMode]} · {filtered.length} sự kiện
           </p>
 
           {isLoading ? (
             <CardSkeleton count={3} />
-          ) : viewMode === 'agenda' ? (
+          ) : !isDesktop ? (
             <AgendaView
               events={sorted}
               onNavigate={id => navigate('/schedule/' + id)}
@@ -365,19 +406,35 @@ export default function Schedule() {
           ) : (
             <Table>
               <Table.ScrollContainer>
-                <Table.Content aria-label="Danh sách sự kiện">
+                <Table.Content
+                  aria-label="Danh sách sự kiện"
+                  sortDescriptor={sortDescriptor}
+                  onSortChange={setSortDescriptor}
+                >
                   <Table.Header>
-                    <Table.Column isRowHeader className="text-xs font-medium text-default-500 py-3 pl-4 pr-3 bg-default-50 dark:bg-default-100/20">Sự kiện</Table.Column>
-                    <Table.Column className="text-xs font-medium text-default-500 py-3 px-3 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">Ngày</Table.Column>
+                    <Table.Column isRowHeader allowsSorting id="name" className="text-xs font-medium text-default-500 py-3 pl-4 pr-3 bg-default-50 dark:bg-default-100/20">
+                      {({ sortDirection }) => (
+                        <Table.SortableColumnHeader sortDirection={sortDirection}>Sự kiện</Table.SortableColumnHeader>
+                      )}
+                    </Table.Column>
+                    <Table.Column allowsSorting id="date" className="text-xs font-medium text-default-500 py-3 px-3 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">
+                      {({ sortDirection }) => (
+                        <Table.SortableColumnHeader sortDirection={sortDirection}>Ngày</Table.SortableColumnHeader>
+                      )}
+                    </Table.Column>
                     <Table.Column className="text-xs font-medium text-default-500 py-3 px-3 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">Địa điểm</Table.Column>
                     <Table.Column className="text-xs font-medium text-default-500 py-3 px-3 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">Nhân viên</Table.Column>
-                    <Table.Column className="text-xs font-medium text-default-500 py-3 px-3 bg-default-50 dark:bg-default-100/20">Trạng thái</Table.Column>
+                    <Table.Column allowsSorting id="status" className="text-xs font-medium text-default-500 py-3 px-3 bg-default-50 dark:bg-default-100/20">
+                      {({ sortDirection }) => (
+                        <Table.SortableColumnHeader sortDirection={sortDirection}>Trạng thái</Table.SortableColumnHeader>
+                      )}
+                    </Table.Column>
                     {isAdmin && <Table.Column className="text-xs font-medium text-default-500 py-3 pr-4 pl-3 text-right bg-default-50 dark:bg-default-100/20 hidden sm:table-cell">Hành động</Table.Column>}
                   </Table.Header>
                   <Table.Body renderEmptyState={() => (
                     <p className="text-sm text-foreground/50 text-center py-10">Chưa có sự kiện nào</p>
                   )}>
-                    {sorted.map(event => {
+                    {tableSorted.map(event => {
                       const dateDisplay = event.endDate && event.endDate !== event.date
                         ? `${event.date} → ${event.endDate}`
                         : event.date;
