@@ -16,6 +16,7 @@ import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
 import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
 import { useDeleteEvent } from '../../hooks/queries/mutations/useDeleteEvent';
 import StatusBadge from '../shared/StatusBadge';
+import EventCalendarView from './EventCalendarView';
 import AddEventForm from './AddEventForm';
 import CardSkeleton from '@/components/shared/skeletons/CardSkeleton';
 import { computeEventStatus } from '../../lib/eventStatus';
@@ -232,7 +233,56 @@ export default function Schedule() {
     <div className="pb-32">
       {showAddForm && isAdmin && <AddEventForm onClose={() => setShowAddForm(false)} />}
 
-      <div className="flex flex-col md:flex-row md:gap-6 md:items-start">
+      {/* Calendar view: full-width layout */}
+      {viewMode === 'calendar' && (
+        <div className="space-y-3">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex flex-wrap gap-1.5">
+              {STATUS_FILTERS.map(s => (
+                <Chip
+                  key={s}
+                  variant="soft"
+                  color={statusFilter === s ? 'accent' : 'default'}
+                  className={`cursor-pointer select-none transition-opacity ${statusFilter !== s ? 'opacity-60' : ''}`}
+                  onClick={() => setStatusFilter(s)}
+                >
+                  {s}
+                </Chip>
+              ))}
+            </div>
+            <ToggleButtonGroup
+              selectionMode="single"
+              disallowEmptySelection
+              isDetached
+              size="sm"
+              selectedKeys={new Set([viewMode])}
+              onSelectionChange={keys => {
+                const k = [...keys][0] as ViewMode;
+                if (k) setViewMode(k);
+              }}
+              className="flex-shrink-0"
+            >
+              <ToggleButton id="agenda" aria-label="Danh sách" className="w-8 h-8 p-0">
+                <List size={14} />
+              </ToggleButton>
+              <ToggleButton id="calendar" aria-label="Lịch" className="w-8 h-8 p-0">
+                <CalendarDays size={14} />
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </div>
+          <EventCalendarView
+            events={withStatus.filter(e => statusFilter === 'Tất cả' || e.status === statusFilter)}
+            selectedDate={selectedDate}
+            onDateChange={setSelectedDate}
+            rangeMode={rangeMode}
+            onRangeModeChange={setRangeMode}
+            onNavigate={id => navigate('/schedule/' + id)}
+          />
+        </div>
+      )}
+
+      {/* Agenda view: 2-column layout */}
+      {viewMode === 'agenda' && <div className="flex flex-col md:flex-row md:gap-6 md:items-start">
         {/* ── Left panel: Calendar + Range toggle ── */}
         <div className="flex flex-col items-center gap-3 md:sticky md:top-4 md:flex-shrink-0">
           <CalendarWithYearPicker
@@ -390,7 +440,7 @@ export default function Schedule() {
             </Table>
           )}
         </div>
-      </div>
+      </div>}
     </div>
   );
 }
