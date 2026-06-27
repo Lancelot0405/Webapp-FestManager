@@ -45,11 +45,11 @@ File: `src/components/schedule/EventDetail.tsx` + `EventDetailContent.tsx` (mớ
 - Mobile: `openEvent` vẫn `navigate('/schedule/:id')` full-screen.
 - Drawer header dùng nút X (đóng) thay back; giữ nguyên logic export/clone/delete + phân quyền.
 
-## Phase 5 — Thêm sự kiện (Modal / Drawer)
+## Phase 5 — Thêm sự kiện (Modal / Drawer) ✅
 File: `src/components/schedule/AddEventForm.tsx`
 
-- Tách thân form dùng chung; chọn container theo `useIsDesktop(1024)`: Modal bottom-sheet (mobile) / Drawer phải (desktop).
-- Giữ react-hook-form + zod + `computeEventStatus()` hiện tại.
+- Tách thân form (`formFields` + `footer`) dùng chung; chọn container theo `useIsDesktop()`: Modal bottom-sheet (mobile) / Drawer phải `w-[min(28rem,100vw)]` (desktop).
+- Giữ react-hook-form + zod + `computeEventStatus()`; keyboardOffset chỉ áp dụng mobile.
 
 ## Phase 6 — Visual polish
 - Badge status đồng bộ (success/warning/danger/neutral), hover row/card, mini avatar group nhất quán.
