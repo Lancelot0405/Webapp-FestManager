@@ -108,6 +108,7 @@ supabase/
 ```
 
 **Docs:** `docs/PLAN.md`
+**Second Brain (Obsidian):** Thư mục `docs/wiki/` chứa toàn bộ tài liệu kiến trúc, nhật ký phát triển và tóm tắt codebase (`docs/wiki/codebase-index.md`). Khi bắt đầu session mới, hãy đọc qua các ghi chú này để nắm bắt nhanh kiến thức hệ thống.
 
 ---
 
