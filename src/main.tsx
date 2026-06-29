@@ -8,6 +8,7 @@ import { ToastProvider } from './context/ToastContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { FABProvider } from './context/FABContext'
 import ErrorBoundary from './components/shared/ErrorBoundary'
+import { TooltipProvider } from './components/ui/tooltip'
 import './index.css'
 import App from './App.tsx'
 
@@ -30,7 +31,9 @@ createRoot(document.getElementById('root')!).render(
               <ToastProvider>
                 <AppProvider>
                   <FABProvider>
-                    <App />
+                    <TooltipProvider>
+                      <App />
+                    </TooltipProvider>
                   </FABProvider>
                 </AppProvider>
               </ToastProvider>

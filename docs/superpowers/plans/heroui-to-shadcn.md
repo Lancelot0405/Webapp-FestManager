@@ -550,7 +550,115 @@ git commit -m "feat(migrate): layout components HeroUI → shadcn/ui"
 
 ---
 
-## Task 4: Migrate Schedule Module
+## Task 4: Migrate Dashboard + Clients
+
+**Files:**
+- Modify: `src/components/dashboard/Dashboard.tsx`
+- Modify: `src/components/clients/Clients.tsx`
+
+- [ ] **Step 1: Dashboard — Card, ProgressBar, Button, Spinner**
+
+- [ ] **Step 2: Clients — AlertDialog, Button, Card, EmptyState, Modal, SearchField, TextField, Label, Input, TextArea, FieldError**
+
+`TextArea` → shadcn `Textarea`:
+```typescript
+import { Textarea } from '@/components/ui/textarea'
+```
+
+`EmptyState` → custom div:
+```tsx
+<div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+  <Users className="h-12 w-12 mb-3 opacity-40" />
+  <p className="text-sm">Chưa có khách hàng nào</p>
+</div>
+```
+
+- [ ] **Step 3: Build check + commit**
+
+```bash
+npm run build
+git add src/components/dashboard/ src/components/clients/
+git commit -m "feat(migrate): dashboard and clients HeroUI → shadcn/ui"
+```
+
+---
+
+## Task 5: Migrate HR Module
+
+**Files:**
+- Modify: `src/components/hr/HRGlobal.tsx`
+- Modify: `src/components/hr/StaffProfile.tsx`
+- Modify: `src/components/hr/AddStaffForm.tsx`
+
+- [ ] **Step 1: Replace Button, Card, Label, Link, Spinner, ToggleButton, ToggleButtonGroup, TextField, Input, Select, ListBox**
+
+`AddStaffForm.tsx` có nhiều nhất HeroUI. Thay toàn bộ form fields theo pattern Task 3 Step 1 (Label + Input + error message).
+
+- [ ] **Step 2: Replace AlertDialog trong HRGlobal nếu có**
+
+`AlertDialog` → shadcn `AlertDialog`:
+```typescript
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
+} from '@/components/ui/alert-dialog'
+```
+
+- [ ] **Step 3: Build check + commit**
+
+```bash
+npm run build
+git add src/components/hr/
+git commit -m "feat(migrate): HR module HeroUI → shadcn/ui"
+```
+
+---
+
+## Task 6: Migrate Finance Module
+
+**Files:**
+- Modify: `src/components/finance/Finance.tsx`
+- Modify: `src/components/finance/EventFinanceCard.tsx`
+- Modify: `src/components/finance/ExpenseList.tsx`
+- Modify: `src/components/finance/FinanceSummaryCards.tsx`
+- Modify: `src/components/finance/FinanceExport.tsx`
+
+- [ ] **Step 1: Replace Card, ProgressBar trong FinanceSummaryCards**
+
+`ProgressBar` → shadcn `Progress`:
+```typescript
+import { Progress } from '@/components/ui/progress'
+```
+
+```tsx
+<Progress value={percentage} className="h-2" />
+```
+
+- [ ] **Step 2: Replace Button, Card, Spinner, TextField, Label, Input, Select, ListBox trong Finance.tsx**
+
+`Spinner` → Lucide `Loader2`:
+```tsx
+import { Loader2 } from 'lucide-react'
+// ...
+<Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+```
+
+- [ ] **Step 3: Replace Card, Separator, Chip trong EventFinanceCard**
+
+- [ ] **Step 4: Replace trong ExpenseList và FinanceExport**
+
+- [ ] **Step 5: Build check + commit**
+
+```bash
+npm run build
+git add src/components/finance/
+git commit -m "feat(migrate): finance module HeroUI → shadcn/ui"
+```
+
+---
+
+## Task 7: Migrate Schedule Module
 
 **Files:**
 - Modify: `src/components/schedule/Schedule.tsx`
@@ -683,7 +791,7 @@ import { Calendar } from '@/components/ui/calendar'
 ```
 
 Props: `selected`, `onSelect`, `mode="single"` | `"multiple"` | `"range"`.
-Nếu calendar view phức tạp hơn (custom rendering per day), dùng `react-day-picker` trực tiếp với `modifiers` và `components` prop.
+Nếu calendar view phức tạp hơn (custom rendering per day), dùng `react-day-picker` trực tiếp với `modifiers` and `components` prop.
 
 ### Event Tabs
 
@@ -734,82 +842,7 @@ git commit -m "feat(migrate): schedule module HeroUI → shadcn/ui"
 
 ---
 
-## Task 5: Migrate Finance Module
-
-**Files:**
-- Modify: `src/components/finance/Finance.tsx`
-- Modify: `src/components/finance/EventFinanceCard.tsx`
-- Modify: `src/components/finance/ExpenseList.tsx`
-- Modify: `src/components/finance/FinanceSummaryCards.tsx`
-- Modify: `src/components/finance/FinanceExport.tsx`
-
-- [ ] **Step 1: Replace Card, ProgressBar trong FinanceSummaryCards**
-
-`ProgressBar` → shadcn `Progress`:
-```typescript
-import { Progress } from '@/components/ui/progress'
-```
-
-```tsx
-<Progress value={percentage} className="h-2" />
-```
-
-- [ ] **Step 2: Replace Button, Card, Spinner, TextField, Label, Input, Select, ListBox trong Finance.tsx**
-
-`Spinner` → Lucide `Loader2`:
-```tsx
-import { Loader2 } from 'lucide-react'
-// ...
-<Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-```
-
-- [ ] **Step 3: Replace Card, Separator, Chip trong EventFinanceCard**
-
-- [ ] **Step 4: Replace trong ExpenseList và FinanceExport**
-
-- [ ] **Step 5: Build check + commit**
-
-```bash
-npm run build
-git add src/components/finance/
-git commit -m "feat(migrate): finance module HeroUI → shadcn/ui"
-```
-
----
-
-## Task 6: Migrate HR Module
-
-**Files:**
-- Modify: `src/components/hr/HRGlobal.tsx`
-- Modify: `src/components/hr/StaffProfile.tsx`
-- Modify: `src/components/hr/AddStaffForm.tsx`
-
-- [ ] **Step 1: Replace Button, Card, Label, Link, Spinner, ToggleButton, ToggleButtonGroup, TextField, Input, Select, ListBox**
-
-`AddStaffForm.tsx` có nhiều nhất HeroUI. Thay toàn bộ form fields theo pattern Task 3 Step 1 (Label + Input + error message).
-
-- [ ] **Step 2: Replace AlertDialog trong HRGlobal nếu có**
-
-`AlertDialog` → shadcn `AlertDialog`:
-```typescript
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel,
-  AlertDialogContent, AlertDialogDescription,
-  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
-} from '@/components/ui/alert-dialog'
-```
-
-- [ ] **Step 3: Build check + commit**
-
-```bash
-npm run build
-git add src/components/hr/
-git commit -m "feat(migrate): HR module HeroUI → shadcn/ui"
-```
-
----
-
-## Task 7: Migrate Inventory Module
+## Task 8: Migrate Inventory Module
 
 **Files:**
 - Modify: `src/components/inventory/Inventory.tsx`
@@ -830,7 +863,7 @@ Module lớn nhất. Có `AlertDialog`, `Modal`, `Drawer`, `Table`, `Select`, `S
 
 - [ ] **Step 1: InventoryAddModal — Modal → Dialog**
 
-Theo pattern Task 4 Step 2.
+Theo pattern Task 7 Step 2.
 
 - [ ] **Step 2: InventoryItemDrawer — Drawer → Sheet**
 
@@ -838,11 +871,11 @@ Theo pattern Task 3 Step 5.
 
 - [ ] **Step 3: InventoryTable — Table → shadcn Table**
 
-Theo pattern Task 4 Step 6.
+Theo pattern Task 7 Step 6.
 
 - [ ] **Step 4: InventoryToolbar — SearchField, ToggleButtonGroup, Select**
 
-Theo pattern Task 4 Step 1 và 2.
+Theo pattern Task 7 Step 1 và 2.
 
 - [ ] **Step 5: FoodNameSelect — Select + ListBox**
 
@@ -867,39 +900,6 @@ Thay Card, Badge, Chip, Spinner theo mapping chuẩn.
 npm run build
 git add src/components/inventory/
 git commit -m "feat(migrate): inventory module HeroUI → shadcn/ui"
-```
-
----
-
-## Task 8: Migrate Dashboard + Clients
-
-**Files:**
-- Modify: `src/components/dashboard/Dashboard.tsx`
-- Modify: `src/components/clients/Clients.tsx`
-
-- [ ] **Step 1: Dashboard — Card, ProgressBar, Button, Spinner**
-
-- [ ] **Step 2: Clients — AlertDialog, Button, Card, EmptyState, Modal, SearchField, TextField, Label, Input, TextArea, FieldError**
-
-`TextArea` → shadcn `Textarea`:
-```typescript
-import { Textarea } from '@/components/ui/textarea'
-```
-
-`EmptyState` → custom div:
-```tsx
-<div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-  <Users className="h-12 w-12 mb-3 opacity-40" />
-  <p className="text-sm">Chưa có khách hàng nào</p>
-</div>
-```
-
-- [ ] **Step 3: Build check + commit**
-
-```bash
-npm run build
-git add src/components/dashboard/ src/components/clients/
-git commit -m "feat(migrate): dashboard and clients HeroUI → shadcn/ui"
 ```
 
 ---
