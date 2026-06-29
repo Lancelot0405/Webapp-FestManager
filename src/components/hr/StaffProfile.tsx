@@ -1,8 +1,19 @@
-﻿import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Plus, Upload, Image, X, Pencil, Check, CreditCard, ShieldCheck, KeyRound, Copy, CheckCheck, Building2, UserX } from 'lucide-react';
+import { ArrowLeft, FileText, Plus, Upload, Image, X, Pencil, Check, CreditCard, ShieldCheck, KeyRound, Copy, CheckCheck, Building2, UserX, Loader2 } from 'lucide-react';
 import EmptyState from '@/components/shared/EmptyState';
-import { Button, Card, Label, Link, Spinner, ToggleButton, ToggleButtonGroup, TextField, Input, Select, ListBox } from '@heroui/react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
@@ -99,7 +110,7 @@ export default function StaffProfile() {
     <EmptyState
       icon={<UserX size={26} />}
       title="Không tìm thấy nhân viên"
-      action={paramStaffId ? { label: 'Quay lại', onPress: () => navigate(-1) } : undefined}
+      action={paramStaffId ? { label: 'Quay lại', onClick: () => navigate(-1) } : undefined}
     />
   );
 
@@ -239,7 +250,13 @@ export default function StaffProfile() {
     <div className="space-y-5 pb-20">
       {paramStaffId && (
         <div className="flex items-center gap-2">
-          <Button isIconOnly variant="ghost" size="sm" className="text-muted hover:text-foreground" onPress={() => navigate(-1)}>
+          <Button
+            type="button"
+            variant="ghost"
+            className="text-muted hover:text-foreground h-8 w-8 p-0 flex items-center justify-center rounded-full"
+            onClick={() => navigate(-1)}
+            aria-label="Quay lại"
+          >
             <ArrowLeft size={22} />
           </Button>
           <h1 className="text-lg font-bold text-foreground">Hồ sơ nhân viên</h1>
@@ -250,15 +267,16 @@ export default function StaffProfile() {
       {/* ── CỘT TRÁI: Thông tin + Tài khoản ──────────────────────────── */}
       <div className="space-y-5">
       {/* ── THÔNG TIN CÁ NHÂN ──────────────────────────────────────────── */}
-      <Card className="p-4">
+      <Card className="p-4 border">
         <div className="flex justify-between items-center mb-3">
           <p className="text-sm font-semibold text-foreground">Thông tin cá nhân</p>
           {canEdit && !editing && (
             <Button
-              size="sm"
+              type="button"
               variant="outline"
+              size="sm"
               className="h-auto min-w-0"
-              onPress={startEdit}
+              onClick={startEdit}
             >
               <Pencil size={12} /> Chỉnh sửa
             </Button>
@@ -267,41 +285,40 @@ export default function StaffProfile() {
 
         {editing ? (
           <div className="space-y-3">
-            <TextField value={editName} onChange={setEditName} className="w-full flex flex-col gap-1">
+            <div className="w-full flex flex-col gap-1">
               <Label className="text-xs font-medium text-foreground/80">Họ tên</Label>
-              <Input />
-            </TextField>
-            <TextField value={editDob} onChange={setEditDob} className="w-full flex flex-col gap-1">
+              <Input value={editName} onChange={(e) => setEditName(e.target.value)} />
+            </div>
+            <div className="w-full flex flex-col gap-1">
               <Label className="text-xs font-medium text-foreground/80">Ngày sinh (DD-MM-YYYY)</Label>
-              <Input placeholder="01-01-2000" />
-            </TextField>
-            <FranceCityAutocomplete value={editCity} onChange={setEditCity} />
-            <TextField value={editPhone} onChange={setEditPhone} className="w-full flex flex-col gap-1">
+              <Input placeholder="01-01-2000" value={editDob} onChange={(e) => setEditDob(e.target.value)} />
+            </div>
+            <FranceCityAutocomplete label="Thành phố" value={editCity} onChange={setEditCity} />
+            <div className="w-full flex flex-col gap-1">
               <Label className="text-xs font-medium text-foreground/80">Số điện thoại</Label>
-              <Input type="tel" placeholder="+33 6 XX XX XX XX" />
-            </TextField>
-            <TextField value={editCarteNum} onChange={setEditCarteNum} className="w-full flex flex-col gap-1">
+              <Input type="tel" placeholder="+33 6 XX XX XX XX" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} />
+            </div>
+            <div className="w-full flex flex-col gap-1">
               <Label className="text-xs font-medium text-foreground/80">Số Carte Vitale</Label>
-              <Input placeholder="1 85 01 75 XXX XXX XX" className="font-mono" />
-            </TextField>
-            <TextField value={editTitreNum} onChange={setEditTitreNum} className="w-full flex flex-col gap-1">
+              <Input placeholder="1 85 01 75 XXX XXX XX" className="font-mono" value={editCarteNum} onChange={(e) => setEditCarteNum(e.target.value)} />
+            </div>
+            <div className="w-full flex flex-col gap-1">
               <Label className="text-xs font-medium text-foreground/80">Số Titre de Séjour</Label>
-              <Input placeholder="XXXXXXXXX" className="font-mono" />
-            </TextField>
+              <Input placeholder="XXXXXXXXX" className="font-mono" value={editTitreNum} onChange={(e) => setEditTitreNum(e.target.value)} />
+            </div>
             {isAdmin && (
               <>
                 <div>
                   <Label className="text-xs text-muted font-medium mb-1 block">Loại nhân viên</Label>
-                  <ToggleButtonGroup
-                    selectionMode="single"
-                    disallowEmptySelection
-                    selectedKeys={new Set([editStaffType])}
-                    onSelectionChange={keys => { const k = [...keys][0] as 'permanent' | 'part-time'; if (k) setEditStaffType(k); }}
-                    className="w-full"
+                  <ToggleGroup
+                    type="single"
+                    value={editStaffType}
+                    onValueChange={val => { if (val) setEditStaffType(val as 'permanent' | 'part-time'); }}
+                    className="w-full bg-muted/40 p-1 rounded-xl border flex"
                   >
-                    <ToggleButton id="permanent" className="flex-1 text-sm">Nhân viên cứng</ToggleButton>
-                    <ToggleButton id="part-time" className="flex-1 text-sm">Part-time</ToggleButton>
-                  </ToggleButtonGroup>
+                    <ToggleGroupItem value="permanent" className="flex-1 text-sm h-9 font-semibold">Nhân viên cứng</ToggleGroupItem>
+                    <ToggleGroupItem value="part-time" className="flex-1 text-sm h-9 font-semibold">Part-time</ToggleGroupItem>
+                  </ToggleGroup>
                 </div>
                 {member.userId && (
                   <div className="space-y-3">
@@ -309,32 +326,30 @@ export default function StaffProfile() {
                       <Label className="text-xs text-muted font-medium flex items-center gap-1 mb-1">
                         <ShieldCheck size={12} /> Quyền tài khoản
                       </Label>
-                      <ToggleButtonGroup
-                        selectionMode="single"
-                        disallowEmptySelection
-                        selectedKeys={new Set([editRole])}
-                        onSelectionChange={keys => { const k = [...keys][0] as UserRole; if (k) setEditRole(k); }}
-                        className="w-full"
+                      <ToggleGroup
+                        type="single"
+                        value={editRole}
+                        onValueChange={val => { if (val) setEditRole(val as UserRole); }}
+                        className="w-full bg-muted/40 p-1 rounded-xl border flex"
                       >
-                        <ToggleButton id="staff"   className="flex-1 text-sm">Nhân viên</ToggleButton>
-                        <ToggleButton id="manager" className="flex-1 text-sm">Quản lý</ToggleButton>
-                      </ToggleButtonGroup>
+                        <ToggleGroupItem value="staff"   className="flex-1 text-sm h-9 font-semibold">Nhân viên</ToggleGroupItem>
+                        <ToggleGroupItem value="manager" className="flex-1 text-sm h-9 font-semibold">Quản lý</ToggleGroupItem>
+                      </ToggleGroup>
                     </div>
                     <div>
                       <Label className="text-xs text-muted font-medium flex items-center gap-1 mb-1">
                         <Building2 size={12} /> Bộ phận kho hàng
                       </Label>
-                      <ToggleButtonGroup
-                        selectionMode="single"
-                        disallowEmptySelection
-                        selectedKeys={new Set([editDepartment])}
-                        onSelectionChange={keys => { const k = [...keys][0] as UserDepartment; if (k) setEditDepartment(k); }}
-                        className="w-full"
+                      <ToggleGroup
+                        type="single"
+                        value={editDepartment}
+                        onValueChange={val => { if (val) setEditDepartment(val as UserDepartment); }}
+                        className="w-full bg-muted/40 p-1 rounded-xl border flex"
                       >
-                        <ToggleButton id="restaurant" className="flex-1 text-xs">Nhà hàng</ToggleButton>
-                        <ToggleButton id="festival"   className="flex-1 text-xs">Festival</ToggleButton>
-                        <ToggleButton id="both"       className="flex-1 text-xs">Cả hai</ToggleButton>
-                      </ToggleButtonGroup>
+                        <ToggleGroupItem value="restaurant" className="flex-1 text-xs h-9 font-semibold">Nhà hàng</ToggleGroupItem>
+                        <ToggleGroupItem value="festival"   className="flex-1 text-xs h-9 font-semibold">Festival</ToggleGroupItem>
+                        <ToggleGroupItem value="both"       className="flex-1 text-xs h-9 font-semibold">Cả hai</ToggleGroupItem>
+                      </ToggleGroup>
                     </div>
                   </div>
                 )}
@@ -342,18 +357,17 @@ export default function StaffProfile() {
             )}
             <div className="flex gap-2 pt-1">
               <Button
-                variant="primary"
-                size="sm"
-                className="flex-1"
-                onPress={saveEdit}
+                type="button"
+                className="flex-1 rounded-xl"
+                onClick={saveEdit}
               >
                 <Check size={14} /> Lưu
               </Button>
               <Button
+                type="button"
                 variant="outline"
-                size="sm"
-                className="flex-1"
-                onPress={() => setEditing(false)}
+                className="flex-1 rounded-xl"
+                onClick={() => setEditing(false)}
               >
                 Huỷ
               </Button>
@@ -383,7 +397,7 @@ export default function StaffProfile() {
 
       {/* ── QUẢN LÝ TÀI KHOẢN (chỉ admin) ─────────────────────────────── */}
       {isAdmin && member.userId && (
-        <Card className="p-4 space-y-4">
+        <Card className="p-4 space-y-4 border">
           <p className="text-sm font-semibold text-foreground flex items-center gap-2">
             <KeyRound size={15} className="text-warning" /> Quản lý tài khoản
           </p>
@@ -392,7 +406,7 @@ export default function StaffProfile() {
           <div>
             <Label className="text-xs text-muted font-medium block mb-1">Tên đăng nhập</Label>
             {currentUsername && (
-              <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-default/50 rounded-lg border border-separator">
+              <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-default/50 rounded-lg border border-border">
                 <span className="text-xs text-muted shrink-0">Hiện tại:</span>
                 <span className="text-sm font-mono font-medium text-foreground/80 flex-1 truncate">
                   {currentUsername}<span className="text-muted">@fm.com</span>
@@ -400,16 +414,20 @@ export default function StaffProfile() {
               </div>
             )}
             <div className="flex gap-2">
-              <TextField value={editUsername} onChange={(v) => setEditUsername(v.replace(/\s/g, '').toLowerCase())} className="flex-1 flex flex-col gap-1">
+              <div className="w-full flex-col gap-1 flex-1 flex">
                 <div className="relative flex items-center">
-                  <Input placeholder="username mới" className="pr-16" />
+                  <Input
+                    placeholder="username mới"
+                    className="pr-16"
+                    value={editUsername}
+                    onChange={(e) => setEditUsername(e.target.value.replace(/\s/g, '').toLowerCase())}
+                  />
                   <span className="absolute right-3 z-10 font-mono text-xs text-muted">@fm.com</span>
                 </div>
-              </TextField>
+              </div>
               <Button
-                size="sm"
-                variant="primary"
-                onPress={async () => {
+                type="button"
+                onClick={async () => {
                   if (!editUsername.trim()) return;
                   await supabase.from('users').update({ name: editUsername.trim() }).eq('id', member.userId!);
                   setCurrentUsername(editUsername.trim());
@@ -417,6 +435,7 @@ export default function StaffProfile() {
                   setPwMsg('Đã cập nhật tên tài khoản!');
                   setTimeout(() => setPwMsg(''), 3000);
                 }}
+                className="rounded-xl h-9"
               >
                 <Check size={13} /> Lưu
               </Button>
@@ -428,26 +447,32 @@ export default function StaffProfile() {
             <div className="flex justify-between items-center mb-1">
               <Label className="text-xs text-muted font-medium">Mật khẩu</Label>
               <Button
-                size="sm"
+                type="button"
                 variant={showPwForm ? 'outline' : 'secondary'}
                 className="h-auto min-w-0"
-                onPress={() => { setShowPwForm(!showPwForm); setPwMsg(''); setNewPassword(''); }}
+                onClick={() => { setShowPwForm(!showPwForm); setPwMsg(''); setNewPassword(''); }}
               >
                 {showPwForm ? 'Huỷ' : 'Đổi mật khẩu'}
               </Button>
             </div>
             {showPwForm && (
-              <form onSubmit={handleChangePassword} className="flex gap-2">
-                <TextField value={newPassword} onChange={setNewPassword} isRequired className="flex-1 flex flex-col gap-1">
-                  <Input type="password" minLength={6} placeholder="Mật khẩu mới (tối thiểu 6 ký tự)" />
-                </TextField>
+              <form onSubmit={handleChangePassword} className="flex gap-2 mt-2">
+                <div className="w-full flex flex-col gap-1 flex-1 flex">
+                  <Input
+                    type="password"
+                    minLength={6}
+                    placeholder="Mật khẩu mới (tối thiểu 6 ký tự)"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    required
+                  />
+                </div>
                 <Button
                   type="submit"
-                  isDisabled={pwLoading}
-                  size="sm"
-                  variant="primary"
+                  disabled={pwLoading}
+                  className="rounded-xl h-9 flex items-center gap-1"
                 >
-                  {pwLoading ? <Spinner size="sm" color="current" /> : <Check size={13} />}
+                  {pwLoading ? <Loader2 className="size-4 animate-spin" /> : <Check size={13} />}
                   Lưu
                 </Button>
               </form>
@@ -455,7 +480,7 @@ export default function StaffProfile() {
           </div>
 
           {pwMsg && (
-            <p className={`text-xs ${pwMsg.startsWith('Lỗi') ? 'text-danger' : 'text-success'}`}>{pwMsg}</p>
+            <p className={`text-xs ${pwMsg.startsWith('Lỗi') ? 'text-destructive' : 'text-emerald-600 dark:text-emerald-400 font-semibold'}`}>{pwMsg}</p>
           )}
         </Card>
       )}
@@ -501,12 +526,12 @@ export default function StaffProfile() {
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-sm font-semibold text-foreground">Hợp đồng ({member.contracts.length})</h2>
           {canEdit && (
-            <label className={`flex items-center gap-1 text-sm font-medium cursor-pointer px-3 py-1.5 rounded-lg border border-separator transition-colors ${
+            <label className={`flex items-center gap-1 text-sm font-medium cursor-pointer px-3 py-1.5 rounded-lg border border-border transition-colors ${
               uploadingContract
                 ? 'bg-default/50 text-muted'
                 : 'bg-default/50 text-foreground/80 hover:border-accent/30 hover:text-foreground'
             }`}>
-              {uploadingContract ? <Spinner size="sm" color="current" /> : <Upload size={14} />}
+              {uploadingContract ? <Loader2 className="size-4 animate-spin" /> : <Upload size={14} />}
               {uploadingContract ? 'Đang upload...' : 'Upload hợp đồng'}
               <input ref={contractFileRef} type="file" accept=".pdf,.jpg,.jpeg,.png,.webp"
                 className="hidden" disabled={uploadingContract} onChange={handleContractUpload} />
@@ -514,20 +539,25 @@ export default function StaffProfile() {
           )}
         </div>
         {member.contracts.length === 0 ? (
-          <p className="text-xs text-muted py-4 text-center bg-surface border border-separator rounded-xl border-dashed">
+          <p className="text-xs text-muted py-4 text-center bg-surface border border-border border-dashed rounded-xl">
             Chưa có hợp đồng
           </p>
         ) : (
           <div className="space-y-2">
             {member.contracts.map(c => (
-              <Link key={c.id} href={c.url} target="_blank"
-                className="flex items-center gap-3 bg-surface border border-separator rounded-xl shadow-sm p-3 hover:border-accent/30 transition-colors no-underline w-full">
+              <a
+                key={c.id}
+                href={c.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 bg-surface border border-border rounded-xl shadow-sm p-3 hover:border-accent/30 transition-colors no-underline w-full"
+              >
                 <FileText size={18} className="text-accent shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-foreground truncate">{c.fileName ?? 'Hợp đồng'}</p>
                   <p className="text-xs text-muted">{c.date}</p>
                 </div>
-              </Link>
+              </a>
             ))}
           </div>
         )}
@@ -539,10 +569,9 @@ export default function StaffProfile() {
           <h2 className="text-sm font-semibold text-foreground">Chi phí ({allExpenses.length})</h2>
           {canEdit && (
             <Button
-              size="sm"
-              variant="secondary"
-              className="h-auto"
-              onPress={() => setShowExpenseForm(!showExpenseForm)}
+              type="button"
+              className="h-9 px-4 text-sm rounded-xl font-medium"
+              onClick={() => setShowExpenseForm(!showExpenseForm)}
             >
               <Plus size={14} /> Nộp chi phí
             </Button>
@@ -550,120 +579,124 @@ export default function StaffProfile() {
         </div>
 
         {showExpenseForm && (
-          <Card className="mb-3">
-          <form onSubmit={handleSubmitExpense} className="p-4 space-y-3">
-            <div className="flex justify-between items-center">
-              <p className="text-sm font-semibold text-success">Nộp chi phí mới</p>
-              <Button isIconOnly variant="ghost" size="sm" className="text-muted h-auto min-w-0 p-0 hover:text-danger" onPress={() => setShowExpenseForm(false)}>
-                <X size={15} />
-              </Button>
-            </div>
-            <Select
-              value={formEventId ? String(formEventId) : null}
-              onChange={(key) => setFormEventId(key != null ? Number(String(key)) : '')}
-              isRequired
-              className="w-full flex flex-col gap-1"
-              placeholder="Chọn sự kiện"
-            >
-              <Label className="text-xs font-medium text-foreground/80">Sự kiện</Label>
-              <Select.Trigger>
-                <Select.Value />
-                <Select.Indicator />
-              </Select.Trigger>
-              <Select.Popover>
-                <ListBox>
-                  {myEvents.map(ev => (
-                    <ListBox.Item key={String(ev.id)} id={String(ev.id)} textValue={ev.name}>
-                      {ev.name}
-                      <ListBox.ItemIndicator />
-                    </ListBox.Item>
-                  ))}
-                </ListBox>
-              </Select.Popover>
-            </Select>
-            <div className="grid grid-cols-2 gap-2">
-              <Select
-                value={formCategory || null}
-                onChange={(key) => setFormCategory(key != null ? String(key) as ExpenseCategory : 'Vé tàu/xe')}
-                className="w-full flex flex-col gap-1"
-              >
-                <Label className="text-xs font-medium text-foreground/80">Loại chi phí</Label>
-                <Select.Trigger>
-                  <Select.Value />
-                  <Select.Indicator />
-                </Select.Trigger>
-                <Select.Popover>
-                  <ListBox>
-                    {CATEGORIES.map(c => (
-                      <ListBox.Item key={c} id={c} textValue={c}>
-                        {c}
-                        <ListBox.ItemIndicator />
-                      </ListBox.Item>
+          <Card className="mb-3 border">
+            <form onSubmit={handleSubmitExpense} className="p-4 space-y-3">
+              <div className="flex justify-between items-center">
+                <p className="text-sm font-semibold text-success">Nộp chi phí mới</p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="text-muted h-8 w-8 p-0 hover:text-danger rounded-full flex items-center justify-center"
+                  onClick={() => setShowExpenseForm(false)}
+                >
+                  <X size={15} />
+                </Button>
+              </div>
+
+              <div className="w-full flex flex-col gap-1">
+                <Label className="text-xs font-medium text-foreground/80">Sự kiện *</Label>
+                <Select
+                  value={formEventId ? String(formEventId) : undefined}
+                  onValueChange={(val) => setFormEventId(val ? Number(val) : '')}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Chọn sự kiện" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {myEvents.map(ev => (
+                      <SelectItem key={String(ev.id)} value={String(ev.id)}>
+                        {ev.name}
+                      </SelectItem>
                     ))}
-                  </ListBox>
-                </Select.Popover>
-              </Select>
-              <TextField value={formAmount} onChange={setFormAmount} isRequired className="w-full flex flex-col gap-1">
-                <Label className="text-xs font-medium text-foreground/80">Số tiền (€)</Label>
-                <Input type="number" min={0} step={0.01} />
-              </TextField>
-            </div>
-            <AppDatePicker
-              label="Ngày"
-              isRequired
-              value={formDate}
-              onChange={setFormDate}
-            />
-            <div>
-              <Label className="text-xs text-foreground/80 font-medium block mb-1">Ảnh hóa đơn (không bắt buộc, tối đa 5MB)</Label>
-              {expenseFile ? (
-                <div className="flex items-center gap-2 bg-surface border border-separator rounded-xl rounded-lg px-3 py-2">
-                  <Image size={15} className="text-success shrink-0" />
-                  <span className="text-xs text-foreground truncate flex-1">{expenseFile.name}</span>
-                  <Button isIconOnly variant="ghost" size="sm" className="h-auto min-w-0 p-0 text-muted hover:text-danger" onPress={() => setExpenseFile(null)}>
-                    <X size={14} />
-                  </Button>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div className="w-full flex flex-col gap-1">
+                  <Label className="text-xs font-medium text-foreground/80">Loại chi phí</Label>
+                  <Select
+                    value={formCategory}
+                    onValueChange={(val) => setFormCategory(val as ExpenseCategory)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Loại chi phí" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CATEGORIES.map(c => (
+                        <SelectItem key={c} value={c}>
+                          {c}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-              ) : (
-                <label className="flex items-center gap-2 border border-dashed border-separator rounded-lg px-3 py-2.5 cursor-pointer hover:border-accent/30 hover:bg-default/50 transition-colors">
-                  <Upload size={15} className="text-muted" />
-                  <span className="text-xs text-muted">Chọn ảnh hoặc PDF</span>
-                  <input type="file" accept="image/*,.pdf" className="hidden"
-                    onChange={e => setExpenseFile(e.target.files?.[0] ?? null)} />
-                </label>
-              )}
-            </div>
-            <div className="flex gap-2 pt-1">
-              <Button
-                type="submit"
-                isDisabled={uploadingExp}
-                variant="primary"
-                size="sm"
-                className="flex-1"
-              >
-                {uploadingExp && <Spinner size="sm" color="current" />}
-                {uploadingExp ? 'Đang gửi...' : 'Gửi'}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="flex-1"
-                onPress={() => setShowExpenseForm(false)}
-              >
-                Huỷ
-              </Button>
-            </div>
-          </form>
+                <div className="w-full flex flex-col gap-1">
+                  <Label className="text-xs font-medium text-foreground/80">Số tiền (€)</Label>
+                  <Input type="number" min={0} step={0.01} value={formAmount} onChange={(e) => setFormAmount(e.target.value)} required />
+                </div>
+              </div>
+
+              <AppDatePicker
+                label="Ngày"
+                isRequired
+                value={formDate}
+                onChange={setFormDate}
+              />
+
+              <div>
+                <Label className="text-xs text-foreground/80 font-medium block mb-1">Ảnh hóa đơn (không bắt buộc, tối đa 5MB)</Label>
+                {expenseFile ? (
+                  <div className="flex items-center gap-2 bg-surface border border-border rounded-lg px-3 py-2">
+                    <Image size={15} className="text-success shrink-0" />
+                    <span className="text-xs text-foreground truncate flex-1">{expenseFile.name}</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="h-6 w-6 p-0 text-muted hover:text-danger rounded-full flex items-center justify-center"
+                      onClick={() => setExpenseFile(null)}
+                    >
+                      <X size={14} />
+                    </Button>
+                  </div>
+                ) : (
+                  <label className="flex items-center gap-2 border border-dashed border-border rounded-lg px-3 py-2.5 cursor-pointer hover:border-accent/30 hover:bg-default/50 transition-colors">
+                    <Upload size={15} className="text-muted" />
+                    <span className="text-xs text-muted">Chọn ảnh hoặc PDF</span>
+                    <input type="file" accept="image/*,.pdf" className="hidden"
+                      onChange={e => setExpenseFile(e.target.files?.[0] ?? null)} />
+                  </label>
+                )}
+              </div>
+
+              <div className="flex gap-2 pt-1">
+                <Button
+                  type="submit"
+                  disabled={uploadingExp}
+                  className="flex-1 rounded-xl h-9"
+                >
+                  {uploadingExp && <Loader2 className="size-4 animate-spin mr-1" />}
+                  {uploadingExp ? 'Đang gửi...' : 'Gửi'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1 rounded-xl h-9"
+                  onClick={() => setShowExpenseForm(false)}
+                >
+                  Huỷ
+                </Button>
+              </div>
+            </form>
           </Card>
         )}
 
         {allExpenses.length === 0 ? (
-          <p className="text-xs text-muted text-center py-6 bg-surface border border-separator rounded-xl border-dashed">Chưa có chi phí nào</p>
+          <p className="text-xs text-muted text-center py-6 bg-surface border border-border rounded-xl border-dashed">Chưa có chi phí nào</p>
         ) : (
           <div className="space-y-2">
             {allExpenses.map(exp => (
-              <Card key={exp.id} className="p-3">
+              <Card key={exp.id} className="p-3 border">
                 <div className="flex justify-between items-start">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground">{exp.type}</p>
@@ -717,18 +750,18 @@ function DocCard({
 }) {
   const copied = copiedField === copyKey;
   return (
-    <Card className="p-3 space-y-2">
+    <Card className="p-3 space-y-2 border">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {icon}
           <p className="text-sm font-medium text-foreground">{label}</p>
         </div>
-        <label className={`flex items-center gap-1 text-xs font-medium cursor-pointer px-2.5 py-1.5 rounded-lg border border-separator transition-colors ${
+        <label className={`flex items-center gap-1 text-xs font-medium cursor-pointer px-2.5 py-1.5 rounded-lg border border-border transition-colors ${
           uploading
             ? 'bg-default/50 text-muted'
             : 'bg-default/50 text-foreground/80 hover:text-foreground hover:border-accent/30'
         }`}>
-          {uploading ? <Spinner size="sm" color="current" /> : <Upload size={12} />}
+          {uploading ? <Loader2 className="size-3 animate-spin" /> : <Upload size={12} />}
           {uploading ? 'Uploading...' : doc ? 'Cập nhật' : 'Upload'}
           <input ref={fileRef} type="file" accept="image/*,.pdf" className="hidden"
             disabled={uploading} onChange={onUpload} />
@@ -736,15 +769,14 @@ function DocCard({
       </div>
 
       {cardNumber ? (
-        <div className="flex items-center justify-between bg-default/50 rounded-lg px-3 py-2 border border-separator">
+        <div className="flex items-center justify-between bg-default/50 rounded-lg px-3 py-2 border border-border">
           <span className="text-sm font-mono text-foreground tracking-wide">{cardNumber}</span>
           <Button
-            isIconOnly
+            type="button"
             variant="ghost"
-            size="sm"
-            className="ml-2 h-auto min-w-0 p-1 text-muted hover:text-foreground"
+            className="ml-2 h-7 w-7 p-0 flex items-center justify-center text-muted hover:text-foreground rounded-lg"
             aria-label="Sao chép"
-            onPress={() => onCopy(cardNumber)}
+            onClick={() => onCopy(cardNumber)}
           >
             {copied ? <CheckCheck size={14} className="text-success" /> : <Copy size={14} />}
           </Button>

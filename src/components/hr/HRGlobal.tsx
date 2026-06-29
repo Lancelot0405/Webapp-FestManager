@@ -1,12 +1,21 @@
 import { useMemo, useState, useCallback } from 'react';
-import type { SortDescriptor } from 'react-aria-components';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Trash2, ShieldCheck, Check, X, UserPlus, Pencil, Users, UserCheck, UserMinus } from 'lucide-react';
+import { Trash2, ShieldCheck, Check, X, UserPlus, Pencil, Users, UserCheck, UserMinus, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import {
-  Avatar, Button, Card, Chip, SearchField,
-  Table, ToggleButtonGroup, ToggleButton,
-} from '@heroui/react';
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { animations } from '../../lib/animations';
 import { useApp } from '../../context/AppContext';
 import { useFABRegister } from '../../hooks/useFABRegister';
@@ -31,6 +40,11 @@ const CONTRACT_TYPE_LABEL: Record<string, string> = {
   permanent: 'Nhân viên cứng',
   'part-time': 'Part-time',
 };
+
+interface SortDescriptor {
+  column: 'name' | 'city' | 'staffType' | 'events';
+  direction: 'ascending' | 'descending';
+}
 
 export default function HRGlobal() {
   const navigate = useNavigate();
@@ -111,114 +125,110 @@ export default function HRGlobal() {
     }
   };
 
+  const handleSort = (column: SortDescriptor['column']) => {
+    setSortDescriptor(prev => {
+      const isAsc = prev.column === column && prev.direction === 'ascending';
+      return {
+        column,
+        direction: isAsc ? 'descending' : 'ascending',
+      };
+    });
+  };
+
+  const renderSortArrow = (column: SortDescriptor['column']) => {
+    if (sortDescriptor.column !== column) return null;
+    return sortDescriptor.direction === 'ascending' ? ' ▲' : ' ▼';
+  };
 
   // ─── Desktop table ─────────────────────────────────────────────────────────
 
   const renderDesktopTable = () => (
-    <Table>
-      <Table.ScrollContainer>
-        <Table.Content
-          aria-label="Danh sách nhân viên"
-          sortDescriptor={sortDescriptor}
-          onSortChange={setSortDescriptor}
-        >
-          <Table.Header>
-            <Table.Column isRowHeader allowsSorting id="name">
-              {({ sortDirection }) => (
-                <Table.SortableColumnHeader sortDirection={sortDirection}>Nhân viên</Table.SortableColumnHeader>
-              )}
-            </Table.Column>
-            <Table.Column allowsSorting id="city">
-              {({ sortDirection }) => (
-                <Table.SortableColumnHeader sortDirection={sortDirection}>Thành phố</Table.SortableColumnHeader>
-              )}
-            </Table.Column>
-            <Table.Column allowsSorting id="staffType">
-              {({ sortDirection }) => (
-                <Table.SortableColumnHeader sortDirection={sortDirection}>Loại HĐ</Table.SortableColumnHeader>
-              )}
-            </Table.Column>
-            <Table.Column allowsSorting id="events">
-              {({ sortDirection }) => (
-                <Table.SortableColumnHeader sortDirection={sortDirection}>Sự kiện</Table.SortableColumnHeader>
-              )}
-            </Table.Column>
-            <Table.Column id="actions">Hành động</Table.Column>
-          </Table.Header>
-          <Table.Body>
-            {sortedFiltered.map(s => (
-              <Table.Row
-                key={s.id}
-                id={s.id}
-                onAction={() => navigate('/hr/' + s.id)}
-                className="cursor-pointer"
-              >
-                <Table.Cell>
-                  <div className="flex items-center gap-3">
-                    <Avatar className="size-9 shrink-0">
-                      <Avatar.Fallback className="bg-accent/10 text-accent text-xs font-bold">
-                        {getInitials(s.name)}
-                      </Avatar.Fallback>
-                    </Avatar>
-                    <span className="font-semibold text-foreground">{s.name}</span>
-                  </div>
-                </Table.Cell>
-                <Table.Cell>
-                  <span className="text-muted">{s.city || '—'}</span>
-                </Table.Cell>
-                <Table.Cell>
-                  <Chip
-                    size="sm"
-                    variant="soft"
-                    color={s.staffType === 'part-time' ? 'default' : 'accent'}
-                    className="text-xs font-medium"
+    <div className="relative w-full overflow-auto rounded-xl border">
+      <Table>
+        <TableHeader>
+          <TableRow className="hover:bg-transparent border-b border-border">
+            <TableHead onClick={() => handleSort('name')} className="cursor-pointer select-none font-medium text-xs text-muted-foreground py-3 pl-5 bg-muted/50 dark:bg-default-100/20">
+              Nhân viên{renderSortArrow('name')}
+            </TableHead>
+            <TableHead onClick={() => handleSort('city')} className="cursor-pointer select-none font-medium text-xs text-muted-foreground py-3 bg-muted/50 dark:bg-default-100/20">
+              Thành phố{renderSortArrow('city')}
+            </TableHead>
+            <TableHead onClick={() => handleSort('staffType')} className="cursor-pointer select-none font-medium text-xs text-muted-foreground py-3 bg-muted/50 dark:bg-default-100/20">
+              Loại HĐ{renderSortArrow('staffType')}
+            </TableHead>
+            <TableHead onClick={() => handleSort('events')} className="cursor-pointer select-none font-medium text-xs text-muted-foreground py-3 bg-muted/50 dark:bg-default-100/20">
+              Sự kiện{renderSortArrow('events')}
+            </TableHead>
+            <TableHead className="font-medium text-xs text-muted-foreground py-3 bg-muted/50 dark:bg-default-100/20">Hành động</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {sortedFiltered.map(s => (
+            <TableRow
+              key={s.id}
+              onClick={() => navigate('/hr/' + s.id)}
+              className="cursor-pointer border-b border-border last:border-0 hover:bg-muted/50 dark:hover:bg-default-100/5 transition-colors"
+            >
+              <TableCell className="py-3.5 pl-5">
+                <div className="flex items-center gap-3">
+                  <Avatar className="size-9 shrink-0 shadow-sm">
+                    <AvatarFallback className="bg-accent/10 text-accent text-xs font-bold flex items-center justify-center">
+                      {getInitials(s.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="font-semibold text-foreground">{s.name}</span>
+                </div>
+              </TableCell>
+              <TableCell className="py-3.5">
+                <span className="text-muted">{s.city || '—'}</span>
+              </TableCell>
+              <TableCell className="py-3.5">
+                <Badge className={`border-none text-xs font-medium px-2 py-0.5 rounded-full hover:bg-transparent ${
+                  s.staffType === 'part-time' ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary'
+                }`}>
+                  {CONTRACT_TYPE_LABEL[s.staffType] ?? s.staffType}
+                </Badge>
+              </TableCell>
+              <TableCell className="py-3.5">
+                <span className="tabular-nums text-muted">{eventCountMap.get(s.id) ?? 0}</span>
+              </TableCell>
+              <TableCell className="py-3.5" onClick={e => e.stopPropagation()}>
+                <div className="flex items-center gap-1.5">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => navigate('/hr/' + s.id)}
+                    className="text-muted hover:text-accent hover:bg-accent/10 rounded-lg h-8 w-8 p-0 flex items-center justify-center"
+                    aria-label="Sửa"
                   >
-                    {CONTRACT_TYPE_LABEL[s.staffType] ?? s.staffType}
-                  </Chip>
-                </Table.Cell>
-                <Table.Cell>
-                  <span className="tabular-nums text-muted">{eventCountMap.get(s.id) ?? 0}</span>
-                </Table.Cell>
-                <Table.Cell>
-                  <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
+                    <Pencil size={14} />
+                  </Button>
+                  {isAdmin && (
                     <Button
-                      isIconOnly
+                      type="button"
                       variant="ghost"
-                      size="sm"
-                      onPress={() => navigate('/hr/' + s.id)}
-                      className="text-muted hover:text-accent hover:bg-accent/10 rounded-lg"
+                      onClick={() => handleDelete(s.id, s.name)}
+                      className="text-muted hover:text-danger hover:bg-danger/10 rounded-lg h-8 w-8 p-0 flex items-center justify-center"
+                      aria-label="Xóa"
                     >
-                      <Pencil size={14} />
+                      <Trash2 size={14} />
                     </Button>
-                    {isAdmin && (
-                      <Button
-                        isIconOnly
-                        variant="ghost"
-                        size="sm"
-                        onPress={() => handleDelete(s.id, s.name)}
-                        className="text-muted hover:text-danger hover:bg-danger/10 rounded-lg"
-                      >
-                        <Trash2 size={14} />
-                      </Button>
-                    )}
-                  </div>
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table.Content>
-      </Table.ScrollContainer>
-    </Table>
+                  )}
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
-
-  // ─── Render ────────────────────────────────────────────────────────────────
 
   return (
     <div className="space-y-4 pb-32">
       {/* Stats cards */}
       {canViewAll && (
         <div className="grid grid-cols-3 gap-2">
-          <Card className="flex flex-row items-center gap-2.5 px-3 py-2.5">
+          <Card className="flex flex-row items-center gap-2.5 px-3 py-2.5 border">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
               <Users size={18} />
             </div>
@@ -229,8 +239,8 @@ export default function HRGlobal() {
               <p className="text-[11px] text-muted truncate">Tổng NV</p>
             </div>
           </Card>
-          <Card className="flex flex-row items-center gap-2.5 px-3 py-2.5">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-success/10 text-success">
+          <Card className="flex flex-row items-center gap-2.5 px-3 py-2.5 border">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500">
               <UserCheck size={18} />
             </div>
             <div className="min-w-0">
@@ -240,8 +250,8 @@ export default function HRGlobal() {
               <p className="text-[11px] text-muted truncate">Cứng</p>
             </div>
           </Card>
-          <Card className="flex flex-row items-center gap-2.5 px-3 py-2.5">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-warning/10 text-warning">
+          <Card className="flex flex-row items-center gap-2.5 px-3 py-2.5 border">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600">
               <UserMinus size={18} />
             </div>
             <div className="min-w-0">
@@ -258,18 +268,19 @@ export default function HRGlobal() {
       {isAdmin && (
         <div className="bg-indigo-500/10 border border-indigo-500/30 rounded-xl overflow-hidden">
           <Button
+            type="button"
             variant="ghost"
-            onPress={() => setShowPending(v => !v)}
-            className="card-btn w-full h-auto justify-between rounded-none px-4 py-3"
+            onClick={() => setShowPending(v => !v)}
+            className="w-full h-auto justify-between rounded-none px-4 py-3 hover:bg-indigo-500/5 hover:text-indigo-400"
           >
             <div className="flex items-center gap-2">
               <ShieldCheck size={16} className="text-indigo-400" />
               <span className="text-sm font-semibold text-indigo-400">
                 Yêu cầu đăng ký quản lý
               </span>
-              <Chip size="sm" variant="soft" className="bg-indigo-500/20 text-indigo-400 border-indigo-500/30 font-bold">
+              <Badge className="bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 font-bold hover:bg-indigo-500/20 px-2 py-0.5 rounded-full">
                 {pendingRegistrations.length}
-              </Chip>
+              </Badge>
             </div>
             <span className="text-indigo-400/60 text-xs">{showPending ? '▲' : '▼'}</span>
           </Button>
@@ -282,7 +293,7 @@ export default function HRGlobal() {
                 </p>
               )}
               {pendingRegistrations.map(req => (
-                <Card key={req.id} className="p-3">
+                <Card key={req.id} className="p-3 border">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-indigo-500/10 flex items-center justify-center shrink-0">
                       <ShieldCheck size={16} className="text-indigo-400" />
@@ -293,16 +304,18 @@ export default function HRGlobal() {
                     </div>
                     <div className="flex gap-1.5 shrink-0">
                       <Button
+                        type="button"
                         size="sm"
-                        onPress={() => approveRegistrationMutation.mutate(req.userId)}
-                        className="text-xs font-medium bg-success/10 text-success border border-success/20 rounded-lg flex items-center gap-1 hover:bg-success/20 transition-colors"
+                        onClick={() => approveRegistrationMutation.mutate(req.userId)}
+                        className="text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-lg flex items-center gap-1 hover:bg-emerald-500/20 hover:text-emerald-600 transition-colors px-2.5 h-8"
                       >
                         <Check size={12} /> Duyệt
                       </Button>
                       <Button
+                        type="button"
                         size="sm"
-                        onPress={() => rejectRegistrationMutation.mutate(req.userId)}
-                        className="text-xs font-medium bg-danger/10 text-danger border border-danger/20 rounded-lg flex items-center gap-1 hover:bg-danger/20 transition-colors"
+                        onClick={() => rejectRegistrationMutation.mutate(req.userId)}
+                        className="text-xs font-medium bg-destructive/10 text-destructive border border-destructive/20 rounded-lg flex items-center gap-1 hover:bg-destructive/20 hover:text-destructive transition-colors px-2.5 h-8"
                       >
                         <X size={12} /> Từ chối
                       </Button>
@@ -317,17 +330,22 @@ export default function HRGlobal() {
 
       {/* Search + desktop add button */}
       <div className="flex gap-2 items-center">
-        <SearchField value={search} onChange={setSearch} className="flex-1" aria-label="Tìm nhân viên">
-          <SearchField.Group>
-            <SearchField.SearchIcon />
-            <SearchField.Input placeholder="Tìm theo tên hoặc thành phố..." />
-            <SearchField.ClearButton />
-          </SearchField.Group>
-        </SearchField>
+        <div className="relative flex-1">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Tìm theo tên hoặc thành phố..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9 h-9"
+            aria-label="Tìm nhân viên"
+          />
+        </div>
         {isDesktop && isAdmin && (
           <Button
-            onPress={openForm}
-            className="shrink-0 flex items-center gap-2 bg-accent text-white"
+            type="button"
+            onClick={openForm}
+            className="shrink-0 flex items-center gap-2 bg-accent text-white hover:bg-accent/90 rounded-xl h-9 px-4 font-semibold text-sm"
           >
             <UserPlus size={16} />
             Thêm nhân viên
@@ -337,21 +355,18 @@ export default function HRGlobal() {
 
       {/* Type filter */}
       {canViewAll && (
-        <ToggleButtonGroup
-          selectionMode="single"
-          disallowEmptySelection
-          isDetached
-          size="sm"
-          selectedKeys={new Set([typeFilter])}
-          onSelectionChange={keys => {
-            const next = [...keys][0];
-            if (next !== undefined) setTypeFilter(next as TypeFilter);
+        <ToggleGroup
+          type="single"
+          value={typeFilter}
+          onValueChange={(val) => {
+            if (val) setTypeFilter(val as TypeFilter);
           }}
+          className="justify-start gap-1 bg-muted/40 p-1 rounded-xl w-max border"
         >
-          <ToggleButton id="all">Tất cả</ToggleButton>
-          <ToggleButton id="permanent">Nhân viên cứng</ToggleButton>
-          <ToggleButton id="part-time">Part-time</ToggleButton>
-        </ToggleButtonGroup>
+          <ToggleGroupItem value="all" className="rounded-lg text-xs font-semibold px-3 py-1.5 h-8">Tất cả</ToggleGroupItem>
+          <ToggleGroupItem value="permanent" className="rounded-lg text-xs font-semibold px-3 py-1.5 h-8">Nhân viên cứng</ToggleGroupItem>
+          <ToggleGroupItem value="part-time" className="rounded-lg text-xs font-semibold px-3 py-1.5 h-8">Part-time</ToggleGroupItem>
+        </ToggleGroup>
       )}
 
       {showForm && isAdmin && (
@@ -381,22 +396,23 @@ export default function HRGlobal() {
                     ? [{
                         icon: <Trash2 size={16} />,
                         label: 'Xoá',
-                        className: 'bg-danger text-white',
+                        className: 'bg-destructive text-destructive-foreground',
                         onClick: () => handleDelete(s.id, s.name),
                       }]
                     : []),
                 ]}
               >
-                <Card className="overflow-hidden p-0 gap-0 rounded-xl">
+                <Card className="overflow-hidden p-0 gap-0 rounded-xl border">
                   <Button
+                    type="button"
                     variant="ghost"
-                    onPress={() => navigate('/hr/' + s.id)}
-                    className="card-btn w-full h-auto justify-start rounded-none px-4 py-3 text-left flex flex-row items-center gap-3"
+                    onClick={() => navigate('/hr/' + s.id)}
+                    className="w-full h-auto justify-start rounded-none px-4 py-3 text-left flex flex-row items-center gap-3 hover:bg-muted/50"
                   >
-                    <Avatar className="size-11 shrink-0">
-                      <Avatar.Fallback className="bg-accent/10 text-accent text-sm font-bold">
+                    <Avatar className="size-11 shrink-0 shadow-sm">
+                      <AvatarFallback className="bg-accent/10 text-accent text-sm font-bold flex items-center justify-center">
                         {getInitials(s.name)}
-                      </Avatar.Fallback>
+                      </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-foreground text-base leading-tight truncate">
@@ -405,14 +421,11 @@ export default function HRGlobal() {
                       <p className="text-sm text-muted mt-0.5 truncate">{s.city || '—'}</p>
                     </div>
                     <div className="shrink-0 text-right">
-                      <Chip
-                        size="sm"
-                        variant="soft"
-                        color={s.staffType === 'part-time' ? 'default' : 'accent'}
-                        className="text-xs font-medium"
-                      >
+                      <Badge className={`border-none text-xs font-medium px-2 py-0.5 rounded-full hover:bg-transparent ${
+                        s.staffType === 'part-time' ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary'
+                      }`}>
                         {CONTRACT_TYPE_LABEL[s.staffType] ?? s.staffType}
-                      </Chip>
+                      </Badge>
                       <p className="text-xs text-muted mt-1">{eventCountMap.get(s.id) ?? 0} sự kiện</p>
                     </div>
                   </Button>

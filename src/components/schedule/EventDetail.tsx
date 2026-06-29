@@ -17,7 +17,7 @@ export default function EventDetail() {
       <EmptyState
         icon={<CalendarX size={26} />}
         title="Không tìm thấy sự kiện"
-        action={{ label: 'Quay lại', onPress: () => navigate(-1) }}
+        action={{ label: 'Quay lại', onClick: () => navigate(-1) }}
       />
     );
   }
