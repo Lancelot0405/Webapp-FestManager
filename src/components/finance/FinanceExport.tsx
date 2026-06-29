@@ -1,5 +1,5 @@
-﻿import { FileSpreadsheet } from 'lucide-react';
-import { Button } from '@heroui/react';
+import { FileSpreadsheet } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
 
 export default function FinanceExport() {
@@ -31,10 +31,11 @@ export default function FinanceExport() {
 
   return (
     <Button
-      onPress={handleExport}
+      type="button"
+      onClick={handleExport}
       variant="ghost"
       size="sm"
-      className="flex items-center gap-1.5 rounded-full bg-success/10 text-success hover:bg-success/20 border border-success/20 px-3 text-xs font-semibold whitespace-nowrap"
+      className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20 px-3 text-xs font-semibold whitespace-nowrap h-8"
     >
       <FileSpreadsheet size={13} /> Xuất Excel
     </Button>

@@ -1,5 +1,14 @@
-﻿import { Check, X } from 'lucide-react';
-import { Button, Card, Table } from '@heroui/react';
+import { Check, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { useUpdateExpenseStatus } from '../../hooks/queries/mutations/useUpdateExpenseStatus';
 import type { FestivalEvent } from '../../types';
 
@@ -17,60 +26,62 @@ export default function ExpenseList({ filteredEvents }: Props) {
   );
 
   return (
-    <Card className="p-4">
+    <Card className="p-4 border">
       <h2 className="text-sm font-semibold text-foreground/80 mb-3">Chi phí nhân viên chờ duyệt</h2>
       {pendingReceipts.length === 0 ? (
-        <p className="text-sm text-success">Không có chi phí chờ duyệt ✓</p>
+        <p className="text-sm text-emerald-600 dark:text-emerald-400 font-semibold">Không có chi phí chờ duyệt ✓</p>
       ) : (
-        <Table variant="secondary">
-          <Table.ScrollContainer>
-            <Table.Content aria-label="Chi phí nhân viên chờ duyệt">
-              <Table.Header>
-                <Table.Column isRowHeader className="text-xs font-semibold text-muted px-1 py-2">Nhân viên</Table.Column>
-                <Table.Column className="text-xs font-semibold text-muted px-1 py-2">Loại</Table.Column>
-                <Table.Column className="text-xs font-semibold text-muted px-1 py-2 text-right">Số tiền</Table.Column>
-                <Table.Column className="hidden md:table-cell text-xs font-semibold text-muted px-1 py-2">Ngày</Table.Column>
-                <Table.Column className="hidden lg:table-cell text-xs font-semibold text-muted px-1 py-2">Sự kiện</Table.Column>
-                <Table.Column className="text-xs font-semibold text-muted px-1 py-2 text-right">Thao tác</Table.Column>
-              </Table.Header>
-              <Table.Body>
-                {pendingReceipts.map(r => (
-                  <Table.Row key={`${r.eventId}-${r.id}`} id={`${r.eventId}-${r.id}`}>
-                    <Table.Cell className="py-2.5 px-1">
-                      <p className="font-medium text-foreground truncate max-w-[120px]">{r.staffName}</p>
-                    </Table.Cell>
-                    <Table.Cell className="py-2.5 px-1 text-foreground/80">{r.type}</Table.Cell>
-                    <Table.Cell className="py-2.5 px-1 text-right font-semibold text-foreground whitespace-nowrap">
-                      {r.amount.toLocaleString('fr-FR')}€
-                    </Table.Cell>
-                    <Table.Cell className="hidden md:table-cell py-2.5 px-1 text-muted whitespace-nowrap">{r.date}</Table.Cell>
-                    <Table.Cell className="hidden lg:table-cell py-2.5 px-1 text-accent/70 truncate max-w-[160px]">{r.eventName}</Table.Cell>
-                    <Table.Cell className="py-2.5 px-1">
-                      <div className="flex gap-1.5 justify-end">
-                        <Button
-                          onPress={() => updateExpenseStatusMutation.mutate({ eventId: r.eventId, expenseId: r.id, status: 'approved' })}
-                          variant="ghost"
-                          size="sm"
-                          className="flex items-center gap-0.5 bg-success/10 hover:bg-success/20 text-success rounded-lg border border-success/20"
-                        >
-                          <Check size={12} /> Duyệt
-                        </Button>
-                        <Button
-                          onPress={() => updateExpenseStatusMutation.mutate({ eventId: r.eventId, expenseId: r.id, status: 'rejected' })}
-                          variant="ghost"
-                          size="sm"
-                          className="flex items-center gap-0.5 rounded-lg text-danger bg-[color-mix(in oklch, var(--danger) 15%, transparent)] hover:bg-danger/20 border border-danger/20"
-                        >
-                          <X size={12} /> Từ chối
-                        </Button>
-                      </div>
-                    </Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table.Content>
-          </Table.ScrollContainer>
-        </Table>
+        <div className="relative w-full overflow-auto rounded-xl border">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent border-b border-border">
+                <TableHead className="text-xs font-semibold text-muted-foreground px-3 py-2 bg-muted/50 dark:bg-default-100/20">Nhân viên</TableHead>
+                <TableHead className="text-xs font-semibold text-muted-foreground px-3 py-2 bg-muted/50 dark:bg-default-100/20">Loại</TableHead>
+                <TableHead className="text-xs font-semibold text-muted-foreground px-3 py-2 text-right bg-muted/50 dark:bg-default-100/20">Số tiền</TableHead>
+                <TableHead className="hidden md:table-cell text-xs font-semibold text-muted-foreground px-3 py-2 bg-muted/50 dark:bg-default-100/20">Ngày</TableHead>
+                <TableHead className="hidden lg:table-cell text-xs font-semibold text-muted-foreground px-3 py-2 bg-muted/50 dark:bg-default-100/20">Sự kiện</TableHead>
+                <TableHead className="text-xs font-semibold text-muted-foreground px-3 py-2 text-right bg-muted/50 dark:bg-default-100/20">Thao tác</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {pendingReceipts.map(r => (
+                <TableRow key={`${r.eventId}-${r.id}`} className="border-b border-border last:border-0 hover:bg-muted/50">
+                  <TableCell className="py-2.5 px-3">
+                    <p className="font-medium text-foreground truncate max-w-[120px]">{r.staffName}</p>
+                  </TableCell>
+                  <TableCell className="py-2.5 px-3 text-foreground/80">{r.type}</TableCell>
+                  <TableCell className="py-2.5 px-3 text-right font-semibold text-foreground whitespace-nowrap">
+                    {r.amount.toLocaleString('fr-FR')}€
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell py-2.5 px-3 text-muted-foreground whitespace-nowrap">{r.date}</TableCell>
+                  <TableCell className="hidden lg:table-cell py-2.5 px-3 text-accent/70 truncate max-w-[160px]">{r.eventName}</TableCell>
+                  <TableCell className="py-2.5 px-3">
+                    <div className="flex gap-1.5 justify-end">
+                      <Button
+                        type="button"
+                        onClick={() => updateExpenseStatusMutation.mutate({ eventId: r.eventId, expenseId: r.id, status: 'approved' })}
+                        variant="ghost"
+                        size="sm"
+                        className="flex items-center gap-0.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-lg border border-emerald-500/20 px-2.5 h-8 font-medium"
+                      >
+                        <Check size={12} /> Duyệt
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={() => updateExpenseStatusMutation.mutate({ eventId: r.eventId, expenseId: r.id, status: 'rejected' })}
+                        variant="ghost"
+                        size="sm"
+                        className="flex items-center gap-0.5 rounded-lg text-destructive bg-destructive/10 hover:bg-destructive/20 border border-destructive/20 px-2.5 h-8 font-medium"
+                      >
+                        <X size={12} /> Từ chối
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       )}
     </Card>
   );

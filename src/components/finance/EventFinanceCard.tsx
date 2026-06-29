@@ -1,9 +1,13 @@
 import { useState } from 'react';
 import { Pencil } from 'lucide-react';
-import { Button, Card, ProgressBar, TextField, Label, Input } from '@heroui/react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useNavigate } from 'react-router-dom';
 import { useUpdateEvent } from '../../hooks/queries/mutations/useUpdateEvent';
 import StatusBadge from '../shared/StatusBadge';
+import { cn } from '@/lib/utils';
 import type { FestivalEvent } from '../../types';
 
 function BarRow({ label, value, maxVal, color }: {
@@ -13,12 +17,11 @@ function BarRow({ label, value, maxVal, color }: {
   return (
     <div className="flex items-center gap-2">
       <span className="text-xs text-muted w-20 shrink-0">{label}</span>
-      <div className="flex-1">
-        <ProgressBar value={pct} aria-label={label} size="sm">
-          <ProgressBar.Track className="bg-default/50 border border-separator">
-            <ProgressBar.Fill className={color} />
-          </ProgressBar.Track>
-        </ProgressBar>
+      <div className="flex-1 relative w-full h-2 bg-muted/60 rounded-full overflow-hidden border border-border">
+        <div
+          className={cn("h-full transition-all rounded-full", color)}
+          style={{ width: `${pct}%` }}
+        />
       </div>
       <span className="text-xs font-medium text-foreground/80 w-14 text-right shrink-0">
         {value.toLocaleString('fr-FR')}€
@@ -77,12 +80,13 @@ export default function EventFinanceCard({ event }: Props) {
   const maxVal = Math.max(event.financials.income, expTotal, 1);
 
   return (
-    <Card className="p-4">
+    <Card className="p-4 border">
       <div className="flex justify-between items-start mb-3">
         <Button
+          type="button"
           variant="ghost"
-          onPress={() => navigate('/schedule/' + event.id)}
-          className="h-auto min-w-0 flex-1 justify-start p-2 -m-2 rounded-xl text-left"
+          onClick={() => navigate('/schedule/' + event.id)}
+          className="h-auto min-w-0 flex-1 justify-start p-2 -m-2 rounded-xl text-left hover:bg-muted/40"
         >
           <div className="min-w-0">
             <p className="font-semibold text-foreground truncate">{event.name}</p>
@@ -92,11 +96,11 @@ export default function EventFinanceCard({ event }: Props) {
         <div className="flex items-center gap-2 shrink-0 ml-2">
           <StatusBadge status={event.status} />
           <Button
-            onPress={() => isEditing ? setIsEditing(false) : startEditing()}
+            type="button"
+            onClick={() => isEditing ? setIsEditing(false) : startEditing()}
             variant="ghost"
-            isIconOnly
-            size="sm"
-            className="rounded-lg text-muted hover:text-foreground"
+            className="rounded-lg text-muted hover:text-foreground h-8 w-8 p-0 flex items-center justify-center"
+            aria-label="Sửa"
           >
             <Pencil size={14} />
           </Button>
@@ -113,15 +117,19 @@ export default function EventFinanceCard({ event }: Props) {
               { label: 'Vận chuyển (€)',  val: editTransport,   set: setEditTransport   },
               { label: 'Lương NV (€)',    val: editStaff,       set: setEditStaff       },
             ] as { label: string; val: number; set: (v: number) => void }[]).map(({ label, val, set }) => (
-              <TextField key={label} value={String(val)} onChange={value => set(Number(value))} className="w-full flex flex-col gap-1">
+              <div key={label} className="w-full flex flex-col gap-1">
                 <Label className="text-xs font-medium text-foreground/80">{label}</Label>
-                <Input type="number" />
-              </TextField>
+                <Input
+                  type="number"
+                  value={String(val)}
+                  onChange={(e) => set(Number(e.target.value))}
+                />
+              </div>
             ))}
           </div>
           <div className="flex gap-2 mt-2">
-            <Button onPress={saveEditing} variant="primary" fullWidth>Lưu</Button>
-            <Button onPress={() => setIsEditing(false)} variant="ghost" fullWidth>Hủy</Button>
+            <Button type="button" onClick={saveEditing} className="flex-1 rounded-xl">Lưu</Button>
+            <Button type="button" onClick={() => setIsEditing(false)} variant="ghost" className="flex-1 rounded-xl">Hủy</Button>
           </div>
         </div>
       ) : (

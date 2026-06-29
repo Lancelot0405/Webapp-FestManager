@@ -1,6 +1,7 @@
 import React from 'react';
 import { TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
-import { Card, ProgressBar } from '@heroui/react';
+import { Card } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 import type { FestivalEvent } from '../../types';
 
 interface Props {
@@ -21,7 +22,7 @@ function SummaryCard({ icon, label, value, type }: {
 }) {
   const cfg = summaryConfig[type];
   return (
-    <Card className="p-4 flex-row items-center gap-3">
+    <Card className="p-4 flex flex-row items-center gap-3 border shadow-sm">
       <div className={`shrink-0 ${cfg.iconClass}`}>{icon}</div>
       <div className="flex-1 flex justify-between items-center">
         <p className="text-sm text-muted">{label}</p>
@@ -40,12 +41,11 @@ function BarRow({ label, value, maxVal, color, showPct, totalVal }: {
   return (
     <div className="flex items-center gap-2">
       <span className="text-xs text-muted w-20 shrink-0">{label}</span>
-      <div className="flex-1">
-        <ProgressBar value={pct} aria-label={label} size="sm">
-          <ProgressBar.Track className="bg-default">
-            <ProgressBar.Fill className={color} />
-          </ProgressBar.Track>
-        </ProgressBar>
+      <div className="flex-1 relative w-full h-2 bg-muted rounded-full overflow-hidden">
+        <div
+          className={cn("h-full transition-all rounded-full", color)}
+          style={{ width: `${pct}%` }}
+        />
       </div>
       <span className="text-xs font-medium text-foreground w-14 text-right shrink-0">
         {value.toLocaleString('fr-FR')}€
@@ -89,7 +89,7 @@ export default function FinanceSummaryCards({ filteredEvents }: Props) {
       </div>
 
       {totalExpense > 0 && (
-        <Card className="p-4">
+        <Card className="p-4 border">
           <h2 className="text-sm font-semibold text-muted mb-3">Phân bổ chi phí</h2>
           <div className="space-y-2.5">
             {breakdownRent > 0         && <BarRow label="Booth/Thuê"  value={breakdownRent}        maxVal={totalExpense} color="bg-violet-400"   showPct totalVal={totalExpense} />}
