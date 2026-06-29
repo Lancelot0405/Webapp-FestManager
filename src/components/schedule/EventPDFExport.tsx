@@ -1,6 +1,6 @@
 import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from '@react-pdf/renderer';
-import { Download } from 'lucide-react';
-import { Button, Spinner } from '@heroui/react';
+import { Download, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import type { FestivalEvent } from '../../types';
 
 const styles = StyleSheet.create({
@@ -69,13 +69,14 @@ export default function EventPDFExport({ event }: Props) {
     >
       {({ loading }) => (
         <Button
+          type="button"
           size="sm"
           variant="ghost"
-          isDisabled={loading}
-          className="flex items-center gap-1.5 rounded-xl border border-separator text-danger hover:bg-danger/8"
+          disabled={loading}
+          className="flex items-center gap-1.5 rounded-xl border border-border text-destructive hover:bg-destructive/10 hover:text-destructive px-3 h-8 text-xs font-semibold"
           aria-label="Xuất PDF"
         >
-          {loading ? <Spinner size="sm" color="current" /> : <Download size={15} />}
+          {loading ? <Loader2 className="size-4 animate-spin" /> : <Download size={15} />}
           PDF
         </Button>
       )}

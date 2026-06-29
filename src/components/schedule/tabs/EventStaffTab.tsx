@@ -1,7 +1,8 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { UserMinus, UserPlus, Check } from 'lucide-react';
 import EmptyState from '@/components/shared/EmptyState';
-import { Button, Card, ToggleButton } from '@heroui/react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { useApp } from '../../../context/AppContext';
 import { useStaffQuery } from '../../../hooks/queries/useStaffQuery';
 import { useAddStaffToEvent } from '../../../hooks/queries/mutations/useAddStaffToEvent';
@@ -44,12 +45,13 @@ export default function EventStaffTab({ event }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <p className="text-sm text-muted">{event.staff.length} nhân viên được phân công</p>
+        <p className="text-sm text-muted-foreground">{event.staff.length} nhân viên được phân công</p>
         {isAdmin && (
           <Button
+            type="button"
             variant="ghost"
-            onPress={() => { setShowAdd(!showAdd); setSelected(new Set()); }}
-            className="h-auto min-w-0 p-0 flex items-center gap-1 text-accent text-sm font-semibold"
+            onClick={() => { setShowAdd(!showAdd); setSelected(new Set()); }}
+            className="h-auto min-w-0 p-0 flex items-center gap-1 text-accent hover:text-accent/90 hover:bg-transparent text-sm font-semibold"
           >
             <UserPlus size={16} />
             Thêm
@@ -59,31 +61,37 @@ export default function EventStaffTab({ event }: Props) {
 
       {/* Multi-select staff panel */}
       {showAdd && isAdmin && (
-        <Card className="p-3 space-y-2">
+        <Card className="p-3 space-y-2 border shadow-sm bg-surface">
           <p className="text-xs font-semibold text-foreground/80">Chọn nhân viên để thêm</p>
           {availableStaff.length === 0 ? (
-            <p className="text-xs text-muted py-2 text-center">Tất cả nhân viên đã được phân công</p>
+            <p className="text-xs text-muted-foreground py-2 text-center">Tất cả nhân viên đã được phân công</p>
           ) : (
-            <>
+            <div className="space-y-1">
               {availableStaff.map(s => (
-                <ToggleButton
+                <Button
+                  type="button"
                   key={s.id}
-                  isSelected={selected.has(s.id)}
-                  onChange={() => toggleSelect(s.id)}
-                  className="w-full h-auto flex items-center justify-between text-left rounded-xl px-3 py-2 text-sm border border-separator hover:border-accent/30 data-[selected=true]:bg-accent/10 data-[selected=true]:text-accent data-[selected=true]:border-accent/30"
+                  variant={selected.has(s.id) ? "secondary" : "outline"}
+                  onClick={() => toggleSelect(s.id)}
+                  className={`w-full justify-between rounded-xl px-3 py-2 text-sm font-semibold border h-9 ${
+                    selected.has(s.id)
+                      ? 'bg-accent/10 text-accent border-accent/30 hover:bg-accent/15 hover:text-accent'
+                      : 'hover:border-accent/30'
+                  }`}
                 >
                   <span>{s.name}{s.city ? ` — ${s.city}` : ''}</span>
                   {selected.has(s.id) && <Check size={15} className="shrink-0" />}
-                </ToggleButton>
+                </Button>
               ))}
               <Button
-                onPress={handleConfirmAdd}
-                isDisabled={selected.size === 0}
-                className="w-full h-auto mt-1 bg-accent text-white dark:text-foreground disabled:opacity-40 text-sm font-semibold py-2 rounded-xl transition-opacity"
+                type="button"
+                onClick={handleConfirmAdd}
+                disabled={selected.size === 0}
+                className="w-full h-9 mt-2 text-sm font-semibold rounded-xl"
               >
                 Thêm {selected.size > 0 ? `${selected.size} nhân viên` : ''}
               </Button>
-            </>
+            </div>
           )}
         </Card>
       )}
@@ -93,18 +101,18 @@ export default function EventStaffTab({ event }: Props) {
       ) : (
         <div className="space-y-2">
           {event.staff.map(s => (
-            <Card key={s.id} className="p-3 flex justify-between items-center">
+            <Card key={s.id} className="p-3 flex justify-between items-center border shadow-sm bg-surface">
               <div>
-                <p className="font-medium text-foreground text-sm">{s.name}</p>
-                <p className="text-xs text-muted">{s.city}</p>
+                <p className="font-semibold text-foreground text-sm">{s.name}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{s.city}</p>
               </div>
               {isAdmin && (
                 <Button
-                  isIconOnly
+                  type="button"
                   variant="ghost"
-                  onPress={() => removeStaffFromEventMutation.mutate({ eventId: event.id, staffId: s.id })}
+                  onClick={() => removeStaffFromEventMutation.mutate({ eventId: event.id, staffId: s.id })}
                   aria-label="Gỡ nhân viên"
-                  className="h-auto min-w-0 p-1.5 text-muted hover:text-danger hover:bg-danger/10 rounded-lg transition-colors"
+                  className="h-8 w-8 p-0 text-muted-foreground hover:text-danger hover:bg-danger/10 rounded-lg transition-colors flex items-center justify-center"
                 >
                   <UserMinus size={16} />
                 </Button>

@@ -1,10 +1,12 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, ToggleButtonGroup, ToggleButton } from '@heroui/react';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Calendar, CalendarDayButton } from '@/components/ui/calendar';
 import { CalendarDate } from '@internationalized/date';
 import { animations } from '../../lib/animations';
 import StatusBadge from '../shared/StatusBadge';
 import MiniAvatarGroup from './MiniAvatarGroup';
+import { cn } from '@/lib/utils';
 import type { EventStatus, FestivalEvent } from '../../types';
 
 type RangeMode = 'day' | 'week' | 'month';
@@ -18,7 +20,7 @@ const STATUS_DOT: Record<EventStatus, string> = {
   'Đang diễn ra': 'bg-success',
   'Sắp tới':       'bg-accent',
   'Lên kế hoạch': 'bg-warning',
-  'Đã hoàn thành': 'bg-default-400',
+  'Đã hoàn thành': 'bg-muted-foreground',
 };
 
 function ddmmToCalendarDate(d: string): CalendarDate | null {
@@ -81,9 +83,9 @@ export default function EventCalendarView({
     [events, selectedDate],
   );
 
-  const visibleDuration = rangeMode === 'week'
-    ? { weeks: 1 }
-    : { months: 1 };
+  const selDateJs = useMemo(() => {
+    return new Date(selectedDate.year, selectedDate.month - 1, selectedDate.day);
+  }, [selectedDate]);
 
   const selLabel = `${String(selectedDate.day).padStart(2,'0')}-${String(selectedDate.month).padStart(2,'0')}-${selectedDate.year}`;
 
@@ -91,62 +93,49 @@ export default function EventCalendarView({
     <div className="space-y-4">
       {/* Range toggle */}
       <div className="flex justify-end">
-        <ToggleButtonGroup
-          selectionMode="single"
-          disallowEmptySelection
-          isDetached
-          size="sm"
-          selectedKeys={new Set([rangeMode])}
-          onSelectionChange={keys => {
-            const k = [...keys][0] as RangeMode;
-            if (k) onRangeModeChange(k);
+        <ToggleGroup
+          type="single"
+          value={rangeMode}
+          onValueChange={val => {
+            if (val) onRangeModeChange(val as RangeMode);
           }}
+          className="bg-muted/40 p-1 rounded-xl border flex shrink-0"
         >
-          <ToggleButton id="month" className="text-xs px-3">Tháng</ToggleButton>
-          <ToggleButton id="week"  className="text-xs px-3">Tuần</ToggleButton>
-        </ToggleButtonGroup>
+          <ToggleGroupItem value="month" className="text-xs px-3 h-8 rounded-lg font-semibold">Tháng</ToggleGroupItem>
+          <ToggleGroupItem value="week"  className="text-xs px-3 h-8 rounded-lg font-semibold">Tuần</ToggleGroupItem>
+        </ToggleGroup>
       </div>
 
       {/* Calendar with event dots */}
       <div className="flex justify-center">
         <Calendar
-          aria-label="Lịch sự kiện"
-          value={selectedDate}
-          onChange={d => d && onDateChange(d)}
-          visibleDuration={visibleDuration}
-        >
-          <Calendar.Header>
-            <Calendar.NavButton slot="previous" />
-            <Calendar.YearPickerTrigger>
-              <Calendar.YearPickerTriggerHeading />
-              <Calendar.YearPickerTriggerIndicator />
-            </Calendar.YearPickerTrigger>
-            <Calendar.NavButton slot="next" />
-          </Calendar.Header>
-
-          <Calendar.YearPickerGrid>
-            <Calendar.YearPickerGridBody>
-              {({ year }: { year: number; formattedYear: string; isSelected: boolean; isCurrentYear: boolean; isOpen: boolean }) => (
-                <Calendar.YearPickerCell year={year} />
-              )}
-            </Calendar.YearPickerGridBody>
-          </Calendar.YearPickerGrid>
-
-          <Calendar.Grid>
-            <Calendar.GridHeader>
-              {(day: string) => <Calendar.HeaderCell>{day}</Calendar.HeaderCell>}
-            </Calendar.GridHeader>
-            <Calendar.GridBody>
-              {(date: CalendarDate) => (
-                <Calendar.Cell date={date}>
-                  {eventDateColor.has(`${date.year}-${date.month}-${date.day}`) && (
-                    <Calendar.CellIndicator className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[eventDateColor.get(`${date.year}-${date.month}-${date.day}`)!]}`} />
+          mode="single"
+          selected={selDateJs}
+          onSelect={(d) => {
+            if (d) {
+              onDateChange(new CalendarDate(d.getFullYear(), d.getMonth() + 1, d.getDate()));
+            }
+          }}
+          className="rounded-2xl border p-4 shadow-sm bg-surface"
+          components={{
+            DayButton: ({ day, modifiers, ...props }) => {
+              const d = day.date;
+              const key = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+              const eventStatus = eventDateColor.get(key);
+              const isSelected = modifiers.selected;
+              return (
+                <CalendarDayButton day={day} modifiers={modifiers} {...props}>
+                  {eventStatus && (
+                    <span className={cn(
+                      "absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full transition-colors",
+                      isSelected ? "bg-primary-foreground" : STATUS_DOT[eventStatus]
+                    )} />
                   )}
-                </Calendar.Cell>
-              )}
-            </Calendar.GridBody>
-          </Calendar.Grid>
-        </Calendar>
+                </CalendarDayButton>
+              );
+            }
+          }}
+        />
       </div>
 
       {/* Events for selected date */}
@@ -155,7 +144,7 @@ export default function EventCalendarView({
           {selLabel} · {dayEvents.length} sự kiện
         </p>
         {dayEvents.length === 0 ? (
-          <p className="text-sm text-foreground/40 text-center py-6">Không có sự kiện</p>
+          <p className="text-sm text-foreground/40 text-center py-6 bg-surface/50 border border-dashed border-border rounded-xl">Không có sự kiện</p>
         ) : (
           dayEvents.map((event, i) => {
             const dateDisplay = event.endDate && event.endDate !== event.date
@@ -166,7 +155,7 @@ export default function EventCalendarView({
                 key={event.id}
                 {...animations.listItem(i)}
                 onClick={() => onNavigate(event.id)}
-                className="flex items-center gap-3 px-3 py-3 rounded-xl bg-surface border border-separator cursor-pointer hover:bg-default-100/60 dark:hover:bg-default-100/5 transition-colors"
+                className="flex items-center gap-3 px-3 py-3 rounded-xl bg-surface border border-border cursor-pointer hover:bg-default-100/60 dark:hover:bg-default-100/5 transition-colors"
               >
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-foreground truncate">{event.name}</p>

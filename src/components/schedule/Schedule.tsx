@@ -1,14 +1,21 @@
 import { useState, useMemo, useCallback } from 'react';
-import type { SortDescriptor } from 'react-aria-components';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { animations } from '../../lib/animations';
-import { Trash2, Eye, List, CalendarDays } from 'lucide-react';
+import { Trash2, Eye, List, CalendarDays, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 import {
-  Button, Chip, Table, SearchField,
-  ToggleButtonGroup, ToggleButton,
-  DrawerRoot, DrawerBackdrop, DrawerContent, DrawerDialog,
-} from '@heroui/react';
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { today, getLocalTimeZone, CalendarDate } from '@internationalized/date';
 import { CalendarWithYearPicker } from '@/components/shared/AppDatePicker';
 import EmptyState from '@/components/shared/EmptyState';
@@ -81,6 +88,11 @@ const STATUS_RANK: Record<EventStatus, number> = {
 
 type EventWithStatus = FestivalEvent & { status: EventStatus };
 
+interface SortDescriptor {
+  column: 'name' | 'date' | 'status';
+  direction: 'ascending' | 'descending';
+}
+
 function AgendaView({
   events,
   onNavigate,
@@ -122,7 +134,7 @@ function AgendaView({
                   key={event.id}
                   {...animations.listItem(i)}
                   onClick={() => onNavigate(event.id)}
-                  className="flex items-center gap-3 px-3 py-3 rounded-xl bg-surface border border-separator cursor-pointer hover:bg-default-100/60 dark:hover:bg-default-100/5 transition-colors"
+                  className="flex items-center gap-3 px-3 py-3 rounded-xl bg-surface border border-border cursor-pointer hover:bg-default-100/60 dark:hover:bg-default-100/5 transition-colors"
                 >
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-foreground truncate">{event.name}</p>
@@ -134,10 +146,11 @@ function AgendaView({
                     {isAdmin && (
                       <div onClick={e => e.stopPropagation()}>
                         <Button
-                          isIconOnly size="sm" variant="ghost"
-                          onPress={() => onDelete(event.id, event.name)}
+                          type="button"
+                          variant="ghost"
+                          onClick={() => onDelete(event.id, event.name)}
                           aria-label="Xóa sự kiện"
-                          className="w-7 h-7 rounded-lg text-default-400 hover:text-danger hover:bg-danger/10"
+                          className="w-7 h-7 rounded-lg text-default-400 hover:text-danger hover:bg-danger/10 p-0 flex items-center justify-center"
                         >
                           <Trash2 size={13} />
                         </Button>
@@ -248,6 +261,21 @@ export default function Schedule() {
     month: `Tháng ${selectedDate.month}/${selectedDate.year}`,
   };
 
+  const handleSort = (column: SortDescriptor['column']) => {
+    setSortDescriptor(prev => {
+      const isAsc = prev.column === column && prev.direction === 'ascending';
+      return {
+        column,
+        direction: isAsc ? 'descending' : 'ascending',
+      };
+    });
+  };
+
+  const renderSortArrow = (column: SortDescriptor['column']) => {
+    if (sortDescriptor.column !== column) return null;
+    return sortDescriptor.direction === 'ascending' ? ' ▲' : ' ▼';
+  };
+
   return (
     <div className="pb-32">
       {showAddForm && isAdmin && <AddEventForm onClose={() => setShowAddForm(false)} />}
@@ -257,37 +285,36 @@ export default function Schedule() {
         <div className="space-y-3">
           <div className="flex items-start justify-between gap-2">
             <div className="flex flex-wrap gap-1.5">
-              {STATUS_FILTERS.map(s => (
-                <Chip
-                  key={s}
-                  variant="soft"
-                  color={statusFilter === s ? 'accent' : 'default'}
-                  className={`cursor-pointer select-none transition-opacity ${statusFilter !== s ? 'opacity-60' : ''}`}
-                  onClick={() => setStatusFilter(s)}
-                >
-                  {s}
-                </Chip>
-              ))}
+              {STATUS_FILTERS.map(s => {
+                const isActive = statusFilter === s;
+                return (
+                  <Badge
+                    key={s}
+                    onClick={() => setStatusFilter(s)}
+                    className={`cursor-pointer select-none px-2.5 py-0.5 rounded-full border-none font-semibold text-xs transition-all hover:bg-opacity-95 ${
+                      isActive
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground opacity-60 hover:opacity-100'
+                    }`}
+                  >
+                    {s}
+                  </Badge>
+                );
+              })}
             </div>
-            <ToggleButtonGroup
-              selectionMode="single"
-              disallowEmptySelection
-              isDetached
-              size="sm"
-              selectedKeys={new Set([viewMode])}
-              onSelectionChange={keys => {
-                const k = [...keys][0] as ViewMode;
-                if (k) setViewMode(k);
-              }}
-              className="flex-shrink-0"
+            <ToggleGroup
+              type="single"
+              value={viewMode}
+              onValueChange={val => { if (val) setViewMode(val as ViewMode); }}
+              className="bg-muted/40 p-1 rounded-xl border flex shrink-0"
             >
-              <ToggleButton id="agenda" aria-label="Danh sách" className="w-8 h-8 p-0">
+              <ToggleGroupItem value="agenda" aria-label="Danh sách" className="w-8 h-8 p-0 rounded-lg">
                 <List size={14} />
-              </ToggleButton>
-              <ToggleButton id="calendar" aria-label="Lịch" className="w-8 h-8 p-0">
+              </ToggleGroupItem>
+              <ToggleGroupItem value="calendar" aria-label="Lịch" className="w-8 h-8 p-0 rounded-lg">
                 <CalendarDays size={14} />
-              </ToggleButton>
-            </ToggleButtonGroup>
+              </ToggleGroupItem>
+            </ToggleGroup>
           </div>
           <EventCalendarView
             events={withStatus.filter(e => statusFilter === 'Tất cả' || e.status === statusFilter)}
@@ -309,68 +336,65 @@ export default function Schedule() {
             onChange={setSelectedDate}
           />
 
-          <ToggleButtonGroup
-            selectionMode="single"
-            disallowEmptySelection
-            isDetached
-            size="sm"
-            selectedKeys={new Set([rangeMode])}
-            onSelectionChange={keys => {
-              const k = [...keys][0] as RangeMode;
-              if (k) setRangeMode(k);
-            }}
-            className="w-full"
+          <ToggleGroup
+            type="single"
+            value={rangeMode}
+            onValueChange={val => { if (val) setRangeMode(val as RangeMode); }}
+            className="w-full bg-muted/40 p-1 rounded-xl border flex"
           >
-            <ToggleButton id="month" className="flex-1 text-xs">Tháng</ToggleButton>
-            <ToggleButton id="week"  className="flex-1 text-xs">Tuần</ToggleButton>
-            <ToggleButton id="day"   className="flex-1 text-xs">Ngày</ToggleButton>
-          </ToggleButtonGroup>
+            <ToggleGroupItem value="month" className="flex-1 text-xs h-8 rounded-lg font-semibold">Tháng</ToggleGroupItem>
+            <ToggleGroupItem value="week"  className="flex-1 text-xs h-8 rounded-lg font-semibold">Tuần</ToggleGroupItem>
+            <ToggleGroupItem value="day"   className="flex-1 text-xs h-8 rounded-lg font-semibold">Ngày</ToggleGroupItem>
+          </ToggleGroup>
         </div>
 
         {/* ── Right panel: View switcher + Status filter + Content ── */}
         <div className="flex-1 min-w-0 mt-4 md:mt-0 space-y-3">
           <div className="flex items-start justify-between gap-2">
             <div className="flex flex-wrap gap-1.5">
-              {STATUS_FILTERS.map(s => (
-                <Chip
-                  key={s}
-                  variant="soft"
-                  color={statusFilter === s ? 'accent' : 'default'}
-                  className={`cursor-pointer select-none transition-opacity ${statusFilter !== s ? 'opacity-60' : ''}`}
-                  onClick={() => setStatusFilter(s)}
-                >
-                  {s}
-                </Chip>
-              ))}
+              {STATUS_FILTERS.map(s => {
+                const isActive = statusFilter === s;
+                return (
+                  <Badge
+                    key={s}
+                    onClick={() => setStatusFilter(s)}
+                    className={`cursor-pointer select-none px-2.5 py-0.5 rounded-full border-none font-semibold text-xs transition-all hover:bg-opacity-95 ${
+                      isActive
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground opacity-60 hover:opacity-100'
+                    }`}
+                  >
+                    {s}
+                  </Badge>
+                );
+              })}
             </div>
-            <ToggleButtonGroup
-              selectionMode="single"
-              disallowEmptySelection
-              isDetached
-              size="sm"
-              selectedKeys={new Set([viewMode])}
-              onSelectionChange={keys => {
-                const k = [...keys][0] as ViewMode;
-                if (k) setViewMode(k);
-              }}
-              className="flex-shrink-0"
+            <ToggleGroup
+              type="single"
+              value={viewMode}
+              onValueChange={val => { if (val) setViewMode(val as ViewMode); }}
+              className="bg-muted/40 p-1 rounded-xl border flex shrink-0"
             >
-              <ToggleButton id="agenda" aria-label="Danh sách" className="w-8 h-8 p-0">
+              <ToggleGroupItem value="agenda" aria-label="Danh sách" className="w-8 h-8 p-0 rounded-lg">
                 <List size={14} />
-              </ToggleButton>
-              <ToggleButton id="calendar" aria-label="Lịch" className="w-8 h-8 p-0">
+              </ToggleGroupItem>
+              <ToggleGroupItem value="calendar" aria-label="Lịch" className="w-8 h-8 p-0 rounded-lg">
                 <CalendarDays size={14} />
-              </ToggleButton>
-            </ToggleButtonGroup>
+              </ToggleGroupItem>
+            </ToggleGroup>
           </div>
 
-          <SearchField value={search} onChange={setSearch} aria-label="Tìm sự kiện">
-            <SearchField.Group>
-              <SearchField.SearchIcon />
-              <SearchField.Input placeholder="Tìm theo tên hoặc địa điểm..." />
-              <SearchField.ClearButton />
-            </SearchField.Group>
-          </SearchField>
+          <div className="relative w-full">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Tìm theo tên hoặc địa điểm..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 h-9"
+              aria-label="Tìm sự kiện"
+            />
+          </div>
 
           <p className="text-sm font-semibold text-foreground/60">
             {rangeLabel[rangeMode]} · {filtered.length} sự kiện
@@ -390,121 +414,115 @@ export default function Schedule() {
               }}
             />
           ) : (
-            <Table>
-              <Table.ScrollContainer>
-                <Table.Content
-                  aria-label="Danh sách sự kiện"
-                  sortDescriptor={sortDescriptor}
-                  onSortChange={setSortDescriptor}
-                >
-                  <Table.Header>
-                    <Table.Column isRowHeader allowsSorting id="name" className="text-xs font-medium text-default-500 py-3 pl-4 pr-3 bg-default-50 dark:bg-default-100/20">
-                      {({ sortDirection }) => (
-                        <Table.SortableColumnHeader sortDirection={sortDirection}>Sự kiện</Table.SortableColumnHeader>
-                      )}
-                    </Table.Column>
-                    <Table.Column allowsSorting id="date" className="text-xs font-medium text-default-500 py-3 px-3 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">
-                      {({ sortDirection }) => (
-                        <Table.SortableColumnHeader sortDirection={sortDirection}>Ngày</Table.SortableColumnHeader>
-                      )}
-                    </Table.Column>
-                    <Table.Column className="text-xs font-medium text-default-500 py-3 px-3 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">Địa điểm</Table.Column>
-                    <Table.Column className="text-xs font-medium text-default-500 py-3 px-3 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">Nhân viên</Table.Column>
-                    <Table.Column allowsSorting id="status" className="text-xs font-medium text-default-500 py-3 px-3 bg-default-50 dark:bg-default-100/20">
-                      {({ sortDirection }) => (
-                        <Table.SortableColumnHeader sortDirection={sortDirection}>Trạng thái</Table.SortableColumnHeader>
-                      )}
-                    </Table.Column>
-                    {isAdmin && <Table.Column className="text-xs font-medium text-default-500 py-3 pr-4 pl-3 text-right bg-default-50 dark:bg-default-100/20 hidden sm:table-cell">Hành động</Table.Column>}
-                  </Table.Header>
-                  <Table.Body renderEmptyState={() => (
-                    <EmptyState icon={<CalendarDays size={26} />} title="Chưa có sự kiện nào" />
-                  )}>
-                    {tableSorted.map(event => {
+            <div className="relative w-full overflow-auto rounded-xl border">
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent border-b border-border">
+                    <TableHead onClick={() => handleSort('name')} className="cursor-pointer select-none text-xs font-medium text-muted-foreground py-3 pl-4 pr-3 bg-muted/50 dark:bg-default-100/20">
+                      Sự kiện{renderSortArrow('name')}
+                    </TableHead>
+                    <TableHead onClick={() => handleSort('date')} className="cursor-pointer select-none text-xs font-medium text-muted-foreground py-3 px-3 bg-muted/50 dark:bg-default-100/20 hidden md:table-cell">
+                      Ngày{renderSortArrow('date')}
+                    </TableHead>
+                    <TableHead className="text-xs font-medium text-muted-foreground py-3 px-3 bg-muted/50 dark:bg-default-100/20 hidden md:table-cell">Địa điểm</TableHead>
+                    <TableHead className="text-xs font-medium text-muted-foreground py-3 px-3 bg-muted/50 dark:bg-default-100/20 hidden md:table-cell">Nhân viên</TableHead>
+                    <TableHead onClick={() => handleSort('status')} className="cursor-pointer select-none text-xs font-medium text-muted-foreground py-3 px-3 bg-muted/50 dark:bg-default-100/20">
+                      Trạng thái{renderSortArrow('status')}
+                    </TableHead>
+                    {isAdmin && <TableHead className="text-xs font-medium text-muted-foreground py-3 pr-4 pl-3 text-right bg-muted/50 dark:bg-default-100/20 hidden sm:table-cell">Hành động</TableHead>}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {tableSorted.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={isAdmin ? 6 : 5} className="h-24 text-center">
+                        <EmptyState icon={<CalendarDays size={26} />} title="Chưa có sự kiện nào" />
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    tableSorted.map(event => {
                       const dateDisplay = event.endDate && event.endDate !== event.date
                         ? `${event.date} → ${event.endDate}`
                         : event.date;
                       return (
-                        <Table.Row
-                          key={event.id} id={String(event.id)}
-                          onAction={() => openEvent(event.id)}
-                          className="border-b border-default-100 dark:border-default-200/20 last:border-0 cursor-pointer hover:bg-default-100/50 dark:hover:bg-default-100/5 transition-colors"
+                        <TableRow
+                          key={event.id}
+                          onClick={() => openEvent(event.id)}
+                          className="border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 dark:hover:bg-default-100/5 transition-colors"
                         >
-                          <Table.Cell className="py-3.5 pl-4 pr-3">
+                          <TableCell className="py-3.5 pl-4 pr-3">
                             <div className="min-w-0">
                               <p className="text-sm font-semibold text-foreground truncate">{event.name}</p>
-                              <p className="text-xs text-default-400 truncate md:hidden">{dateDisplay} · {event.location}</p>
+                              <p className="text-xs text-muted truncate md:hidden">{dateDisplay} · {event.location}</p>
                             </div>
-                          </Table.Cell>
-                          <Table.Cell className="py-3.5 px-3 hidden md:table-cell">
+                          </TableCell>
+                          <TableCell className="py-3.5 px-3 hidden md:table-cell">
                             <p className="text-sm text-default-500 whitespace-nowrap">{dateDisplay}</p>
-                          </Table.Cell>
-                          <Table.Cell className="py-3.5 px-3 hidden md:table-cell">
+                          </TableCell>
+                          <TableCell className="py-3.5 px-3 hidden md:table-cell">
                             <p className="text-sm text-default-500 truncate">{event.location}</p>
-                          </Table.Cell>
-                          <Table.Cell className="py-3.5 px-3 hidden md:table-cell">
+                          </TableCell>
+                          <TableCell className="py-3.5 px-3 hidden md:table-cell">
                             <MiniAvatarGroup members={event.staff} />
-                          </Table.Cell>
-                          <Table.Cell className="py-3.5 px-3">
+                          </TableCell>
+                          <TableCell className="py-3.5 px-3">
                             <StatusBadge status={event.status} />
-                          </Table.Cell>
+                          </TableCell>
                           {isAdmin && (
-                            <Table.Cell className="py-3.5 pr-4 pl-3 hidden sm:table-cell" onClick={e => e.stopPropagation()}>
+                            <TableCell className="py-3.5 pr-4 pl-3 hidden sm:table-cell" onClick={e => e.stopPropagation()}>
                               <div className="flex items-center justify-end gap-1">
                                 <Button
-                                  isIconOnly size="sm" variant="ghost"
-                                  onPress={() => openEvent(event.id)}
+                                  type="button"
+                                  variant="ghost"
+                                  onClick={() => openEvent(event.id)}
                                   aria-label="Xem chi tiết"
-                                  className="w-8 h-8 rounded-lg text-default-400 hover:text-foreground hover:bg-default-100"
+                                  className="w-8 h-8 rounded-lg text-default-400 hover:text-foreground hover:bg-default-100 p-0 flex items-center justify-center"
                                 >
                                   <Eye size={14} />
                                 </Button>
                                 <Button
-                                  isIconOnly size="sm" variant="ghost"
-                                  onPress={() => {
+                                  type="button"
+                                  variant="ghost"
+                                  onClick={() => {
                                     if (window.confirm(`Xóa sự kiện "${event.name}"?\nThao tác này không thể hoàn tác.`)) {
                                       deleteEventMutation.mutate(event.id);
                                     }
                                   }}
                                   aria-label="Xóa sự kiện"
-                                  className="w-8 h-8 rounded-lg text-default-400 hover:text-danger hover:bg-danger/10"
+                                  className="w-8 h-8 rounded-lg text-default-400 hover:text-danger hover:bg-danger/10 p-0 flex items-center justify-center"
                                 >
                                   <Trash2 size={14} />
                                 </Button>
                               </div>
-                            </Table.Cell>
+                            </TableCell>
                           )}
-                        </Table.Row>
+                        </TableRow>
                       );
-                    })}
-                  </Table.Body>
-                </Table.Content>
-              </Table.ScrollContainer>
-            </Table>
+                    })
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </div>
       </div>}
 
       {/* Desktop: chi tiết sự kiện trong Drawer phải */}
-      <DrawerRoot isOpen={drawerEvent != null} onOpenChange={(open) => { if (!open) setDrawerEventId(null); }}>
-        <DrawerBackdrop isDismissable className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm">
-          <DrawerContent
-            placement="right"
-            className="fixed right-0 top-0 bottom-0 z-[201] w-[min(44rem,100vw)] outline-none border-l border-separator bg-background shadow-2xl"
-          >
-            <DrawerDialog aria-label="Chi tiết sự kiện" className="relative outline-none h-full overflow-y-auto p-4">
-              {drawerEvent && (
-                <EventDetailContent
-                  event={drawerEvent}
-                  variant="drawer"
-                  onClose={() => setDrawerEventId(null)}
-                />
-              )}
-            </DrawerDialog>
-          </DrawerContent>
-        </DrawerBackdrop>
-      </DrawerRoot>
+      <Sheet open={drawerEvent != null} onOpenChange={(open) => { if (!open) setDrawerEventId(null); }}>
+        <SheetContent
+          side="right"
+          showCloseButton={false}
+          className="w-[min(44rem,100vw)] max-w-full p-4 outline-none border-l border-border bg-background shadow-2xl overflow-y-auto h-full"
+        >
+          {drawerEvent && (
+            <EventDetailContent
+              event={drawerEvent}
+              variant="drawer"
+              onClose={() => setDrawerEventId(null)}
+            />
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
-

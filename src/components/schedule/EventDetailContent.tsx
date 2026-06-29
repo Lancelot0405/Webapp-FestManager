@@ -2,11 +2,18 @@ import { useState, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, X, Trash2, Download, Copy } from 'lucide-react';
-import { Tooltip, Button, Tabs } from '@heroui/react';
+import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useApp } from '../../context/AppContext';
 import { useDeleteEvent } from '../../hooks/queries/mutations/useDeleteEvent';
 import { useCloneEvent } from '../../hooks/queries/mutations/useCloneEvent';
 import { useToast } from '../../context/ToastContext';
+import { cn } from '@/lib/utils';
 const EventPDFExport = lazy(() => import('./EventPDFExport'));
 import EventInfoTab       from './tabs/EventInfoTab';
 import EventStaffTab      from './tabs/EventStaffTab';
@@ -90,46 +97,75 @@ export default function EventDetailContent({ event, onClose, variant = 'page' }:
     <div className={isDrawer ? '' : 'pb-6'}>
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
-        <Button isIconOnly variant="ghost" onPress={onClose} aria-label={isDrawer ? 'Đóng' : 'Quay lại'}
-          className="h-auto min-w-0 p-1.5 rounded-xl bg-default/50 border border-separator text-muted hover:text-foreground transition-colors">
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={onClose}
+          aria-label={isDrawer ? 'Đóng' : 'Quay lại'}
+          className="h-9 w-9 shrink-0 p-0 rounded-xl bg-muted/40 border border-border text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center"
+        >
           {isDrawer ? <X size={20} /> : <ArrowLeft size={20} />}
         </Button>
         <div className="min-w-0 flex-1">
           <h1 className="font-bold text-foreground text-lg truncate">{event.name}</h1>
-          <p className="text-xs text-muted">{event.date} · {event.location}</p>
+          <p className="text-xs text-muted-foreground">{event.date} · {event.location}</p>
         </div>
         {isAdmin && (
           <div className="flex items-center gap-1 shrink-0">
-            <Tooltip>
-              <Tooltip.Trigger>
-                <Button isIconOnly variant="ghost" onPress={handleExport}
-                  className="h-auto min-w-0 p-2 rounded-xl text-muted hover:text-accent hover:bg-accent/10 transition-colors" aria-label="Xuất Excel">
-                  <Download size={18} />
-                </Button>
-              </Tooltip.Trigger>
-              <Tooltip.Content placement="bottom">Xuất Excel</Tooltip.Content>
-            </Tooltip>
-            <Suspense fallback={<span className="px-3 py-1.5 text-sm text-muted">PDF…</span>}>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={handleExport}
+                    className="h-9 w-9 shrink-0 p-0 rounded-xl text-muted-foreground hover:text-accent hover:bg-accent/10 transition-colors flex items-center justify-center"
+                    aria-label="Xuất Excel"
+                  >
+                    <Download size={18} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Xuất Excel</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <Suspense fallback={<span className="px-3 py-1.5 text-sm text-muted-foreground">PDF…</span>}>
               <EventPDFExport event={event} />
             </Suspense>
-            <Tooltip>
-              <Tooltip.Trigger>
-                <Button isIconOnly variant="ghost" onPress={handleClone}
-                  className="h-auto min-w-0 p-2 rounded-xl text-muted hover:text-success hover:bg-success/10 transition-colors" aria-label="Nhân bản sự kiện">
-                  <Copy size={18} />
-                </Button>
-              </Tooltip.Trigger>
-              <Tooltip.Content placement="bottom">Nhân bản sự kiện</Tooltip.Content>
-            </Tooltip>
-            <Tooltip>
-              <Tooltip.Trigger>
-                <Button isIconOnly variant="ghost" onPress={handleDelete}
-                  className="h-auto min-w-0 p-2 rounded-xl text-muted hover:text-danger hover:bg-danger/10 transition-colors" aria-label="Xóa sự kiện">
-                  <Trash2 size={18} />
-                </Button>
-              </Tooltip.Trigger>
-              <Tooltip.Content placement="bottom">Xóa sự kiện</Tooltip.Content>
-            </Tooltip>
+
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={handleClone}
+                    className="h-9 w-9 shrink-0 p-0 rounded-xl text-muted-foreground hover:text-success hover:bg-success/10 transition-colors flex items-center justify-center"
+                    aria-label="Nhân bản sự kiện"
+                  >
+                    <Copy size={18} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Nhân bản sự kiện</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={handleDelete}
+                    className="h-9 w-9 shrink-0 p-0 rounded-xl text-muted-foreground hover:text-danger hover:bg-danger/10 transition-colors flex items-center justify-center"
+                    aria-label="Xóa sự kiện"
+                  >
+                    <Trash2 size={18} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Xóa sự kiện</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         )}
       </div>
@@ -137,29 +173,33 @@ export default function EventDetailContent({ event, onClose, variant = 'page' }:
       {/* 2-panel layout: info panel cố định bên trái trên desktop (chỉ ở chế độ page) */}
       <div className={isDrawer ? '' : 'lg:grid lg:grid-cols-[320px_1fr] lg:gap-6 lg:items-start'}>
         {!isDrawer && (
-          <aside className="hidden lg:block bg-surface border border-separator rounded-xl shadow-sm overflow-hidden">
+          <aside className="hidden lg:block bg-surface border border-border rounded-xl shadow-sm overflow-hidden">
             <EventInfoTab event={event} />
           </aside>
         )}
 
         {/* Phần phải: tabs + content */}
         <div>
-          <Tabs
-            selectedKey={activeTab}
-            onSelectionChange={(key) => setActiveTab(key as Tab)}
-            className="mb-4 w-full"
-          >
-            <Tabs.ListContainer className="overflow-x-auto scrollbar-hide">
-              <Tabs.List aria-label="Chi tiết sự kiện" className="w-max min-w-full">
-                {TABS.map(tab => (
-                  <Tabs.Tab key={tab.id} id={tab.id} className={`text-xs sm:text-sm whitespace-nowrap${!isDrawer && tab.id === 'info' ? ' lg:hidden' : ''}`}>
-                    {tab.label}
-                    <Tabs.Indicator />
-                  </Tabs.Tab>
-                ))}
-              </Tabs.List>
-            </Tabs.ListContainer>
-          </Tabs>
+          <div className="flex border-b border-border w-full overflow-x-auto scrollbar-hide gap-4 mb-4">
+            {TABS.map((tab) => {
+              const isSelected = activeTab === tab.id;
+              const hideInfoOnDesktop = !isDrawer && tab.id === 'info';
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  className={cn(
+                    "relative pb-2.5 text-xs sm:text-sm font-semibold transition-colors focus:outline-none whitespace-nowrap",
+                    hideInfoOnDesktop && "lg:hidden",
+                    isSelected ? "text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
 
           {/* Tab content */}
           <AnimatePresence mode="wait" initial={false}>

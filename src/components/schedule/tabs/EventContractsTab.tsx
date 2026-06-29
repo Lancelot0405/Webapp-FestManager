@@ -1,7 +1,8 @@
-﻿import { useState, useRef } from 'react';
-import { ChevronDown, ChevronUp, Upload, FileText } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { ChevronDown, ChevronUp, Upload, FileText, Loader2 } from 'lucide-react';
 import EmptyState from '@/components/shared/EmptyState';
-import { Button, Card, Spinner } from '@heroui/react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import DocThumbnail from '../../shared/DocThumbnail';
 import { useApp } from '../../../context/AppContext';
 import { useToast } from '../../../context/ToastContext';
@@ -92,7 +93,7 @@ export default function EventContractsTab({ event }: Props) {
 
   return (
     <div className="space-y-2">
-      <p className="text-sm text-muted mb-3">
+      <p className="text-sm text-muted-foreground mb-3">
         Hợp đồng đã ký cho sự kiện này
       </p>
 
@@ -104,38 +105,39 @@ export default function EventContractsTab({ event }: Props) {
         if (!canViewAll && !isMe) return null;
 
         return (
-          <Card key={ref.id} className="!p-0 overflow-hidden">
+          <Card key={ref.id} className="p-0 overflow-hidden border shadow-sm bg-surface">
             {/* Header */}
             <Button
+              type="button"
               variant="ghost"
-              className="card-btn w-full h-auto justify-between rounded-none px-4 py-3 text-left"
-              onPress={() => toggle(ref.id)}
+              className="w-full h-auto justify-between rounded-none px-4 py-3 text-left hover:bg-muted/30"
+              onClick={() => toggle(ref.id)}
             >
-              <div>
-                <p className="text-sm font-semibold text-foreground">
+              <div className="flex-1 min-w-0 pr-4">
+                <p className="text-sm font-semibold text-foreground truncate">
                   {ref.name}
                   {isMe && <span className="ml-2 text-xs text-accent font-normal">(bạn)</span>}
                 </p>
-                <p className="text-xs text-muted">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   {eventContracts.length > 0
                     ? `${eventContracts.length} hợp đồng`
                     : 'Chưa có hợp đồng'}
                 </p>
               </div>
               {isOpen
-                ? <ChevronUp size={16} className="text-muted" />
-                : <ChevronDown size={16} className="text-muted" />
+                ? <ChevronUp size={16} className="text-muted-foreground shrink-0" />
+                : <ChevronDown size={16} className="text-muted-foreground shrink-0" />
               }
             </Button>
 
             {isOpen && (
-              <div className="border-t border-separator">
+              <div className="border-t border-border">
                 {/* Upload button */}
                 {(isMe || isAdmin) && !isManager && (
-                  <div className="px-4 py-3 bg-default/50 border-b border-separator">
+                  <div className="px-4 py-3 bg-muted/20 border-b border-border">
                     <label className={`flex items-center gap-2 cursor-pointer w-fit ${isBusy ? 'opacity-60 pointer-events-none' : ''}`}>
                       {isBusy
-                        ? <Spinner size="sm" color="accent" />
+                        ? <Loader2 className="size-4 animate-spin text-accent" />
                         : <Upload size={14} className="text-accent" />
                       }
                       <span className="text-sm text-accent font-semibold">
@@ -152,24 +154,24 @@ export default function EventContractsTab({ event }: Props) {
                         }}
                       />
                     </label>
-                    <p className="text-xs text-muted mt-0.5">Ảnh hoặc PDF, tối đa {MAX_FILE_MB}MB</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Ảnh hoặc PDF, tối đa {MAX_FILE_MB}MB</p>
                   </div>
                 )}
 
                 {/* Danh sách hợp đồng */}
-                <div className="divide-y divide-[var(--separator)]">
+                <div className="divide-y divide-border">
                   {eventContracts.length === 0 ? (
-                    <p className="px-4 py-3 text-xs text-muted">Chưa có hợp đồng nào được tải lên</p>
+                    <p className="px-4 py-3 text-xs text-muted-foreground">Chưa có hợp đồng nào được tải lên</p>
                   ) : (
                     eventContracts.map(c => (
                       <div key={c.id} className="px-4 py-3 space-y-2">
                         <div className="flex items-center gap-2">
-                          <FileText size={14} className="text-muted shrink-0" />
+                          <FileText size={14} className="text-muted-foreground shrink-0" />
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-foreground truncate">
                               {c.fileName ?? 'Hợp đồng'}
                             </p>
-                            <p className="text-xs text-muted">{c.date}</p>
+                            <p className="text-xs text-muted-foreground">{c.date}</p>
                           </div>
                         </div>
                         <DocThumbnail url={c.url} fileName={c.fileName ?? 'Hợp đồng'} />

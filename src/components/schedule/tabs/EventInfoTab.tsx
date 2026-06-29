@@ -1,4 +1,6 @@
-import { Card, Separator, Chip } from '@heroui/react';
+import { Card } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 import type { FestivalEvent } from '../../../types';
 import StatusBadge from '../../shared/StatusBadge';
 
@@ -13,7 +15,7 @@ export default function EventInfoTab({ event }: Props) {
   return (
     <div className="space-y-4">
       {/* Basic info */}
-      <Card className="p-4 space-y-3">
+      <Card className="p-4 space-y-3 border shadow-sm bg-surface">
         <Row label="Tên sự kiện" value={event.name} />
         <Row label="Ngày bắt đầu" value={event.date} />
         {event.endDate && <Row label="Ngày kết thúc" value={event.endDate} />}
@@ -28,7 +30,7 @@ export default function EventInfoTab({ event }: Props) {
       </Card>
 
       {/* Financials */}
-      <Card className="p-4">
+      <Card className="p-4 border shadow-sm bg-surface">
         <h2 className="font-semibold text-foreground mb-3">Tài chính</h2>
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
@@ -50,13 +52,13 @@ export default function EventInfoTab({ event }: Props) {
 
         {/* Expense breakdown */}
         {Object.entries(event.financials.expenses ?? {}).length > 0 && (
-          <div className="mt-3 pt-3 border-t border-separator space-y-1">
-            <p className="text-xs font-semibold text-muted uppercase tracking-wide mb-2">Chi tiết chi phí</p>
+          <div className="mt-3 pt-3 border-t border-border space-y-1">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Chi tiết chi phí</p>
             <div className="flex flex-wrap gap-1.5">
               {Object.entries(event.financials.expenses ?? {}).map(([key, val]) => (
-                <Chip key={key} size="sm" variant="soft">
+                <Badge key={key} variant="secondary" className="text-xs">
                   {key}: {(val ?? 0).toLocaleString('fr-FR')}€
-                </Chip>
+                </Badge>
               ))}
             </div>
           </div>
@@ -69,8 +71,8 @@ export default function EventInfoTab({ event }: Props) {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between items-start gap-2">
-      <span className="text-sm text-muted shrink-0">{label}</span>
-      <span className="text-sm text-foreground text-right">{value}</span>
+      <span className="text-sm text-muted-foreground shrink-0">{label}</span>
+      <span className="text-sm text-foreground text-right font-medium">{value}</span>
     </div>
   );
 }

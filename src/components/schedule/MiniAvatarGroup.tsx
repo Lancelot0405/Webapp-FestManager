@@ -20,7 +20,7 @@ export default function MiniAvatarGroup({ members }: { members: StaffRef[] }) {
       ))}
       {extra > 0 && (
         <motion.div {...animations.listItem(shown.length)}
-          className="w-6 h-6 rounded-full bg-default/80 ring-2 ring-background flex items-center justify-center">
+          className="w-6 h-6 rounded-full bg-muted ring-2 ring-background flex items-center justify-center">
           <span className="text-[9px] font-semibold text-foreground/60">+{extra}</span>
         </motion.div>
       )}
