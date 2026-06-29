@@ -20,6 +20,7 @@ import { useRejectRegistration } from '../../hooks/queries/mutations/useRejectRe
 import AddStaffForm from './AddStaffForm';
 import SwipeableRow from '../shared/SwipeableRow';
 import ListSkeleton from '@/components/shared/skeletons/ListSkeleton';
+import EmptyState from '@/components/shared/EmptyState';
 
 type TypeFilter = 'all' | 'permanent' | 'part-time';
 
@@ -360,7 +361,7 @@ export default function HRGlobal() {
       {isLoading ? (
         <ListSkeleton count={4} />
       ) : filtered.length === 0 ? (
-        <p className="text-sm text-muted text-center py-10">Chưa có nhân viên</p>
+        <EmptyState icon={<Users size={26} />} title="Chưa có nhân viên" description="Thêm nhân viên để bắt đầu quản lý nhân sự." />
       ) : isDesktop ? (
         renderDesktopTable()
       ) : (

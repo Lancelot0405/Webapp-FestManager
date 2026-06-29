@@ -1,6 +1,7 @@
 ﻿import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Check, X, ChevronDown, Plus, Trash2 } from 'lucide-react';
+import { Check, X, ChevronDown, Plus, Trash2, Package } from 'lucide-react';
+import EmptyState from '@/components/shared/EmptyState';
 import { Button, Card, TextField, Label, Input, Select, ListBox } from '@heroui/react';
 import { useApp } from '../../../context/AppContext';
 import { useInventoryQuery } from '../../../hooks/queries/useInventoryQuery';
@@ -146,7 +147,7 @@ export default function EventInventoryTab({ event }: Props) {
 
       {/* Danh sách */}
       {inventory.length === 0 ? (
-        <p className="text-sm text-muted text-center py-8">Chưa có dữ liệu kho</p>
+        <EmptyState icon={<Package size={24} />} title="Chưa có dữ liệu kho" />
       ) : (
         <div className="space-y-2">
           {inventory.map(item => {

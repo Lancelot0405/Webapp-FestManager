@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect, useCallback, type CSSProperties } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Plus } from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
 import { Button } from '@heroui/react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useQueryClient } from '@tanstack/react-query';
+import { usePullToRefresh } from '../../hooks/usePullToRefresh';
 import { useFAB } from '../../context/FABContext';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { useApp } from '../../context/AppContext';
@@ -80,6 +82,13 @@ export default function Layout() {
 
   const { fab } = useFAB();
 
+  const queryClient = useQueryClient();
+  const { handlers, pullDistance, isRefreshing, threshold } = usePullToRefresh({
+    onRefresh: () => queryClient.invalidateQueries(),
+  });
+  const ptrActive = pullDistance > 0 || isRefreshing;
+  const ptrReady = pullDistance >= threshold;
+
   return (
     <div className="h-dvh font-sans overflow-hidden">
       <SpeedInsights />
@@ -109,12 +118,33 @@ export default function Layout() {
           )}
           <main
             ref={mainRef}
+            {...handlers}
             style={{ '--tbh': `${topBarH}px` } as CSSProperties}
-            className={`flex-1 overflow-y-auto pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] md:pl-[max(1.5rem,env(safe-area-inset-left))] md:pr-[max(1.5rem,env(safe-area-inset-right))] lg:pl-[max(2rem,env(safe-area-inset-left))] lg:pr-[max(2rem,env(safe-area-inset-right))] ${
+            className={`relative flex-1 overflow-y-auto overscroll-y-contain pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] md:pl-[max(1.5rem,env(safe-area-inset-left))] md:pr-[max(1.5rem,env(safe-area-inset-right))] lg:pl-[max(2rem,env(safe-area-inset-left))] lg:pr-[max(2rem,env(safe-area-inset-right))] ${
               isDetail ? 'pt-safe' : 'pt-[var(--tbh)]'
             } md:pt-5 pb-24 md:pb-8 scroll-smooth-ios`}
           >
-            <div className="max-w-5xl xl:max-w-7xl mx-auto w-full">
+            <div
+              className="md:hidden absolute left-1/2 -translate-x-1/2 z-10 flex justify-center pointer-events-none"
+              style={{
+                top: 'calc(var(--tbh) + 4px)',
+                transform: `translate(-50%, ${ptrActive ? pullDistance - 24 : -36}px)`,
+                opacity: ptrActive ? 1 : 0,
+                transition: pullDistance === 0 ? 'transform 0.2s, opacity 0.2s' : undefined,
+              }}
+            >
+              <div className="w-8 h-8 rounded-full bg-surface shadow-md border border-separator flex items-center justify-center">
+                <Loader2
+                  size={16}
+                  className={`text-accent ${isRefreshing ? 'animate-spin' : ''}`}
+                  style={!isRefreshing ? { transform: `rotate(${pullDistance * 3}deg)`, opacity: ptrReady ? 1 : 0.5 } : undefined}
+                />
+              </div>
+            </div>
+            <div
+              className="max-w-5xl xl:max-w-7xl mx-auto w-full"
+              style={{ transform: ptrActive ? `translateY(${pullDistance}px)` : undefined, transition: pullDistance === 0 ? 'transform 0.2s' : undefined }}
+            >
               <AnimatePresence mode="wait" initial={false}>
                 <motion.div
                   key={location.pathname}

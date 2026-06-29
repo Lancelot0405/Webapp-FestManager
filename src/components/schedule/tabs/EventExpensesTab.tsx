@@ -1,5 +1,6 @@
 ﻿import { useState, useRef } from 'react';
-import { Plus, ChevronDown, ChevronUp, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { Plus, ChevronDown, ChevronUp, Upload, X, Image as ImageIcon, Receipt } from 'lucide-react';
+import EmptyState from '@/components/shared/EmptyState';
 import { Button, Card, Spinner, TextField, Label, Input, FieldError, Select, ListBox } from '@heroui/react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -130,7 +131,7 @@ export default function EventExpensesTab({ event }: Props) {
       </div>
 
       {Object.keys(byStaff).length === 0 ? (
-        <p className="text-sm text-muted text-center py-8">Chưa có chi phí nào</p>
+        <EmptyState icon={<Receipt size={24} />} title="Chưa có chi phí nào" />
       ) : (
         <div className="space-y-2">
           {Object.entries(byStaff).map(([staffId, { name, expenses }]) => {

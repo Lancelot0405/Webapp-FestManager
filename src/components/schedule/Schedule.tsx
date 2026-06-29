@@ -11,6 +11,7 @@ import {
 } from '@heroui/react';
 import { today, getLocalTimeZone, CalendarDate } from '@internationalized/date';
 import { CalendarWithYearPicker } from '@/components/shared/AppDatePicker';
+import EmptyState from '@/components/shared/EmptyState';
 
 import { useApp } from '../../context/AppContext';
 import { useIsDesktop } from '../../hooks/useIsDesktop';
@@ -103,7 +104,7 @@ function AgendaView({
   }, [events]);
 
   if (events.length === 0) {
-    return <p className="text-sm text-foreground/50 text-center py-10">Chưa có sự kiện nào</p>;
+    return <EmptyState icon={<CalendarDays size={26} />} title="Chưa có sự kiện nào" description="Tạo sự kiện đầu tiên để bắt đầu quản lý." />;
   }
 
   return (
@@ -417,7 +418,7 @@ export default function Schedule() {
                     {isAdmin && <Table.Column className="text-xs font-medium text-default-500 py-3 pr-4 pl-3 text-right bg-default-50 dark:bg-default-100/20 hidden sm:table-cell">Hành động</Table.Column>}
                   </Table.Header>
                   <Table.Body renderEmptyState={() => (
-                    <p className="text-sm text-foreground/50 text-center py-10">Chưa có sự kiện nào</p>
+                    <EmptyState icon={<CalendarDays size={26} />} title="Chưa có sự kiện nào" />
                   )}>
                     {tableSorted.map(event => {
                       const dateDisplay = event.endDate && event.endDate !== event.date

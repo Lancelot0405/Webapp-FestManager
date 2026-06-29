@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, Package, SearchX } from 'lucide-react';
+import EmptyState from '@/components/shared/EmptyState';
 import { Card } from '@heroui/react';
 import { animations } from '../../lib/animations';
 import ListSkeleton from '@/components/shared/skeletons/ListSkeleton';
@@ -25,12 +26,10 @@ export default function InventoryItemList({ items, isLoading, onEditItem, itemLa
   }
 
   if (items.length === 0) {
-    return (
-      <p className="text-sm text-muted text-center py-10">
-        {isFiltered
-          ? `Không tìm thấy ${itemLabel} phù hợp`
-          : `Chưa có ${itemLabel} nào trong kho ${sectionLabel}`}
-      </p>
+    return isFiltered ? (
+      <EmptyState icon={<SearchX size={26} />} title={`Không tìm thấy ${itemLabel} phù hợp`} />
+    ) : (
+      <EmptyState icon={<Package size={26} />} title={`Chưa có ${itemLabel} nào trong kho ${sectionLabel}`} />
     );
   }
 

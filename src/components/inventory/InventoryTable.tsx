@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import type { SortDescriptor } from 'react-aria-components';
 import { Table } from '@heroui/react';
+import { Package, SearchX } from 'lucide-react';
+import EmptyState from '@/components/shared/EmptyState';
 import { getItemStatus } from './useInventoryFilters';
 import InventoryQuantityStepper from './InventoryQuantityStepper';
 import type { InventoryItem } from '../../types';
@@ -42,12 +44,10 @@ export default function InventoryTable({ items, onEditItem, itemLabel, sectionLa
   }, [items, sortDescriptor]);
 
   if (items.length === 0) {
-    return (
-      <p className="text-sm text-muted text-center py-10">
-        {isFiltered
-          ? `Không tìm thấy ${itemLabel} phù hợp`
-          : `Chưa có ${itemLabel} nào trong kho ${sectionLabel}`}
-      </p>
+    return isFiltered ? (
+      <EmptyState icon={<SearchX size={26} />} title={`Không tìm thấy ${itemLabel} phù hợp`} />
+    ) : (
+      <EmptyState icon={<Package size={26} />} title={`Chưa có ${itemLabel} nào trong kho ${sectionLabel}`} />
     );
   }
 

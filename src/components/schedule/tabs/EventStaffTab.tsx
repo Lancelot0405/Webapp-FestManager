@@ -1,5 +1,6 @@
 ﻿import { useState } from 'react';
 import { UserMinus, UserPlus, Check } from 'lucide-react';
+import EmptyState from '@/components/shared/EmptyState';
 import { Button, Card, ToggleButton } from '@heroui/react';
 import { useApp } from '../../../context/AppContext';
 import { useStaffQuery } from '../../../hooks/queries/useStaffQuery';
@@ -88,7 +89,7 @@ export default function EventStaffTab({ event }: Props) {
       )}
 
       {event.staff.length === 0 ? (
-        <p className="text-sm text-muted text-center py-8">Chưa có nhân viên được phân công</p>
+        <EmptyState icon={<UserPlus size={24} />} title="Chưa có nhân viên được phân công" />
       ) : (
         <div className="space-y-2">
           {event.staff.map(s => (

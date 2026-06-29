@@ -2,8 +2,10 @@ import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useKeyboardOffset, handleFocusScroll } from '../../hooks/useKeyboardOffset';
 import { Pencil, Trash2, Phone, Mail, MapPin, Building2, Calendar } from 'lucide-react';
-import { AlertDialog, Button, Card, EmptyState, Modal, SearchField, TextField, Label, Input, TextArea, FieldError } from '@heroui/react';
+import { AlertDialog, Button, Card, Modal, SearchField, TextField, Label, Input, TextArea, FieldError } from '@heroui/react';
 import { animations } from '../../lib/animations';
+import EmptyState from '@/components/shared/EmptyState';
+import { SearchX } from 'lucide-react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -214,10 +216,11 @@ export default function Clients() {
 
       {/* Client list */}
       {filtered.length === 0 ? (
-        <EmptyState className="py-12 flex flex-col items-center gap-2">
-          <Building2 size={36} className="opacity-30 text-muted" />
-          <p className="text-sm text-muted">{search ? 'Không tìm thấy kết quả' : 'Chưa có khách hàng nào'}</p>
-        </EmptyState>
+        search ? (
+          <EmptyState icon={<SearchX size={26} />} title="Không tìm thấy kết quả" />
+        ) : (
+          <EmptyState icon={<Building2 size={26} />} title="Chưa có khách hàng nào" description="Thêm khách hàng/đối tác để liên kết với sự kiện." />
+        )
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
           {filtered.map((client, i) => {

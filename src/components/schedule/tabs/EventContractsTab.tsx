@@ -1,5 +1,6 @@
 ﻿import { useState, useRef } from 'react';
 import { ChevronDown, ChevronUp, Upload, FileText } from 'lucide-react';
+import EmptyState from '@/components/shared/EmptyState';
 import { Button, Card, Spinner } from '@heroui/react';
 import DocThumbnail from '../../shared/DocThumbnail';
 import { useApp } from '../../../context/AppContext';
@@ -85,9 +86,7 @@ export default function EventContractsTab({ event }: Props) {
 
   if (staffWithContracts.length === 0) {
     return (
-      <p className="text-sm text-muted text-center py-8">
-        Chưa có nhân viên được phân công cho sự kiện này
-      </p>
+      <EmptyState icon={<FileText size={24} />} title="Chưa có nhân viên được phân công cho sự kiện này" />
     );
   }
 
