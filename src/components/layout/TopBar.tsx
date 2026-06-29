@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Bell, Sun, Moon } from 'lucide-react';
-import { Avatar, Badge, Button, Popover, Spinner } from '@heroui/react';
+import { Avatar, Badge, Button, Spinner } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
 import { usePushNotifications } from '../../hooks/usePushNotifications';
-import UserSheetContent from './UserSheetContent';
+import UserOverlay from './UserOverlay';
 
 interface Notification { id: string; message: string; timestamp: string; type: string }
 
@@ -22,7 +22,7 @@ export default function TopBar({ navVisible = true, notifCount = 0, notification
   const { currentUser } = useApp();
   const { theme, toggleTheme } = useTheme();
   const { subscribed, loading: pushLoading, subscribe, supported: pushSupported } = usePushNotifications();
-  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [overlayOpen, setOverlayOpen] = useState(false);
 
   if (!currentUser) return null;
 
@@ -61,52 +61,47 @@ export default function TopBar({ navVisible = true, notifCount = 0, notification
           </Button>
         )}
 
-        <Popover isOpen={popoverOpen} onOpenChange={setPopoverOpen}>
-          <Popover.Trigger>
-            <motion.div
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            >
-              <Button
-                variant="ghost" isIconOnly
-                aria-label="Tài khoản"
-                className="w-9 h-9 min-w-0 p-0 rounded-full hover:bg-transparent"
-              >
-                {notifCount > 0 ? (
-                  <Badge color="danger" size="sm" placement="top-right">
-                    <Badge.Anchor>
-                      <Avatar className="size-8 shadow-sm">
-                        <Avatar.Fallback className="accent-gradient text-white text-[13px] font-bold">
-                          {initials}
-                        </Avatar.Fallback>
-                      </Avatar>
-                    </Badge.Anchor>
-                    <Badge.Label>{notifCount > 9 ? '9+' : notifCount}</Badge.Label>
-                  </Badge>
-                ) : (
+        <motion.div
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+        >
+          <Button
+            variant="ghost" isIconOnly
+            onPress={() => setOverlayOpen(true)}
+            aria-label="Tài khoản"
+            className="w-9 h-9 min-w-0 p-0 rounded-full hover:bg-transparent"
+          >
+            {notifCount > 0 ? (
+              <Badge color="danger" size="sm" placement="top-right">
+                <Badge.Anchor>
                   <Avatar className="size-8 shadow-sm">
                     <Avatar.Fallback className="accent-gradient text-white text-[13px] font-bold">
                       {initials}
                     </Avatar.Fallback>
                   </Avatar>
-                )}
-              </Button>
-            </motion.div>
-          </Popover.Trigger>
-          <Popover.Content placement="bottom end" className="p-0 w-80 max-h-[calc(100dvh-80px-env(safe-area-inset-top)-env(safe-area-inset-bottom))] overflow-y-auto overflow-x-hidden rounded-2xl shadow-xl border border-white/20 dark:border-white/10 bg-surface/60 bg-gradient-to-br from-accent/15 to-transparent backdrop-blur-2xl backdrop-saturate-150">
-            <Popover.Dialog aria-label="Tài khoản">
-              <UserSheetContent
-                onClose={() => setPopoverOpen(false)}
-                onLogout={() => { setPopoverOpen(false); onLogout(); }}
-                notifications={notifications}
-                clearAll={clearAll}
-                clearOne={clearOne}
-              />
-            </Popover.Dialog>
-          </Popover.Content>
-        </Popover>
+                </Badge.Anchor>
+                <Badge.Label>{notifCount > 9 ? '9+' : notifCount}</Badge.Label>
+              </Badge>
+            ) : (
+              <Avatar className="size-8 shadow-sm">
+                <Avatar.Fallback className="accent-gradient text-white text-[13px] font-bold">
+                  {initials}
+                </Avatar.Fallback>
+              </Avatar>
+            )}
+          </Button>
+        </motion.div>
       </div>
+
+      <UserOverlay
+        isOpen={overlayOpen}
+        onClose={() => setOverlayOpen(false)}
+        onLogout={onLogout}
+        notifications={notifications}
+        clearAll={clearAll}
+        clearOne={clearOne}
+      />
     </header>
   );
 }
