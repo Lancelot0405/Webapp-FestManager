@@ -1,8 +1,23 @@
 import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useKeyboardInsets, handleFocusScroll } from '../../hooks/useKeyboardOffset';
-import { Pencil, Trash2, Phone, Mail, MapPin, Building2, Calendar } from 'lucide-react';
-import { AlertDialog, Button, Card, Modal, SearchField, TextField, Label, Input, TextArea, FieldError } from '@heroui/react';
+import { Pencil, Trash2, Phone, Mail, MapPin, Building2, Calendar, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { animations } from '../../lib/animations';
 import EmptyState from '@/components/shared/EmptyState';
 import { SearchX } from 'lucide-react';
@@ -110,108 +125,106 @@ export default function Clients() {
   return (
     <div className="space-y-4">
       {/* Search */}
-      <SearchField value={search} onChange={setSearch} className="w-full" aria-label="Tìm kiếm khách hàng">
-        <SearchField.Group>
-          <SearchField.SearchIcon />
-          <SearchField.Input placeholder="Tìm kiếm khách hàng..." />
-          <SearchField.ClearButton />
-        </SearchField.Group>
-      </SearchField>
+      <div className="relative w-full">
+        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          type="search"
+          placeholder="Tìm kiếm khách hàng..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="pl-9"
+          aria-label="Tìm kiếm khách hàng"
+        />
+      </div>
 
       {/* Add / Edit Modal */}
-      <Modal isOpen={showForm} onOpenChange={(open) => { if (!open) setShowForm(false); }}>
-        <Modal.Backdrop isDismissable>
-          <Modal.Container placement="bottom" size="md" className="sm:items-center">
-            <Modal.Dialog
-              aria-label={editingId ? 'Chỉnh sửa khách hàng' : 'Thêm khách hàng mới'}
-              style={{ marginBottom: keyboardOffset, maxHeight: viewportHeight ?? undefined }}
-              className="max-h-[85dvh] flex flex-col rounded-t-2xl sm:rounded-2xl"
-            >
-              <Modal.Header className="px-5 pt-5 pb-0 shrink-0">
-                <Modal.Heading className="text-base font-bold text-foreground">
-                  {editingId ? 'Chỉnh sửa khách hàng' : 'Thêm khách hàng mới'}
-                </Modal.Heading>
-              </Modal.Header>
-              <Modal.Body className="px-5 py-4 overflow-y-auto" onFocus={handleFocusScroll}>
-                <form id="client-form" onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-                  <Controller name="name" control={control} render={({ field }) => (
-                    <TextField value={field.value} onChange={field.onChange} isInvalid={!!errors.name} className="w-full flex flex-col gap-1">
-                      <Label className="text-xs font-medium text-foreground/80">Tên tổ chức *</Label>
-                      <Input placeholder="Tên ban tổ chức / công ty" />
-                      {errors.name && <FieldError className="text-xs text-danger">{errors.name.message}</FieldError>}
-                    </TextField>
+      <Dialog open={showForm} onOpenChange={setShowForm}>
+        <DialogContent
+          className="max-h-[85dvh] flex flex-col rounded-t-2xl sm:rounded-2xl p-0 outline-none overflow-hidden"
+          style={{ marginBottom: keyboardOffset, maxHeight: viewportHeight ?? undefined }}
+        >
+          <DialogHeader className="px-5 pt-5 pb-0 shrink-0">
+            <DialogTitle className="text-base font-bold text-foreground">
+              {editingId ? 'Chỉnh sửa khách hàng' : 'Thêm khách hàng mới'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="px-5 py-4 overflow-y-auto" onFocus={handleFocusScroll}>
+            <form id="client-form" onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+              <div className="w-full flex flex-col gap-1">
+                <Label htmlFor="org-name" className="text-xs font-medium text-foreground/80">Tên tổ chức *</Label>
+                <Controller name="name" control={control} render={({ field }) => (
+                  <Input id="org-name" placeholder="Tên ban tổ chức / công ty" {...field} />
+                )} />
+                {errors.name && <p className="text-xs text-destructive mt-0.5">{errors.name.message}</p>}
+              </div>
+
+              <div className="w-full flex flex-col gap-1">
+                <Label htmlFor="contact-name" className="text-xs font-medium text-foreground/80">Người liên hệ</Label>
+                <Controller name="contactName" control={control} render={({ field }) => (
+                  <Input id="contact-name" placeholder="Họ tên người phụ trách" {...field} />
+                )} />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div className="w-full flex flex-col gap-1">
+                  <Label htmlFor="phone" className="text-xs font-medium text-foreground/80">Điện thoại</Label>
+                  <Controller name="phone" control={control} render={({ field }) => (
+                    <Input id="phone" type="tel" placeholder="+33..." {...field} />
                   )} />
-                  <Controller name="contactName" control={control} render={({ field }) => (
-                    <TextField value={field.value ?? ''} onChange={field.onChange} className="w-full flex flex-col gap-1">
-                      <Label className="text-xs font-medium text-foreground/80">Người liên hệ</Label>
-                      <Input placeholder="Họ tên người phụ trách" />
-                    </TextField>
+                </div>
+                <div className="w-full flex flex-col gap-1">
+                  <Label htmlFor="email" className="text-xs font-medium text-foreground/80">Email</Label>
+                  <Controller name="email" control={control} render={({ field }) => (
+                    <Input id="email" type="email" placeholder="email@..." {...field} />
                   )} />
-                  <div className="grid grid-cols-2 gap-2">
-                    <Controller name="phone" control={control} render={({ field }) => (
-                      <TextField value={field.value ?? ''} onChange={field.onChange} className="w-full flex flex-col gap-1">
-                        <Label className="text-xs font-medium text-foreground/80">Điện thoại</Label>
-                        <Input type="tel" placeholder="+33..." />
-                      </TextField>
-                    )} />
-                    <Controller name="email" control={control} render={({ field }) => (
-                      <TextField value={field.value ?? ''} onChange={field.onChange} isInvalid={!!errors.email} className="w-full flex flex-col gap-1">
-                        <Label className="text-xs font-medium text-foreground/80">Email</Label>
-                        <Input type="email" placeholder="email@..." />
-                        {errors.email && <FieldError className="text-xs text-danger">{errors.email.message}</FieldError>}
-                      </TextField>
-                    )} />
-                  </div>
-                  <Controller name="city" control={control} render={({ field }) => (
-                    <FranceCityAutocomplete label="Thành phố" value={field.value ?? ''} onChange={field.onChange} />
-                  )} />
-                  <Controller name="notes" control={control} render={({ field }) => (
-                    <TextField value={field.value ?? ''} onChange={field.onChange} className="w-full flex flex-col gap-1">
-                      <Label className="text-xs font-medium text-foreground/80">Ghi chú</Label>
-                      <TextArea placeholder="Thông tin thêm..." rows={2} style={{ maxHeight: `${4 * 1.5}rem` }} />
-                    </TextField>
-                  )} />
-                </form>
-              </Modal.Body>
-              <Modal.Footer className="px-5 pb-5 flex gap-2 justify-end shrink-0">
-                <Button variant="ghost" onPress={() => setShowForm(false)} className="rounded-xl">Hủy</Button>
-                <Button type="submit" form="client-form" variant="primary" className="rounded-xl">
-                  {editingId ? 'Lưu thay đổi' : 'Thêm khách hàng'}
-                </Button>
-              </Modal.Footer>
-            </Modal.Dialog>
-          </Modal.Container>
-        </Modal.Backdrop>
-      </Modal>
+                  {errors.email && <p className="text-xs text-destructive mt-0.5">{errors.email.message}</p>}
+                </div>
+              </div>
+
+              <Controller name="city" control={control} render={({ field }) => (
+                <FranceCityAutocomplete label="Thành phố" value={field.value ?? ''} onChange={field.onChange} />
+              )} />
+
+              <div className="w-full flex flex-col gap-1">
+                <Label htmlFor="notes" className="text-xs font-medium text-foreground/80">Ghi chú</Label>
+                <Controller name="notes" control={control} render={({ field }) => (
+                  <Textarea id="notes" placeholder="Thông tin thêm..." rows={2} style={{ maxHeight: `${4 * 1.5}rem` }} {...field} />
+                )} />
+              </div>
+            </form>
+          </div>
+          <DialogFooter className="px-5 pb-5 flex gap-2 justify-end shrink-0">
+            <Button type="button" variant="ghost" onClick={() => setShowForm(false)} className="rounded-xl">Hủy</Button>
+            <Button type="submit" form="client-form" className="rounded-xl">
+              {editingId ? 'Lưu thay đổi' : 'Thêm khách hàng'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete confirmation */}
-      <AlertDialog isOpen={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
-        <AlertDialog.Backdrop>
-          <AlertDialog.Container>
-            <AlertDialog.Dialog aria-label="Xác nhận xóa">
-              <AlertDialog.Header>
-                <AlertDialog.Icon />
-                <AlertDialog.Heading>Xóa khách hàng?</AlertDialog.Heading>
-              </AlertDialog.Header>
-              <AlertDialog.Body>
-                <p className="text-sm text-muted">
-                  Xóa <span className="font-semibold text-foreground">{deleteTarget?.name}</span>? Thao tác này không thể hoàn tác.
-                </p>
-              </AlertDialog.Body>
-              <AlertDialog.Footer className="flex gap-2 justify-end">
-                <Button variant="ghost" onPress={() => setDeleteTarget(null)} className="rounded-xl">Hủy</Button>
-                <Button
-                  variant="primary"
-                  onPress={confirmDelete}
-                  isDisabled={deleteClientMutation.isPending}
-                  className="rounded-xl"
-                >
-                  {deleteClientMutation.isPending ? 'Đang xóa...' : 'Xóa'}
-                </Button>
-              </AlertDialog.Footer>
-            </AlertDialog.Dialog>
-          </AlertDialog.Container>
-        </AlertDialog.Backdrop>
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+        <AlertDialogContent className="rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xóa khách hàng?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Xóa <span className="font-semibold text-foreground">{deleteTarget?.name}</span>? Thao tác này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex gap-2 justify-end">
+            <AlertDialogCancel onClick={() => setDeleteTarget(null)} className="rounded-xl">
+              Hủy
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={deleteClientMutation.isPending}
+              variant="destructive"
+              className="rounded-xl"
+            >
+              {deleteClientMutation.isPending ? 'Đang xóa...' : 'Xóa'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
       </AlertDialog>
 
       {/* Client list */}
@@ -228,7 +241,7 @@ export default function Clients() {
             const initials = client.name.trim().split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
             return (
               <motion.div key={client.id} {...animations.listItem(i)} {...animations.press}>
-                <Card className="p-0 overflow-hidden hover:shadow-md transition-shadow duration-200">
+                <Card className="p-0 overflow-hidden hover:shadow-md transition-shadow duration-200 border">
                   {/* Header */}
                   <div className="flex items-center gap-3 px-4 pt-4 pb-3">
                     <div className="w-10 h-10 rounded-full accent-gradient flex items-center justify-center text-white text-sm font-bold shrink-0 shadow-sm">
@@ -241,13 +254,29 @@ export default function Clients() {
                       )}
                     </div>
                     <div className="flex gap-0.5 shrink-0">
-                      <Button onPress={() => openEdit(client)} variant="ghost" isIconOnly size="sm" className="rounded-lg text-muted hover:text-foreground w-7 h-7 min-w-0"><Pencil size={13} /></Button>
-                      <Button onPress={() => setDeleteTarget(client)} variant="ghost" isIconOnly size="sm" className="rounded-lg text-muted hover:text-danger w-7 h-7 min-w-0"><Trash2 size={13} /></Button>
+                      <Button
+                        type="button"
+                        onClick={() => openEdit(client)}
+                        variant="ghost"
+                        className="rounded-lg text-muted hover:text-foreground w-7 h-7 min-w-0 p-0 flex items-center justify-center"
+                        aria-label="Sửa"
+                      >
+                        <Pencil size={13} />
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={() => setDeleteTarget(client)}
+                        variant="ghost"
+                        className="rounded-lg text-muted hover:text-danger w-7 h-7 min-w-0 p-0 flex items-center justify-center"
+                        aria-label="Xóa"
+                      >
+                        <Trash2 size={13} />
+                      </Button>
                     </div>
                   </div>
 
                   {/* Divider */}
-                  <div className="border-t border-separator mx-4" />
+                  <div className="border-t border-border mx-4" />
 
                   {/* Info */}
                   <div className="px-4 py-3 space-y-1.5">

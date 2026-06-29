@@ -10,9 +10,20 @@ import {
   Eye, Smartphone,
   DollarSign, MapPin, Zap, TrendingUp, TrendingDown,
   Users, UserCheck, Briefcase, CheckCircle2,
-  CalendarDays,
+  CalendarDays, Search
 } from 'lucide-react';
-import { Button, Card, Chip, Table, SearchField, Tabs } from '@heroui/react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import EmptyState from '@/components/shared/EmptyState';
 import { useApp } from '../../context/AppContext';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
@@ -133,8 +144,9 @@ function AdminDashboard({ events, staff, inventory, currentUser, navigate }: {
           {/* PWA install */}
           {!isStandalone && (
             <Button
-              size="sm" variant="primary"
-              onPress={handleInstall}
+              type="button"
+              size="sm"
+              onClick={handleInstall}
               className="rounded-xl font-semibold px-4 flex items-center gap-1.5 shadow-sm"
             >
               <Smartphone size={14} /> Cài đặt ứng dụng
@@ -144,19 +156,31 @@ function AdminDashboard({ events, staff, inventory, currentUser, navigate }: {
       </div>
 
       {/* Tab bar */}
-      <div className="border-b border-separator/50 pb-3">
-        <Tabs selectedKey={tab} onSelectionChange={(key) => setTab(key as TabKey)}>
-          <Tabs.ListContainer className="overflow-x-auto scrollbar-hide">
-            <Tabs.List aria-label="Dashboard tabs" className="w-max min-w-full">
-              {TABS.map(t => (
-                <Tabs.Tab key={t.key} id={t.key} className="text-sm whitespace-nowrap">
-                  {t.label}
-                  <Tabs.Indicator />
-                </Tabs.Tab>
-              ))}
-            </Tabs.List>
-          </Tabs.ListContainer>
-        </Tabs>
+      <div className="border-b border-border pb-3 overflow-x-auto scrollbar-hide">
+        <div className="flex gap-4 w-max min-w-full relative">
+          {TABS.map(t => {
+            const isActive = tab === t.key;
+            return (
+              <button
+                key={t.key}
+                type="button"
+                onClick={() => setTab(t.key)}
+                className={`text-sm whitespace-nowrap pb-2 font-medium transition-colors relative outline-none cursor-pointer ${
+                  isActive ? 'text-accent font-semibold' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {t.label}
+                {isActive && (
+                  <motion.div
+                    layoutId="activeTabIndicator"
+                    className="absolute bottom-0 inset-x-0 h-0.5 bg-accent"
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Tab content */}
@@ -258,7 +282,7 @@ function OverviewTab({ events, staff, inventory, navigate }: {
             {lowStock.slice(0, 4).map((item, i) => (
               <motion.div key={item.id} {...animations.listItem(i)} {...animations.press}>
                 <Card
-                  className="!p-0 border-danger/15"
+                  className="p-0 border-danger/15 border"
                   style={{ boxShadow: '0 0 14px 2px rgba(239,68,68,0.10)' }}
                 >
                   <div className="flex items-center gap-3 p-3">
@@ -287,7 +311,7 @@ function OverviewTab({ events, staff, inventory, navigate }: {
             {activeEvents.map((event, i) => (
               <motion.div key={event.id} {...animations.listItem(i)} {...animations.press}>
                 <Card
-                  className="p-4 cursor-pointer hover:border-success/30 transition-all"
+                  className="p-4 cursor-pointer hover:border-success/30 transition-all border"
                   style={{ boxShadow: '0 0 20px 4px rgba(34,197,94,0.12)' }}
                   onClick={() => navigate('/schedule/' + event.id)}
                 >
@@ -350,7 +374,7 @@ function OverviewTab({ events, staff, inventory, navigate }: {
             </button>
           </div>
           {upcomingEvents.length === 0 ? (
-            <Card className="py-8 flex flex-col items-center gap-2">
+            <Card className="py-8 flex flex-col items-center gap-2 border">
               <p className="text-sm text-muted">Không có sự kiện sắp tới</p>
             </Card>
           ) : (
@@ -361,7 +385,7 @@ function OverviewTab({ events, staff, inventory, navigate }: {
                 .map((event, i) => (
                 <motion.div key={event.id} {...animations.listItem(i)} {...animations.press}>
                   <Card
-                    className="p-3.5 cursor-pointer hover:border-accent/25 hover:shadow-sm transition-all"
+                    className="p-3.5 cursor-pointer hover:border-accent/25 hover:shadow-sm transition-all border"
                     onClick={() => navigate('/schedule/' + event.id)}
                   >
                     <div className="flex items-center gap-3">
@@ -395,7 +419,7 @@ function OverviewTab({ events, staff, inventory, navigate }: {
             <h2 className="flex items-center gap-1.5 text-xs font-bold text-muted uppercase tracking-widest">
               <TrendingUp size={13} /> Doanh thu theo tháng
             </h2>
-            <Card className="p-4 space-y-3">
+            <Card className="p-4 space-y-3 border">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted">6 tháng gần nhất</span>
                 <span className="text-sm font-bold text-foreground">{totalIncome.toLocaleString('fr-FR')} €</span>
@@ -415,10 +439,10 @@ function OverviewTab({ events, staff, inventory, navigate }: {
                 Xem thêm <ChevronRight size={12} />
               </button>
             </div>
-            <Card className="overflow-hidden">
+            <Card className="overflow-hidden border">
               {topStaff.length === 0 ? (
                 <div className="py-8 flex flex-col items-center gap-2">
-                  <div className="w-8 h-8 rounded-full border-2 border-separator flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full border flex items-center justify-center">
                     <span className="text-muted text-xs">✓</span>
                   </div>
                   <p className="text-sm text-muted">Chưa có dữ liệu</p>
@@ -502,22 +526,26 @@ function FinanceTab({ events, navigate }: {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="p-4 space-y-3">
+        <Card className="p-4 space-y-3 border">
           <h3 className="text-sm font-semibold text-foreground">Doanh thu & Chi phí theo tháng</h3>
           <IncomeExpenseChart events={events} />
         </Card>
-        <Card className="p-4 space-y-3">
+        <Card className="p-4 space-y-3 border">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold text-foreground">Chi phí chờ duyệt</h3>
-            <Button variant="ghost" onPress={() => navigate('/finance')}
-              className="h-auto p-0 min-w-0 text-xs text-accent font-medium hover:bg-transparent">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => navigate('/finance')}
+              className="h-auto p-0 min-w-0 text-xs text-accent font-medium hover:bg-transparent"
+            >
               Xem tất cả <ChevronRight size={12} />
             </Button>
           </div>
           {pending.length === 0 ? (
             <p className="text-sm text-muted py-4 text-center">Không có chi phí nào chờ duyệt</p>
           ) : (
-            <div className="divide-y divide-[var(--separator)]">
+            <div className="divide-y divide-[var(--separator)] border-t border-border">
               {pending.slice(0, 6).map(exp => (
                 <div key={exp.id} className="flex items-center justify-between py-2.5">
                   <div>
@@ -584,43 +612,52 @@ function HRTab({ events, staff, navigate }: {
         />
       </div>
 
-      <Card className="overflow-hidden rounded-2xl">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-default-200 flex-wrap gap-2">
+      <Card className="overflow-hidden rounded-2xl border">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border flex-wrap gap-2">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-semibold text-foreground">Danh sách nhân viên</h3>
-            <Chip size="sm" variant="soft" color="default" className="text-[11px] h-5 px-1.5">
+            <Badge className="bg-muted text-muted-foreground border-none text-[11px] h-5 px-1.5 rounded-full hover:bg-muted font-semibold">
               {staff.length}
-            </Chip>
+            </Badge>
           </div>
-          <SearchField value={search} onChange={setSearch} className="w-48">
-            <SearchField.Group>
-              <SearchField.SearchIcon />
-              <SearchField.Input placeholder="Tìm kiếm..." />
-              <SearchField.ClearButton />
-            </SearchField.Group>
-          </SearchField>
+          <div className="relative w-full sm:w-48">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Tìm kiếm..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 h-9"
+            />
+          </div>
         </div>
 
-        <Table>
-          <Table.ScrollContainer>
-            <Table.Content aria-label="Danh sách nhân viên">
-              <Table.Header>
-                <Table.Column isRowHeader className="text-xs font-medium text-default-500 py-3 pl-5 pr-4 bg-default-50 dark:bg-default-100/20">Nhân viên</Table.Column>
-                <Table.Column className="text-xs font-medium text-default-500 py-3 px-4 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">Thành phố</Table.Column>
-                <Table.Column className="text-xs font-medium text-default-500 py-3 px-4 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">Loại hợp đồng</Table.Column>
-                <Table.Column className="text-xs font-medium text-default-500 py-3 px-4 bg-default-50 dark:bg-default-100/20 hidden md:table-cell">Sự kiện</Table.Column>
-                <Table.Column className="text-xs font-medium text-default-500 py-3 pr-5 pl-4 text-right bg-default-50 dark:bg-default-100/20">Hành động</Table.Column>
-              </Table.Header>
-              <Table.Body renderEmptyState={() => (
-                <EmptyState icon={<Users size={26} />} title="Không tìm thấy nhân viên" />
-              )}>
-                {filtered.map(s => (
-                  <Table.Row
-                    key={s.id} id={String(s.id)}
-                    onAction={() => navigate('/hr/' + s.id)}
-                    className="border-b border-default-100 dark:border-default-200/20 last:border-0 cursor-pointer hover:bg-default-100/50 dark:hover:bg-default-100/5 transition-colors"
+        <div className="relative w-full overflow-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent border-b border-border">
+                <TableHead className="text-xs font-medium text-muted-foreground py-3 pl-5 pr-4 bg-muted/50 dark:bg-default-100/20">Nhân viên</TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground py-3 px-4 bg-muted/50 dark:bg-default-100/20 hidden md:table-cell">Thành phố</TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground py-3 px-4 bg-muted/50 dark:bg-default-100/20 hidden md:table-cell">Loại hợp đồng</TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground py-3 px-4 bg-muted/50 dark:bg-default-100/20 hidden md:table-cell">Sự kiện</TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground py-3 pr-5 pl-4 text-right bg-muted/50 dark:bg-default-100/20">Hành động</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-24 text-center">
+                    <EmptyState icon={<Users size={26} />} title="Không tìm thấy nhân viên" />
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filtered.map(s => (
+                  <TableRow
+                    key={s.id}
+                    onClick={() => navigate('/hr/' + s.id)}
+                    className="border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 dark:hover:bg-default-100/5 transition-colors"
                   >
-                    <Table.Cell className="py-3.5 pl-5 pr-4">
+                    <TableCell className="py-3.5 pl-5 pr-4">
                       <div className="flex items-center gap-3 min-w-0">
                         <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${avatarGradient(s.id)} flex items-center justify-center shrink-0 shadow-sm`}>
                           <span className="text-xs font-bold text-white">{initials(s.name)}</span>
@@ -630,41 +667,39 @@ function HRTab({ events, staff, navigate }: {
                           <p className="text-xs text-default-400 truncate md:hidden">{s.city}</p>
                         </div>
                       </div>
-                    </Table.Cell>
-                    <Table.Cell className="py-3.5 px-4 hidden md:table-cell">
+                    </TableCell>
+                    <TableCell className="py-3.5 px-4 hidden md:table-cell">
                       <p className="text-sm text-default-500">{s.city}</p>
-                    </Table.Cell>
-                    <Table.Cell className="py-3.5 px-4 hidden md:table-cell">
-                      <Chip
-                        size="sm"
-                        variant="soft"
-                        color={s.staffType === 'permanent' ? 'accent' : 'warning'}
-                        className="text-[11px]"
-                      >
+                    </TableCell>
+                    <TableCell className="py-3.5 px-4 hidden md:table-cell">
+                      <Badge className={`border-none text-[11px] px-2 py-0.5 rounded-full font-semibold hover:bg-transparent ${
+                        s.staffType === 'permanent' ? 'bg-primary/10 text-primary' : 'bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400'
+                      }`}>
                         {s.staffType === 'permanent' ? 'Cố định' : 'Bán thời gian'}
-                      </Chip>
-                    </Table.Cell>
-                    <Table.Cell className="py-3.5 px-4 hidden md:table-cell">
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="py-3.5 px-4 hidden md:table-cell">
                       <p className="text-sm font-medium text-foreground">{eventCounts[s.id] ?? 0}</p>
-                    </Table.Cell>
-                    <Table.Cell className="py-3.5 pr-5 pl-4" onClick={e => e.stopPropagation()}>
+                    </TableCell>
+                    <TableCell className="py-3.5 pr-5 pl-4" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-1">
                         <Button
-                          isIconOnly size="sm" variant="ghost"
-                          onPress={() => navigate('/hr/' + s.id)}
+                          type="button"
+                          variant="ghost"
+                          onClick={() => navigate('/hr/' + s.id)}
                           aria-label="Xem hồ sơ"
-                          className="w-8 h-8 rounded-lg text-default-400 hover:text-foreground hover:bg-default-100"
+                          className="w-8 h-8 rounded-lg text-default-400 hover:text-foreground hover:bg-default-100 p-0 flex items-center justify-center"
                         >
                           <Eye size={14} />
                         </Button>
                       </div>
-                    </Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table.Content>
-          </Table.ScrollContainer>
-        </Table>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </Card>
     </div>
   );
@@ -708,48 +743,54 @@ function InventoryTab({ inventory, navigate }: {
       </div>
 
       {low.length > 0 && (
-        <Card className="overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-separator">
+        <Card className="overflow-hidden border">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
             <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
               <AlertTriangle size={13} className="text-danger" /> Hàng cần bổ sung
             </h3>
-            <Button variant="ghost" onPress={() => navigate('/inventory')}
-              className="h-auto p-0 min-w-0 text-xs text-accent font-medium hover:bg-transparent">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => navigate('/inventory')}
+              className="h-auto p-0 min-w-0 text-xs text-accent font-medium hover:bg-transparent"
+            >
               Xem tất cả <ChevronRight size={12} />
             </Button>
           </div>
-          <Table variant="secondary">
-            <Table.ScrollContainer>
-              <Table.Content aria-label="Hàng cần bổ sung">
-                <Table.Header>
-                  <Table.Column isRowHeader className="text-xs font-semibold text-muted px-1 py-2">Tên hàng</Table.Column>
-                  <Table.Column className="text-xs font-semibold text-muted px-1 py-2">Hiện tại</Table.Column>
-                  <Table.Column className="text-xs font-semibold text-muted px-1 py-2 hidden md:table-cell">Ngưỡng cảnh báo</Table.Column>
-                  <Table.Column className="text-xs font-semibold text-muted px-1 py-2">Trạng thái</Table.Column>
-                </Table.Header>
-                <Table.Body>
-                  {low.map(item => (
-                    <Table.Row key={item.id} id={String(item.id)}>
-                      <Table.Cell className="py-2.5 px-1">
-                        <p className="text-sm font-medium text-foreground">{item.name}</p>
-                      </Table.Cell>
-                      <Table.Cell className="py-2.5 px-1">
-                        <span className="text-sm font-bold text-danger">{item.current} {item.unit}</span>
-                      </Table.Cell>
-                      <Table.Cell className="py-2.5 px-1 hidden md:table-cell">
-                        <span className="text-sm text-muted">{item.threshold} {item.unit}</span>
-                      </Table.Cell>
-                      <Table.Cell className="py-2.5 px-1">
-                        <Chip size="sm" variant="soft" color={item.current === 0 ? 'danger' : 'warning'}>
-                          {item.current === 0 ? 'Hết hàng' : 'Sắp hết'}
-                        </Chip>
-                      </Table.Cell>
-                    </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table.Content>
-            </Table.ScrollContainer>
-          </Table>
+          <div className="relative w-full overflow-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent border-b border-border">
+                  <TableHead className="text-xs font-semibold text-muted px-1 py-2">Tên hàng</TableHead>
+                  <TableHead className="text-xs font-semibold text-muted px-1 py-2">Hiện tại</TableHead>
+                  <TableHead className="text-xs font-semibold text-muted px-1 py-2 hidden md:table-cell">Ngưỡng cảnh báo</TableHead>
+                  <TableHead className="text-xs font-semibold text-muted px-1 py-2">Trạng thái</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {low.map(item => (
+                  <TableRow key={item.id}>
+                    <TableCell className="py-2.5 px-1">
+                      <p className="text-sm font-medium text-foreground">{item.name}</p>
+                    </TableCell>
+                    <TableCell className="py-2.5 px-1">
+                      <span className="text-sm font-bold text-danger">{item.current} {item.unit}</span>
+                    </TableCell>
+                    <TableCell className="py-2.5 px-1 hidden md:table-cell">
+                      <span className="text-sm text-muted">{item.threshold} {item.unit}</span>
+                    </TableCell>
+                    <TableCell className="py-2.5 px-1">
+                      <Badge className={`border-none text-[11px] px-2 py-0.5 rounded-full font-semibold hover:bg-transparent ${
+                        item.current === 0 ? 'bg-destructive/10 text-destructive border-destructive/20' : 'bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400'
+                      }`}>
+                        {item.current === 0 ? 'Hết hàng' : 'Sắp hết'}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
           {critical.length > 0 && (
             <div className="px-4 py-2 bg-red-50 dark:bg-red-500/5">
               <p className="text-xs text-danger font-medium">{critical.length} mặt hàng đã hết hoàn toàn</p>
@@ -759,7 +800,7 @@ function InventoryTab({ inventory, navigate }: {
       )}
 
       {low.length === 0 && (
-        <Card className="py-10 flex flex-col items-center gap-2">
+        <Card className="py-10 flex flex-col items-center gap-2 border">
           <Package size={32} className="text-emerald-500" />
           <p className="text-sm font-medium text-foreground">Kho hàng đang ở mức tốt</p>
           <p className="text-xs text-muted">Tất cả mặt hàng đều trên ngưỡng cảnh báo</p>
@@ -817,11 +858,11 @@ function StaffDashboard({ events, staff, currentUser, navigate }: {
       />
 
       {myPending.length > 0 && (
-        <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-separator">
+        <Card className="overflow-hidden border">
+          <div className="px-4 py-3 border-b border-border">
             <h3 className="text-sm font-semibold text-foreground">Chi phí chờ duyệt</h3>
           </div>
-          <div className="divide-y divide-[var(--separator)]">
+          <div className="divide-y divide-border">
             {myPending.map(exp => (
               <div key={exp.id} className="flex items-center justify-between px-4 py-3">
                 <div>
@@ -862,26 +903,29 @@ function EventsTable({ events, navigate, title, emptyText }: {
   [filtered]);
 
   return (
-    <Card className="overflow-hidden rounded-2xl">
+    <Card className="overflow-hidden rounded-2xl border">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-default-200 flex-wrap gap-3">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-border flex-wrap gap-3">
         <div className="flex items-center gap-2">
           <h2 className="text-sm font-semibold text-foreground">{title}</h2>
-          <Chip size="sm" variant="soft" color="default" className="text-[11px] h-5 px-1.5">
+          <Badge className="bg-muted text-muted-foreground border-none text-[11px] h-5 px-1.5 rounded-full hover:bg-muted font-semibold">
             {events.length}
-          </Chip>
+          </Badge>
         </div>
-        <SearchField value={search} onChange={setSearch} className="w-full sm:w-52">
-          <SearchField.Group>
-            <SearchField.SearchIcon />
-            <SearchField.Input placeholder="Tìm kiếm..." />
-            <SearchField.ClearButton />
-          </SearchField.Group>
-        </SearchField>
+        <div className="relative w-full sm:w-52">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Tìm kiếm..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9 h-9"
+          />
+        </div>
       </div>
 
       {/* Mobile: card list */}
-      <div className="md:hidden divide-y divide-default-100 dark:divide-default-200/20">
+      <div className="md:hidden divide-y divide-border">
         {sorted.length === 0 ? (
           <EmptyState icon={<CalendarDays size={26} />} title={emptyText} />
         ) : sorted.map((event, i) => (
@@ -909,58 +953,66 @@ function EventsTable({ events, navigate, title, emptyText }: {
 
       {/* Desktop: table */}
       <div className="hidden md:block">
-        <Table>
-          <Table.ScrollContainer>
-            <Table.Content aria-label="Danh sách sự kiện">
-              <Table.Header>
-                <Table.Column isRowHeader className="text-xs font-medium text-default-500 py-3 pl-5 pr-4 bg-default-50 dark:bg-default-100/20">Sự kiện</Table.Column>
-                <Table.Column className="text-xs font-medium text-default-500 py-3 px-4 bg-default-50 dark:bg-default-100/20">Ngày</Table.Column>
-                <Table.Column className="text-xs font-medium text-default-500 py-3 px-4 bg-default-50 dark:bg-default-100/20">Địa điểm</Table.Column>
-                <Table.Column className="text-xs font-medium text-default-500 py-3 px-4 bg-default-50 dark:bg-default-100/20">Nhân viên</Table.Column>
-                <Table.Column className="text-xs font-medium text-default-500 py-3 px-4 bg-default-50 dark:bg-default-100/20">Trạng thái</Table.Column>
-                <Table.Column className="text-xs font-medium text-default-500 py-3 pr-5 pl-4 text-right bg-default-50 dark:bg-default-100/20">Hành động</Table.Column>
-              </Table.Header>
-              <Table.Body renderEmptyState={() => (
-                <EmptyState icon={<CalendarDays size={26} />} title={emptyText} />
-              )}>
-                {sorted.map(event => (
-                  <Table.Row
-                    key={event.id} id={String(event.id)}
-                    onAction={() => navigate('/schedule/' + event.id)}
-                    className="border-b border-default-100 dark:border-default-200/20 last:border-0 cursor-pointer hover:bg-default-100/50 dark:hover:bg-default-100/5 transition-colors"
+        <div className="relative w-full overflow-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent border-b border-border">
+                <TableHead className="text-xs font-medium text-muted-foreground py-3 pl-5 pr-4 bg-muted/50 dark:bg-default-100/20">Sự kiện</TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground py-3 px-4 bg-muted/50 dark:bg-default-100/20">Ngày</TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground py-3 px-4 bg-muted/50 dark:bg-default-100/20">Địa điểm</TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground py-3 px-4 bg-muted/50 dark:bg-default-100/20">Nhân viên</TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground py-3 px-4 bg-muted/50 dark:bg-default-100/20">Trạng thái</TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground py-3 pr-5 pl-4 text-right bg-muted/50 dark:bg-default-100/20">Hành động</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sorted.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="h-24 text-center">
+                    <EmptyState icon={<CalendarDays size={26} />} title={emptyText} />
+                  </TableCell>
+                </TableRow>
+              ) : (
+                sorted.map(event => (
+                  <TableRow
+                    key={event.id}
+                    onClick={() => navigate('/schedule/' + event.id)}
+                    className="border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 dark:hover:bg-default-100/5 transition-colors"
                   >
-                    <Table.Cell className="py-3.5 pl-5 pr-4">
+                    <TableCell className="py-3.5 pl-5 pr-4">
                       <p className="text-sm font-semibold text-foreground truncate">{event.name}</p>
-                    </Table.Cell>
-                    <Table.Cell className="py-3.5 px-4">
+                    </TableCell>
+                    <TableCell className="py-3.5 px-4">
                       <p className="text-sm text-default-500 whitespace-nowrap">{event.date}</p>
-                    </Table.Cell>
-                    <Table.Cell className="py-3.5 px-4">
+                    </TableCell>
+                    <TableCell className="py-3.5 px-4">
                       <p className="text-sm text-default-500 truncate">{event.location}</p>
-                    </Table.Cell>
-                    <Table.Cell className="py-3.5 px-4">
+                    </TableCell>
+                    <TableCell className="py-3.5 px-4">
                       <StaffAvatarGroup members={event.staff} />
-                    </Table.Cell>
-                    <Table.Cell className="py-3.5 px-4">
+                    </TableCell>
+                    <TableCell className="py-3.5 px-4">
                       <StatusBadge status={event.status} />
-                    </Table.Cell>
-                    <Table.Cell className="py-3.5 pr-5 pl-4" onClick={e => e.stopPropagation()}>
+                    </TableCell>
+                    <TableCell className="py-3.5 pr-5 pl-4" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center justify-end">
-                        <Button isIconOnly size="sm" variant="ghost"
-                          onPress={() => navigate('/schedule/' + event.id)}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          onClick={() => navigate('/schedule/' + event.id)}
                           aria-label="Xem chi tiết"
-                          className="w-8 h-8 rounded-lg text-default-400 hover:text-foreground hover:bg-default-100"
+                          className="w-8 h-8 rounded-lg text-default-400 hover:text-foreground hover:bg-default-100 p-0 flex items-center justify-center"
                         >
                           <Eye size={14} />
                         </Button>
                       </div>
-                    </Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table.Content>
-          </Table.ScrollContainer>
-        </Table>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </Card>
   );
@@ -1005,21 +1057,23 @@ function StatCard({ label, value, delta, onClick, icon, color, glow, subtext, va
 
   return (
     <Card
-      className="hover:shadow-lg hover:border-default-300 dark:hover:border-zinc-700 transition-all duration-200 cursor-pointer p-4 flex flex-col justify-between min-h-[104px] rounded-2xl bg-surface dark:bg-zinc-900/50 border border-separator/80 shadow-sm"
+      className="hover:shadow-lg hover:border-default-300 dark:hover:border-zinc-700 transition-all duration-200 cursor-pointer p-4 flex flex-col justify-between min-h-[104px] rounded-2xl bg-surface dark:bg-zinc-900/50 border border-border shadow-sm"
       style={glowStyle}
       onClick={onClick}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
-          <p className="text-2xl font-bold tracking-tight mt-1 leading-none truncate" style={{ color: valueColor ? undefined : undefined }}>
+          <p className="text-2xl font-bold tracking-tight mt-1 leading-none truncate">
             <span className={valueClass}>{value}</span>
           </p>
           <p className="text-xs font-semibold text-muted mt-1.5 leading-tight">{label}</p>
           {subtext && <p className="text-[10px] text-muted/60 mt-0.5 leading-tight">{subtext}</p>}
           {delta != null && (
-            <Chip size="sm" variant="soft" color={delta >= 0 ? 'success' : 'danger'} className="mt-1.5 text-[11px] font-bold">
+            <Badge className={`mt-1.5 text-[11px] font-bold border-none hover:bg-transparent ${
+              delta >= 0 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-destructive/10 text-destructive'
+            }`}>
               {delta >= 0 ? '↑' : '↓'} {Math.abs(delta).toFixed(1)}%
-            </Chip>
+            </Badge>
           )}
         </div>
         {icon && (
@@ -1079,9 +1133,9 @@ function RevenueBarChart({ events }: { events: FestivalEvent[] }) {
     <div className="space-y-1.5 relative">
       {/* Grid lines */}
       <div className="absolute inset-x-0 top-0 bottom-6 flex flex-col justify-between pointer-events-none opacity-40">
-        <div className="border-t border-separator/80 w-full" />
-        <div className="border-t border-separator/80 w-full" />
-        <div className="border-t border-separator/80 w-full" />
+        <div className="border-t border-border w-full" />
+        <div className="border-t border-border w-full" />
+        <div className="border-t border-border w-full" />
       </div>
       <div className="flex items-end gap-2 h-32 relative z-10">
         {data.map((d, i) => {
@@ -1112,6 +1166,8 @@ function RevenueBarChart({ events }: { events: FestivalEvent[] }) {
 
 // ─── Income/Expense Chart (Finance tab) ───────────────────────────────────────
 
+// ─── Income/Expense Chart (Finance tab) ───────────────────────────────────────
+
 function IncomeExpenseChart({ events }: { events: FestivalEvent[] }) {
   const data = useMemo(() => {
     const inc: Record<string, number> = {};
@@ -1137,9 +1193,9 @@ function IncomeExpenseChart({ events }: { events: FestivalEvent[] }) {
     <div className="space-y-1.5 relative">
       {/* Grid lines */}
       <div className="absolute inset-x-0 top-0 bottom-6 flex flex-col justify-between pointer-events-none opacity-40">
-        <div className="border-t border-separator/80 w-full" />
-        <div className="border-t border-separator/80 w-full" />
-        <div className="border-t border-separator/80 w-full" />
+        <div className="border-t border-border w-full" />
+        <div className="border-t border-border w-full" />
+        <div className="border-t border-border w-full" />
       </div>
       <div className="flex items-end gap-2 h-32 relative z-10">
         {data.map((d, i) => (
