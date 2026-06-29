@@ -10,7 +10,7 @@ import { useIsDesktop } from '@/hooks/useIsDesktop';
 import { useCreateEvent } from '../../hooks/queries/mutations/useCreateEvent';
 import { computeEventStatus } from '../../lib/eventStatus';
 import { eventSchema } from '../../lib/validations';
-import { useKeyboardOffset, handleFocusScroll } from '../../hooks/useKeyboardOffset';
+import { useKeyboardInsets, handleFocusScroll } from '../../hooks/useKeyboardOffset';
 import type { FestivalEvent } from '../../types';
 
 interface AddEventFormProps {
@@ -21,7 +21,7 @@ type FormValues = z.infer<typeof eventSchema>;
 
 export default function AddEventForm({ onClose }: AddEventFormProps) {
   const isDesktop = useIsDesktop();
-  const keyboardOffset = useKeyboardOffset(!isDesktop);
+  const { bottom: keyboardOffset, viewportHeight } = useKeyboardInsets(!isDesktop);
   const createEvent = useCreateEvent();
   const { control, handleSubmit, watch, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(eventSchema),
@@ -156,7 +156,7 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
     <Modal isOpen onOpenChange={(open) => { if (!open) onClose(); }}>
       <Modal.Backdrop isDismissable>
         <Modal.Container placement="bottom" size="md" className="sm:items-center">
-          <Modal.Dialog aria-label="Thêm sự kiện mới" style={{ marginBottom: keyboardOffset }} className="max-h-[85dvh] flex flex-col rounded-t-2xl sm:rounded-2xl">
+          <Modal.Dialog aria-label="Thêm sự kiện mới" style={{ marginBottom: keyboardOffset, maxHeight: viewportHeight ?? undefined }} className="max-h-[85dvh] flex flex-col rounded-t-2xl sm:rounded-2xl">
             <Modal.Header className="px-5 pt-5 pb-0 shrink-0">
               <Modal.Heading className="text-base font-bold text-foreground">Thêm sự kiện mới</Modal.Heading>
             </Modal.Header>

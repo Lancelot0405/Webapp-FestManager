@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useKeyboardOffset, handleFocusScroll } from '../../hooks/useKeyboardOffset';
+import { useKeyboardInsets, handleFocusScroll } from '../../hooks/useKeyboardOffset';
 import { ShieldCheck, Building2 } from 'lucide-react';
 import { Button, Card, Modal, ToggleButtonGroup, ToggleButton, TextField, Label, Input, FieldError } from '@heroui/react';
 import { Controller, useForm } from 'react-hook-form';
@@ -23,7 +23,7 @@ interface Props {
 type FormValues = z.infer<typeof staffSchema>;
 
 export default function AddStaffForm({ onClose }: Props) {
-  const keyboardOffset = useKeyboardOffset(true);
+  const { bottom: keyboardOffset, viewportHeight } = useKeyboardInsets(true);
   const { currentUser } = useApp();
   const showToast = useToast();
   const createStaffMutation = useCreateStaff();
@@ -95,7 +95,7 @@ export default function AddStaffForm({ onClose }: Props) {
     <Modal isOpen onOpenChange={(open) => { if (!open) onClose(); }}>
       <Modal.Backdrop isDismissable>
         <Modal.Container placement="bottom" size="md" className="sm:items-center">
-          <Modal.Dialog aria-label="Thêm nhân viên mới" style={{ marginBottom: keyboardOffset }} className="max-h-[85dvh] flex flex-col rounded-t-2xl sm:rounded-2xl">
+          <Modal.Dialog aria-label="Thêm nhân viên mới" style={{ marginBottom: keyboardOffset, maxHeight: viewportHeight ?? undefined }} className="max-h-[85dvh] flex flex-col rounded-t-2xl sm:rounded-2xl">
             <Modal.Header className="px-5 pt-5 pb-0 shrink-0">
               <Modal.Heading className="text-base font-bold text-foreground">Thêm nhân viên mới</Modal.Heading>
             </Modal.Header>

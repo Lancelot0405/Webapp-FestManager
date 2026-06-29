@@ -11,7 +11,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useIsDesktop } from '@/hooks/useIsDesktop';
-import { useKeyboardOffset, handleFocusScroll } from '@/hooks/useKeyboardOffset';
+import { useKeyboardInsets, handleFocusScroll } from '@/hooks/useKeyboardOffset';
 import { useApp } from '../../context/AppContext';
 import { useUpdateInventoryItem } from '../../hooks/queries/mutations/useUpdateInventoryItem';
 import { useDeleteInventoryItem } from '../../hooks/queries/mutations/useDeleteInventoryItem';
@@ -33,7 +33,7 @@ type FormValues = z.infer<typeof inventoryItemSchema>;
 export default function InventoryItemDrawer({ item, isOpen, onClose }: Props) {
   const { currentUser } = useApp();
   const isDesktop = useIsDesktop();
-  const keyboardOffset = useKeyboardOffset(isOpen && !isDesktop);
+  const { bottom: keyboardOffset, viewportHeight } = useKeyboardInsets(isOpen && !isDesktop);
   const updateMutation = useUpdateInventoryItem();
   const deleteMutation = useDeleteInventoryItem();
   const addLogMutation = useAddInventoryLog();
@@ -187,7 +187,7 @@ export default function InventoryItemDrawer({ item, isOpen, onClose }: Props) {
           <Modal.Container placement="bottom" size="md" className="sm:items-center">
             <Modal.Dialog
               aria-label="Chỉnh sửa mặt hàng"
-              style={{ marginBottom: keyboardOffset }}
+              style={{ marginBottom: keyboardOffset, maxHeight: viewportHeight ?? undefined }}
               className="max-h-[90dvh] flex flex-col rounded-t-2xl"
             >
               <Modal.Header className="px-5 pt-5 pb-0 shrink-0">

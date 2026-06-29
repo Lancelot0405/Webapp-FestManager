@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { useKeyboardOffset, handleFocusScroll } from '../../hooks/useKeyboardOffset';
+import { useKeyboardInsets, handleFocusScroll } from '../../hooks/useKeyboardOffset';
 import { Pencil, Trash2, Phone, Mail, MapPin, Building2, Calendar } from 'lucide-react';
 import { AlertDialog, Button, Card, Modal, SearchField, TextField, Label, Input, TextArea, FieldError } from '@heroui/react';
 import { animations } from '../../lib/animations';
@@ -35,7 +35,7 @@ export default function Clients() {
   const [showForm, setShowForm]       = useState(false);
   const [editingId, setEditingId]     = useState<number | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Client | null>(null);
-  const keyboardOffset = useKeyboardOffset(showForm);
+  const { bottom: keyboardOffset, viewportHeight } = useKeyboardInsets(showForm);
 
   const { control, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(clientSchema),
@@ -124,7 +124,7 @@ export default function Clients() {
           <Modal.Container placement="bottom" size="md" className="sm:items-center">
             <Modal.Dialog
               aria-label={editingId ? 'Chỉnh sửa khách hàng' : 'Thêm khách hàng mới'}
-              style={{ marginBottom: keyboardOffset }}
+              style={{ marginBottom: keyboardOffset, maxHeight: viewportHeight ?? undefined }}
               className="max-h-[85dvh] flex flex-col rounded-t-2xl sm:rounded-2xl"
             >
               <Modal.Header className="px-5 pt-5 pb-0 shrink-0">
