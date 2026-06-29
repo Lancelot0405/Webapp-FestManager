@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, useSpring } from 'framer-motion';
-import { Tabs } from '@heroui/react';
 import {
   LayoutDashboard,
   Calendar,
@@ -134,7 +133,7 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
 
   return (
     <div
-      className="fixed bottom-3 left-1/2 z-20 pb-safe"
+      className="fixed bottom-3 left-1/2 z-20 pb-safe w-full"
       style={{ width: 'min(calc(100% - 24px), 480px)', transform: 'translateX(-50%)' }}
     >
       <motion.div
@@ -142,71 +141,69 @@ export default function BottomNav({ navVisible = true }: BottomNavProps) {
         animate={{ y: navVisible ? 0 : 'calc(100% + 2rem)', opacity: navVisible ? 1 : 0 }}
         transition={{ type: 'spring', stiffness: 320, damping: 28 }}
         style={{ filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.12))' }}
+        className="w-full"
       >
-        <Tabs
-          selectedKey={activeSegment}
-          onSelectionChange={(key) => navigate('/' + key.toString())}
-          className="w-full"
+        <div
+          className="relative overflow-hidden w-full rounded-full p-1.5 border shadow-lg"
+          style={{
+            WebkitBackdropFilter: 'blur(25px)',
+            backdropFilter: 'blur(25px)',
+            backgroundColor: 'color-mix(in oklch, var(--surface) 85%, transparent)',
+            borderColor: 'color-mix(in oklch, var(--surface-foreground) 10%, transparent)',
+            boxShadow: '0 8px 32px color-mix(in oklch, var(--foreground) 8%, transparent)',
+          }}
+          onPointerMove={trackHover}
+          onPointerLeave={clearHover}
+          onPointerCancel={clearHover}
         >
-          <Tabs.ListContainer
-            className="relative overflow-hidden w-full rounded-full p-1.5 border shadow-lg"
+          <div
+            ref={spotRef}
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-full opacity-0 transition-opacity duration-300"
             style={{
-              WebkitBackdropFilter: 'blur(25px)',
-              backdropFilter: 'blur(25px)',
-              backgroundColor: 'color-mix(in oklch, var(--surface) 85%, transparent)',
-              borderColor: 'color-mix(in oklch, var(--surface-foreground) 10%, transparent)',
-              boxShadow: '0 8px 32px color-mix(in oklch, var(--foreground) 8%, transparent)',
+              background:
+                'radial-gradient(130px circle at var(--spot-x, 50%) var(--spot-y, 50%), color-mix(in oklch, var(--accent) 24%, transparent), transparent 70%)',
             }}
-            onPointerMove={trackHover}
-            onPointerLeave={clearHover}
-            onPointerCancel={clearHover}
+          />
+          <div
+            role="tablist"
+            aria-label="Navigation"
+            className="relative w-full flex justify-around items-center gap-0.5 bg-transparent p-0 shadow-none"
           >
-            <div
-              ref={spotRef}
-              aria-hidden
-              className="pointer-events-none absolute inset-0 rounded-full opacity-0 transition-opacity duration-300"
-              style={{
-                background:
-                  'radial-gradient(130px circle at var(--spot-x, 50%) var(--spot-y, 50%), color-mix(in oklch, var(--accent) 24%, transparent), transparent 70%)',
-              }}
-            />
-            <Tabs.List
-              aria-label="Navigation"
-              className="relative w-full flex justify-around items-center gap-0.5 !bg-transparent !p-0 !shadow-none"
-            >
-              {tabs.map(({ path, icon, label }) => {
-                const isActive = activeSegment === path;
-                return (
-                  <Tabs.Tab
-                    key={path}
-                    id={path}
-                    aria-label={label}
-                    data-navtab={path}
-                    className="group relative flex items-center justify-center h-auto min-w-0 rounded-full cursor-pointer outline-none select-none p-2.5"
-                  >
-                    {isActive && (
-                      <motion.span
-                        aria-hidden
-                        className="absolute inset-0 rounded-full bg-accent shadow-sm"
-                        style={{ x: pillX, y: pillY, scaleX: pillSX, scaleY: pillSY }}
-                      />
-                    )}
-                    <span className={`relative z-10 shrink-0 transition-colors duration-200 ${
-                      isActive ? 'text-white' : hovered === path ? 'text-accent' : 'text-muted'
-                    }`}>
-                      <motion.span
-                        animate={isActive ? { scale: [1, 1.25, 1] } : { scale: 1 }}
-                        transition={{ duration: 0.3, ease: 'easeOut' }}
-                      >
-                        {icon}
-                      </motion.span>
-                    </span>
-                  </Tabs.Tab>
-                );
-              })}
-            </Tabs.List>
-          </Tabs.ListContainer>
-        </Tabs>
+            {tabs.map(({ path, icon, label }) => {
+              const isActive = activeSegment === path;
+              return (
+                <div
+                  key={path}
+                  role="tab"
+                  aria-selected={isActive}
+                  aria-label={label}
+                  data-navtab={path}
+                  onClick={() => navigate('/' + path)}
+                  className="group relative flex items-center justify-center h-auto min-w-0 rounded-full cursor-pointer outline-none select-none p-2.5"
+                >
+                  {isActive && (
+                    <motion.span
+                      aria-hidden
+                      className="absolute inset-0 rounded-full bg-accent shadow-sm"
+                      style={{ x: pillX, y: pillY, scaleX: pillSX, scaleY: pillSY }}
+                    />
+                  )}
+                  <span className={`relative z-10 shrink-0 transition-colors duration-200 ${
+                    isActive ? 'text-white' : hovered === path ? 'text-accent' : 'text-muted'
+                  }`}>
+                    <motion.span
+                      animate={isActive ? { scale: [1, 1.25, 1] } : { scale: 1 }}
+                      transition={{ duration: 0.3, ease: 'easeOut' }}
+                    >
+                      {icon}
+                    </motion.span>
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </motion.div>
     </div>
   );

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback, type CSSProperties } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Plus, Loader2 } from 'lucide-react';
-import { Button } from '@heroui/react';
+import { Button } from '@/components/ui/button';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePullToRefresh } from '../../hooks/usePullToRefresh';
@@ -166,10 +166,10 @@ export default function Layout() {
 
       {fab && !isDetail && (
         <Button
-          isIconOnly
+          type="button"
           aria-label={fab.label}
-          onPress={fab.onPress}
-          className={`fixed bottom-[calc(env(safe-area-inset-bottom)+8rem)] right-[calc(env(safe-area-inset-right)+1rem)] md:bottom-8 md:right-8 z-30 h-14 w-14 rounded-full bg-accent text-white dark:text-foreground shadow-xl active:scale-95 transition-all duration-300 ease-out ${navVisible ? 'translate-y-0 opacity-100' : 'translate-y-24 opacity-0 pointer-events-none'}`}
+          onClick={fab.onPress}
+          className={`fixed bottom-[calc(env(safe-area-inset-bottom)+8rem)] right-[calc(env(safe-area-inset-right)+1rem)] md:bottom-8 md:right-8 z-30 h-14 w-14 rounded-full bg-accent text-white dark:text-foreground hover:bg-accent/90 shadow-xl active:scale-95 transition-all duration-300 ease-out p-0 flex items-center justify-center ${navVisible ? 'translate-y-0 opacity-100' : 'translate-y-24 opacity-0 pointer-events-none'}`}
         >
           <Plus size={24} />
         </Button>

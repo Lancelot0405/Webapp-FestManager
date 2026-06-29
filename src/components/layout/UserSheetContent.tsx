@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Sun, Moon, Bell, BellPlus, Smartphone, X, Check, Info } from 'lucide-react';
-import { Avatar, Badge, Button, Chip, Disclosure, Switch } from '@heroui/react';
+import { LogOut, Sun, Moon, Bell, BellPlus, Smartphone, X, Check, Info, ChevronDown } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
 import AccentPicker from './AccentPicker';
@@ -36,6 +40,7 @@ export default function UserSheetContent({ onClose, onLogout, notifications, cle
   const { subscribed, loading: pushLoading, subscribe } = usePushNotifications();
   const { isIos, isStandalone, triggerInstall } = useInstallPrompt();
   const [installMsg, setInstallMsg] = useState<string | null>(null);
+  const [notifOpen, setNotifOpen] = useState(false);
 
   if (!currentUser) return null;
 
@@ -57,40 +62,42 @@ export default function UserSheetContent({ onClose, onLogout, notifications, cle
   return (
     <div className="px-5 py-4">
       {/* User info */}
-      <div className="flex items-center gap-4 py-4 border-b border-separator">
+      <div className="flex items-center gap-4 py-4 border-b border-border">
         <Avatar className="size-12 shadow-lg shrink-0">
-          <Avatar.Fallback className="accent-gradient text-white text-lg font-bold">
+          <AvatarFallback className="accent-gradient text-white text-lg font-bold flex items-center justify-center">
             {initials}
-          </Avatar.Fallback>
+          </AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0">
           <p className="font-bold text-sm text-foreground truncate">{currentUser.name}</p>
           <div className="flex items-center gap-2 mt-1">
-            <Chip size="sm" variant="soft" className={`shrink-0 text-[10px] font-bold uppercase tracking-wide ${roleBadgeStyle[currentUser.role]}`}>
+            <Badge className={`shrink-0 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full border-none hover:bg-transparent ${roleBadgeStyle[currentUser.role]}`}>
               {roleLabel[currentUser.role]}
-            </Chip>
+            </Badge>
             <Button
+              type="button"
               variant="ghost"
-              size="sm"
-              onPress={() => { onClose(); navigate('/profile'); }}
-              className="h-auto min-w-0 p-0 text-xs font-semibold text-accent hover:underline"
+              onClick={() => { onClose(); navigate('/profile'); }}
+              className="h-auto min-w-0 p-0 text-xs font-semibold text-accent hover:underline hover:bg-transparent"
             >
               Xem hồ sơ →
             </Button>
           </div>
         </div>
-        <Button onPress={onClose} variant="ghost" isIconOnly size="sm" className="rounded-full text-muted shrink-0">
+        <Button
+          type="button"
+          onClick={onClose}
+          variant="ghost"
+          className="rounded-full text-muted shrink-0 h-8 w-8 p-0"
+          aria-label="Đóng"
+        >
           <X size={16} />
         </Button>
       </div>
 
       {/* Actions */}
       <div className="py-2 space-y-0.5">
-        <Switch
-          isSelected={theme === 'dark'}
-          onChange={() => toggleTheme()}
-          className="w-full flex flex-row justify-between px-3 py-2.5 rounded-xl hover:bg-accent/5 gap-0"
-        >
+        <div className="w-full flex flex-row items-center justify-between px-3 py-2.5 rounded-xl hover:bg-accent/5 gap-0">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
               {theme === 'dark' ? <Sun size={15} className="text-accent" /> : <Moon size={15} className="text-accent" />}
@@ -99,49 +106,70 @@ export default function UserSheetContent({ onClose, onLogout, notifications, cle
               {theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
             </span>
           </div>
-          <Switch.Control><Switch.Thumb /></Switch.Control>
-        </Switch>
+          <Switch
+            checked={theme === 'dark'}
+            onCheckedChange={toggleTheme}
+            id="theme-switch"
+          />
+        </div>
 
         <AccentPicker />
 
         {(isAdmin || isManager) && (
-          <Disclosure>
-            <Disclosure.Heading>
-              <Disclosure.Trigger className="w-full h-auto justify-start flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-accent/5 transition-colors outline-none">
+          <Collapsible open={notifOpen} onOpenChange={setNotifOpen} className="w-full">
+            <CollapsibleTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full h-auto justify-start flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-accent/5 transition-colors outline-none"
+              >
                 {notifications.length > 0 ? (
-                  <Badge color="danger" size="sm" placement="top-right">
-                    <Badge.Anchor>
-                      <div className="w-8 h-8 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
-                        <Bell size={15} className="text-accent" />
-                      </div>
-                    </Badge.Anchor>
-                    <Badge.Label>{notifications.length > 9 ? '9+' : notifications.length}</Badge.Label>
-                  </Badge>
+                  <div className="relative shrink-0">
+                    <div className="w-8 h-8 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
+                      <Bell size={15} className="text-accent" />
+                    </div>
+                    <span className="absolute -top-1.5 -right-1.5 h-4 min-w-4 px-1 flex items-center justify-center text-[9px] font-bold text-white bg-destructive rounded-full border border-background">
+                      {notifications.length > 9 ? '9+' : notifications.length}
+                    </span>
+                  </div>
                 ) : (
                   <div className="w-8 h-8 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
                     <Bell size={15} className="text-accent" />
                   </div>
                 )}
                 <span className="flex-1 text-sm font-medium text-foreground text-left">Thông báo</span>
-                <Disclosure.Indicator />
-              </Disclosure.Trigger>
-            </Disclosure.Heading>
-            <Disclosure.Content>
-              <Disclosure.Body className="mx-1 mb-1 rounded-xl overflow-hidden bg-default/30 border border-separator">
+                <ChevronDown size={14} className={`text-muted-foreground transition-transform duration-200 ${notifOpen ? 'rotate-180' : ''}`} />
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="mx-1 mt-1 mb-1 rounded-xl overflow-hidden bg-default/30 border border-border">
                 {notifications.length === 0 ? (
                   <p className="text-xs text-muted text-center py-3">Không có thông báo mới</p>
                 ) : (
                   <>
-                    <div className="flex items-center justify-between px-3 py-2 border-b border-separator">
+                    <div className="flex items-center justify-between px-3 py-2 border-b border-border">
                       <p className="text-xs font-semibold text-foreground/80">{notifications.length} thông báo</p>
-                      <Button variant="ghost" onPress={clearAll} className="h-auto min-w-0 p-0 text-xs text-danger">Xóa tất cả</Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={clearAll}
+                        className="h-auto min-w-0 p-0 text-xs text-destructive hover:bg-transparent"
+                      >
+                        Xóa tất cả
+                      </Button>
                     </div>
-                    <div className="max-h-32 overflow-y-auto divide-y divide-separator">
+                    <div className="max-h-32 overflow-y-auto divide-y divide-border">
                       {notifications.map(n => (
                         <div key={n.id} className="flex items-start gap-2 px-3 py-2">
                           <div className={`mt-1 w-1.5 h-1.5 rounded-full shrink-0 ${n.type === 'expense' ? 'bg-indigo-400' : 'bg-accent'}`} />
                           <p className="flex-1 text-xs text-foreground leading-snug">{n.message}</p>
-                          <Button isIconOnly variant="ghost" onPress={() => clearOne(n.id)} aria-label="Xóa" className="h-auto min-w-0 p-0 text-muted hover:text-danger">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={() => clearOne(n.id)}
+                            aria-label="Xóa"
+                            className="h-auto min-w-0 p-0 text-muted hover:text-destructive hover:bg-transparent"
+                          >
                             <X size={12} />
                           </Button>
                         </div>
@@ -149,16 +177,17 @@ export default function UserSheetContent({ onClose, onLogout, notifications, cle
                     </div>
                   </>
                 )}
-              </Disclosure.Body>
-            </Disclosure.Content>
-          </Disclosure>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         )}
 
         {!isAdmin && !isManager && (
           <Button
+            type="button"
             variant="ghost"
-            onPress={subscribed ? undefined : subscribe}
-            isDisabled={pushLoading}
+            onClick={subscribed ? undefined : subscribe}
+            disabled={pushLoading}
             className="w-full h-auto justify-start flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-accent/5 transition-colors"
           >
             <div className="w-8 h-8 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
@@ -173,8 +202,9 @@ export default function UserSheetContent({ onClose, onLogout, notifications, cle
 
         <div>
           <Button
+            type="button"
             variant="ghost"
-            onPress={handleInstall}
+            onClick={handleInstall}
             className="w-full h-auto justify-start flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-accent/5 transition-colors"
           >
             <div className="w-8 h-8 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
@@ -189,23 +219,32 @@ export default function UserSheetContent({ onClose, onLogout, notifications, cle
             <div className="mx-1 mb-1 flex items-start gap-2 px-3 py-2 rounded-xl bg-accent/8">
               <Info size={12} className="text-accent mt-0.5 shrink-0" />
               <p className="text-xs text-foreground/80 leading-snug">{installMsg}</p>
-              <Button isIconOnly variant="ghost" onPress={() => setInstallMsg(null)} aria-label="Đóng" className="ml-auto h-auto min-w-0 p-0 text-muted"><X size={11} /></Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setInstallMsg(null)}
+                aria-label="Đóng"
+                className="ml-auto h-auto min-w-0 p-0 text-muted hover:bg-transparent"
+              >
+                <X size={11} />
+              </Button>
             </div>
           )}
         </div>
       </div>
 
       {/* Logout */}
-      <div className="border-t border-separator pt-2">
+      <div className="border-t border-border pt-2">
         <Button
+          type="button"
           variant="ghost"
-          onPress={onLogout}
-          className="w-full h-auto justify-start flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-danger/8 transition-colors"
+          onClick={onLogout}
+          className="w-full h-auto justify-start flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-colors"
         >
-          <div className="w-8 h-8 rounded-xl bg-danger/10 flex items-center justify-center shrink-0">
-            <LogOut size={15} className="text-danger" />
+          <div className="w-8 h-8 rounded-xl bg-destructive/10 flex items-center justify-center shrink-0">
+            <LogOut size={15} className="text-destructive" />
           </div>
-          <span className="text-sm font-semibold text-danger">Đăng xuất</span>
+          <span className="text-sm font-semibold text-destructive">Đăng xuất</span>
         </Button>
       </div>
     </div>

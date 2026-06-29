@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { User, Eye, EyeOff, Download, Smartphone, X, ShieldCheck, Store, Tent, UtensilsCrossed, Sun, Moon } from 'lucide-react';
-import { Alert, Button, Card, Form, Link, Label, TextField, Input } from '@heroui/react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useTheme } from '../../context/ThemeContext';
 import { supabase } from '../../lib/supabase';
 import { adminApi } from '../../lib/adminApi';
@@ -149,19 +153,19 @@ export default function LoginScreen() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: 'easeOut', delay: 0.15 }}
       >
-      <Card className="w-full">
-        <Card.Header className="flex flex-col items-start gap-1 p-6">
-          <Card.Title className="text-xl font-bold text-foreground">
+      <Card className="w-full border shadow-sm">
+        <CardHeader className="flex flex-col items-start gap-1 p-6">
+          <CardTitle className="text-xl font-bold text-foreground">
             {mode === 'login' ? 'Đăng nhập' : 'Đăng ký tài khoản'}
-          </Card.Title>
-          <Card.Description className="text-sm text-muted">
+          </CardTitle>
+          <CardDescription className="text-sm text-muted">
             {mode === 'login' 
               ? 'Nhập thông tin tài khoản để truy cập hệ thống' 
               : 'Tạo tài khoản mới để bắt đầu sử dụng'}
-          </Card.Description>
-        </Card.Header>
+          </CardDescription>
+        </CardHeader>
 
-        <Card.Content className="flex flex-col gap-4 py-2 px-6">
+        <CardContent className="flex flex-col gap-4 py-2 px-6">
           <AnimatePresence mode="wait" initial={false}>
           {/* ── LOGIN ── */}
           {mode === 'login' && (
@@ -172,40 +176,63 @@ export default function LoginScreen() {
               exit={{ opacity: 0, x: 20 }}
               transition={{ duration: 0.2, ease: 'easeOut' }}
             >
-            <Form onSubmit={handleLogin} className="w-full flex flex-col gap-4">
-              <TextField value={username} onChange={setUsername} isRequired className="w-full flex flex-col gap-1">
-                <Label className="text-xs font-medium text-foreground/80">Tên đăng nhập</Label>
-                <Input name="username" type="text" placeholder="Nhập tên đăng nhập" autoComplete="username" />
-              </TextField>
+            <form onSubmit={handleLogin} className="w-full flex flex-col gap-4">
+              <div className="w-full flex flex-col gap-1">
+                <Label htmlFor="username" className="text-xs font-medium text-foreground/80">
+                  Tên đăng nhập<span className="text-destructive ml-0.5">*</span>
+                </Label>
+                <Input
+                  id="username"
+                  name="username"
+                  type="text"
+                  placeholder="Nhập tên đăng nhập"
+                  autoComplete="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                />
+              </div>
 
-              <TextField value={password} onChange={setPassword} isRequired className="w-full flex flex-col gap-1">
-                <Label className="text-xs font-medium text-foreground/80">Mật khẩu</Label>
+              <div className="w-full flex flex-col gap-1">
+                <Label htmlFor="password" className="text-xs font-medium text-foreground/80">
+                  Mật khẩu<span className="text-destructive ml-0.5">*</span>
+                </Label>
                 <div className="relative flex items-center">
-                  <Input name="password" type={showPw ? 'text' : 'password'} placeholder="Nhập mật khẩu" autoComplete="current-password" className="pr-9" />
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPw ? 'text' : 'password'}
+                    placeholder="Nhập mật khẩu"
+                    autoComplete="current-password"
+                    className="pr-9"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
                   <span className="absolute right-3 z-10 text-muted [&_svg]:size-4">
                     <Button
-                      isIconOnly
+                      type="button"
                       variant="ghost"
                       aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-                      onPress={() => setShowPw(v => !v)}
-                      className="h-7 w-7 min-w-0 p-0 bg-transparent text-muted hover:text-foreground transition-colors"
+                      onClick={() => setShowPw(v => !v)}
+                      className="h-7 w-7 min-w-0 p-0 bg-transparent text-muted hover:text-foreground hover:bg-transparent transition-colors"
                     >
                       {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                     </Button>
                   </span>
                 </div>
-              </TextField>
+              </div>
 
               {error && <AlertBox msg={error} />}
 
               <Button
                 type="submit"
-                isDisabled={loading}
+                disabled={loading}
                 className="w-full mt-2"
               >
                 {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
               </Button>
-            </Form>
+            </form>
             </motion.div>
           )}
 
@@ -218,14 +245,14 @@ export default function LoginScreen() {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.2, ease: 'easeOut' }}
             >
-            <Form onSubmit={handleRegister} className="w-full flex flex-col gap-4">
+            <form onSubmit={handleRegister} className="w-full flex flex-col gap-4">
               <div className="bg-default/40 border border-separator rounded-xl px-3 py-2.5 text-xs text-foreground/80">
                 💡 Nếu admin đã tạo tài khoản cho bạn, hãy dùng thông tin do admin cung cấp.
               </div>
 
               {/* Role */}
               <div className="flex flex-col gap-1">
-                <Label>Đăng ký với vai trò</Label>
+                <Label className="text-xs font-medium text-foreground/80">Đăng ký với vai trò</Label>
                 <div className="grid grid-cols-2 gap-2">
                   <RoleBtn
                     active={registerRole === 'staff'}
@@ -259,7 +286,7 @@ export default function LoginScreen() {
                   transition={{ duration: 0.2, ease: 'easeOut' }}
                   style={{ overflow: 'hidden' }}
                 >
-                  <Label>Bộ phận</Label>
+                  <Label className="text-xs font-medium text-foreground/80">Bộ phận</Label>
                   <div className="grid grid-cols-2 gap-2">
                     <RoleBtn
                       active={registerDept === 'restaurant'}
@@ -279,80 +306,120 @@ export default function LoginScreen() {
               )}
               </AnimatePresence>
 
-              <TextField value={username} onChange={val => setUsername(val.replace(/\s/g, ''))} isRequired className="w-full flex flex-col gap-1">
-                <Label className="text-xs font-medium text-foreground/80">Tên đăng nhập</Label>
-                <Input name="username" type="text" placeholder="Không dấu, không khoảng trắng" />
-              </TextField>
+              <div className="w-full flex flex-col gap-1">
+                <Label htmlFor="reg-username" className="text-xs font-medium text-foreground/80">
+                  Tên đăng nhập<span className="text-destructive ml-0.5">*</span>
+                </Label>
+                <Input
+                  id="reg-username"
+                  name="username"
+                  type="text"
+                  placeholder="Không dấu, không khoảng trắng"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value.replace(/\s/g, ''))}
+                  required
+                />
+              </div>
 
-              <TextField value={displayName} onChange={setDisplayName} isRequired className="w-full flex flex-col gap-1">
-                <Label className="text-xs font-medium text-foreground/80">Tên hiển thị</Label>
-                <Input name="displayName" type="text" placeholder="Tên đầy đủ của bạn" />
-              </TextField>
+              <div className="w-full flex flex-col gap-1">
+                <Label htmlFor="reg-displayName" className="text-xs font-medium text-foreground/80">
+                  Tên hiển thị<span className="text-destructive ml-0.5">*</span>
+                </Label>
+                <Input
+                  id="reg-displayName"
+                  name="displayName"
+                  type="text"
+                  placeholder="Tên đầy đủ của bạn"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  required
+                />
+              </div>
 
-              <TextField value={password} onChange={setPassword} isRequired className="w-full flex flex-col gap-1">
-                <Label className="text-xs font-medium text-foreground/80">Mật khẩu</Label>
+              <div className="w-full flex flex-col gap-1">
+                <Label htmlFor="reg-password" className="text-xs font-medium text-foreground/80">
+                  Mật khẩu<span className="text-destructive ml-0.5">*</span>
+                </Label>
                 <div className="relative flex items-center">
-                  <Input name="password" type={showPw ? 'text' : 'password'} placeholder="Tối thiểu 6 ký tự" className="pr-9" />
+                  <Input
+                    id="reg-password"
+                    name="password"
+                    type={showPw ? 'text' : 'password'}
+                    placeholder="Tối thiểu 6 ký tự"
+                    className="pr-9"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
                   <span className="absolute right-3 z-10 text-muted [&_svg]:size-4">
                     <Button
-                      isIconOnly
+                      type="button"
                       variant="ghost"
                       aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-                      onPress={() => setShowPw(v => !v)}
-                      className="h-7 w-7 min-w-0 p-0 bg-transparent text-muted hover:text-foreground transition-colors"
+                      onClick={() => setShowPw(v => !v)}
+                      className="h-7 w-7 min-w-0 p-0 bg-transparent text-muted hover:text-foreground hover:bg-transparent transition-colors"
                     >
                       {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                     </Button>
                   </span>
                 </div>
-              </TextField>
+              </div>
 
-              <TextField value={password2} onChange={setPassword2} isRequired className="w-full flex flex-col gap-1">
-                <Label className="text-xs font-medium text-foreground/80">Xác nhận mật khẩu</Label>
-                <Input name="password2" type="password" placeholder="Nhập lại mật khẩu" />
-              </TextField>
+              <div className="w-full flex flex-col gap-1">
+                <Label htmlFor="reg-password2" className="text-xs font-medium text-foreground/80">
+                  Xác nhận mật khẩu<span className="text-destructive ml-0.5">*</span>
+                </Label>
+                <Input
+                  id="reg-password2"
+                  name="password2"
+                  type="password"
+                  placeholder="Nhập lại mật khẩu"
+                  value={password2}
+                  onChange={(e) => setPassword2(e.target.value)}
+                  required
+                />
+              </div>
 
-              {error   && <AlertBox msg={error} />}
+              {error && <AlertBox msg={error} />}
               {success && (
-                <Alert status="success">
-                  <Alert.Indicator />
-                  <Alert.Content>
-                    <Alert.Description>{success}</Alert.Description>
-                  </Alert.Content>
+                <Alert className="border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                  <AlertDescription>{success}</AlertDescription>
                 </Alert>
               )}
 
               <Button
                 type="submit"
-                isDisabled={loading}
+                disabled={loading}
                 className="w-full mt-2"
               >
                 {loading ? 'Đang xử lý...' : registerRole === 'manager' ? 'Gửi yêu cầu đăng ký' : 'Tạo tài khoản'}
               </Button>
-            </Form>
+            </form>
             </motion.div>
           )}
           </AnimatePresence>
-        </Card.Content>
+        </CardContent>
 
         {/* Footer with navigation link */}
-        <Card.Footer className="py-4 flex flex-col items-center justify-center gap-2">
+        <CardFooter className="py-4 flex flex-col items-center justify-center gap-2">
           {mode === 'login' ? (
-            <Link
-              onPress={() => reset('register')}
-              className="cursor-pointer text-sm text-center font-medium"
+            <button
+              type="button"
+              onClick={() => reset('register')}
+              className="cursor-pointer text-sm text-center font-medium text-primary hover:underline bg-transparent border-none p-0"
             >
               Chưa có tài khoản? Đăng ký ngay
-            </Link>
+            </button>
           ) : (
-            <Link
-              onPress={() => reset('login')}
-              className="cursor-pointer text-sm text-center font-medium"
+            <button
+              type="button"
+              onClick={() => reset('login')}
+              className="cursor-pointer text-sm text-center font-medium text-primary hover:underline bg-transparent border-none p-0"
             >
               Đã có tài khoản? Đăng nhập
-            </Link>
+            </button>
           )}
-        </Card.Footer>
+        </CardFooter>
       </Card>
       </motion.div>
 
@@ -360,8 +427,9 @@ export default function LoginScreen() {
       <div className="w-full flex items-center justify-center gap-3 mt-6">
         <div className="relative">
           <Button
+            type="button"
             variant="ghost"
-            onPress={handleInstallClick}
+            onClick={handleInstallClick}
             className="h-auto min-w-0 flex items-center gap-2 px-3 py-2 rounded-xl bg-default/50 hover:bg-default border border-separator text-foreground/80 text-xs font-medium transition-colors"
           >
             <Download size={14} /> Cài đặt app
@@ -375,7 +443,15 @@ export default function LoginScreen() {
                     {isStandalone ? 'Đã cài đặt' : 'Cài FestManager'}
                   </p>
                 </div>
-                <Button isIconOnly variant="ghost" onPress={() => setShowInstallModal(false)} aria-label="Đóng" className="h-auto min-w-0 p-0 text-muted hover:text-foreground transition-colors"><X size={15} /></Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setShowInstallModal(false)}
+                  aria-label="Đóng"
+                  className="h-auto min-w-0 p-0 text-muted hover:text-foreground transition-colors hover:bg-transparent"
+                >
+                  <X size={15} />
+                </Button>
               </div>
               {isStandalone ? (
                 <p className="text-sm text-foreground/80">FestManager đã được cài 🎉</p>
@@ -394,8 +470,9 @@ export default function LoginScreen() {
         </div>
 
         <Button
+          type="button"
           variant="ghost"
-          onPress={() => toggleTheme()}
+          onClick={() => toggleTheme()}
           aria-label={theme === 'dark' ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
           className="h-auto min-w-0 flex items-center gap-2 px-3 py-2 rounded-xl bg-default/50 hover:bg-default border border-separator text-foreground/80 text-xs font-medium transition-colors"
         >
@@ -423,10 +500,11 @@ function RoleBtn({ active, onPress, icon, label, activeColor = 'primary' }: {
   };
 
   return (
-    <motion.div whileTap={{ scale: 0.96 }} whileHover={{ scale: 1.02 }} transition={{ type: 'spring', stiffness: 400, damping: 20 }}>
+    <motion.div whileTap={{ scale: 0.96 }} whileHover={{ scale: 1.02 }} transition={{ type: 'spring', stiffness: 400, damping: 20 }} className="w-full">
       <Button
+        type="button"
         variant="ghost"
-        onPress={onPress}
+        onClick={onPress}
         className={`w-full h-auto min-w-0 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-1.5 border ${
           active
             ? activeStyles[activeColor]
@@ -441,11 +519,8 @@ function RoleBtn({ active, onPress, icon, label, activeColor = 'primary' }: {
 
 function AlertBox({ msg }: { msg: string }) {
   return (
-    <Alert status="danger">
-      <Alert.Indicator />
-      <Alert.Content>
-        <Alert.Description>{msg}</Alert.Description>
-      </Alert.Content>
+    <Alert variant="destructive">
+      <AlertDescription>{msg}</AlertDescription>
     </Alert>
   );
 }
