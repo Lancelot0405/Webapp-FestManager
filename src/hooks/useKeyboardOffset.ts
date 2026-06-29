@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type FocusEvent } from 'react';
 
 export function useKeyboardOffset(isOpen: boolean): number {
   const [offset, setOffset] = useState(0);
@@ -20,4 +20,18 @@ export function useKeyboardOffset(isOpen: boolean): number {
   }, [isOpen]);
 
   return offset;
+}
+
+/**
+ * Scroll a focused input/textarea into view inside a keyboard-open modal.
+ * Delay lets iOS finish resizing visualViewport before scrolling.
+ * Use as: <Modal.Body onFocus={handleFocusScroll}>
+ */
+export function handleFocusScroll(e: FocusEvent) {
+  const el = e.target;
+  if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+    setTimeout(() => {
+      el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }, 100);
+  }
 }

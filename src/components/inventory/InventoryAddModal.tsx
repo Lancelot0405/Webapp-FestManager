@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useKeyboardOffset } from '../../hooks/useKeyboardOffset';
+import { useKeyboardOffset, handleFocusScroll } from '../../hooks/useKeyboardOffset';
 import { Button, Modal, Select, Label, ListBox, FieldError } from '@heroui/react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -86,7 +86,7 @@ export default function InventoryAddModal({ isOpen, onClose, mainTab, subTab }: 
                 Thêm {itemLabel} — {sectionLabel}
               </Modal.Heading>
             </Modal.Header>
-            <Modal.Body className="px-5 py-4 overflow-y-auto">
+            <Modal.Body className="px-5 py-4 overflow-y-auto" onFocus={handleFocusScroll}>
               <form id="inventory-add-form" onSubmit={handleSubmit(onSubmit)} className="space-y-3">
                 <Controller
                   name="name"

@@ -11,7 +11,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useIsDesktop } from '@/hooks/useIsDesktop';
-import { useKeyboardOffset } from '@/hooks/useKeyboardOffset';
+import { useKeyboardOffset, handleFocusScroll } from '@/hooks/useKeyboardOffset';
 import { useApp } from '../../context/AppContext';
 import { useUpdateInventoryItem } from '../../hooks/queries/mutations/useUpdateInventoryItem';
 import { useDeleteInventoryItem } from '../../hooks/queries/mutations/useDeleteInventoryItem';
@@ -195,7 +195,7 @@ export default function InventoryItemDrawer({ item, isOpen, onClose }: Props) {
                   Chỉnh sửa: {item.name}
                 </Modal.Heading>
               </Modal.Header>
-              <Modal.Body className="px-5 py-4 overflow-y-auto">
+              <Modal.Body className="px-5 py-4 overflow-y-auto" onFocus={handleFocusScroll}>
                 <form id="edit-inventory-form" onSubmit={handleSubmit(onSubmit)} className="space-y-3">
                   {formContent}
                 </form>

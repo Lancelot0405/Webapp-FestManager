@@ -10,7 +10,7 @@ import { useIsDesktop } from '@/hooks/useIsDesktop';
 import { useCreateEvent } from '../../hooks/queries/mutations/useCreateEvent';
 import { computeEventStatus } from '../../lib/eventStatus';
 import { eventSchema } from '../../lib/validations';
-import { useKeyboardOffset } from '../../hooks/useKeyboardOffset';
+import { useKeyboardOffset, handleFocusScroll } from '../../hooks/useKeyboardOffset';
 import type { FestivalEvent } from '../../types';
 
 interface AddEventFormProps {
@@ -160,7 +160,7 @@ export default function AddEventForm({ onClose }: AddEventFormProps) {
             <Modal.Header className="px-5 pt-5 pb-0 shrink-0">
               <Modal.Heading className="text-base font-bold text-foreground">Thêm sự kiện mới</Modal.Heading>
             </Modal.Header>
-            <Modal.Body className="px-5 py-4 overflow-y-auto">
+            <Modal.Body className="px-5 py-4 overflow-y-auto" onFocus={handleFocusScroll}>
               <form id="add-event-form" onSubmit={handleSubmit(onSubmit)}>
                 {formFields}
               </form>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useKeyboardOffset } from '../../hooks/useKeyboardOffset';
+import { useKeyboardOffset, handleFocusScroll } from '../../hooks/useKeyboardOffset';
 import { ShieldCheck, Building2 } from 'lucide-react';
 import { Button, Card, Modal, ToggleButtonGroup, ToggleButton, TextField, Label, Input, FieldError } from '@heroui/react';
 import { Controller, useForm } from 'react-hook-form';
@@ -99,7 +99,7 @@ export default function AddStaffForm({ onClose }: Props) {
             <Modal.Header className="px-5 pt-5 pb-0 shrink-0">
               <Modal.Heading className="text-base font-bold text-foreground">Thêm nhân viên mới</Modal.Heading>
             </Modal.Header>
-            <Modal.Body className="px-5 py-4 overflow-y-auto">
+            <Modal.Body className="px-5 py-4 overflow-y-auto" onFocus={handleFocusScroll}>
               <form id="add-staff-form" onSubmit={handleSubmit(onSubmit)} className="space-y-3">
                 <Controller
                   name="name"

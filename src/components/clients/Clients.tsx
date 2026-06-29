@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { useKeyboardOffset } from '../../hooks/useKeyboardOffset';
+import { useKeyboardOffset, handleFocusScroll } from '../../hooks/useKeyboardOffset';
 import { Pencil, Trash2, Phone, Mail, MapPin, Building2, Calendar } from 'lucide-react';
 import { AlertDialog, Button, Card, EmptyState, Modal, SearchField, TextField, Label, Input, TextArea, FieldError } from '@heroui/react';
 import { animations } from '../../lib/animations';
@@ -130,7 +130,7 @@ export default function Clients() {
                   {editingId ? 'Chỉnh sửa khách hàng' : 'Thêm khách hàng mới'}
                 </Modal.Heading>
               </Modal.Header>
-              <Modal.Body className="px-5 py-4 overflow-y-auto">
+              <Modal.Body className="px-5 py-4 overflow-y-auto" onFocus={handleFocusScroll}>
                 <form id="client-form" onSubmit={handleSubmit(onSubmit)} className="space-y-3">
                   <Controller name="name" control={control} render={({ field }) => (
                     <TextField value={field.value} onChange={field.onChange} isInvalid={!!errors.name} className="w-full flex flex-col gap-1">
