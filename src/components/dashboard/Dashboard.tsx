@@ -10,8 +10,10 @@ import {
   Eye, Smartphone,
   DollarSign, MapPin, Zap, TrendingUp, TrendingDown,
   Users, UserCheck, Briefcase, CheckCircle2,
+  CalendarDays,
 } from 'lucide-react';
 import { Button, Card, Chip, Table, SearchField, Tabs } from '@heroui/react';
+import EmptyState from '@/components/shared/EmptyState';
 import { useApp } from '../../context/AppContext';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
 import { useStaffQuery } from '../../hooks/queries/useStaffQuery';
@@ -610,7 +612,7 @@ function HRTab({ events, staff, navigate }: {
                 <Table.Column className="text-xs font-medium text-default-500 py-3 pr-5 pl-4 text-right bg-default-50 dark:bg-default-100/20">Hành động</Table.Column>
               </Table.Header>
               <Table.Body renderEmptyState={() => (
-                <p className="text-sm text-muted text-center py-10">Không tìm thấy nhân viên</p>
+                <EmptyState icon={<Users size={26} />} title="Không tìm thấy nhân viên" />
               )}>
                 {filtered.map(s => (
                   <Table.Row
@@ -881,7 +883,7 @@ function EventsTable({ events, navigate, title, emptyText }: {
       {/* Mobile: card list */}
       <div className="md:hidden divide-y divide-default-100 dark:divide-default-200/20">
         {sorted.length === 0 ? (
-          <p className="text-sm text-muted text-center py-10">{emptyText}</p>
+          <EmptyState icon={<CalendarDays size={26} />} title={emptyText} />
         ) : sorted.map((event, i) => (
           <motion.div
             key={event.id}
@@ -919,7 +921,7 @@ function EventsTable({ events, navigate, title, emptyText }: {
                 <Table.Column className="text-xs font-medium text-default-500 py-3 pr-5 pl-4 text-right bg-default-50 dark:bg-default-100/20">Hành động</Table.Column>
               </Table.Header>
               <Table.Body renderEmptyState={() => (
-                <p className="text-sm text-muted text-center py-10">{emptyText}</p>
+                <EmptyState icon={<CalendarDays size={26} />} title={emptyText} />
               )}>
                 {sorted.map(event => (
                   <Table.Row

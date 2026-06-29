@@ -1,6 +1,7 @@
 ﻿import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Plus, Upload, Image, X, Pencil, Check, CreditCard, ShieldCheck, KeyRound, Copy, CheckCheck, Building2 } from 'lucide-react';
+import { ArrowLeft, FileText, Plus, Upload, Image, X, Pencil, Check, CreditCard, ShieldCheck, KeyRound, Copy, CheckCheck, Building2, UserX } from 'lucide-react';
+import EmptyState from '@/components/shared/EmptyState';
 import { Button, Card, Label, Link, Spinner, ToggleButton, ToggleButtonGroup, TextField, Input, Select, ListBox } from '@heroui/react';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
@@ -95,14 +96,11 @@ export default function StaffProfile() {
   const [uploadingExp, setUploadingExp] = useState(false);
 
   if (!member) return (
-    <div className="text-center py-20 text-muted">
-      <p>Không tìm thấy nhân viên</p>
-      {paramStaffId && (
-        <Button variant="ghost" size="sm" className="mt-4 text-sm" onPress={() => navigate(-1)}>
-          Quay lại
-        </Button>
-      )}
-    </div>
+    <EmptyState
+      icon={<UserX size={26} />}
+      title="Không tìm thấy nhân viên"
+      action={paramStaffId ? { label: 'Quay lại', onPress: () => navigate(-1) } : undefined}
+    />
   );
 
   const allExpenses: (Expense & { eventName: string })[] = events.flatMap(e =>

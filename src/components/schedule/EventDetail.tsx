@@ -1,7 +1,8 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button } from '@heroui/react';
+import { CalendarX } from 'lucide-react';
 import { useEventsQuery } from '../../hooks/queries/useEventsQuery';
 import EventDetailContent from './EventDetailContent';
+import EmptyState from '@/components/shared/EmptyState';
 
 export default function EventDetail() {
   const { eventId: eventIdParam } = useParams<{ eventId: string }>();
@@ -13,10 +14,11 @@ export default function EventDetail() {
 
   if (!event) {
     return (
-      <div className="text-center py-20 text-muted">
-        <p>Không tìm thấy sự kiện</p>
-        <Button variant="ghost" onPress={() => navigate(-1)} className="mt-4 h-auto min-w-0 p-0 text-accent text-sm">Quay lại</Button>
-      </div>
+      <EmptyState
+        icon={<CalendarX size={26} />}
+        title="Không tìm thấy sự kiện"
+        action={{ label: 'Quay lại', onPress: () => navigate(-1) }}
+      />
     );
   }
 
