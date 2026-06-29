@@ -1,5 +1,19 @@
-import type { Key } from '@heroui/react';
-import { Autocomplete, EmptyState, Header, Label, ListBox, SearchField, Separator, useFilter } from '@heroui/react';
+import { useState } from 'react';
+import { ChevronsUpDown } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 const FRANCE_CITIES: { section: string; cities: { id: string; name: string }[] }[] = [
   {
@@ -70,71 +84,64 @@ interface Props {
   error?: string;
 }
 
-export default function FranceCityAutocomplete({ label = 'Nơi ở', value, onChange, placeholder = 'Chọn thành phố...', error }: Props) {
-  const { contains } = useFilter({ sensitivity: 'base' });
-
-  const selectedKey: Key | null = (() => {
-    for (const group of FRANCE_CITIES) {
-      const match = group.cities.find(c => c.name === value);
-      if (match) return match.id;
-    }
-    return null;
-  })();
-
-  const handleChange = (key: Key | null) => {
-    if (!key) { onChange(''); return; }
-    for (const group of FRANCE_CITIES) {
-      const match = group.cities.find(c => c.id === key);
-      if (match) { onChange(match.name); return; }
-    }
-  };
+export default function FranceCityAutocomplete({
+  label = 'Nơi ở',
+  value,
+  onChange,
+  placeholder = 'Chọn thành phố...',
+  error,
+}: Props) {
+  const [open, setOpen] = useState(false);
 
   return (
-    <div className="flex flex-col gap-1">
-      <Autocomplete
-        className="w-full"
-        placeholder={placeholder}
-        selectionMode="single"
-        selectedKey={selectedKey}
-        onSelectionChange={handleChange}
-      >
-        <Label className="text-xs font-medium text-foreground/80">{label}</Label>
-        <Autocomplete.Trigger>
-          <Autocomplete.Value />
-          <Autocomplete.ClearButton />
-          <Autocomplete.Indicator />
-        </Autocomplete.Trigger>
-        <Autocomplete.Popover>
-          <Autocomplete.Filter filter={contains}>
-            <SearchField name="city-search" variant="secondary">
-              <SearchField.Group>
-                <SearchField.SearchIcon />
-                <SearchField.Input placeholder="Tìm thành phố..." />
-                <SearchField.ClearButton />
-              </SearchField.Group>
-            </SearchField>
-            <div className="max-h-52 overflow-y-auto">
-              <ListBox renderEmptyState={() => <EmptyState>Không tìm thấy thành phố</EmptyState>}>
-                {FRANCE_CITIES.map((group, i) => (
-                  <>
-                    <ListBox.Section key={group.section}>
-                      <Header>{group.section}</Header>
-                      {group.cities.map(city => (
-                        <ListBox.Item key={city.id} id={city.id} textValue={city.name}>
-                          {city.name}
-                          <ListBox.ItemIndicator />
-                        </ListBox.Item>
-                      ))}
-                    </ListBox.Section>
-                    {i < FRANCE_CITIES.length - 1 && <Separator key={`sep-${i}`} />}
-                  </>
-                ))}
-              </ListBox>
-            </div>
-          </Autocomplete.Filter>
-        </Autocomplete.Popover>
-      </Autocomplete>
-      {error && <p className="text-xs text-danger">{error}</p>}
+    <div className="flex flex-col gap-1 w-full">
+      {label && (
+        <span className="text-sm font-medium text-foreground/80">
+          {label}
+        </span>
+      )}
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className={`w-full justify-between font-normal text-left h-10 px-3 border bg-background ${
+              !value ? 'text-muted-foreground' : 'text-foreground'
+            } ${error ? 'border-destructive' : 'border-input'}`}
+          >
+            <span>{value || placeholder}</span>
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+          <Command>
+            <CommandInput placeholder="Tìm thành phố..." />
+            <CommandList className="max-h-52">
+              <CommandEmpty>Không tìm thấy thành phố</CommandEmpty>
+              {FRANCE_CITIES.map((group) => (
+                <CommandGroup key={group.section} heading={group.section}>
+                  {group.cities.map((city) => (
+                    <CommandItem
+                      key={city.id}
+                      value={city.name}
+                      onSelect={() => {
+                        onChange(value === city.name ? '' : city.name);
+                        setOpen(false);
+                      }}
+                      data-checked={value === city.name}
+                    >
+                      {city.name}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              ))}
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+      {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );
 }
+

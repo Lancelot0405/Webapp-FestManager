@@ -1,4 +1,4 @@
-import { Skeleton } from '@heroui/react';
+import { Skeleton } from '@/components/ui/skeleton';
 import CardSkeleton from './CardSkeleton';
 
 export default function PageSkeleton() {
@@ -18,3 +18,4 @@ export default function PageSkeleton() {
     </div>
   );
 }
+

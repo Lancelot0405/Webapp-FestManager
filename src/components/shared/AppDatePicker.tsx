@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { CalendarIcon } from 'lucide-react';
-import { Button, Calendar, Popover } from '@heroui/react';
-import { parseDate, CalendarDate } from '@internationalized/date';
+import { CalendarDate } from '@internationalized/date';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface AppDatePickerProps {
   label?: string;
@@ -14,18 +16,29 @@ interface AppDatePickerProps {
   className?: string;
 }
 
-function isoToCalDate(iso: string): CalendarDate | null {
-  if (!iso) return null;
-  try { return parseDate(iso); } catch { return null; }
+function parseISODate(iso: string): Date | undefined {
+  if (!iso) return undefined;
+  const parts = iso.split('-');
+  if (parts.length !== 3) return undefined;
+  const yyyy = parseInt(parts[0], 10);
+  const mm = parseInt(parts[1], 10);
+  const dd = parseInt(parts[2], 10);
+  if (isNaN(yyyy) || isNaN(mm) || isNaN(dd)) return undefined;
+  return new Date(yyyy, mm - 1, dd);
 }
 
-function calDateToISO(cd: CalendarDate): string {
-  return `${cd.year}-${String(cd.month).padStart(2, '0')}-${String(cd.day).padStart(2, '0')}`;
+function toISODateString(date: Date): string {
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 function displayISO(iso: string): string {
   if (!iso) return '';
-  const [yyyy, mm, dd] = iso.split('-');
+  const parts = iso.split('-');
+  if (parts.length !== 3) return '';
+  const [yyyy, mm, dd] = parts;
   return `${dd}-${mm}-${yyyy}`;
 }
 
@@ -40,43 +53,50 @@ export default function AppDatePicker({
   className = '',
 }: AppDatePickerProps) {
   const [open, setOpen] = useState(false);
-  const calDate    = isoToCalDate(value);
-  const minCalDate = isoToCalDate(minValue ?? '');
+  const selectedDate = parseISODate(value);
+  const minDate = parseISODate(minValue ?? '');
+
+  const handleSelect = (date: Date | undefined) => {
+    if (date) {
+      onChange(toISODateString(date));
+      setOpen(false);
+    }
+  };
 
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
       {label && (
         <span className="text-sm font-medium text-foreground/80">
-          {label}{isRequired && <span className="text-danger ml-0.5">*</span>}
+          {label}{isRequired && <span className="text-destructive ml-0.5">*</span>}
         </span>
       )}
 
-      <Popover isOpen={open} onOpenChange={setOpen}>
-        <Popover.Trigger>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className={`w-full justify-start text-left font-normal h-10 px-3 gap-2 ${
-              !value ? 'text-foreground/40' : 'text-foreground'
-            } ${error ? 'border-danger' : ''}`}
+            className={`w-full justify-start text-left font-normal h-10 px-3 gap-2 bg-background border ${
+              !value ? 'text-muted-foreground' : 'text-foreground'
+            } ${error ? 'border-destructive' : 'border-input'}`}
           >
-            <CalendarIcon size={14} className="shrink-0" />
+            <CalendarIcon size={14} className="shrink-0 text-muted-foreground" />
             <span>{value ? displayISO(value) : placeholder}</span>
           </Button>
-        </Popover.Trigger>
-        <Popover.Content className="p-0 overflow-hidden rounded-2xl border border-separator shadow-xl">
-          <Popover.Dialog aria-label={label ?? 'Chọn ngày'}>
-            <CalendarWithYearPicker
-              value={calDate ?? undefined}
-              minValue={minCalDate ?? undefined}
-              onChange={(cd) => {
-                if (cd) { onChange(calDateToISO(cd)); setOpen(false); }
-              }}
-            />
-          </Popover.Dialog>
-        </Popover.Content>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={selectedDate}
+            onSelect={handleSelect}
+            disabled={minDate ? (date) => date < minDate : undefined}
+            captionLayout="dropdown"
+            startMonth={new Date(1990, 0)}
+            endMonth={new Date(2050, 11)}
+          />
+        </PopoverContent>
       </Popover>
 
-      {error && <p className="text-xs text-danger">{error}</p>}
+      {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );
 }
@@ -88,38 +108,26 @@ interface CalWithYPProps {
 }
 
 export function CalendarWithYearPicker({ value, minValue, onChange }: CalWithYPProps) {
+  const selectedDate = value ? new Date(value.year, value.month - 1, value.day) : undefined;
+  const minDate = minValue ? new Date(minValue.year, minValue.month - 1, minValue.day) : undefined;
+
+  const handleSelect = (date: Date | undefined) => {
+    if (date) {
+      onChange(new CalendarDate(date.getFullYear(), date.getMonth() + 1, date.getDate()));
+    }
+  };
+
   return (
     <Calendar
-      aria-label="Chọn ngày"
-      value={value}
-      minValue={minValue}
-      onChange={(cd) => cd && onChange(cd)}
-    >
-      <Calendar.Header>
-        <Calendar.NavButton slot="previous" />
-        <Calendar.YearPickerTrigger>
-          <Calendar.YearPickerTriggerHeading />
-          <Calendar.YearPickerTriggerIndicator />
-        </Calendar.YearPickerTrigger>
-        <Calendar.NavButton slot="next" />
-      </Calendar.Header>
-
-      <Calendar.YearPickerGrid>
-        <Calendar.YearPickerGridBody>
-          {({ year }: { year: number; formattedYear: string; isSelected: boolean; isCurrentYear: boolean; isOpen: boolean }) => (
-            <Calendar.YearPickerCell year={year} />
-          )}
-        </Calendar.YearPickerGridBody>
-      </Calendar.YearPickerGrid>
-
-      <Calendar.Grid>
-        <Calendar.GridHeader>
-          {(day: string) => <Calendar.HeaderCell>{day}</Calendar.HeaderCell>}
-        </Calendar.GridHeader>
-        <Calendar.GridBody>
-          {(date: CalendarDate) => <Calendar.Cell date={date} />}
-        </Calendar.GridBody>
-      </Calendar.Grid>
-    </Calendar>
+      mode="single"
+      selected={selectedDate}
+      onSelect={handleSelect}
+      disabled={minDate ? (date) => date < minDate : undefined}
+      captionLayout="dropdown"
+      startMonth={new Date(1990, 0)}
+      endMonth={new Date(2050, 11)}
+    />
   );
 }
+
+

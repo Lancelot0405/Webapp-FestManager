@@ -1,4 +1,5 @@
-import { Card, Skeleton } from '@heroui/react';
+import { Card } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function CardSkeleton({ count = 1 }: { count?: number }) {
   return (
@@ -20,3 +21,4 @@ export default function CardSkeleton({ count = 1 }: { count?: number }) {
     </>
   );
 }
+

@@ -1,4 +1,4 @@
-import { Card } from '@heroui/react';
+import { Card } from '@/components/ui/card';
 import { FileText } from 'lucide-react';
 
 interface Props {
@@ -33,12 +33,12 @@ export default function DocThumbnail({ url, fileName, className = '' }: Props) {
       className={`flex items-center gap-2 no-underline ${className}`}
     >
       <Card
-        variant="secondary"
-        className="flex items-center gap-2 px-3 py-2.5 w-full hover:border-primary-400 transition"
+        className="flex flex-row items-center gap-2 px-3 py-2.5 w-full bg-secondary text-secondary-foreground border-none hover:bg-secondary/80 transition"
       >
-        <FileText size={16} className="text-primary-500 shrink-0" />
-        <span className="text-xs text-default-700 truncate">{fileName ?? 'Xem tài liệu'}</span>
+        <FileText size={16} className="text-primary shrink-0" />
+        <span className="text-xs truncate">{fileName ?? 'Xem tài liệu'}</span>
       </Card>
     </a>
   );
 }
+

@@ -1,5 +1,6 @@
 import { Component, type ReactNode } from 'react';
-import { Card, Button } from '@heroui/react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface Props { children: ReactNode; }
 interface State { hasError: boolean; error: Error | null; }
@@ -21,7 +22,7 @@ export default class ErrorBoundary extends Component<Props, State> {
             <p className="text-sm text-muted">{this.state.error?.message ?? 'Lỗi không xác định'}</p>
             <Button
               className="w-full"
-              onPress={() => window.location.reload()}
+              onClick={() => window.location.reload()}
             >
               Tải lại ứng dụng
             </Button>
@@ -32,3 +33,4 @@ export default class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
+
