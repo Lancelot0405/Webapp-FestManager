@@ -1,5 +1,14 @@
-﻿import { useState, useMemo } from 'react';
-import { Button, SearchField, Select, ListBox } from '@heroui/react';
+import { useState, useMemo } from 'react';
+import { Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import type { InventoryLogEntry } from '../../types';
 
 interface Props { logs: InventoryLogEntry[] }
@@ -36,9 +45,10 @@ export default function InventoryLogList({ logs }: Props) {
         </h2>
         {filtered.length > COLLAPSED_COUNT && (
           <Button
+            type="button"
             variant="ghost"
-            onPress={() => setExpanded(v => !v)}
-            className="h-auto min-w-0 p-0 text-xs text-muted hover:text-foreground font-semibold transition-colors"
+            onClick={() => setExpanded(v => !v)}
+            className="h-auto min-w-0 p-0 text-xs text-muted-foreground hover:text-foreground hover:bg-transparent font-semibold transition-colors"
           >
             {expanded ? 'Thu gọn' : 'Xem tất cả'}
           </Button>
@@ -47,41 +57,52 @@ export default function InventoryLogList({ logs }: Props) {
 
       {/* Filters */}
       <div className="flex gap-2 flex-wrap">
-        <SearchField value={itemSearch} onChange={setItemSearch} className="flex-1 min-w-[140px]" aria-label="Tìm mặt hàng">
-          <SearchField.Group>
-            <SearchField.SearchIcon />
-            <SearchField.Input placeholder="Tìm mặt hàng..." />
-            <SearchField.ClearButton />
-          </SearchField.Group>
-        </SearchField>
-        <Select value={festivalFilter || '__all__'} onChange={(key) => setFestivalFilter(key === '__all__' || key == null ? '' : String(key))} className="min-w-[150px] flex flex-col gap-1">
-          <Select.Trigger className="h-9 text-sm"><Select.Value /><Select.Indicator /></Select.Trigger>
-          <Select.Popover>
-            <ListBox>
-              <ListBox.Item id="__all__" textValue="Tất cả sự kiện">Tất cả sự kiện<ListBox.ItemIndicator /></ListBox.Item>
+        <div className="relative flex-1 min-w-[140px]">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Tìm mặt hàng..."
+            value={itemSearch}
+            onChange={(e) => setItemSearch(e.target.value)}
+            className="pl-9 h-9"
+            aria-label="Tìm mặt hàng"
+          />
+        </div>
+        <div className="min-w-[150px]">
+          <Select
+            value={festivalFilter || '__all__'}
+            onValueChange={(val) => setFestivalFilter(val === '__all__' || !val ? '' : val)}
+          >
+            <SelectTrigger className="w-full h-9">
+              <SelectValue placeholder="Chọn sự kiện" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__all__">Tất cả sự kiện</SelectItem>
               {festivalNames.map(name => (
-                <ListBox.Item key={name} id={name} textValue={name}>{name}<ListBox.ItemIndicator /></ListBox.Item>
+                <SelectItem key={name} value={name}>
+                  {name}
+                </SelectItem>
               ))}
-            </ListBox>
-          </Select.Popover>
-        </Select>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Log list */}
       {filtered.length === 0 ? (
-        <p className="text-xs text-muted text-center py-4">Không có bản ghi nào</p>
+        <p className="text-xs text-muted-foreground text-center py-4 bg-surface border border-dashed border-border rounded-xl">Không có bản ghi nào</p>
       ) : (
         <div className="space-y-2">
           {displayed.map(log => (
-            <div key={log.id} className="bg-surface border border-separator rounded-xl shadow-sm p-3">
+            <div key={log.id} className="bg-surface border border-border rounded-xl shadow-sm p-3">
               <div className="flex justify-between items-start gap-2">
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-foreground truncate">{log.itemName}</p>
-                  <p className="text-xs text-muted truncate">{log.festivalName} · {log.submittedBy}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 truncate">{log.festivalName} · {log.submittedBy}</p>
                 </div>
                 <div className="text-right shrink-0">
                   <p className="text-sm font-black text-accent">{log.qty} {log.unit}</p>
-                  <p className="text-xs text-muted">{log.timestamp}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{log.timestamp}</p>
                 </div>
               </div>
             </div>
@@ -90,7 +111,7 @@ export default function InventoryLogList({ logs }: Props) {
       )}
 
       {!expanded && filtered.length > COLLAPSED_COUNT && (
-        <p className="text-xs text-muted text-center">
+        <p className="text-xs text-muted-foreground text-center">
           Hiển thị {COLLAPSED_COUNT}/{filtered.length} bản ghi
         </p>
       )}

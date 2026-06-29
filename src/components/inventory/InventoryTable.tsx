@@ -1,6 +1,12 @@
 import { useMemo, useState } from 'react';
-import type { SortDescriptor } from 'react-aria-components';
-import { Table } from '@heroui/react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Package, SearchX } from 'lucide-react';
 import EmptyState from '@/components/shared/EmptyState';
 import { getItemStatus } from './useInventoryFilters';
@@ -15,10 +21,15 @@ interface Props {
   isFiltered?: boolean;
 }
 
+interface SortDescriptor {
+  column: 'name' | 'current' | 'threshold' | 'status';
+  direction: 'ascending' | 'descending';
+}
+
 const STATUS_META: Record<string, { label: string; dot: string; text: string }> = {
-  low:  { label: 'Thiếu hàng', dot: 'bg-danger',  text: 'text-danger' },
+  low:  { label: 'Thiếu hàng', dot: 'bg-destructive',  text: 'text-destructive' },
   warn: { label: 'Cảnh báo',   dot: 'bg-warning', text: 'text-warning' },
-  ok:   { label: 'Đủ hàng',    dot: 'bg-success', text: 'text-muted' },
+  ok:   { label: 'Đủ hàng',    dot: 'bg-emerald-500', text: 'text-muted-foreground' },
 };
 
 const statusRank = (item: InventoryItem) => {
@@ -43,6 +54,21 @@ export default function InventoryTable({ items, onEditItem, itemLabel, sectionLa
     }
   }, [items, sortDescriptor]);
 
+  const handleSort = (column: SortDescriptor['column']) => {
+    setSortDescriptor(prev => {
+      const isAsc = prev.column === column && prev.direction === 'ascending';
+      return {
+        column,
+        direction: isAsc ? 'descending' : 'ascending',
+      };
+    });
+  };
+
+  const renderSortArrow = (column: SortDescriptor['column']) => {
+    if (sortDescriptor.column !== column) return null;
+    return sortDescriptor.direction === 'ascending' ? ' ▲' : ' ▼';
+  };
+
   if (items.length === 0) {
     return isFiltered ? (
       <EmptyState icon={<SearchX size={26} />} title={`Không tìm thấy ${itemLabel} phù hợp`} />
@@ -52,64 +78,57 @@ export default function InventoryTable({ items, onEditItem, itemLabel, sectionLa
   }
 
   return (
-    <Table>
-      <Table.ScrollContainer>
-        <Table.Content
-          aria-label={`Danh sách ${itemLabel}`}
-          className="min-w-[640px]"
-          sortDescriptor={sortDescriptor}
-          onSortChange={setSortDescriptor}
-        >
-          <Table.Header>
-            <Table.Column isRowHeader allowsSorting id="name">
-              {({ sortDirection }) => (
-                <Table.SortableColumnHeader sortDirection={sortDirection}>Tên</Table.SortableColumnHeader>
-              )}
-            </Table.Column>
-            <Table.Column allowsSorting id="current">
-              {({ sortDirection }) => (
-                <Table.SortableColumnHeader sortDirection={sortDirection}>Số lượng</Table.SortableColumnHeader>
-              )}
-            </Table.Column>
-            <Table.Column id="unit">Đơn vị</Table.Column>
-            <Table.Column allowsSorting id="threshold">
-              {({ sortDirection }) => (
-                <Table.SortableColumnHeader sortDirection={sortDirection}>Ngưỡng</Table.SortableColumnHeader>
-              )}
-            </Table.Column>
-            <Table.Column allowsSorting id="status">
-              {({ sortDirection }) => (
-                <Table.SortableColumnHeader sortDirection={sortDirection}>Trạng thái</Table.SortableColumnHeader>
-              )}
-            </Table.Column>
-          </Table.Header>
-          <Table.Body>
-            {sorted.map((item) => {
-              const meta = STATUS_META[getItemStatus(item)];
-              return (
-                <Table.Row key={item.id} id={item.id} onAction={() => onEditItem(item)} className="cursor-pointer">
-                  <Table.Cell>
-                    <span className="font-semibold text-foreground">{item.name}</span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <InventoryQuantityStepper item={item} hideUnit />
-                  </Table.Cell>
-                  <Table.Cell><span className="text-muted">{item.unit}</span></Table.Cell>
-                  <Table.Cell>
-                    <span className="tabular-nums text-muted">{item.threshold > 0 ? item.threshold : '—'}</span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span className={`inline-flex items-center gap-1.5 text-sm font-medium ${meta.text}`}>
-                      <span className={`size-2 rounded-full ${meta.dot}`} />
-                      {meta.label}
-                    </span>
-                  </Table.Cell>
-                </Table.Row>
-              );
-            })}
-          </Table.Body>
-        </Table.Content>
-      </Table.ScrollContainer>
-    </Table>
+    <div className="relative w-full overflow-auto rounded-xl border">
+      <Table className="min-w-[640px]">
+        <TableHeader>
+          <TableRow className="hover:bg-transparent border-b border-border">
+            <TableHead onClick={() => handleSort('name')} className="cursor-pointer select-none text-xs font-semibold text-muted-foreground py-3 pl-4 pr-3 bg-muted/50 dark:bg-default-100/20">
+              Tên{renderSortArrow('name')}
+            </TableHead>
+            <TableHead onClick={() => handleSort('current')} className="cursor-pointer select-none text-xs font-semibold text-muted-foreground py-3 px-3 bg-muted/50 dark:bg-default-100/20">
+              Số lượng{renderSortArrow('current')}
+            </TableHead>
+            <TableHead className="text-xs font-semibold text-muted-foreground py-3 px-3 bg-muted/50 dark:bg-default-100/20">Đơn vị</TableHead>
+            <TableHead onClick={() => handleSort('threshold')} className="cursor-pointer select-none text-xs font-semibold text-muted-foreground py-3 px-3 bg-muted/50 dark:bg-default-100/20">
+              Ngưỡng{renderSortArrow('threshold')}
+            </TableHead>
+            <TableHead onClick={() => handleSort('status')} className="cursor-pointer select-none text-xs font-semibold text-muted-foreground py-3 px-3 bg-muted/50 dark:bg-default-100/20">
+              Trạng thái{renderSortArrow('status')}
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {sorted.map((item) => {
+            const meta = STATUS_META[getItemStatus(item)];
+            return (
+              <TableRow
+                key={item.id}
+                onClick={() => onEditItem(item)}
+                className="border-b border-border last:border-0 cursor-pointer hover:bg-muted/50 dark:hover:bg-default-100/5 transition-colors"
+              >
+                <TableCell className="py-3.5 pl-4 pr-3">
+                  <span className="font-semibold text-foreground">{item.name}</span>
+                </TableCell>
+                <TableCell className="py-3.5 px-3">
+                  <InventoryQuantityStepper item={item} hideUnit />
+                </TableCell>
+                <TableCell className="py-3.5 px-3">
+                  <span className="text-muted-foreground">{item.unit}</span>
+                </TableCell>
+                <TableCell className="py-3.5 px-3">
+                  <span className="tabular-nums text-muted-foreground">{item.threshold > 0 ? item.threshold : '—'}</span>
+                </TableCell>
+                <TableCell className="py-3.5 px-3">
+                  <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${meta.text}`}>
+                    <span className={`size-2 rounded-full ${meta.dot}`} />
+                    {meta.label}
+                  </span>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </div>
   );
 }

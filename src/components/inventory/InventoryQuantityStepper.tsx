@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Minus, Plus } from 'lucide-react';
-import { Button } from '@heroui/react';
+import { Button } from '@/components/ui/button';
 import { useApp } from '../../context/AppContext';
 import { useSetInventoryItem } from '../../hooks/queries/mutations/useSetInventoryItem';
 import { useAddInventoryLog } from '../../hooks/queries/mutations/useAddInventoryLog';
@@ -53,25 +53,27 @@ export default function InventoryQuantityStepper({ item, hideUnit }: Props) {
   return (
     <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
       <Button
-        isIconOnly
-        size="sm"
+        type="button"
+        size="icon"
         variant="secondary"
         aria-label="Giảm"
-        isDisabled={qty <= 0}
-        onPress={() => step(-1)}
+        disabled={qty <= 0}
+        onClick={() => step(-1)}
+        className="h-8 w-8 rounded-lg flex items-center justify-center"
       >
         <Minus size={14} />
       </Button>
       <div className="min-w-[3.5rem] text-center">
         <span className="text-sm font-bold tabular-nums text-foreground">{qty}</span>
-        {!hideUnit && <span className="text-xs text-muted"> {item.unit}</span>}
+        {!hideUnit && <span className="text-xs text-muted-foreground"> {item.unit}</span>}
       </div>
       <Button
-        isIconOnly
-        size="sm"
+        type="button"
+        size="icon"
         variant="secondary"
         aria-label="Tăng"
-        onPress={() => step(1)}
+        onClick={() => step(1)}
+        className="h-8 w-8 rounded-lg flex items-center justify-center"
       >
         <Plus size={14} />
       </Button>

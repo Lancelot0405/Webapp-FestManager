@@ -1,4 +1,12 @@
-import { SearchField, Select, ListBox } from '@heroui/react';
+import { Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export type SortKey = 'status' | 'name' | 'qty-desc' | 'qty-asc';
 
@@ -22,23 +30,34 @@ export default function InventoryToolbar({
 }: Props) {
   return (
     <div className="flex flex-col sm:flex-row gap-2">
-      <SearchField value={search} onChange={onSearchChange} className="flex-1" aria-label={`Tìm ${itemLabel}`}>
-        <SearchField.Group>
-          <SearchField.SearchIcon />
-          <SearchField.Input placeholder={`Tìm ${itemLabel}...`} />
-          <SearchField.ClearButton />
-        </SearchField.Group>
-      </SearchField>
-      <Select value={sort || null} onChange={(key) => { if (key != null) onSortChange(String(key) as SortKey); }} className="sm:w-52 shrink-0 flex flex-col gap-1">
-        <Select.Trigger><Select.Value /><Select.Indicator /></Select.Trigger>
-        <Select.Popover>
-          <ListBox>
+      <div className="relative flex-1">
+        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          type="search"
+          placeholder={`Tìm ${itemLabel}...`}
+          value={search}
+          onChange={(e) => onSearchChange(e.target.value)}
+          className="pl-9 h-9"
+          aria-label={`Tìm ${itemLabel}`}
+        />
+      </div>
+      <div className="sm:w-52 shrink-0">
+        <Select
+          value={sort}
+          onValueChange={(val) => { if (val) onSortChange(val as SortKey); }}
+        >
+          <SelectTrigger className="w-full h-9">
+            <SelectValue placeholder="Sắp xếp" />
+          </SelectTrigger>
+          <SelectContent>
             {SORT_OPTIONS.map(opt => (
-              <ListBox.Item key={opt.value} id={opt.value} textValue={opt.label}>{opt.label}<ListBox.ItemIndicator /></ListBox.Item>
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
             ))}
-          </ListBox>
-        </Select.Popover>
-      </Select>
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 }

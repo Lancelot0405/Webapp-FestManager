@@ -1,6 +1,5 @@
 import { Store, Tent } from 'lucide-react';
-import { ToggleButtonGroup, ToggleButton, TagGroup, Tag } from '@heroui/react';
-import type { Key, Selection } from '@heroui/react';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import type { MainTab, SubTab, StatusFilter } from './useInventoryFilters';
 
 interface Props {
@@ -21,18 +20,11 @@ interface Props {
 }
 
 const STATUS_TAGS: { id: StatusFilter; label: string; dot: string }[] = [
-  { id: 'all',  label: 'Tất cả',     dot: 'bg-muted' },
-  { id: 'low',  label: 'Thiếu hàng', dot: 'bg-danger' },
+  { id: 'all',  label: 'Tất cả',     dot: 'bg-muted-foreground/60' },
+  { id: 'low',  label: 'Thiếu hàng', dot: 'bg-destructive' },
   { id: 'warn', label: 'Cảnh báo',   dot: 'bg-warning' },
-  { id: 'ok',   label: 'Đủ hàng',    dot: 'bg-success' },
+  { id: 'ok',   label: 'Đủ hàng',    dot: 'bg-emerald-500' },
 ];
-
-// Lấy key đầu tiên của Selection; bỏ qua khi rỗng để luôn giữ 1 lựa chọn.
-function firstKey(keys: Selection): Key | null {
-  if (keys === 'all') return null;
-  const arr = [...keys];
-  return arr.length > 0 ? arr[0] : null;
-}
 
 export default function InventoryNavigation({
   mainTab, subTab, statusFilter, statusCounts,
@@ -50,46 +42,40 @@ export default function InventoryNavigation({
   return (
     <>
       {canSeeRestaurant && canSeeFestival && (
-        <ToggleButtonGroup
-          selectionMode="single"
-          disallowEmptySelection
-          isDetached
-          size="sm"
-          selectedKeys={new Set([mainTab])}
-          onSelectionChange={(keys) => {
-            const k = firstKey(keys) as MainTab | null;
-            if (k) onMainTabChange(k);
+        <ToggleGroup
+          type="single"
+          value={mainTab}
+          onValueChange={(val) => {
+            if (val) onMainTabChange(val as MainTab);
           }}
-          className="w-full"
+          className="w-full bg-muted/40 p-1 rounded-xl border flex"
           aria-label="Khu vực kho"
         >
-          <ToggleButton id="restaurant" className="flex-1 gap-1.5 text-xs">
+          <ToggleGroupItem value="restaurant" className="flex-1 gap-1.5 text-xs h-9 rounded-lg font-semibold">
             <Store size={14} />Nhà hàng
-          </ToggleButton>
-          <ToggleButton id="festival" className="flex-1 gap-1.5 text-xs">
+          </ToggleGroupItem>
+          <ToggleGroupItem value="festival" className="flex-1 gap-1.5 text-xs h-9 rounded-lg font-semibold">
             <Tent size={14} />Festival
-          </ToggleButton>
-        </ToggleButtonGroup>
+          </ToggleGroupItem>
+        </ToggleGroup>
       )}
 
-      <TagGroup
-        selectionMode="single"
-        selectedKeys={new Set([subTab])}
-        onSelectionChange={(keys) => {
-          const k = firstKey(keys) as SubTab | null;
-          if (k) onSubTabChange(k);
+      <ToggleGroup
+        type="single"
+        value={subTab}
+        onValueChange={(val) => {
+          if (val) onSubTabChange(val as SubTab);
         }}
+        className="justify-start gap-1 bg-muted/40 p-1 rounded-xl w-max border flex overflow-x-auto scrollbar-hide"
         aria-label="Loại mặt hàng"
       >
-        <TagGroup.List className="flex-nowrap overflow-x-auto scrollbar-hide">
-          {categoryTags.map(({ id, label, count }) => (
-            <Tag key={id} id={id} textValue={label} className="shrink-0">
-              {label}
-              <span className="ml-1 font-bold tabular-nums opacity-70">{count}</span>
-            </Tag>
-          ))}
-        </TagGroup.List>
-      </TagGroup>
+        {categoryTags.map(({ id, label, count }) => (
+          <ToggleGroupItem key={id} value={id} className="shrink-0 rounded-lg text-xs font-semibold px-3 py-1.5 h-8">
+            {label}
+            <span className="ml-1 font-bold tabular-nums opacity-70">{count}</span>
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
 
       {summarySlot}
 
@@ -97,26 +83,23 @@ export default function InventoryNavigation({
 
       {subTab !== 'history' && (
         <div className="flex items-center gap-2">
-          <TagGroup
-            selectionMode="single"
-            selectedKeys={new Set([statusFilter])}
-            onSelectionChange={(keys) => {
-              const k = firstKey(keys) as StatusFilter | null;
-              if (k) onStatusFilterChange(k);
+          <ToggleGroup
+            type="single"
+            value={statusFilter}
+            onValueChange={(val) => {
+              if (val) onStatusFilterChange(val as StatusFilter);
             }}
+            className="justify-start gap-1 bg-muted/40 p-1 rounded-xl w-max border flex overflow-x-auto scrollbar-hide min-w-0 flex-1"
             aria-label="Lọc theo trạng thái"
-            className="min-w-0 flex-1"
           >
-            <TagGroup.List className="flex-nowrap overflow-x-auto scrollbar-hide">
-              {STATUS_TAGS.map(({ id, label, dot }) => (
-                <Tag key={id} id={id} textValue={label} className="shrink-0">
-                  <span className={`size-2 shrink-0 rounded-full ${dot}`} />
-                  {label}
-                  <span className="ml-0.5 font-bold tabular-nums opacity-70">{statusCounts[id]}</span>
-                </Tag>
-              ))}
-            </TagGroup.List>
-          </TagGroup>
+            {STATUS_TAGS.map(({ id, label, dot }) => (
+              <ToggleGroupItem key={id} value={id} className="shrink-0 rounded-lg text-xs font-semibold px-3 py-1.5 h-8 gap-1.5">
+                <span className={`size-2 shrink-0 rounded-full ${dot}`} />
+                {label}
+                <span className="ml-0.5 font-bold tabular-nums opacity-70">{statusCounts[id]}</span>
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
           {actionSlot && <div className="shrink-0">{actionSlot}</div>}
         </div>
       )}

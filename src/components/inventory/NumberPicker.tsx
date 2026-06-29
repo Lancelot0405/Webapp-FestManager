@@ -1,6 +1,7 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { Pencil } from 'lucide-react';
-import { Button, TextField, Input, FieldError } from '@heroui/react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 interface NumberPickerProps {
   value:        string;
@@ -37,38 +38,51 @@ export default function NumberPicker({
       <div className="mt-1.5 flex flex-wrap gap-1.5">
         {QUICK_VALUES.map(v => (
           <Button
+            type="button"
             key={v}
             variant="ghost"
-            onPress={() => { onChange(String(v)); setCustom(false); }}
-            className={`h-auto min-w-0 px-2.5 py-1 rounded-lg text-xs font-bold border transition-all active:scale-95 ${
+            onClick={() => { onChange(String(v)); setCustom(false); }}
+            className={`h-auto min-w-0 px-2.5 py-1 rounded-lg text-xs font-bold border transition-all active:scale-95 flex items-center ${
               !custom && numVal === v
-                ? 'bg-accent text-white dark:text-foreground border-accent'
-                : 'bg-default/50 text-foreground/80 border-separator hover:border-accent/40'
+                ? 'bg-accent text-white dark:text-foreground border-accent hover:bg-accent hover:text-white'
+                : 'bg-muted/40 text-foreground/80 border-border hover:border-accent/40 hover:bg-muted/60'
             }`}
           >
             {v}
           </Button>
         ))}
         <Button
+          type="button"
           variant="ghost"
-          onPress={() => { setCustom(true); if (isQuick) onChange(''); }}
+          onClick={() => { setCustom(true); if (isQuick) onChange(''); }}
           className={`h-auto min-w-0 px-2.5 py-1 rounded-lg text-xs font-bold border transition-all flex items-center gap-1 active:scale-95 ${
             custom
-              ? 'bg-accent text-white dark:text-foreground border-accent'
-              : 'bg-default/50 text-foreground/80 border-separator hover:border-accent/40'
+              ? 'bg-accent text-white dark:text-foreground border-accent hover:bg-accent hover:text-white'
+              : 'bg-muted/40 text-foreground/80 border-border hover:border-accent/40 hover:bg-muted/60'
           }`}
         >
           <Pencil size={10} /> Tùy chỉnh
         </Button>
       </div>
       {custom && (
-        <TextField value={value} onChange={onChange} isRequired={required} isInvalid={!!error} className="w-full flex flex-col gap-1 mt-2">
-          <Input type="number" min={min} max={max} step={step} autoFocus placeholder={placeholder} />
-          {error && <FieldError className="text-xs text-danger">{error}</FieldError>}
-        </TextField>
+        <div className="w-full flex flex-col gap-1 mt-2">
+          <Input
+            type="number"
+            min={min}
+            max={max}
+            step={step}
+            autoFocus
+            placeholder={placeholder}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            required={required}
+            className={error ? 'border-destructive' : 'border-input'}
+          />
+          {error && <p className="text-xs text-destructive mt-0.5">{error}</p>}
+        </div>
       )}
       {error && !custom && (
-        <p className="text-xs text-danger mt-1">{error}</p>
+        <p className="text-xs text-destructive mt-1">{error}</p>
       )}
       {!custom && required && value === '' && (
         <input type="number" required value="" onChange={() => {}} className="sr-only" aria-hidden />

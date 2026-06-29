@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Pencil, Trash2, Package, SearchX } from 'lucide-react';
 import EmptyState from '@/components/shared/EmptyState';
-import { Card } from '@heroui/react';
+import { Card } from '@/components/ui/card';
 import { animations } from '../../lib/animations';
 import ListSkeleton from '@/components/shared/skeletons/ListSkeleton';
 import SwipeableRow from '@/components/shared/SwipeableRow';
@@ -40,14 +40,14 @@ export default function InventoryItemList({ items, isLoading, onEditItem, itemLa
   };
 
   return (
-    <Card className="!p-0 overflow-hidden">
-      <ul className="divide-y divide-separator">
+    <Card className="p-0 overflow-hidden border shadow-sm bg-surface">
+      <ul className="divide-y divide-border">
         {items.map((item, i) => (
           <motion.li key={item.id} {...animations.listItem(i)}>
             <SwipeableRow
               actions={[
                 { icon: <Pencil size={16} />, label: 'Sửa', onClick: () => onEditItem(item), className: 'bg-accent text-white' },
-                { icon: <Trash2 size={16} />, label: 'Xoá', onClick: () => handleDelete(item), className: 'bg-danger text-white' },
+                { icon: <Trash2 size={16} />, label: 'Xoá', onClick: () => handleDelete(item), className: 'bg-destructive text-destructive-foreground' },
               ]}
             >
               <InventoryItemRow item={item} onEdit={onEditItem} />

@@ -1,6 +1,7 @@
-﻿import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Pencil, ChevronDown, Settings } from 'lucide-react';
-import { Button, TextField, Input } from '@heroui/react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { supabase } from '../../lib/supabase';
 import { useApp } from '../../context/AppContext';
 import FoodTemplateManager from './FoodTemplateManager';
@@ -65,9 +66,10 @@ export default function FoodNameSelect({
         </label>
         {canManage && (
           <Button
+            type="button"
             variant="ghost"
-            onPress={() => setShowManager(true)}
-            className="h-auto min-w-0 p-0 flex items-center gap-1 text-[11px] text-muted hover:text-foreground transition-colors font-medium"
+            onClick={() => setShowManager(true)}
+            className="h-auto min-w-0 p-0 flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground hover:bg-transparent transition-colors font-semibold"
           >
             <Settings size={11} /> Quản lý mẫu
           </Button>
@@ -81,9 +83,10 @@ export default function FoodNameSelect({
             {value}
           </span>
           <Button
+            type="button"
             variant="ghost"
-            onPress={() => { onChange(''); setOpenGroup(null); }}
-            className="h-auto min-w-0 text-xs text-muted hover:text-danger px-3 py-2 rounded-xl border border-separator bg-default/50 font-medium transition-colors"
+            onClick={() => { onChange(''); setOpenGroup(null); }}
+            className="h-9 text-xs text-muted-foreground hover:text-danger px-3 py-2 rounded-xl border border-border bg-muted/40 font-semibold transition-colors flex items-center justify-center shrink-0"
           >
             Đổi
           </Button>
@@ -94,30 +97,32 @@ export default function FoodNameSelect({
       {!custom && !value && (
         <div className="space-y-1.5">
           {loading ? (
-            <div className="h-9 bg-default/50 rounded-xl animate-pulse" />
+            <div className="h-9 bg-muted/40 rounded-xl animate-pulse" />
           ) : (
             <>
               {Object.entries(groups).map(([group, items]) => (
-                <div key={group} className="border border-separator rounded-xl overflow-hidden">
+                <div key={group} className="border border-border rounded-xl overflow-hidden bg-surface shadow-sm">
                   <Button
+                    type="button"
                     variant="ghost"
-                    onPress={() => setOpenGroup(openGroup === group ? null : group)}
-                    className="card-btn w-full h-auto justify-between rounded-none px-3 py-2.5 bg-default/50 text-xs font-bold text-foreground/80 hover:bg-default/70 hover:text-foreground transition-colors"
+                    onClick={() => setOpenGroup(openGroup === group ? null : group)}
+                    className="w-full h-auto justify-between rounded-none px-3 py-2.5 bg-muted/30 text-xs font-bold text-foreground/80 hover:bg-muted/40 hover:text-foreground transition-colors flex items-center"
                   >
                     {group}
                     <ChevronDown
                       size={13}
-                      className={`text-muted transition-transform ${openGroup === group ? 'rotate-180' : ''}`}
+                      className={`text-muted-foreground transition-transform shrink-0 ${openGroup === group ? 'rotate-180' : ''}`}
                     />
                   </Button>
                   {openGroup === group && (
-                    <div className="flex flex-wrap gap-1.5 p-2.5 bg-default/30">
+                    <div className="flex flex-wrap gap-1.5 p-2.5 bg-muted/10 border-t border-border">
                       {items.map(t => (
                         <Button
+                          type="button"
                           key={t.id}
                           variant="ghost"
-                          onPress={() => { onChange(t.name); setCustom(false); setOpenGroup(null); }}
-                          className="h-auto min-w-0 px-2.5 py-1 rounded-lg text-xs font-medium border border-separator bg-default/50 text-foreground/80 hover:bg-accent hover:text-white hover:border-accent active:scale-95 transition-all"
+                          onClick={() => { onChange(t.name); setCustom(false); setOpenGroup(null); }}
+                          className="h-auto min-w-0 px-2.5 py-1 rounded-lg text-xs font-medium border border-border bg-muted/30 text-foreground/80 hover:bg-accent hover:text-white hover:border-accent active:scale-95 transition-all flex items-center"
                         >
                           {t.name}
                         </Button>
@@ -127,9 +132,10 @@ export default function FoodNameSelect({
                 </div>
               ))}
               <Button
+                type="button"
                 variant="ghost"
-                onPress={() => { setCustom(true); setOpenGroup(null); onChange(''); }}
-                className="w-full h-auto flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-dashed border-separator text-xs text-muted hover:border-accent/40 hover:text-foreground transition-colors font-medium"
+                onClick={() => { setCustom(true); setOpenGroup(null); onChange(''); }}
+                className="w-full h-auto flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-dashed border-border text-xs text-muted-foreground hover:border-accent/40 hover:text-foreground transition-colors font-semibold"
               >
                 <Pencil size={11} /> Nhập tên tùy chỉnh
               </Button>
@@ -141,13 +147,20 @@ export default function FoodNameSelect({
       {/* Custom input */}
       {custom && (
         <div className="flex gap-2">
-          <TextField value={value} onChange={onChange} isRequired={required} autoFocus className="flex-1 flex flex-col gap-1">
-            <Input placeholder={placeholder ?? (itemType === 'food' ? 'VD: Thịt bò' : 'VD: Găng tay')} />
-          </TextField>
+          <div className="flex-1 flex flex-col gap-1">
+            <Input
+              autoFocus
+              placeholder={placeholder ?? (itemType === 'food' ? 'VD: Thịt bò' : 'VD: Găng tay')}
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              required={required}
+            />
+          </div>
           <Button
+            type="button"
             variant="ghost"
-            onPress={() => { setCustom(false); onChange(''); }}
-            className="h-auto min-w-0 px-3 py-2 rounded-xl border border-separator bg-default/50 text-xs text-muted hover:text-danger font-medium transition-colors"
+            onClick={() => { setCustom(false); onChange(''); }}
+            className="h-10 px-3 py-2 rounded-xl border border-border bg-muted/40 text-xs text-muted-foreground hover:text-danger font-semibold transition-colors flex items-center shrink-0"
           >
             Hủy
           </Button>
@@ -158,7 +171,7 @@ export default function FoodNameSelect({
         <input type="text" required value="" onChange={() => {}} className="sr-only" aria-hidden />
       )}
       {!isFromTemplate && value && !custom && (
-        <p className="mt-1 text-[10px] text-muted">Tên tùy chỉnh</p>
+        <p className="mt-1 text-[10px] text-muted-foreground">Tên tùy chỉnh</p>
       )}
 
       {showManager && (

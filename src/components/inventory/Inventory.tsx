@@ -1,6 +1,6 @@
-﻿import { useMemo, useRef, useState, useCallback } from 'react';
-import { FileSpreadsheet } from 'lucide-react';
-import { SearchField } from '@heroui/react';
+import { useMemo, useRef, useState, useCallback } from 'react';
+import { FileSpreadsheet, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { useFABRegister } from '../../hooks/useFABRegister';
 import { useIsDesktop } from '../../hooks/useIsDesktop';
 import { useApp } from '../../context/AppContext';
@@ -106,7 +106,7 @@ export default function Inventory() {
   };
 
   const importButton = filters.subTab !== 'history' ? (
-    <label className={`flex items-center gap-1.5 text-success border border-success/20 bg-success/5 text-xs font-semibold px-3 py-1.5 rounded-full cursor-pointer hover:bg-success/15 active:scale-95 transition-all ${importing ? 'opacity-60 pointer-events-none' : ''}`}>
+    <label className={`flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 bg-emerald-500/5 text-xs font-semibold px-3 py-1.5 rounded-full cursor-pointer hover:bg-emerald-500/15 active:scale-95 transition-all ${importing ? 'opacity-60 pointer-events-none' : ''}`}>
       <FileSpreadsheet size={13} />
       {importing ? 'Đang import...' : 'Import'}
       <input ref={importRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleImport} />
@@ -134,13 +134,17 @@ export default function Inventory() {
           <>
             <InventorySummary total={filters.filteredItems.length} lowCount={lowCount} itemLabel={filters.itemLabel} />
             <div className="flex items-center gap-3">
-              <SearchField value={search} onChange={setSearch} className="flex-1" aria-label={`Tìm ${filters.itemLabel}`}>
-                <SearchField.Group>
-                  <SearchField.SearchIcon />
-                  <SearchField.Input placeholder={`Tìm ${filters.itemLabel}...`} />
-                  <SearchField.ClearButton />
-                </SearchField.Group>
-              </SearchField>
+              <div className="relative flex-1">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder={`Tìm ${filters.itemLabel}...`}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-9 h-9"
+                  aria-label={`Tìm ${filters.itemLabel}`}
+                />
+              </div>
               {importButton}
             </div>
           </>
