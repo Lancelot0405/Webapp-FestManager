@@ -13,9 +13,8 @@
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.9",
-    "@heroui/react": "^3.2.1",
-    "@heroui/styles": "^3.2.1",
     "@hookform/resolvers": "^3.10.0",
+    "@internationalized/date": "^3.12.2",
     "@react-pdf/renderer": "^4.5.1",
     "@supabase/supabase-js": "^2.107.0",
     "@tailwindcss/vite": "^4.3.0",

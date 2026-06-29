@@ -1,9 +1,6 @@
 /* ── Google Fonts ─────────────────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-/* ── HeroUI v3 Styles ─────────────────────────────────────────────────── */
-@import "@heroui/styles";
-
 /* ── Tailwind CSS v4 ──────────────────────────────────────────────────── */
 @import "tailwindcss";
 @import "tw-animate-css";
